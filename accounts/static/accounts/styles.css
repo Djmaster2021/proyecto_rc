@@ -1,0 +1,4 @@
+/* Styles específicos de Accounts (login/registro) */
+.form { display: grid; gap: .8rem; max-width: 420px; }
+.form label { font-size: .95rem; color: #a0a6b1; }
+.form input { padding: .6rem .7rem; border-radius: .5rem; border: 1px solid #232836; background: #0f131b; color: #e7e9ee; }

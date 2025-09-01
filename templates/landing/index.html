@@ -1,0 +1,14 @@
+{% extends "_components/base_site.html" %}
+{% block title %}Bienvenido — Consultorio RC{% endblock %}
+{% block content %}
+  {% include "_components/breadcrumb.html" with title="Inicio" %}
+  <section class="hero">
+    <h1>Consultorio “Rodolfo Castellón”</h1>
+    <p>Sistema base para gestión de pacientes, citas y pagos.</p>
+    <p>
+      <a href="{% url 'paciente:dashboard' %}">Área Paciente</a> ·
+      <a href="{% url 'dentista:dashboard' %}">Área Dentista</a> ·
+      <a href="{% url 'accounts:login' %}">Ingresar</a>
+    </p>
+  </section>
+{% endblock %}

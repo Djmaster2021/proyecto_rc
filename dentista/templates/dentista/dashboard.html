@@ -1,0 +1,6 @@
+{% extends "dentista/base.html" %}
+{% block dtitle %}Dashboard{% endblock %}
+{% block dcontent %}
+  <h3>Panel del Dentista</h3>
+  {% include "_components/card.html" with title="Agenda de hoy" body="Bloques de horario y pacientes programados…" %}
+{% endblock %}

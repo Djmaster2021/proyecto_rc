@@ -1,0 +1,12 @@
+{% extends "accounts/base.html" %}
+{% block atitle %}Ingresar{% endblock %}
+{% block acontent %}
+  <h3>Iniciar sesión</h3>
+  <form method="post">
+    {% csrf_token %}
+    <!-- Tu equipo diseña los campos -->
+    <label>Usuario</label><input type="text" name="username" />
+    <label>Contraseña</label><input type="password" name="password" />
+    <button type="submit">Entrar</button>
+  </form>
+{% endblock %}

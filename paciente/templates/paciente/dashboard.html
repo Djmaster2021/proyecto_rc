@@ -1,0 +1,6 @@
+{% extends "paciente/base.html" %}
+{% block ptitle %}Dashboard{% endblock %}
+{% block pcontent %}
+  <h3>Bienvenido/a</h3>
+  {% include "_components/card.html" with title="Tu próxima cita" body="Aquí irá información de la próxima cita…" %}
+{% endblock %}
