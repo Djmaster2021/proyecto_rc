@@ -3,20 +3,42 @@
 
 {% block acontent %}
   
-  <link rel="stylesheet" href="/static/accounts/styles.css">
+<link rel="stylesheet" href="/static/accounts/styles.css">
 
-  <header class="site-topbar">
-    <a class="brand" href="#" aria-label="Inicio Dentyx">RC</a>
+<header class="site-topbar">
+  <a class="brand" href="#" aria-label="Inicio Dentyx">RC</a>
 
-    <!-- Toggle de tema SIN JS: son radios con labels -->
-    <form class="theme-toggle" aria-label="Selector de tema">
-      <input type="radio" name="theme" id="t-light" checked>
-      <input type="radio" name="theme" id="t-dark">
-      <label class="toggle-btn" for="t-light">Claro</label>
-      <label class="toggle-btn" for="t-dark">Oscuro</label>
+  <form class="theme-toggle" aria-label="Selector de tema">
+    <!-- Radios accesibles (controlan :has(...)) -->
+    <input type="radio" name="theme" id="t-light" value="light" checked>
+    <input type="radio" name="theme" id="t-dark"  value="dark">
+
+    <!-- Cápsula clickeable en ambos sentidos -->
+    <button type="button"
+            id="themeSwitch"
+            class="switch"
+            role="switch"
+            aria-pressed="false"
+            aria-label="Cambiar tema claro/oscuro">
+      <!-- sol -->
+      <svg class="icon sun" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="currentColor"
+              d="M12 4V1M12 23v-3M4 12H1m22 0h-3M5.64 5.64L3.52 3.52m16.96 16.96l-2.12-2.12M5.64 18.36l-2.12 2.12m16.96-16.96l-2.12 2.12M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+      </svg>
+
+      <span class="knob" aria-hidden="true"></span>
+
+      <!-- luna -->
+      <svg class="icon moon" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="currentColor"
+              d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/>
+      </svg>
+    </button>
+  </form>
+</header>
+
     </form>
-  </header>
-
+    
   <main class="site-main">
     <section class="auth-hero" aria-labelledby="t-login">
       <div class="login-card" role="region" aria-describedby="d-login">
@@ -49,4 +71,44 @@
   <footer class="site-footer">
     © 2025 Consultorio “Rodolfo Castellón”
   </footer>
+
+  <script>
+    (() => {
+      const light = document.getElementById('t-light');
+      const dark  = document.getElementById('t-dark');
+      const btn   = document.getElementById('themeSwitch');
+    
+      // Inicializa por preferencia guardada o del SO
+      try {
+        const saved = localStorage.getItem('theme');
+        if (saved === 'dark')      dark.checked  = true;
+        else if (saved === 'light') light.checked = true;
+        else {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          (prefersDark ? dark : light).checked = true;
+        }
+      } catch {}
+    
+      function syncAria(){ btn.setAttribute('aria-pressed', String(dark.checked)); }
+      function persist(){ try { localStorage.setItem('theme', dark.checked ? 'dark' : 'light'); } catch {} }
+    
+      // Alterna en ambos sentidos
+      function toggle(){
+        if (dark.checked) light.checked = true; else dark.checked = true;
+        persist(); syncAria();
+      }
+    
+      btn.addEventListener('click', toggle);
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }
+        if (e.key === 'ArrowLeft')  { light.checked = true; persist(); syncAria(); }
+        if (e.key === 'ArrowRight') { dark.checked  = true; persist(); syncAria(); }
+      });
+    
+      [light, dark].forEach(r => r.addEventListener('change', () => { persist(); syncAria(); }));
+    
+      syncAria();
+    })();
+    </script>
+    
 {% endblock %}

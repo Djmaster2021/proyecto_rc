@@ -45,20 +45,27 @@
   }
   
   /* ===== Topbar + toggle ==================================================== */
+/* ===== Topbar + toggle ==================================================== */
   .site-topbar{
-    position: sticky; top:0; z-index:5;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:14px 20px;
-    background: color-mix(in oklab, var(--card) 88%, transparent);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--border);
-  }
-  .brand{
-    display:inline-grid; place-items:center;
-    width:44px;height:44px;border-radius:12px;
-    background: linear-gradient(135deg, var(--blue), var(--mint));
-    color:#fff; font-weight:900; text-decoration:none; letter-spacing:.5px;
-  }
+  position: sticky; top:0; z-index:5;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 20px;
+  background: color-mix(in oklab, var(--card) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+  .site-topbar .theme-toggle { margin-left: auto; }
+
+.brand{
+  display:inline-grid; place-items:center;
+  width:44px;height:44px;border-radius:12px;
+  background: linear-gradient(135deg, var(--blue), var(--mint));
+  color:#fff; font-weight:900; text-decoration:none; letter-spacing:.5px;
+}
+
+/* Toggle sin JS / slider con iconos (ya lo tenías y funciona con :has) */
+/* ... (deja el resto del bloque del slider que ya tienes) ... */
+
   
   /* Toggle sin JS */
   .theme-toggle{ display:flex; gap:8px; align-items:center; }
@@ -155,3 +162,80 @@
     .login-card{ padding: 22px; border-radius: 14px }
   }
   
+  /* === Toggle como SLIDER con iconos === */
+.theme-toggle{
+  display:flex; align-items:center; gap:10px;
+}
+
+/* Ocultar inputs pero mantener accesibilidad */
+.theme-toggle input{
+  position:absolute; width:1px; height:1px; overflow:hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border:0; padding:0;
+}
+
+/* Cápsula del slider */
+.switch{
+  --h: 36px; --w: 74px;
+  position: relative; width: var(--w); height: var(--h);
+  display: inline-grid; grid-template-columns: 1fr 1fr; align-items:center;
+  background: color-mix(in oklab, var(--card) 90%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  padding: 0 10px;
+  gap: 8px;
+  transition: background .2s ease, border-color .2s ease;
+}
+
+/* Botón deslizante */
+.knob{
+  position:absolute; top:3px; left:3px;
+  width: calc(var(--h) - 6px); height: calc(var(--h) - 6px);
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  transform: translateX(0);
+  transition: transform .28s ease;
+}
+
+/* Cuando está oscuro, desplaza la perilla a la derecha */
+:root:has(#t-dark:checked) .knob{
+  transform: translateX(calc(var(--w) - var(--h)));
+}
+
+/* Iconos */
+.icon{ width:18px; height:18px; color: var(--text-dim); }
+.sun{ justify-self: start; }
+.moon{ justify-self: end; }
+
+/* Resalta el icono activo con el color primario */
+:root:not(:has(#t-dark:checked)) .sun{ color: var(--blue); }
+:root:has(#t-dark:checked) .moon{ color: var(--blue); }
+
+/* Chips “Claro / Oscuro” (opcionales) */
+.toggle-chip{
+  border:1px solid var(--border);
+  border-radius:10px; padding:6px 10px; cursor:pointer;
+  color:var(--text-dim);
+  background: color-mix(in oklab, var(--card) 92%, transparent);
+  font-size: 13px;
+}
+#t-light:checked ~ .toggle-chip[for="t-light"],
+#t-dark:checked  ~ .toggle-chip[for="t-dark"]{
+  color:#fff; border-color: transparent;
+  background: linear-gradient(135deg, var(--blue), var(--mint));
+}
+
+/* Enfoque accesible */
+.switch:focus-visible,
+.toggle-chip:focus-visible{
+  outline: 0;
+  box-shadow: 0 0 0 4px rgba(var(--ring-rgb), .28);
+}
+
+/* Respeto a reduce motion */
+@media (prefers-reduced-motion: reduce){
+  .knob{ transition: none; }
+  .switch{ transition: none; }
+}
