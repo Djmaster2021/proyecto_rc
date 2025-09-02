@@ -1,2 +1,134 @@
 /* Styles específicos de la sección Dentista */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+/* ===== Layout principal Dentista ===== */
+
+/* ===== Layout con sidebar + contenido ===== */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar base (desktop) */
+.sidebar {
+  width: 220px;
+  background-color: #1a2c3f;
+  color: #ecf0f1;
+  padding: 1rem;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.sidebar-nav ul { list-style: none; margin: 0; padding: 0; }
+.sidebar-nav li { margin-bottom: .5rem; }
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  text-decoration: none;
+  color: #ecf0f1;
+  padding: .6rem .75rem;
+  border-radius: 8px;
+  line-height: 1;
+  transition: background .2s, color .2s;
+}
+
+.sidebar-nav a:hover { background-color: #34495e; }
+.sidebar-nav a.is-active {
+  background-color: #1abc9c;
+  color: #0f2d2a;
+  font-weight: 600;
+}
+
+/* Contenido */
+.content-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #f7f8fa;
+}
+
+/* Topbar (contiene hamburguesa + título) */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: 1rem 1.25rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e9ecef;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.page-title { margin: 0; font-size: 1.25rem; }
+
+/* Botón hamburguesa */
+.burger {
+  display: none;        /* se muestra en móvil */
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: .25rem;
+  border-radius: 8px;
+}
+.burger:focus-visible { outline: 2px solid #1abc9c; }
+
+/* Contenido principal */
+.main-content { padding: 1.25rem; }
+
+/* Backdrop del drawer */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  z-index: 30;
+}
+
+/* ===== Responsive / Drawer en móvil ===== */
+@media (max-width: 1023px) {
+  /* Sidebar se vuelve drawer */
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    bottom: 0;
+    height: 100vh;
+    z-index: 40;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    transition: left .25s ease;
+  }
+  .sidebar.open { left: 0; }
+
+  .burger { display: inline-flex; }
+
+  /* Quitar sticky alto en móvil */
+  .sidebar-title { margin-top: .25rem; }
+
+  /* Evitar scroll del body cuando el drawer está abierto */
+  html.no-scroll, html.no-scroll body { overflow: hidden; }
+}
+
+/* ===== Accesibilidad: enfoque visible para todos los links ===== */
+.sidebar-nav a:focus-visible {
+  outline: 2px solid #f1c40f;
+  outline-offset: 2px;
+}
+
+/* (Opcional) Modo oscuro automático si tu sitio ya lo usa globalmente */
+@media (prefers-color-scheme: dark) {
+  .content-wrap { background: #0f151b; }
+  .topbar { background: #0c1118; border-bottom-color: #080c11; }
+  .page-title { color: #e9eef4; }
+}

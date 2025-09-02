@@ -1,6 +1,142 @@
 {% extends "_components/base_site.html" %}
-{% block title %}Área Dentista — {% block dtitle %}{% endblock %}{% endblock %}
+{% load static %}
+
+{# Título (sin repetir dtitle) #}
+{% block title %}Área Dentista{% endblock %}
+
+{# Estilos del módulo (asegúrate de tener dentista/static/dentista/styles.css) #}
+{% block head_extra %}
+  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}">
+  <style>
+    /* --- Ajustes pro (solo override, tu CSS base sigue en dentista/styles.css) --- */
+
+    /* 1) Resaltar link activo en sidebar */
+    .sidebar-nav a.is-active{
+      background:#1abc9c; color:#0f2d2a; font-weight:600;
+    }
+
+    /* 2) Hamburguesa visible solo en móvil */
+    .burger{display:none}
+    @media (max-width:1023px){ .burger{display:inline-flex} }
+
+    /* 3) Tarjetas reutilizables (dashboard, listados, etc.) */
+    .card{background:#11161c;border:1px solid #233042;border-radius:14px;padding:1rem}
+    .card h3{margin:0 0 .5rem}
+    .card p{color:#9fb0c0;margin:0}
+
+    /* 4) Sidebar un poquito más compacto (sweet spot) */
+    .sidebar{width:220px}
+
+    /* 5) Separación cómoda del contenido */
+    .main-content{padding:1.25rem 1.5rem}
+
+    /* Footer discreto */
+    .site-footer{
+      margin-top:auto;
+      padding:1rem 1.5rem;
+      color:#9fb0c0;
+      font-size:.9rem;
+      border-top:1px solid #22303f;
+      background:#0c1117;
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
-  <header class="section-head"><h2>Dentista</h2></header>
-  {% block dcontent %}{% endblock %}
+<div class="layout">
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar" role="navigation" aria-label="Menú principal">
+    <h2 class="sidebar-title">Dentista</h2>
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a href="{% url 'dentista:dashboard' %}">
+            <!-- icono dashboard -->
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/>
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'dentista:agenda' %}">
+            <!-- icono calendario -->
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm14 8H3v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10z" fill="currentColor"/>
+            </svg>
+            <span>Agenda</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'dentista:pacientes' %}">
+            <!-- icono usuarios -->
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.06 1.16.84 1.97 1.95 1.97 3.44V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="currentColor"/>
+            </svg>
+            <span>Pacientes</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Contenedor principal -->
+  <div class="content-wrap">
+    <header class="topbar">
+      <!-- Botón hamburguesa (solo móvil) -->
+      <button id="burgerBtn" class="burger" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" fill="currentColor"/>
+        </svg>
+      </button>
+      <h2 class="page-title">{% block dtitle %}{% endblock %}</h2>
+    </header>
+
+    <main class="main-content">
+      {% block dcontent %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      © 2025 Consultorio “Rodolfo Castellón”. Todos los derechos reservados.
+    </footer>
+  </div>
+</div>
+
+<!-- Backdrop para el drawer móvil -->
+<div id="backdrop" class="backdrop" hidden></div>
+
+<!-- JS mínimo para abrir/cerrar el drawer y resaltar link activo -->
+<script>
+  (function () {
+    const sidebar  = document.getElementById('sidebar');
+    const burger   = document.getElementById('burgerBtn');
+    const backdrop = document.getElementById('backdrop');
+
+    // Abrir/cerrar drawer en móvil
+    function toggleDrawer(open) {
+      const willOpen = (typeof open === 'boolean') ? open : !sidebar.classList.contains('open');
+      sidebar.classList.toggle('open', willOpen);
+      backdrop.hidden = !willOpen;
+      burger.setAttribute('aria-expanded', String(willOpen));
+      document.documentElement.classList.toggle('no-scroll', willOpen);
+    }
+
+    burger.addEventListener('click', () => toggleDrawer());
+    backdrop.addEventListener('click', () => toggleDrawer(false));
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') toggleDrawer(false); });
+
+    // Marcar link activo según URL
+    const here = window.location.pathname.replace(/\/$/, '');
+    document.querySelectorAll('.sidebar-nav a').forEach(a => {
+      const href = a.getAttribute('href')?.replace(/\/$/, '');
+      if (href && (here === href || (here.startsWith(href) && href !== '/'))) {
+        a.classList.add('is-active');
+      }
+    });
+
+    // Cerrar drawer si redimensiona a desktop
+    const mq = window.matchMedia('(min-width: 1024px)');
+    mq.addEventListener('change', (e) => { if (e.matches) toggleDrawer(false); });
+  })();
+</script>
 {% endblock %}
