@@ -45,7 +45,6 @@
   }
   
   /* ===== Topbar + toggle ==================================================== */
-/* ===== Topbar + toggle ==================================================== */
   .site-topbar{
   position: sticky; top:0; z-index:5;
   display:flex; align-items:center; justify-content:space-between;
@@ -63,11 +62,8 @@
   color:#fff; font-weight:900; text-decoration:none; letter-spacing:.5px;
 }
 
-/* Toggle sin JS / slider con iconos (ya lo tenías y funciona con :has) */
-/* ... (deja el resto del bloque del slider que ya tienes) ... */
-
   
-  /* Toggle sin JS */
+  /* Toggle */
   .theme-toggle{ display:flex; gap:8px; align-items:center; }
   .theme-toggle input{ position:absolute; inset:auto; width:1px; height:1px; overflow:hidden; clip-path: inset(50%); }
   .toggle-btn{
