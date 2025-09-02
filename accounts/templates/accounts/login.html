@@ -1,12 +1,52 @@
 {% extends "accounts/base.html" %}
 {% block atitle %}Ingresar{% endblock %}
+
 {% block acontent %}
-  <h3>Iniciar sesión</h3>
-  <form method="post">
-    {% csrf_token %}
-    <!-- Tu equipo diseña los campos -->
-    <label>Usuario</label><input type="text" name="username" />
-    <label>Contraseña</label><input type="password" name="password" />
-    <button type="submit">Entrar</button>
-  </form>
+  
+  <link rel="stylesheet" href="/static/accounts/styles.css">
+
+  <header class="site-topbar">
+    <a class="brand" href="#" aria-label="Inicio Dentyx">RC</a>
+
+    <!-- Toggle de tema SIN JS: son radios con labels -->
+    <form class="theme-toggle" aria-label="Selector de tema">
+      <input type="radio" name="theme" id="t-light" checked>
+      <input type="radio" name="theme" id="t-dark">
+      <label class="toggle-btn" for="t-light">Claro</label>
+      <label class="toggle-btn" for="t-dark">Oscuro</label>
+    </form>
+  </header>
+
+  <main class="site-main">
+    <section class="auth-hero" aria-labelledby="t-login">
+      <div class="login-card" role="region" aria-describedby="d-login">
+        <div class="card-head">
+          <div class="logo" aria-hidden="true">RC</div>
+          <h1 id="t-login" class="title">Iniciar sesión</h1>
+          <p id="d-login" class="subtitle">Accede para gestionar citas y pacientes</p>
+        </div>
+
+        <form class="auth-form" action="#" method="post" novalidate>
+          <div class="field">
+            <label for="username">Usuario</label>
+            <input id="username" name="username" type="text" autocomplete="username" required>
+          </div>
+
+          <div class="field">
+            <label for="password">Contraseña</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Entrar</button>
+          <div class="form-meta">
+            <a href="#" class="link">¿Olvidaste tu contraseña?</a>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    © 2025 Consultorio “Rodolfo Castellón”
+  </footer>
 {% endblock %}

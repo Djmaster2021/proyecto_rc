@@ -1,6 +1,12 @@
 {% extends "_components/base_site.html" %}
 {% block title %}Cuentas — {% block atitle %}{% endblock %}{% endblock %}
+
 {% block content %}
   <header class="section-head"><h2>Acceso</h2></header>
+
+  <!-- Rutas ABSOLUTAS a tus estáticos -->
+  <link rel="stylesheet" href="/static/site.css">
+  <link rel="stylesheet" href="/static/accounts/styles.css">
+
   {% block acontent %}{% endblock %}
 {% endblock %}
