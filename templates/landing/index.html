@@ -1,14 +1,159 @@
 {% extends "_components/base_site.html" %}
 {% block title %}Bienvenido — Consultorio RC{% endblock %}
+
 {% block content %}
   {% include "_components/breadcrumb.html" with title="Inicio" %}
+
   <section class="hero">
     <h1>Consultorio “Rodolfo Castellón”</h1>
     <p>Sistema base para gestión de pacientes, citas y pagos.</p>
-    <p>
+    <p class="home-links">
       <a href="{% url 'paciente:dashboard' %}">Área Paciente</a> ·
       <a href="{% url 'dentista:dashboard' %}">Área Dentista</a> ·
       <a href="{% url 'accounts:login' %}">Ingresar</a>
     </p>
   </section>
+
+  <!-- ========== ASISTENTE IA (Frontend puro; no backend) ========== -->
+  <button id="aiFab" class="ai-fab" aria-label="Abrir asistente IA">IA</button>
+
+  <aside id="aiDock" class="ai-dock" aria-hidden="true">
+    <header class="ai-head">
+      <strong>Asistente IA</strong>
+      <button id="aiClose" class="ai-icon" aria-label="Cerrar">✕</button>
+    </header>
+
+    <div id="aiBody" class="ai-body" role="log" aria-live="polite">
+      <div class="ai-tip">
+        👋 Puedo ayudarte a moverte por el sistema y a entender qué hay en cada área.
+        Prueba con:
+      </div>
+      <div class="ai-suggests">
+        <button class="ai-chip" data-q="¿Qué puedo hacer en el Área Dentista?">Área Dentista</button>
+        <button class="ai-chip" data-q="¿Qué contiene el Área Paciente?">Área Paciente</button>
+        <button class="ai-chip" data-q="Llévame a la Agenda del dentista.">Ir a Agenda</button>
+        <button class="ai-chip" data-q="¿Cómo ingreso al sistema?">Ingresar</button>
+      </div>
+    </div>
+
+    <form id="aiForm" class="ai-form" autocomplete="off">
+      <input id="aiInput" class="ai-input" name="q" placeholder="Escribe tu consulta… (Enter para enviar)" />
+      <button class="ai-send" aria-label="Enviar">➤</button>
+    </form>
+  </aside>
+
+  <style>
+    /* ====== estilos mínimos del widget IA (aislados) ====== */
+    .ai-fab{position:fixed;right:18px;bottom:18px;border:1px solid rgba(127,127,127,.35);background:transparent;color:inherit;
+      border-radius:999px;padding:.7rem 1rem;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:60}
+    .ai-dock{position:fixed;right:18px;bottom:18px;top:18px;width:min(420px,92vw);background:transparent;
+      border:1px solid rgba(127,127,127,.25);border-radius:1rem;display:flex;flex-direction:column;
+      transform:translateY(calc(100% + 18px));transition:transform .25s ease;z-index:61;backdrop-filter:blur(6px)}
+    .ai-dock[aria-hidden="false"]{transform:translateY(0)}
+    .ai-head{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;border-bottom:1px solid rgba(127,127,127,.25)}
+    .ai-icon{border:1px solid rgba(127,127,127,.25);background:transparent;border-radius:.6rem;padding:.35rem .55rem}
+    .ai-body{padding:1rem;display:flex;flex-direction:column;gap:.6rem;overflow:auto;max-height:65vh}
+    .ai-tip{opacity:.85;font-size:.95rem}
+    .ai-suggests{display:flex;flex-wrap:wrap;gap:.4rem}
+    .ai-chip{border:1px solid rgba(127,127,127,.35);background:transparent;border-radius:999px;padding:.35rem .6rem;font-size:.85rem}
+    .ai-msg{border:1px solid rgba(127,127,127,.25);border-radius:.7rem;padding:.55rem .7rem;white-space:pre-wrap}
+    .ai-msg.user{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.35)}
+    .ai-msg.bot{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.35)}
+    .ai-form{display:flex;gap:.5rem;padding:.8rem 1rem;border-top:1px solid rgba(127,127,127,.25)}
+    .ai-input{flex:1;border:1px solid rgba(127,127,127,.35);border-radius:.6rem;background:transparent;color:inherit;padding:.5rem .6rem}
+    .ai-send{border:1px solid rgba(127,127,127,.35);background:transparent;border-radius:.6rem;padding:.5rem .7rem}
+    @media (max-width:720px){.ai-dock{top:auto;height:72vh}}
+  </style>
+
+  <script>
+    /* ====== Lógica IA 100% frontend (sin red) — Home ======
+       Usa lo que ve en la página (links a Paciente, Dentista e Ingresar)
+       y además ofrece navegación directa.
+    */
+    (function(){
+      const $  = s => document.querySelector(s);
+      const aiFab   = $('#aiFab');
+      const aiDock  = $('#aiDock');
+      const aiClose = $('#aiClose');
+      const aiBody  = $('#aiBody');
+      const aiForm  = $('#aiForm');
+      const aiInput = $('#aiInput');
+
+      function openDock(){ aiDock.setAttribute('aria-hidden','false'); aiInput?.focus(); }
+      function closeDock(){ aiDock.setAttribute('aria-hidden','true'); }
+      function appendMsg(role, text){
+        const el = document.createElement('div');
+        el.className = 'ai-msg ' + (role === 'user' ? 'user' : 'bot');
+        el.textContent = text;
+        aiBody.appendChild(el);
+        aiBody.scrollTop = aiBody.scrollHeight;
+      }
+
+      // Rutas que ya publica tu home
+      const urlPaciente = document.querySelector('.home-links a[href*="paciente"]')?.getAttribute('href') || "{% url 'paciente:dashboard' %}";
+      const urlDentista = document.querySelector('.home-links a[href*="dentista"]')?.getAttribute('href') || "{% url 'dentista:dashboard' %}";
+      const urlLogin    = document.querySelector('.home-links a[href*="accounts"]')?.getAttribute('href') || "{% url 'accounts:login' %}";
+
+      // Respuestas locales
+      function answer(q){
+        const t = (q||'').toLowerCase();
+
+        // Navegación directa
+        if (t.includes('agenda')) {
+          // Te llevo al Área Dentista (desde ahí entras a Agenda)
+          window.location.href = urlDentista;
+          return 'Abriendo el Área Dentista. Desde allí puedes entrar a Agenda.';
+        }
+        if (t.includes('ingres') || t.includes('login') || t.includes('entrar')) {
+          window.location.href = urlLogin;
+          return 'Llevándote a la pantalla de ingreso…';
+        }
+        if (t.includes('paciente')) {
+          window.location.href = urlPaciente;
+          return 'Entrando al Área Paciente…';
+        }
+        if (t.includes('dentista')) {
+          window.location.href = urlDentista;
+          return 'Entrando al Área Dentista…';
+        }
+
+        // Explicaciones simples
+        if (t.includes('qué puedo hacer') && t.includes('dentista')) {
+          return 'En el Área Dentista tienes Panel (Dashboard), Agenda y Pacientes. El asistente IA local resume agenda, sugiere huecos y lista saldos leyendo el DOM (frontend).';
+        }
+        if (t.includes('qué contiene') && t.includes('paciente')) {
+          return 'El Área Paciente muestra su tablero, citas y pagos (plantillas base de paciente).';
+        }
+        if (t.includes('ayuda') || t.includes('como') || t.includes('qué es')) {
+          return 'Puedo abrirte cada sección o explicarte para qué sirve: escribe "Área Dentista", "Área Paciente" o "Ingresar".';
+        }
+
+        // Predeterminado
+        return 'Puedo abrirte: Área Paciente, Área Dentista o Ingresar; o explicarte para qué sirve cada una. Prueba: "Llévame a la Agenda del dentista" o "¿Cómo ingreso al sistema?"';
+      }
+
+      // Interacción
+      aiFab?.addEventListener('click', openDock);
+      aiClose?.addEventListener('click', closeDock);
+      window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeDock(); });
+
+      // Sugerencias (chips)
+      aiBody?.addEventListener('click', (e)=>{
+        const b = e.target.closest('.ai-chip');
+        if(!b) return;
+        aiInput.value = b.dataset.q || '';
+        aiInput.focus();
+      });
+
+      aiForm?.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const q = aiInput.value.trim();
+        if(!q) return;
+        appendMsg('user', q);
+        aiInput.value = '';
+        const a = answer(q);
+        appendMsg('bot', a);
+      });
+    })();
+  </script>
 {% endblock %}

@@ -1,6 +1,144 @@
 {% extends "dentista/base.html" %}
+{% load static %}
+
 {% block dtitle %}Dashboard{% endblock %}
 {% block dcontent %}
-  <h3>Panel del Dentista</h3>
-  {% include "_components/card.html" with title="Agenda de hoy" body="Bloques de horario y pacientes programados…" %}
+
+<!-- ===== Panel del Dentista (UI estática, sin JS) ===== -->
+<section class="dx-scope dx-wrap">
+  <header class="dx-header">
+    <h2 class="dx-title">Panel del Dentista</h2>
+    <div class="dx-actions">
+      <button class="dx-btn">Nuevo bloque</button>
+      <button class="dx-btn dx-outline">Agendar cita</button>
+    </div>
+  </header>
+
+  <!-- KPIs -->
+  <div class="dx-grid">
+    <article class="dx-card kpi">
+      <div class="kpi-top">
+        <span class="kpi-label">Citas hoy</span><span class="kpi-dot ok"></span>
+      </div>
+      <div class="kpi-value">12</div>
+      <div class="kpi-sub">Próxima: 10:30 · Ana López</div>
+    </article>
+
+    <article class="dx-card kpi">
+      <div class="kpi-top">
+        <span class="kpi-label">En sala</span><span class="kpi-dot info"></span>
+      </div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-sub">Pacientes registrados</div>
+    </article>
+
+    <article class="dx-card kpi">
+      <div class="kpi-top">
+        <span class="kpi-label">Pendiente pago</span><span class="kpi-dot warn"></span>
+      </div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-sub">Por cobrar hoy</div>
+    </article>
+
+    <article class="dx-card kpi">
+      <div class="kpi-top">
+        <span class="kpi-label">Canceladas</span><span class="kpi-dot danger"></span>
+      </div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-sub">Últimas 24 h</div>
+    </article>
+  </div>
+
+  <!-- Agenda (maqueta visual) -->
+  <article class="dx-card">
+    <div class="dx-card-head">
+      <h3>Agenda de hoy</h3>
+      <div class="dx-tools">
+        <input class="dx-input" placeholder="Buscar por paciente o motivo…" disabled>
+        <select class="dx-input" disabled><option>Todos</option></select>
+      </div>
+    </div>
+
+    <div class="dx-table-wrap">
+      <table class="dx-table">
+        <thead>
+          <tr>
+            <th>Hora</th><th>Paciente</th><th>Motivo</th><th>Estado</th><th>Pago</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>09:00</td><td>Ana López</td><td>Limpieza</td>
+            <td><span class="badge b-pendiente">Pendiente</span></td>
+            <td><span class="pay-pend">Pendiente</span></td>
+            <td class="dx-right"><button class="dx-btn dx-outline" disabled>Atendido</button></td>
+          </tr>
+          <tr>
+            <td>09:40</td><td>Carlos Pérez</td><td>Revisión caries</td>
+            <td><span class="badge b-sala">En sala</span></td>
+            <td><span class="pay-pend">Pendiente</span></td>
+            <td class="dx-right"><button class="dx-btn dx-outline" disabled>Atendido</button></td>
+          </tr>
+          <tr>
+            <td>10:30</td><td>Martha Díaz</td><td>Resina 2 molar</td>
+            <td><span class="badge b-ok">Atendido</span></td>
+            <td><span class="pay-ok">Pagado</span></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>13:30</td><td>Cecilia Romero</td><td>Blanqueamiento</td>
+            <td><span class="badge b-cancel">Cancelado</span></td>
+            <td>—</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </article>
+</section>
+
+<!-- ===== Estilos encapsulados del panel (no tocan tu theme) ===== -->
+<style>
+/* Todo dentro de .dx-scope para no alterar tus colores globales */
+.dx-scope{--dx-fg: currentColor; --dx-line: rgba(127,127,127,.25)}
+.dx-scope .dx-wrap{color:var(--dx-fg)}
+.dx-scope .dx-header{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin:0 0 1rem}
+.dx-scope .dx-title{margin:0;font-size:1.25rem;font-weight:700}
+.dx-scope .dx-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+.dx-scope .dx-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .8rem;border-radius:.6rem;border:1px solid var(--dx-line);background:transparent;color:inherit;font-weight:600}
+.dx-scope .dx-btn.dx-outline{background:transparent}
+
+.dx-scope .dx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem}
+@media (max-width:1100px){.dx-scope .dx-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:620px){.dx-scope .dx-grid{grid-template-columns:1fr}}
+
+.dx-scope .dx-card{background:transparent;border:1px solid var(--dx-line);border-radius:.9rem;padding:1rem}
+.dx-scope .kpi .kpi-top{display:flex;align-items:center;justify-content:space-between}
+.dx-scope .kpi-label{opacity:.75;font-size:.9rem}
+.dx-scope .kpi-dot{width:10px;height:10px;border-radius:50%;display:inline-block;opacity:.9}
+.dx-scope .kpi-dot.ok{background:#22c55e}
+.dx-scope .kpi-dot.warn{background:#f59e0b}
+.dx-scope .kpi-dot.danger{background:#ef4444}
+.dx-scope .kpi-dot.info{background:#3b82f6}
+.dx-scope .kpi-value{font-size:1.9rem;font-weight:800;margin:.2rem 0}
+.dx-scope .kpi-sub{opacity:.75;font-size:.85rem}
+
+.dx-scope .dx-card-head{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:.5rem}
+.dx-scope .dx-card-head h3{margin:0;font-size:1.1rem}
+.dx-scope .dx-tools{display:flex;gap:.5rem;flex-wrap:wrap}
+.dx-scope .dx-input{background:transparent;color:inherit;border:1px solid var(--dx-line);border-radius:.6rem;padding:.45rem .6rem;min-width:220px}
+
+.dx-scope .dx-table{width:100%;border-collapse:collapse;font-size:.95rem}
+.dx-scope .dx-table th,.dx-scope .dx-table td{border-bottom:1px solid var(--dx-line);padding:.65rem .5rem;text-align:left}
+.dx-scope .dx-right{text-align:right}
+
+.dx-scope .badge{padding:.2rem .5rem;border-radius:.6rem;font-size:.78rem;font-weight:700;display:inline-block}
+.dx-scope .b-pendiente{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.35)}
+.dx-scope .b-sala{background:rgba(59,130,246,.1);color:#3b82f6;border:1px solid rgba(59,130,246,.35)}
+.dx-scope .b-ok{background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.35)}
+.dx-scope .b-cancel{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.35)}
+.dx-scope .pay-ok{color:#22c55e;font-weight:700}
+.dx-scope .pay-pend{color:#f59e0b;font-weight:700}
+</style>
+
 {% endblock %}

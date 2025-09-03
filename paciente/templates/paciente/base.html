@@ -1,6 +1,153 @@
+{# paciente/templates/paciente/index.html #}
 {% extends "_components/base_site.html" %}
-{% block title %}Área Paciente — {% block ptitle %}{% endblock %}{% endblock %}
+{% load static %}
+
+{% block title %}Paciente{% endblock %}
 {% block content %}
-  <header class="section-head"><h2>Paciente</h2></header>
-  {% block pcontent %}{% endblock %}
+
+<section class="pc-scope pc-wrap">
+  <header class="pc-header">
+    <h1 class="pc-title">Paciente</h1>
+    <p class="pc-sub">Bienvenido/a</p>
+
+    <div class="pc-actions">
+      <a class="pc-btn" href="#" aria-disabled="true">Solicitar cita</a>
+      <a class="pc-btn pc-outline" href="#" aria-disabled="true">Reprogramar</a>
+      <a class="pc-btn pc-ghost" href="#" aria-disabled="true">Cancelar</a>
+    </div>
+  </header>
+
+  <!-- Próxima cita -->
+  <section class="pc-card">
+    <h3 class="pc-h3">Tu próxima cita</h3>
+    <div class="pc-appointment">
+      <div class="pc-rows">
+        <div><span class="pc-label">Fecha</span><span>Mar 10, 2025</span></div>
+        <div><span class="pc-label">Hora</span><span>10:30</span></div>
+        <div><span class="pc-label">Motivo</span><span>Limpieza</span></div>
+        <div><span class="pc-label">Consultorio</span><span>Dr. Castellón · Sala 2</span></div>
+        <div><span class="pc-label">Estado</span><span class="pc-badge pc-b-ok">Confirmada</span></div>
+      </div>
+      <div class="pc-cta">
+        <button class="pc-btn pc-outline" disabled>Agregar a calendario</button>
+        <button class="pc-btn pc-ghost" disabled>Indicaciones previas</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Resumen y accesos -->
+  <section class="pc-grid">
+    <article class="pc-card">
+      <h3 class="pc-h3">Historial de citas</h3>
+      <div class="pc-table-wrap">
+        <table class="pc-table">
+          <thead>
+            <tr><th>Fecha</th><th>Hora</th><th>Motivo</th><th>Estado</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2025-08-20</td><td>09:00</td><td>Revisión</td>
+              <td><span class="pc-badge pc-b-ok">Atendida</span></td>
+              <td class="pc-right"><button class="pc-btn pc-ghost" disabled>Recibo</button></td>
+            </tr>
+            <tr>
+              <td>2025-07-15</td><td>12:30</td><td>Resina</td>
+              <td><span class="pc-badge pc-b-ok">Atendida</span></td>
+              <td class="pc-right"><button class="pc-btn pc-ghost" disabled>Recibo</button></td>
+            </tr>
+            <tr>
+              <td>2025-06-10</td><td>10:00</td><td>Limpieza</td>
+              <td><span class="pc-badge pc-b-cancel">Cancelada</span></td>
+              <td class="pc-right"><button class="pc-btn pc-ghost" disabled>Motivo</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pc-pager">
+        <button class="pc-btn pc-ghost" disabled>« Anterior</button>
+        <span class="pc-page">Página 1 de 4</span>
+        <button class="pc-btn pc-ghost" disabled>Siguiente »</button>
+      </div>
+    </article>
+
+    <article class="pc-card">
+      <h3 class="pc-h3">Documentos</h3>
+      <ul class="pc-list">
+        <li>
+          <span>Consentimiento informado (PDF)</span>
+          <button class="pc-btn pc-ghost" disabled>Descargar</button>
+        </li>
+        <li>
+          <span>Plan de tratamiento (PDF)</span>
+          <button class="pc-btn pc-ghost" disabled>Descargar</button>
+        </li>
+        <li>
+          <span>Factura #001245 (PDF)</span>
+          <button class="pc-btn pc-ghost" disabled>Descargar</button>
+        </li>
+      </ul>
+    </article>
+
+    <article class="pc-card">
+      <h3 class="pc-h3">Mi perfil</h3>
+      <div class="pc-rows">
+        <div><span class="pc-label">Nombre</span><span>Ana López</span></div>
+        <div><span class="pc-label">Correo</span><span>ana@example.com</span></div>
+        <div><span class="pc-label">Teléfono</span><span>+52 55 1234 5678</span></div>
+        <div><span class="pc-label">Seguro</span><span>—</span></div>
+        <div><span class="pc-label">Saldo</span><span class="pc-pay pc-warn">$ 1,200</span></div>
+      </div>
+      <div class="pc-cta">
+        <button class="pc-btn pc-outline" disabled>Editar datos</button>
+        <button class="pc-btn pc-ghost" disabled>Ver políticas</button>
+      </div>
+    </article>
+  </section>
+</section>
+
+<style>
+/* ===== Estilos encapsulados del área Paciente (no tocan tu theme) ===== */
+.pc-scope{--ln: rgba(127,127,127,.25); color: currentColor}
+.pc-wrap{padding: 0 .25rem 1rem}
+.pc-header{margin: .25rem 0 1rem}
+.pc-title{margin:0 0 .25rem; font-size:1.35rem; font-weight:800}
+.pc-sub{opacity:.9; margin:0 0 .6rem}
+.pc-actions{display:flex; gap:.5rem; flex-wrap:wrap}
+.pc-btn{border:1px solid var(--ln); background:transparent; color:inherit; font-weight:700; padding:.5rem .85rem; border-radius:.7rem}
+.pc-btn.pc-outline{background:transparent}
+.pc-btn.pc-ghost{opacity:.85}
+.pc-btn[aria-disabled="true"], .pc-btn:disabled{opacity:.7; cursor:not-allowed}
+
+.pc-card{border:1px solid var(--ln); border-radius:1rem; padding:1rem; background:transparent; margin-bottom:1rem}
+.pc-h3{margin:0 0 .6rem; font-size:1.05rem}
+
+.pc-appointment{display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-start}
+.pc-rows{display:grid; grid-template-columns:1fr 1fr; gap:.55rem .9rem; min-width:260px}
+@media (max-width:600px){.pc-rows{grid-template-columns:1fr}}
+.pc-label{opacity:.75; font-size:.85rem; display:block}
+.pc-cta{display:flex; gap:.5rem; align-items:center; margin-left:auto; flex-wrap:wrap}
+
+.pc-grid{display:grid; grid-template-columns:2fr 1fr 1fr; gap:1rem}
+@media (max-width:1100px){.pc-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:720px){.pc-grid{grid-template-columns:1fr}}
+
+.pc-table{width:100%; border-collapse:collapse}
+.pc-table th,.pc-table td{border-bottom:1px solid var(--ln); padding:.7rem .5rem; text-align:left; vertical-align:middle}
+.pc-table th{font-weight:700}
+
+.pc-pager{display:flex; gap:.6rem; justify-content:flex-end; align-items:center; margin-top:.7rem}
+.pc-page{font-weight:700}
+
+.pc-list{list-style:none; margin:0; padding:0; display:grid; gap:.5rem}
+.pc-list li{display:flex; justify-content:space-between; align-items:center; gap:.75rem; padding:.5rem .25rem; border-bottom:1px dashed var(--ln)}
+
+.pc-badge{padding:.2rem .5rem; border-radius:.6rem; font-size:.78rem; font-weight:700; border:1px solid var(--ln); display:inline-block}
+.pc-b-ok{background:rgba(34,197,94,.12); color:#22c55e; border-color:rgba(34,197,94,.35)}
+.pc-b-cancel{background:rgba(239,68,68,.12); color:#ef4444; border-color:rgba(239,68,68,.35)}
+
+.pc-pay{font-weight:700}
+.pc-warn{color:#f59e0b}
+.pc-right{text-align:right}
+</style>
+
 {% endblock %}

@@ -11,8 +11,8 @@
 /* Sidebar base (desktop) */
 .sidebar {
   width: 220px;
-  background-color: #1a2c3f;
-  color: #ecf0f1;
+  background-color: #3c5070; /* color claro */
+  color: #101c1f;
   padding: 1rem;
   flex-shrink: 0;
   position: sticky;
@@ -20,6 +20,7 @@
   height: 100vh;
   overflow-y: auto;
 }
+
 
 .sidebar-title {
   font-size: 1.2rem;
@@ -66,7 +67,7 @@
   gap: .75rem;
   padding: 1rem 1.25rem;
   background: #ffffff;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid #1c2731;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -76,7 +77,7 @@
 
 /* Botón hamburguesa */
 .burger {
-  display: none;        /* se muestra en móvil */
+  display: none;       
   border: 0;
   background: transparent;
   cursor: pointer;
@@ -122,13 +123,13 @@
 
 /* ===== Accesibilidad: enfoque visible para todos los links ===== */
 .sidebar-nav a:focus-visible {
-  outline: 2px solid #f1c40f;
+  outline: 2px solid #355d77;
   outline-offset: 2px;
 }
 
 /* (Opcional) Modo oscuro automático si tu sitio ya lo usa globalmente */
 @media (prefers-color-scheme: dark) {
   .content-wrap { background: #0f151b; }
-  .topbar { background: #0c1118; border-bottom-color: #080c11; }
-  .page-title { color: #e9eef4; }
+  .topbar { background: #79a7e7; border-bottom-color: #0d151f; }
+  .page-title { color: #ffffff; }
 }
