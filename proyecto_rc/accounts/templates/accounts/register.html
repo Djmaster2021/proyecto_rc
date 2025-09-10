@@ -1,0 +1,14 @@
+{% extends "accounts/base.html" %}
+{% block atitle %}Registro{% endblock %}
+{% block acontent %}
+  <h3>Crear cuenta</h3>
+  <form method="post">
+    {% csrf_token %}
+    <!-- Tu equipo diseña los campos -->
+    <label>Usuario</label><input type="text" name="username" />
+    <label>Email</label><input type="email" name="email" />
+    <label>Contraseña</label><input type="password" name="password1" />
+    <label>Confirmar contraseña</label><input type="password" name="password2" />
+    <button type="submit">Registrarme</button>
+  </form>
+{% endblock %}

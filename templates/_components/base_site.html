@@ -1,21 +1,24 @@
+{% load static %}
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>{% block title %}Consultorio RC{% endblock %}</title>
-  {% load static %}
-  <link rel="stylesheet" href="{% static 'site.css' %}">
-  {% block head_extra %}{% endblock %}
-</head>
-<body>
-  {% include "_components/navbar.html" %}
-  <main class="container">
-    {% include "_components/messages.html" %}
-    {% block content %}{% endblock %}
-  </main>
-  {% include "_components/footer.html" %}
-  <script src="{% static 'site.js' %}"></script>
-  {% block scripts %}{% endblock %}
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{% block title %}Consultorio “Rodolfo Castellón”{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'site.css' %}">
+    {% block head_extra %}{% endblock %}
+  </head>
+  <body>
+    {% include "_components/navbar.html" %}
+
+
+    <main id="contenido">
+      {% include "_components/messages.html" %}
+      {% block content %}{% endblock %}
+    </main>
+
+    {% include "_components/footer.html" %}
+    <script src="{% static 'site.js' %}"></script>
+    {% block scripts %}{% endblock %}
+  </body>
 </html>

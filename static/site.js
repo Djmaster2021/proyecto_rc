@@ -1,11 +1,22 @@
-// ====== Global scripts (site.js) ======
-// Cierra modales con [data-close] o con tecla ESC
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-close]');
-  if (!btn) return;
-  const modal = btn.closest('.modal');
-  if (modal) modal.setAttribute('hidden', '');
-});
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') document.querySelectorAll('.modal:not([hidden])').forEach(m => m.setAttribute('hidden', ''));
-});
+// ===== site.js mínimo/seguro =====
+(() => {
+  'use strict';
+  const ready = (fn) => (document.readyState === 'loading')
+    ? document.addEventListener('DOMContentLoaded', fn, { once:true })
+    : fn();
+
+  ready(() => {
+    // Parallax simple (sin dependencias)
+    const layers = Array.from(document.querySelectorAll('[data-plx-speed]'));
+    function update(){
+      const y = window.scrollY || 0;
+      for (const el of layers){
+        const speed = parseFloat(el.getAttribute('data-plx-speed'))||0.2;
+        el.style.transform = `translate3d(0, ${-(y*speed)}px, 0)`;
+      }
+    }
+    window.addEventListener('scroll', () => requestAnimationFrame(update), {passive:true});
+    window.addEventListener('resize', () => requestAnimationFrame(update));
+    update();
+  });
+})();
