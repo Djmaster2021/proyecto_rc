@@ -9,8 +9,8 @@
     {% block head_extra %}{% endblock %}
   </head>
   <body>
-    {% include "_components/navbar.html" %}
-
+    {# IMPORTANTE: el navbar ahora es opcional para evitar duplicados #}
+    {% block site_nav %}{% include "_components/navbar.html" %}{% endblock %}
 
     <main id="contenido">
       {% include "_components/messages.html" %}
