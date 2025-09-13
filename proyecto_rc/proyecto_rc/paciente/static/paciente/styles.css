@@ -1,0 +1,3 @@
+/* Styles específicos de la sección Paciente */
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: .6rem .8rem; border-bottom: 1px solid #232836; }

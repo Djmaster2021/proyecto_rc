@@ -1,159 +1,228 @@
 {% extends "_components/base_site.html" %}
-{% block title %}Bienvenido — Consultorio RC{% endblock %}
+{% load static %}
+
+{% block title %}Inicio · Consultorio “Rodolfo Castellón”{% endblock %}
+
+{# Ocultamos el navbar global para no duplicarlo en esta portada #}
+{% block site_nav %}{% endblock %}
 
 {% block content %}
-  {% include "_components/breadcrumb.html" with title="Inicio" %}
+<header class="header header--light">
+  <nav class="nav" aria-label="Principal">
+    <button class="burger" id="burger" aria-label="Abrir menú"
+            aria-controls="mobile-panel" aria-expanded="false">☰</button>
 
-  <section class="hero">
-    <h1>Consultorio “Rodolfo Castellón”</h1>
-    <p>Sistema base para gestión de pacientes, citas y pagos.</p>
-    <p class="home-links">
-      <a href="{% url 'paciente:dashboard' %}">Área Paciente</a> ·
-      <a href="{% url 'dentista:dashboard' %}">Área Dentista</a> ·
-      <a href="{% url 'accounts:login' %}">Ingresar</a>
-    </p>
-  </section>
+    <a href="#inicio" class="brand" aria-label="Inicio">
+      <span class="brand__text">RC</span>
+    </a>
 
-  <!-- ========== ASISTENTE IA (Frontend puro; no backend) ========== -->
-  <button id="aiFab" class="ai-fab" aria-label="Abrir asistente IA">IA</button>
-
-  <aside id="aiDock" class="ai-dock" aria-hidden="true">
-    <header class="ai-head">
-      <strong>Asistente IA</strong>
-      <button id="aiClose" class="ai-icon" aria-label="Cerrar">✕</button>
-    </header>
-
-    <div id="aiBody" class="ai-body" role="log" aria-live="polite">
-      <div class="ai-tip">
-        👋 Puedo ayudarte a moverte por el sistema y a entender qué hay en cada área.
-        Prueba con:
-      </div>
-      <div class="ai-suggests">
-        <button class="ai-chip" data-q="¿Qué puedo hacer en el Área Dentista?">Área Dentista</button>
-        <button class="ai-chip" data-q="¿Qué contiene el Área Paciente?">Área Paciente</button>
-        <button class="ai-chip" data-q="Llévame a la Agenda del dentista.">Ir a Agenda</button>
-        <button class="ai-chip" data-q="¿Cómo ingreso al sistema?">Ingresar</button>
-      </div>
+    <div class="menu" role="menubar" aria-label="Secciones">
+      <a href="#inicio"     data-section="inicio"     class="active" role="menuitem">Inicio</a>
+      <a href="#servicios"  data-section="servicios"  role="menuitem">Servicios</a>
+      <a href="#pagos"      data-section="pagos"      role="menuitem">Pagos</a>
+      <a href="#contacto"   data-section="contacto"   role="menuitem">Contáctanos</a>
     </div>
 
-    <form id="aiForm" class="ai-form" autocomplete="off">
-      <input id="aiInput" class="ai-input" name="q" placeholder="Escribe tu consulta… (Enter para enviar)" />
-      <button class="ai-send" aria-label="Enviar">➤</button>
-    </form>
-  </aside>
+    <div class="auth">
+      <a href="{% url 'accounts:login' %}" class="btn btn--cta">Ingresar</a>
+    </div>
+  </nav>
 
-  <style>
-    /* ====== estilos mínimos del widget IA (aislados) ====== */
-    .ai-fab{position:fixed;right:18px;bottom:18px;border:1px solid rgba(127,127,127,.35);background:transparent;color:inherit;
-      border-radius:999px;padding:.7rem 1rem;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:60}
-    .ai-dock{position:fixed;right:18px;bottom:18px;top:18px;width:min(420px,92vw);background:transparent;
-      border:1px solid rgba(127,127,127,.25);border-radius:1rem;display:flex;flex-direction:column;
-      transform:translateY(calc(100% + 18px));transition:transform .25s ease;z-index:61;backdrop-filter:blur(6px)}
-    .ai-dock[aria-hidden="false"]{transform:translateY(0)}
-    .ai-head{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;border-bottom:1px solid rgba(127,127,127,.25)}
-    .ai-icon{border:1px solid rgba(127,127,127,.25);background:transparent;border-radius:.6rem;padding:.35rem .55rem}
-    .ai-body{padding:1rem;display:flex;flex-direction:column;gap:.6rem;overflow:auto;max-height:65vh}
-    .ai-tip{opacity:.85;font-size:.95rem}
-    .ai-suggests{display:flex;flex-wrap:wrap;gap:.4rem}
-    .ai-chip{border:1px solid rgba(127,127,127,.35);background:transparent;border-radius:999px;padding:.35rem .6rem;font-size:.85rem}
-    .ai-msg{border:1px solid rgba(127,127,127,.25);border-radius:.7rem;padding:.55rem .7rem;white-space:pre-wrap}
-    .ai-msg.user{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.35)}
-    .ai-msg.bot{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.35)}
-    .ai-form{display:flex;gap:.5rem;padding:.8rem 1rem;border-top:1px solid rgba(127,127,127,.25)}
-    .ai-input{flex:1;border:1px solid rgba(127,127,127,.35);border-radius:.6rem;background:transparent;color:inherit;padding:.5rem .6rem}
-    .ai-send{border:1px solid rgba(127,127,127,.35);background:transparent;border-radius:.6rem;padding:.5rem .7rem}
-    @media (max-width:720px){.ai-dock{top:auto;height:72vh}}
-  </style>
+  <!-- Panel móvil -->
+  <div class="panel" id="mobile-panel">
+    <div class="panel-inner">
+      <div class="row">
+        <a href="#inicio" data-section="inicio" class="active">Inicio</a>
+        <a href="#servicios" data-section="servicios">Servicios</a>
+        <a href="#pagos" data-section="pagos">Pagos</a>
+        <a href="#contacto" data-section="contacto">Contáctanos</a>
+      </div>
+    </div>
+  </div>
+</header>
 
-  <script>
-    /* ====== Lógica IA 100% frontend (sin red) — Home ======
-       Usa lo que ve en la página (links a Paciente, Dentista e Ingresar)
-       y además ofrece navegación directa.
-    */
-    (function(){
-      const $  = s => document.querySelector(s);
-      const aiFab   = $('#aiFab');
-      const aiDock  = $('#aiDock');
-      const aiClose = $('#aiClose');
-      const aiBody  = $('#aiBody');
-      const aiForm  = $('#aiForm');
-      const aiInput = $('#aiInput');
+  <main>
+    <!-- Hero -->
+    <header id="inicio" class="plx-section is-hero">
+      <div class="plx-layer bg" data-plx-speed="0.25"
+           style="--plx-img: url('{% static "img/fondodentista1.jpg" %}');"></div>
+      <div class="plx-inner">
+        <h1>Consultorio “Rodolfo Castellón”</h1>
+        <p>Sistema integral para la gestión de pacientes, citas y pagos.</p>
+        <p class="home-links">
+          <a class="btn btn--cta" href="{% url 'accounts:login' %}">Ingresar</a>
+        </p>
+        <a class="scroll-down" href="#servicios" aria-label="Bajar a servicios">▼</a>
+      </div>
+    </header>
 
-      function openDock(){ aiDock.setAttribute('aria-hidden','false'); aiInput?.focus(); }
-      function closeDock(){ aiDock.setAttribute('aria-hidden','true'); }
-      function appendMsg(role, text){
-        const el = document.createElement('div');
-        el.className = 'ai-msg ' + (role === 'user' ? 'user' : 'bot');
-        el.textContent = text;
-        aiBody.appendChild(el);
-        aiBody.scrollTop = aiBody.scrollHeight;
-      }
+        <!-- Servicios -->
+        <section id="servicios" class="content-section">
+          <div class="container">
+            <h2 class="title">Servicios</h2>
+    
+            <div class="cards-servicios">
+              <input type="radio" name="servicio" id="serv-none" class="card-toggle" checked hidden>
+    
+              <!-- Odontología General -->
+              <article class="card-servicio">
+                <input type="radio" name="servicio" id="serv-general" class="card-toggle">
+                <div class="card-header">
+                  <img src="{% static 'img/odontologia general.png' %}" alt="Ícono de odontología general">
+                  <div class="card-title">
+                    <h3>Odontología General</h3>
+                    <label for="serv-general" class="btn-select" role="button">Seleccionar</label>
+                  </div>
+                </div>
+                <div class="card-detalles">
+                  <p>Evaluación completa de la salud oral, diagnóstico y prevención de enfermedades.</p>
+                  <ul class="svc-bullets">
+                    <li>Limpieza profunda</li><li>Radiografías</li><li>Resinas</li><li>Extracciones</li>
+                  </ul>
+                </div>
+              </article>
+    
+              <!-- Odontología Estética -->
+              <article class="card-servicio">
+                <input type="radio" name="servicio" id="serv-estetica" class="card-toggle">
+                <div class="card-header">
+                  <img src="{% static 'img/Odontología estética.png' %}" alt="Ícono de odontología estética">
+                  <div class="card-title">
+                    <h3>Odontología Estética</h3>
+                    <label for="serv-estetica" class="btn-select" role="button">Seleccionar</label>
+                  </div>
+                </div>
+                <div class="card-detalles">
+                  <p>Mejora de la apariencia dental con tratamientos mínimamente invasivos.</p>
+                  <ul class="svc-bullets">
+                    <li>Blanqueamiento</li><li>Carillas</li><li>Resinas estéticas</li><li>Contorneado dental</li>
+                  </ul>
+                </div>
+              </article>
+    
+              <!-- Odontología Restaurativa -->
+              <article class="card-servicio">
+                <input type="radio" name="servicio" id="serv-restaurativa" class="card-toggle">
+                <div class="card-header">
+                  <img src="{% static 'img/odontologia Restaurativa.png' %}" alt="Ícono de odontología restaurativa">
+                  <div class="card-title">
+                    <h3>Odontología Restaurativa</h3>
+                    <label for="serv-restaurativa" class="btn-select" role="button">Seleccionar</label>
+                  </div>
+                </div>
+                <div class="card-detalles">
+                  <p>Recupera forma y función de piezas afectadas por caries o fracturas.</p>
+                  <ul class="svc-bullets">
+                    <li>Resinas compuestas</li><li>Incrustaciones</li><li>Coronas</li><li>Reconstrucciones</li>
+                  </ul>
+                </div>
+              </article>
+    
+              <!-- Ortodoncia -->
+              <article class="card-servicio">
+                <input type="radio" name="servicio" id="serv-ortodoncia" class="card-toggle">
+                <div class="card-header">
+                  <img src="{% static 'img/Ortodoncia.png' %}" alt="Ícono de ortodoncia">
+                  <div class="card-title">
+                    <h3>Ortodoncia</h3>
+                    <label for="serv-ortodoncia" class="btn-select" role="button">Seleccionar</label>
+                  </div>
+                </div>
+                <div class="card-detalles">
+                  <p>Corrección de la posición de dientes y mordida.</p>
+                  <ul class="svc-bullets">
+                    <li>Brackets metálicos/estéticos</li><li>Alineadores</li><li>Retenedores</li>
+                  </ul>
+                </div>
+              </article>
+    
+              <!-- Prótesis e Implantes -->
+              <article class="card-servicio">
+                <input type="radio" name="servicio" id="serv-implantes" class="card-toggle">
+                <div class="card-header">
+                  <img src="{% static 'img/protesis e implantes.png' %}" alt="Ícono de prótesis e implantes">
+                  <div class="card-title">
+                    <h3>Prótesis e Implantes</h3>
+                    <label for="serv-implantes" class="btn-select" role="button">Seleccionar</label>
+                  </div>
+                </div>
+                <div class="card-detalles">
+                  <p>Soluciones fijas o removibles para reemplazar dientes ausentes.</p>
+                  <ul class="svc-bullets">
+                    <li>Implantes dentales</li><li>Puentes y coronas</li><li>Prótesis totales y parciales</li><li>Mantenimiento y ajuste</li>
+                  </ul>
+                </div>
+              </article>
+    
+            </div>
+          </div>
+          <a class="scroll-down" href="#pagos" aria-label="Bajar a pagos">▼</a>
+        </section>
+    
+        <!-- Slice -->
+        <section class="plx-section is-slice">
+          <div class="plx-layer bg" data-plx-speed="0.10"
+               style="--plx-img: url('{% static "img/disponibilidad.jpg" %}');"></div>
+          <div class="plx-inner"><h3 class="slice-title">Atención confiable · Disponibilidad 24/7</h3></div>
+        </section>
+    
+        <!-- Pagos -->
+        <section id="pagos" class="content-section alt">
+          <div class="container">
+            <h2 class="title">Pagos en línea</h2>
+            <p>Integramos Mercado Pago para transferencias y tarjetas. Pagos seguros y confirmación inmediata.</p>
+            <a class="btn" href="{% url 'dentista:dashboard' %}">Ir al Panel del Dentista</a>
+          </div>
+        </section>
+    
+        <!-- Slice -->
+        <section class="plx-section is-slice">
+          <div class="plx-layer bg" data-plx-speed="0.01"
+               style="--plx-img: url('{% static "img/recordatorios.jpg" %}');"></div>
+          <div class="plx-inner"><h3 class="slice-title">Recordatorios y penalizaciones automáticas</h3></div>
+        </section>
+    
+        <!-- Contacto -->
+        <section id="contacto" class="content-section">
+          <div class="container">
+            <h2 class="title">Contacto</h2>
+            <p><strong>Horario:</strong> 2:00–8:00 PM · Comida: 4:30–5:00 PM</p>
+            <p><strong>Correo:</strong> <a href="mailto:dentista.choyo@gmail.com">dentista.choyo@gmail.com</a></p>
+            <p><strong>Teléfonos:</strong><br>
+              <a href="tel:+523223496155">322-349-61-55</a> /
+              <a href="tel:+523222244847">322-22-44-847</a>
+            </p>
+            <p><strong>Dirección:</strong><br> Calle Guatemala #125, Col. del Toro, El Pitillal, Puerto Vallarta, Jal.</p>
+    
+            <div class="visit-box">
+              <h3>📍 ¡Visítanos!</h3>
+              <p>Encuéntranos fácilmente en Google Maps</p>
+              <a href="https://www.google.com/maps?q=Calle+Guatemala+125,+El+Pitillal,+Puerto+Vallarta,+Jalisco&hl=es&z=16"
+                 target="_blank" class="visit-btn" rel="noopener">Ver en Google Maps</a>
+    
+              <div class="map-frame">
+                <iframe
+                  src="https://www.google.com/maps?q=Calle+Guatemala+125,+El+Pitillal,+Puerto+Vallarta,+Jalisco&output=embed"
+                  width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"></iframe>
+              </div>
+            </div>
+          </div>
 
-      // Rutas que ya publica tu home
-      const urlPaciente = document.querySelector('.home-links a[href*="paciente"]')?.getAttribute('href') || "{% url 'paciente:dashboard' %}";
-      const urlDentista = document.querySelector('.home-links a[href*="dentista"]')?.getAttribute('href') || "{% url 'dentista:dashboard' %}";
-      const urlLogin    = document.querySelector('.home-links a[href*="accounts"]')?.getAttribute('href') || "{% url 'accounts:login' %}";
+          <div class="layout">
+            <aside class="sidebar">
+              <div class="side-title">Navegación</div>
+              <nav class="side-links" aria-label="Secundario">
+                <a href="#inicio">Inicio</a>
+                <a href="#servicios">Servicios</a>
+                <a href="#pagos">Pagos</a>
+                <a href="#contacto">Contacto</a>
+              </nav>
+            </aside>
 
-      // Respuestas locales
-      function answer(q){
-        const t = (q||'').toLowerCase();
+        </section>
+  </main>
+</div>
 
-        // Navegación directa
-        if (t.includes('agenda')) {
-          // Te llevo al Área Dentista (desde ahí entras a Agenda)
-          window.location.href = urlDentista;
-          return 'Abriendo el Área Dentista. Desde allí puedes entrar a Agenda.';
-        }
-        if (t.includes('ingres') || t.includes('login') || t.includes('entrar')) {
-          window.location.href = urlLogin;
-          return 'Llevándote a la pantalla de ingreso…';
-        }
-        if (t.includes('paciente')) {
-          window.location.href = urlPaciente;
-          return 'Entrando al Área Paciente…';
-        }
-        if (t.includes('dentista')) {
-          window.location.href = urlDentista;
-          return 'Entrando al Área Dentista…';
-        }
 
-        // Explicaciones simples
-        if (t.includes('qué puedo hacer') && t.includes('dentista')) {
-          return 'En el Área Dentista tienes Panel (Dashboard), Agenda y Pacientes. El asistente IA local resume agenda, sugiere huecos y lista saldos leyendo el DOM (frontend).';
-        }
-        if (t.includes('qué contiene') && t.includes('paciente')) {
-          return 'El Área Paciente muestra su tablero, citas y pagos (plantillas base de paciente).';
-        }
-        if (t.includes('ayuda') || t.includes('como') || t.includes('qué es')) {
-          return 'Puedo abrirte cada sección o explicarte para qué sirve: escribe "Área Dentista", "Área Paciente" o "Ingresar".';
-        }
-
-        // Predeterminado
-        return 'Puedo abrirte: Área Paciente, Área Dentista o Ingresar; o explicarte para qué sirve cada una. Prueba: "Llévame a la Agenda del dentista" o "¿Cómo ingreso al sistema?"';
-      }
-
-      // Interacción
-      aiFab?.addEventListener('click', openDock);
-      aiClose?.addEventListener('click', closeDock);
-      window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeDock(); });
-
-      // Sugerencias (chips)
-      aiBody?.addEventListener('click', (e)=>{
-        const b = e.target.closest('.ai-chip');
-        if(!b) return;
-        aiInput.value = b.dataset.q || '';
-        aiInput.focus();
-      });
-
-      aiForm?.addEventListener('submit', (e)=>{
-        e.preventDefault();
-        const q = aiInput.value.trim();
-        if(!q) return;
-        appendMsg('user', q);
-        aiInput.value = '';
-        const a = answer(q);
-        appendMsg('bot', a);
-      });
-    })();
-  </script>
 {% endblock %}

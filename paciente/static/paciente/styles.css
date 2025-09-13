@@ -1,3 +1,108 @@
 /* Styles específicos de la sección Paciente */
 .table { width: 100%; border-collapse: collapse; }
 .table th, .table td { padding: .6rem .8rem; border-bottom: 1px solid #232836; }
+
+/* === Tokens y base (no invasivo, compatibles con dark/light) === */
+:root{
+  --bg:#0b0c0f;
+  --surface:#10131a;
+  --surface-2:#141a24;
+  --text:#e7e9ee;
+  --muted:#9aa3b2;
+  --border:#232836;
+  --primary:#60a5fa;
+  --primary-600:#3b82f6;
+  --success:#22c55e;
+  --danger:#ef4444;
+  --radius:14px;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.25);
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#ffffff; --surface:#f7f7f9; --surface-2:#f0f1f5;
+    --text:#141824; --muted:#596174; --border:#e6e8ee;
+    --primary:#2563eb; --primary-600:#1d4ed8;
+    --shadow:0 1px 2px rgba(0,0,0,.06), 0 10px 30px rgba(0,0,0,.08);
+  }
+}
+body{background:linear-gradient(180deg,var(--bg),var(--surface)); color:var(--text);}
+
+/* === Layout suaves para títulos/acciones (úsalos donde quieras) === */
+.container{width:min(1100px,92%); margin-inline:auto}
+.page-head{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin:8px 0 16px}
+.page-title{margin:0; font-size:1.45rem}
+.page-sub{margin:.2rem 0 0; color:var(--muted); font-size:.95rem}
+.actions{display:flex; gap:8px; flex-wrap:wrap}
+
+/* === Cards genéricas (sirven también para _components/card.html) === */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.card--muted{background:var(--surface-2)}
+.card__header{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; border-bottom:1px solid var(--border)}
+.card__title{margin:0; font-size:1.05rem}
+.card__section{padding:14px 16px; border-top:1px dashed var(--border)}
+.card__footer{display:flex; gap:10px; padding:12px 16px; border-top:1px solid var(--border)}
+
+/* === Botones consistentes === */
+.btn{
+  --_bg:var(--surface-2);
+  display:inline-flex; align-items:center; gap:.5rem;
+  background:var(--_bg); color:var(--text);
+  border:1px solid var(--border); border-radius:12px;
+  padding:9px 12px; font-weight:600; text-decoration:none; cursor:pointer;
+}
+.btn:hover{filter:brightness(.97)}
+.btn--primary{--_bg:var(--primary); color:#fff; border-color:color-mix(in oklab, var(--primary) 55%, black)}
+.btn--primary:hover{background:var(--primary-600)}
+.btn--ghost{background:transparent}
+.btn--sm{padding:6px 10px; border-radius:10px; font-size:.9rem}
+
+/* === Badges para estados (Atendida, Cancelada, etc.) === */
+.badge{
+  display:inline-flex; align-items:center; gap:.35rem;
+  padding:3px 10px; border-radius:999px; font-size:.85rem;
+  background:var(--surface-2); border:1px solid var(--border);
+}
+.badge--success{background:color-mix(in oklab, var(--success) 18%, var(--surface)); color:color-mix(in oklab, var(--success) 75%, black)}
+.badge--danger{background:color-mix(in oklab, var(--danger) 18%, var(--surface)); color:color-mix(in oklab, var(--danger) 75%, black)}
+
+/* === Tabla mejorada (mantiene tus selectores .table) === */
+.table-wrap{overflow:auto}
+.table{min-width:640px; border:1px solid var(--border); border-radius:12px; overflow:hidden;}
+.table thead th{background:var(--surface-2); color:var(--muted); text-transform:uppercase; font-size:.78rem; letter-spacing:.04em}
+.table tbody tr:hover{background:color-mix(in oklab, var(--surface-2) 70%, transparent)}
+.table th,.table td{text-align:left}
+
+/* Responsive “stacked” en móvil, sin romper desktop */
+@media (max-width:720px){
+  .table{min-width:0; border-radius:10px}
+  .table thead{display:none}
+  .table tbody tr{display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:10px 10px; border-bottom:1px solid var(--border)}
+  .table td{border:0; padding:0}
+  .table td[data-label]::before{content: attr(data-label) " · "; color:var(--muted); margin-right:6px}
+}
+
+/* === Listado de documentos (si lo agregas) === */
+.doclist{list-style:none; margin:0; padding:8px}
+.doclist__item{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 6px; border-bottom:1px dashed var(--border)}
+.doclist__item:last-child{border-bottom:0}
+.doclist__name{font-weight:600}
+.doclist__type{color:var(--muted); font-size:.9rem}
+
+/* === Perfil sencillo (si lo agregas) === */
+.profile{display:grid; grid-template-columns:1fr 1fr; gap:10px 24px}
+@media (max-width:720px){.profile{grid-template-columns:1fr}}
+.field{display:flex; gap:8px; padding:6px 0; border-bottom:1px dotted var(--border)}
+.field:last-child{border-bottom:0}
+.field__label{min-width:140px; color:var(--muted)}
+
+/* === Paginación genérica === */
+.pagination{display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 0}
+.page-link{display:inline-block; padding:8px 12px; border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--text); background:var(--surface-2)}
+.page-link.is-disabled{opacity:.5; pointer-events:none}
+.page-info{color:var(--muted)}

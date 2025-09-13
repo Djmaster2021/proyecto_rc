@@ -2,116 +2,316 @@
 {% block atitle %}Ingresar{% endblock %}
 
 {% block acontent %}
-  
+
 <link rel="stylesheet" href="/static/accounts/styles.css">
 
 <header class="site-topbar">
   <a class="brand" href="#" aria-label="Inicio">RC</a>
 
   <form class="theme-toggle" aria-label="Selector de tema">
-    <!-- Radios accesibles (controlan :has(...)) -->
     <input type="radio" name="theme" id="t-light" value="light" checked>
     <input type="radio" name="theme" id="t-dark"  value="dark">
-
-    <!-- Cápsula clickeable en ambos sentidos -->
-    <button type="button"
-            id="themeSwitch"
-            class="switch"
-            role="switch"
-            aria-pressed="false"
-            aria-label="Cambiar tema claro/oscuro">
-      <!-- sol -->
-      <svg class="icon sun" viewBox="0 0 24 24" aria-hidden="true">
-        <path fill="currentColor"
-              d="M12 4V1M12 23v-3M4 12H1m22 0h-3M5.64 5.64L3.52 3.52m16.96 16.96l-2.12-2.12M5.64 18.36l-2.12 2.12m16.96-16.96l-2.12 2.12M12 8a4 4 0 100 8 4 4 0 000-8z"/>
-      </svg>
-
+    <button type="button" id="themeSwitch" class="switch" role="switch" aria-pressed="false" aria-label="Cambiar tema claro/oscuro">
+      <svg class="icon sun" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4V1M12 23v-3M4 12H1m22 0h-3M5.64 5.64L3.52 3.52m16.96 16.96l-2.12-2.12M5.64 18.36l-2.12 2.12m16.96-16.96l-2.12 2.12M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
       <span class="knob" aria-hidden="true"></span>
-
-      <!-- luna -->
-      <svg class="icon moon" viewBox="0 0 24 24" aria-hidden="true">
-        <path fill="currentColor"
-              d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/>
-      </svg>
+      <svg class="icon moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>
     </button>
   </form>
 </header>
 
-    </form>
-    
-  <main class="site-main">
-    <section class="auth-hero" aria-labelledby="t-login">
-      <div class="login-card" role="region" aria-describedby="d-login">
-        <div class="card-head">
-          <div class="logo" aria-hidden="true">RC</div>
-          <h1 id="t-login" class="title">Iniciar sesión</h1>
-          <p id="d-login" class="subtitle">Accede para gestionar citas y pacientes</p>
+<main class="site-main">
+  <section class="auth-hero" aria-labelledby="t-login">
+    <div id="loginCard" class="login-card" role="region" aria-describedby="d-login">
+      <div class="card-head">
+        <div class="logo" aria-hidden="true">RC</div>
+        <h1 id="t-login" class="title">Iniciar sesión</h1>
+        <p id="d-login" class="subtitle">Accede para gestionar citas y pacientes</p>
+      </div>
+
+      {# Alerta de backend (solo cuando falle login). Luce profesional con icono. #}
+      {% if server_error %}
+      <div id="server-error" class="alert alert-error" role="alert" tabindex="-1">
+        <span class="alert__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M11,15h2v2h-2v-2m0-8h2v6h-2V7m1-5C6.48,2,2,6.48,2,12s4.48,10,10,10,10-4.48,10-10S17.52,2,12,2z"/></svg>
+        </span>
+        <span class="alert__text">{{ server_error }}</span>
+      </div>
+      {% endif %}
+
+      <!-- Resumen de errores de frontend (JS), oculto al inicio -->
+      <div id="form-errors" class="alert alert-warn" role="alert" aria-live="assertive" hidden>
+        <span class="alert__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+        </span>
+        <span class="alert__text"></span>
+      </div>
+
+      <!-- FORMULARIO -->
+      <form id="loginForm" class="auth-form" method="post" action="{% url 'accounts:login' %}" novalidate>
+        {% csrf_token %}
+
+        <div class="field">
+          <label for="id_username">Usuario o correo</label>
+          <input id="id_username" name="username" type="text" autocomplete="username" required maxlength="45" aria-describedby="e_user">
+        </div>
+        <p id="e_user" class="field-error" role="alert" aria-live="polite" hidden></p>
+
+        <div class="field">
+          <label for="id_password">Contraseña</label>
+          <div class="input-with-btn">
+            <input id="id_password" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128" aria-describedby="e_pass">
+            <button type="button" class="ghost" id="togglePass" aria-label="Mostrar/ocultar contraseña">👁️</button>
+          </div>
+        </div>
+        <p id="e_pass" class="field-error" role="alert" aria-live="polite" hidden></p>
+        <p class="hint">Mínimo 8 caracteres, incluir “@” y al menos 1 número.</p>
+
+        <div class="field">
+          <label for="id_role">Ingresar como</label>
+          <select id="id_role" name="role" required aria-describedby="e_role">
+            <option value="">Seleccione…</option>
+            <option value="paciente">Paciente</option>
+            <option value="dentista">Dentista</option>
+          </select>
+        </div>
+        <p id="e_role" class="field-error" role="alert" aria-live="polite" hidden></p>
+
+        <div class="actions">
+          <button id="submitBtn" type="submit" class="btn btn-primary">
+            <span class="btn__spinner" aria-hidden="true"></span>
+            <span class="btn__text">Iniciar sesión</span>
+          </button>
         </div>
 
-        <form class="auth-form" action="#" method="post" novalidate>
-          <div class="field">
-            <label for="username">Usuario</label>
-            <input id="username" name="username" type="text" autocomplete="username" required>
-          </div>
+        <div class="links">
+          <a href="{% url 'accounts:password_reset' %}" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
+          <span> · </span>
+          <a href="#" class="text-decoration-none">Registrarse</a>
+        </div>
+      </form>
+      <!-- /FORMULARIO -->
+    </div>
+  </section>
 
-          <div class="field">
-            <label for="password">Contraseña</label>
-            <input id="password" name="password" type="password" autocomplete="current-password" required>
-          </div>
+  <!-- Toasts -->
+  <div id="toastArea" class="toast-area" aria-live="polite" aria-atomic="true"></div>
+</main>
 
-          <div class="d-flex justify-content-between align-items-center mt-3">
-            <a href="#" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <a href="#" class="text-decoration-none"> Registrarse</a>
-            </div>
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
-  </main>
+<footer class="site-footer">
+  © 2025 Consultorio “Rodolfo Castellón”
+</footer>
 
-  <footer class="site-footer">
-    © 2025 Consultorio “Rodolfo Castellón”
-  </footer>
+<script>
+(() => {
+  /* ====== Tema ====== */
+  const light = document.getElementById('t-light');
+  const dark  = document.getElementById('t-dark');
+  const btn   = document.getElementById('themeSwitch');
+  try {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark') dark.checked = true;
+    else if (saved === 'light') light.checked = true;
+    else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      (prefersDark ? dark : light).checked = true;
+    }
+  } catch {}
+  const syncAria = () => btn.setAttribute('aria-pressed', String(dark.checked));
+  const persist  = () => { try { localStorage.setItem('theme', dark.checked ? 'dark' : 'light'); } catch {} };
+  const toggle   = () => { (dark.checked ? light : dark).checked = true; persist(); syncAria(); };
+  btn.addEventListener('click', toggle);
+  btn.addEventListener('keydown', (e) => {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }
+    if (e.key === 'ArrowLeft')  { light.checked = true; persist(); syncAria(); }
+    if (e.key === 'ArrowRight') { dark.checked  = true; persist(); syncAria(); }
+  });
+  [light, dark].forEach(r => r.addEventListener('change', () => { persist(); syncAria(); }));
+  syncAria();
 
-  <script>
-    (() => {
-      const light = document.getElementById('t-light');
-      const dark  = document.getElementById('t-dark');
-      const btn   = document.getElementById('themeSwitch');
-    
-      // Inicializa por preferencia guardada o del SO
-      try {
-        const saved = localStorage.getItem('theme');
-        if (saved === 'dark')      dark.checked  = true;
-        else if (saved === 'light') light.checked = true;
-        else {
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          (prefersDark ? dark : light).checked = true;
-        }
-      } catch {}
-    
-      function syncAria(){ btn.setAttribute('aria-pressed', String(dark.checked)); }
-      function persist(){ try { localStorage.setItem('theme', dark.checked ? 'dark' : 'light'); } catch {} }
-    
-      // Alterna en ambos sentidos
-      function toggle(){
-        if (dark.checked) light.checked = true; else dark.checked = true;
-        persist(); syncAria();
-      }
-    
-      btn.addEventListener('click', toggle);
-      btn.addEventListener('keydown', (e) => {
-        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }
-        if (e.key === 'ArrowLeft')  { light.checked = true; persist(); syncAria(); }
-        if (e.key === 'ArrowRight') { dark.checked  = true; persist(); syncAria(); }
-      });
-    
-      [light, dark].forEach(r => r.addEventListener('change', () => { persist(); syncAria(); }));
-    
-      syncAria();
-    })();
-    </script>
-    
+  /* ====== Helpers UI ====== */
+  const toastArea = document.getElementById('toastArea');
+  function toast(type, text, ms=3800){
+    const el = document.createElement('div');
+    el.className = `toast toast-${type}`;
+    el.innerHTML = `
+      <span class="toast__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path fill="currentColor"
+          d="${type==='ok' ? 'M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5L9 16.2z' :
+           type==='warn' ? 'M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z' :
+           'M11,15h2v2h-2v-2m0-8h2v6h-2V7m1-5C6.48,2,2,6.48,2,12s4.48,10,10,10,10-4.48,10-10S17.52,2,12,2z'}"/></svg>
+      </span>
+      <span class="toast__text">${text}</span>
+    `;
+    toastArea.appendChild(el);
+    requestAnimationFrame(()=> el.classList.add('show'));
+    setTimeout(()=> {
+      el.classList.remove('show');
+      setTimeout(()=> el.remove(), 250);
+    }, ms);
+  }
+
+  const togglePass = document.getElementById('togglePass');
+  togglePass.addEventListener('click', ()=>{
+    const input = document.getElementById('id_password');
+    input.type = input.type === 'password' ? 'text' : 'password';
+  });
+
+  /* ====== Validación ====== */
+  const card  = document.getElementById('loginCard');
+  const f     = document.getElementById('loginForm');
+  const user  = document.getElementById('id_username');
+  const pass  = document.getElementById('id_password');
+  const role  = document.getElementById('id_role');
+  const eUser = document.getElementById('e_user');
+  const ePass = document.getElementById('e_pass');
+  const eRole = document.getElementById('e_role');
+  const box   = document.getElementById('form-errors');
+  const boxText = box.querySelector('.alert__text');
+  const submitBtn = document.getElementById('submitBtn');
+
+  const state = { submitted:false, touched:{user:false, pass:false, role:false}, loading:false };
+  const isEmail = (v) => /@/.test(v);
+  const emailOK = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+  function setMsg(el, msg, show){ el.textContent = msg || ""; el.hidden = !show || !msg; }
+
+  function vUser(){
+    const v = user.value.trim();
+    if(!v) return "No deje el campo de usuario/correo en blanco.";
+    if(v.length > 45) return "Máximo 45 caracteres.";
+    if(isEmail(v) && !emailOK(v)) return "Use un correo válido (ej. nombre@dominio.com).";
+    return "";
+  }
+  function vPass(){
+    const v = pass.value;
+    if(!v) return "No deje la contraseña en blanco.";
+    if(v.length < 8) return "La contraseña debe tener al menos 8 caracteres.";
+    if(!/@/.test(v)) return "La contraseña debe incluir el carácter “@”.";
+    if(!/\d/.test(v)) return "La contraseña debe incluir al menos un número.";
+    return "";
+  }
+  const vRole = () => (role.value ? "" : "Seleccione si ingresa como Paciente o Dentista.");
+
+  function paint(){
+    const showU = state.submitted || state.touched.user;
+    const showP = state.submitted || state.touched.pass;
+    const showR = state.submitted || state.touched.role;
+    setMsg(eUser, vUser(), showU);
+    setMsg(ePass, vPass(), showP);
+    setMsg(eRole, vRole(), showR);
+
+    const errs = [vUser(), vPass(), vRole()].filter(Boolean);
+    if(state.submitted && errs.length){
+      box.hidden = false;
+      boxText.innerHTML = "• " + errs.join("<br>• ");
+    } else {
+      box.hidden = true;
+      boxText.innerHTML = "";
+    }
+  }
+
+  // Modo carga del botón
+  function setLoading(on){
+    state.loading = on;
+    submitBtn.disabled = on;
+    submitBtn.classList.toggle('is-loading', on);
+  }
+
+  // Listeners
+  user.addEventListener('blur', ()=> { state.touched.user = true; paint(); });
+  pass.addEventListener('blur', ()=> { state.touched.pass = true; paint(); });
+  role.addEventListener('blur', ()=> { state.touched.role = true; paint(); });
+  [user, pass, role].forEach(el => el.addEventListener('input', ()=> { if(state.submitted) paint(); }));
+
+  f.addEventListener('submit', (e)=>{
+    state.submitted = true;
+    paint();
+    const hasErrors = Boolean(vUser() || vPass() || vRole());
+    if(hasErrors){
+      e.preventDefault();
+      toast('warn', 'Revisa los campos marcados.');
+      box.scrollIntoView({behavior:'smooth', block:'center'});
+      card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+      return;
+    }
+    setLoading(true); // UX
+  });
+
+  /* Si vino error del servidor, enfocar y animar */
+  const serverErr = document.getElementById('server-error');
+  if(serverErr){
+    serverErr.scrollIntoView({behavior:'smooth', block:'center'});
+    serverErr.focus();
+    card.classList.add('shake');
+    toast('error', serverErr.textContent.trim());
+  }
+})();
+</script>
+
+<style>
+/* ===== Tarjeta y layout existentes ===== */
+.auth-hero{display:grid; place-items:center; min-height:70vh; padding:1rem}
+.login-card{border:1px solid rgba(127,127,127,.25); border-radius:1rem; padding:1.25rem; width:min(520px,92vw); background:transparent; backdrop-filter:saturate(120%) blur(2px)}
+.card-head .logo{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-weight:800;background:linear-gradient(135deg,#3b82f6,#22c55e);color:#fff;margin-inline:auto; box-shadow:0 6px 18px rgba(59,130,246,.25)}
+.card-head .title{text-align:center;margin:.8rem 0 .2rem;font-weight:800}
+.card-head .subtitle{text-align:center;opacity:.75;margin:0 0 1rem}
+
+/* ===== Campos ===== */
+.auth-form .field{display:flex;gap:.6rem;align-items:center;margin:.6rem 0}
+.auth-form .field label{min-width:150px;font-weight:700;opacity:.85}
+.auth-form .field input, .auth-form .field select{width:100%;padding:.6rem .7rem;border:1px solid rgba(127,127,127,.28);border-radius:.6rem;background:transparent;color:inherit; outline: none}
+.auth-form .field input:focus, .auth-form .field select:focus{box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+.input-with-btn{display:flex; gap:.4rem; width:100%}
+.input-with-btn input{flex:1}
+.ghost{border:1px dashed rgba(127,127,127,.28); background:transparent; padding:.45rem .6rem; border-radius:.6rem; cursor:pointer}
+
+/* ===== Mensajes por campo ===== */
+.field-error{color:#b45309; margin:.15rem 0 .35rem 150px; font-size:.9rem}
+.field-error[hidden]{display:none}
+.hint{opacity:.65;font-size:.85rem;margin:.25rem 0 0 150px}
+
+/* ===== Alertas pro ===== */
+.alert{display:flex; gap:.6rem; align-items:flex-start; padding:.7rem .85rem; border-radius:.7rem; border:1px solid transparent}
+.alert__icon{display:grid; place-items:center; width:1.25rem; height:1.25rem; margin-top:.1rem}
+.alert__icon svg{width:100%; height:100%}
+.alert-warn{background:rgba(245,158,11,.08); border-color:rgba(245,158,11,.35); color:#92400e}
+.alert-error{background:rgba(239,68,68,.08); border-color:rgba(239,68,68,.35); color:#7f1d1d}
+
+/* ===== Botón con carga ===== */
+.actions{display:flex;justify-content:flex-end;margin-top:.9rem}
+.btn{border:1px solid rgba(127,127,127,.25);padding:.65rem .95rem;border-radius:.7rem;background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.02));font-weight:800; position:relative}
+.btn:disabled{opacity:.6; cursor:not-allowed}
+.btn-primary{background:transparent}
+.btn__spinner{display:none; width:16px; height:16px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; margin-right:.45rem; animation:spin 1s linear infinite}
+.btn.is-loading .btn__spinner{display:inline-block}
+.btn.is-loading .btn__text{opacity:.85}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== Toasts ===== */
+.toast-area{position:fixed; right:16px; bottom:16px; display:grid; gap:.5rem; z-index:2000}
+.toast{display:flex; align-items:center; gap:.6rem; padding:.65rem .8rem; border-radius:.7rem; border:1px solid transparent; box-shadow:0 10px 26px rgba(0,0,0,.12); opacity:0; transform:translateY(6px); transition:.22s}
+.toast.show{opacity:1; transform:translateY(0)}
+.toast__icon{width:1.1rem; height:1.1rem}
+.toast__icon svg{width:100%; height:100%}
+.toast-ok{background:rgba(34,197,94,.09); border-color:rgba(34,197,94,.35); color:#166534}
+.toast-warn{background:rgba(245,158,11,.09); border-color:rgba(245,158,11,.35); color:#92400e}
+.toast-error{background:rgba(239,68,68,.09); border-color:rgba(239,68,68,.35); color:#7f1d1d}
+
+/* ===== Animación shake para el card ===== */
+@keyframes shakeX {
+  10%, 90% { transform: translateX(-1px) }
+  20%, 80% { transform: translateX(2px) }
+  30%, 50%, 70% { transform: translateX(-4px) }
+  40%, 60% { transform: translateX(4px) }
+}
+.shake{animation: shakeX .45s ease both}
+
+/* ===== Responsive ===== */
+@media (max-width:640px){
+  .auth-form .field{flex-direction:column; align-items:stretch}
+  .field-error{margin-left:0}
+  .hint{margin-left:0}
+}
+</style>
+
 {% endblock %}

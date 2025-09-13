@@ -11,9 +11,10 @@
     <p class="pc-sub">Bienvenido/a</p>
 
     <div class="pc-actions">
-      <a class="pc-btn" href="#" aria-disabled="true">Solicitar cita</a>
-      <a class="pc-btn pc-outline" href="#" aria-disabled="true">Reprogramar</a>
-      <a class="pc-btn pc-ghost" href="#" aria-disabled="true">Cancelar</a>
+      {# Los href se manejan por CSS :target; el botón Cancelar será mailto dinámico #}
+      <a id="pc-btn-solicitar" class="pc-btn" href="#pc-m-solicitar">Solicitar cita</a>
+      <a id="pc-btn-reprog" class="pc-btn pc-outline" href="#pc-m-reprogramar">Reprogramar</a>
+      <a id="pc-btn-cancel" class="pc-btn pc-ghost" href="#">Cancelar</a>
     </div>
   </header>
 
@@ -22,15 +23,15 @@
     <h3 class="pc-h3">Tu próxima cita</h3>
     <div class="pc-appointment">
       <div class="pc-rows">
-        <div><span class="pc-label">Fecha</span><span>Mar 10, 2025</span></div>
-        <div><span class="pc-label">Hora</span><span>10:30</span></div>
-        <div><span class="pc-label">Motivo</span><span>Limpieza</span></div>
-        <div><span class="pc-label">Consultorio</span><span>Dr. Castellón · Sala 2</span></div>
-        <div><span class="pc-label">Estado</span><span class="pc-badge pc-b-ok">Confirmada</span></div>
+        <div><span class="pc-label">Fecha</span><span data-pc="fecha">Mar 10, 2025</span></div>
+        <div><span class="pc-label">Hora</span><span data-pc="hora">10:30</span></div>
+        <div><span class="pc-label">Motivo</span><span data-pc="motivo">Limpieza</span></div>
+        <div><span class="pc-label">Consultorio</span><span data-pc="consultorio">Dr. Castellón · Sala 2</span></div>
+        <div><span class="pc-label">Estado</span><span class="pc-badge pc-b-ok" data-pc="estado">Confirmada</span></div>
       </div>
       <div class="pc-cta">
-        <button class="pc-btn pc-outline" disabled>Agregar a calendario</button>
-        <button class="pc-btn pc-ghost" disabled>Indicaciones previas</button>
+        <a class="pc-btn pc-outline" href="#pc-m-cal">Agregar a calendario</a>
+        <a class="pc-btn pc-ghost" href="#pc-m-indicaciones">Indicaciones previas</a>
       </div>
     </div>
   </section>
@@ -48,25 +49,23 @@
             <tr>
               <td>2025-08-20</td><td>09:00</td><td>Revisión</td>
               <td><span class="pc-badge pc-b-ok">Atendida</span></td>
-              <td class="pc-right"><button class="pc-btn pc-ghost" disabled>Recibo</button></td>
+              <td class="pc-right"><a class="pc-btn pc-ghost" href="#pc-m-recibo">Recibo</a></td>
             </tr>
             <tr>
               <td>2025-07-15</td><td>12:30</td><td>Resina</td>
               <td><span class="pc-badge pc-b-ok">Atendida</span></td>
-              <td class="pc-right"><button class="pc-btn pc-ghost" disabled>Recibo</button></td>
+              <td class="pc-right"><a class="pc-btn pc-ghost" href="#pc-m-recibo">Recibo</a></td>
             </tr>
             <tr>
               <td>2025-06-10</td><td>10:00</td><td>Limpieza</td>
               <td><span class="pc-badge pc-b-cancel">Cancelada</span></td>
-              <td class="pc-right"><button class="pc-btn pc-ghost" disabled>Motivo</button></td>
+              <td class="pc-right"><a class="pc-btn pc-ghost" href="#pc-m-motivo">Motivo</a></td>
             </tr>
           </tbody>
         </table>
       </div>
       <div class="pc-pager">
-        <button class="pc-btn pc-ghost" disabled>« Anterior</button>
         <span class="pc-page">Página 1 de 4</span>
-        <button class="pc-btn pc-ghost" disabled>Siguiente »</button>
       </div>
     </article>
 
@@ -75,15 +74,15 @@
       <ul class="pc-list">
         <li>
           <span>Consentimiento informado (PDF)</span>
-          <button class="pc-btn pc-ghost" disabled>Descargar</button>
+          <a class="pc-btn pc-ghost" href="#pc-m-doc">Descargar</a>
         </li>
         <li>
           <span>Plan de tratamiento (PDF)</span>
-          <button class="pc-btn pc-ghost" disabled>Descargar</button>
+          <a class="pc-btn pc-ghost" href="#pc-m-doc">Descargar</a>
         </li>
         <li>
           <span>Factura #001245 (PDF)</span>
-          <button class="pc-btn pc-ghost" disabled>Descargar</button>
+          <a class="pc-btn pc-ghost" href="#pc-m-doc">Descargar</a>
         </li>
       </ul>
     </article>
@@ -91,32 +90,31 @@
     <article class="pc-card">
       <h3 class="pc-h3">Mi perfil</h3>
       <div class="pc-rows">
-        <div><span class="pc-label">Nombre</span><span>Ana López</span></div>
-        <div><span class="pc-label">Correo</span><span>ana@example.com</span></div>
+        <div><span class="pc-label">Nombre</span><span id="pc-nombre">Ana López</span></div>
+        <div><span class="pc-label">Correo</span><span id="pc-correo">ana@example.com</span></div>
         <div><span class="pc-label">Teléfono</span><span>+52 55 1234 5678</span></div>
         <div><span class="pc-label">Seguro</span><span>—</span></div>
         <div><span class="pc-label">Saldo</span><span class="pc-pay pc-warn">$ 1,200</span></div>
       </div>
       <div class="pc-cta">
-        <button class="pc-btn pc-outline" disabled>Editar datos</button>
-        <button class="pc-btn pc-ghost" disabled>Ver políticas</button>
+        <a class="pc-btn pc-outline" href="#pc-m-perfil">Editar datos</a>
+        <a class="pc-btn pc-ghost" href="#pc-m-politicas">Ver políticas</a>
       </div>
     </article>
   </section>
 </section>
 
 <style>
-/* ===== Estilos encapsulados del área Paciente (no tocan tu theme) ===== */
+/* ===== Estilos encapsulados del área Paciente ===== */
 .pc-scope{--ln: rgba(127,127,127,.25); color: currentColor}
 .pc-wrap{padding: 0 .25rem 1rem}
 .pc-header{margin: .25rem 0 1rem}
 .pc-title{margin:0 0 .25rem; font-size:1.35rem; font-weight:800}
 .pc-sub{opacity:.9; margin:0 0 .6rem}
 .pc-actions{display:flex; gap:.5rem; flex-wrap:wrap}
-.pc-btn{border:1px solid var(--ln); background:transparent; color:inherit; font-weight:700; padding:.5rem .85rem; border-radius:.7rem}
+.pc-btn{border:1px solid var(--ln); background:transparent; color:inherit; font-weight:700; padding:.5rem .85rem; border-radius:.7rem; text-decoration:none}
 .pc-btn.pc-outline{background:transparent}
 .pc-btn.pc-ghost{opacity:.85}
-.pc-btn[aria-disabled="true"], .pc-btn:disabled{opacity:.7; cursor:not-allowed}
 
 .pc-card{border:1px solid var(--ln); border-radius:1rem; padding:1rem; background:transparent; margin-bottom:1rem}
 .pc-h3{margin:0 0 .6rem; font-size:1.05rem}
@@ -148,6 +146,452 @@
 .pc-pay{font-weight:700}
 .pc-warn{color:#f59e0b}
 .pc-right{text-align:right}
+
+/* ===== Inputs + avisos + toast ===== */
+.pc-field{display:flex; gap:.6rem; margin:.6rem 0; align-items:center}
+.pc-field label{min-width:120px; font-weight:700; opacity:.85}
+.pc-field input,.pc-field select,.pc-field textarea{
+  width:100%; padding:.55rem .65rem; border:1px solid var(--ln);
+  border-radius:.55rem; background:transparent; color:inherit; outline:0;
+}
+.pc-actions-end{display:flex; gap:.5rem; justify-content:flex-end; margin-top:.8rem}
+.pc-hint{opacity:.7; font-size:.85rem; margin-top:.25rem}
+.pc-toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(30px);
+  background:#111; color:#fff; padding:.7rem 1rem; border-radius:.7rem;
+  box-shadow:0 8px 30px rgba(0,0,0,.25); opacity:0; transition:.25s; z-index:2000;}
+.pc-toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+/* Caja de advertencia */
+.pc-alert{
+  border:1px solid #f59e0b66; background:#f59e0b0f; border-radius:.6rem;
+  padding:.75rem; font-weight:700; margin:.5rem 0 1rem; color:#b45309;
+}
+
+/* ===== Modales CSS-only (namespace pc-modal*) ===== */
+.pc-modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:1rem; background:rgba(0,0,0,.35); z-index:1000}
+.pc-modal:target{display:flex}
+.pc-modal__card{width:min(560px,92vw); background:#fff; color:#111; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.15); overflow:hidden}
+.pc-modal__hd{padding:1rem 1.25rem; border-bottom:1px solid #eee; font-weight:700}
+.pc-modal__bd{padding:1rem 1.25rem}
+.pc-modal__ft{padding:.9rem 1.25rem; border-top:1px solid #eee; text-align:right}
+.pc-modal__card:focus{outline:3px solid #99c; outline-offset:2px}
 </style>
+
+{# ===== Toast (status) ===== #}
+<div id="pc-toast" class="pc-toast" role="status" aria-live="polite"></div>
+
+{# ======================= Modales ======================= #}
+
+<!-- Solicitar cita -->
+<div id="pc-m-solicitar" class="pc-modal" role="dialog" aria-labelledby="pc-mt-1">
+  <div class="pc-modal__card" tabindex="-1">
+    <div class="pc-modal__hd" id="pc-mt-1">Solicitar cita</div>
+    <div class="pc-modal__bd">
+      <form id="pc-form-agendar">
+        <div class="pc-field">
+          <label for="svc">Servicio</label>
+          <select id="svc" name="servicio" required>
+            {# Se llenará por JS con SERVICES (mismo catálogo que landing/index.html) #}
+          </select>
+        </div>
+        <div class="pc-field">
+          <label for="f">Fecha</label>
+          <input id="f" name="fecha" type="date" required>
+        </div>
+        <div class="pc-field">
+          <label for="h">Hora</label>
+          <input id="h" name="hora" type="time" required>
+        </div>
+        <div class="pc-field">
+          <label for="note">Motivo</label>
+          <input id="note" name="motivo" type="text" placeholder="Ej. limpieza semestral">
+        </div>
+        <p class="pc-hint">Una vez creada, **no** podrás solicitar otra; usa “Reprogramar”.</p>
+        <div class="pc-actions-end">
+          <a class="pc-btn" href="#">Cancelar</a>
+          <button class="pc-btn pc-outline" type="submit">Confirmar</button>
+        </div>
+      </form>
+    </div>
+    <div class="pc-modal__ft"></div>
+  </div>
+</div>
+
+<!-- Reprogramar -->
+<div id="pc-m-reprogramar" class="pc-modal" role="dialog" aria-labelledby="pc-mt-2">
+  <div class="pc-modal__card" tabindex="-1">
+    <div class="pc-modal__hd" id="pc-mt-2">Reprogramar</div>
+    <div class="pc-modal__bd">
+      <div class="pc-alert">ADVERTENCIA: puedes reprogramar <u>una sola vez cada 24&nbsp;horas</u> y <u>no se permite reprogramar el mismo día</u>. Debe ser a más tardar un día antes.</div>
+      <form id="pc-form-reprog">
+        <div class="pc-field">
+          <label for="rf">Nueva fecha</label>
+          <input id="rf" name="fecha" type="date" required>
+        </div>
+        <div class="pc-field">
+          <label for="rh">Nueva hora</label>
+          <input id="rh" name="hora" type="time" required>
+        </div>
+        <div class="pc-actions-end">
+          <a class="pc-btn" href="#">Cerrar</a>
+          <button class="pc-btn pc-outline" type="submit">Reprogramar</button>
+        </div>
+      </form>
+    </div>
+    <div class="pc-modal__ft"></div>
+  </div>
+</div>
+
+<!-- Agregar a calendario -->
+<div id="pc-m-cal" class="pc-modal" role="dialog" aria-labelledby="pc-mt-4">
+  <div class="pc-modal__card" tabindex="-1">
+    <div class="pc-modal__hd" id="pc-mt-4">Agregar a calendario</div>
+    <div class="pc-modal__bd">
+      <p>Genera un archivo <code>.ics</code> con la cita mostrada en “Tu próxima cita”.</p>
+      <div class="pc-actions-end">
+        <a class="pc-btn" href="#">Cerrar</a>
+        <button id="pc-btn-ics" class="pc-btn pc-outline" type="button">Descargar .ics</button>
+      </div>
+    </div>
+    <div class="pc-modal__ft"></div>
+  </div>
+</div>
+
+<!-- Indicaciones previas -->
+<div id="pc-m-indicaciones" class="pc-modal" role="dialog" aria-labelledby="pc-mt-5">
+  <div class="pc-modal__card" tabindex="-1">
+    <div class="pc-modal__hd" id="pc-mt-5">Indicaciones previas</div>
+    <div class="pc-modal__bd">
+      <ul style="margin:.25rem 0 0 1rem;">
+        <li>Llega 10 minutos antes.</li>
+        <li>Evita comer 30 minutos previos.</li>
+        <li>Trae identificación y estudios previos.</li>
+      </ul>
+      <div class="pc-actions-end">
+        <a class="pc-btn" href="#">Entendido</a>
+      </div>
+    </div>
+    <div class="pc-modal__ft"></div>
+  </div>
+</div>
+
+<!-- Recibo (demo) -->
+<div id="pc-m-recibo" class="pc-modal" role="dialog" aria-labelledby="pc-mt-6">
+  <div class="pc-modal__card" tabindex="-1">
+    <div class="pc-modal__hd" id="pc-mt-6">Recibo</div>
+    <div class="pc-modal__bd">
+      <p>Descarga disponible próximamente.</p>
+      <div class="pc-actions-end">
+        <a class="pc-btn" href="#">Cerrar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Motivo de cancelación (demo) -->
+<div id="pc-m-motivo" class="pc-modal" role="dialog" aria-labelledby="pc-mt-7">
+  <div class="pc-modal__card" tabindex="-1">
+    <div class="pc-modal__hd" id="pc-mt-7">Motivo de cancelación</div>
+    <div class="pc-modal__bd">
+      <p>Cancelada por solicitud del paciente.</p>
+      <div class="pc-actions-end">
+        <a class="pc-btn" href="#">Cerrar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Documento (demo) -->
+<div id="pc-m-doc" class="pc-modal" role="dialog" aria-labelledby="pc-mt-8">
+  <div class="pc-modal__card" tabindex="-1">
+    <div class="pc-modal__hd" id="pc-mt-8">Documento</div>
+    <div class="pc-modal__bd">
+      <p>La descarga se habilitará cuando se integre el backend.</p>
+      <div class="pc-actions-end">
+        <a class="pc-btn" href="#">Cerrar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Perfil / Políticas (demo) -->
+<div id="pc-m-perfil" class="pc-modal" role="dialog" aria-labelledby="pc-mt-9">
+  <div class="pc-modal__card" tabindex="-1">
+    <div class="pc-modal__hd" id="pc-mt-9">Editar perfil</div>
+    <div class="pc-modal__bd">
+      <p>Aquí irá el formulario de edición.</p>
+      <div class="pc-actions-end">
+        <a class="pc-btn" href="#">Cerrar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="pc-m-politicas" class="pc-modal" role="dialog" aria-labelledby="pc-mt-10">
+  <div class="pc-modal__card" tabindex="-1">
+    <div class="pc-modal__hd" id="pc-mt-10">Políticas</div>
+    <div class="pc-modal__bd">
+      <p>Contenido de políticas del consultorio.</p>
+      <div class="pc-actions-end">
+        <a class="pc-btn" href="#">Cerrar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ===== JS (puro) ===== #}
+<script>
+(function(){
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+
+  // === Catálogo de servicios ===
+  // ACTUALIZA esta lista para que coincida EXACTO con templates/landing/index.html
+  const SERVICES = [
+    "Limpieza",
+    "Resina",
+    "Revisión",
+    "Extracción",
+    "Blanqueamiento"
+  ];
+
+  // Toast
+  const toast = (msg) => {
+    const el = $("#pc-toast");
+    if(!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+    setTimeout(()=> el.classList.remove("show"), 2000);
+  };
+
+  // Persistencia demo (localStorage)
+  const KEY = "pc-next-appointment";
+  const KEY_REPROG_AT = "pc-reprog-at";   // timestamp última reprogramación
+  const KEY_REPROG_COUNT = "pc-reprog-count"; // contador total (para política)
+
+  const getAppt = () => { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch { return null; } };
+  const setAppt = (obj) => localStorage.setItem(KEY, JSON.stringify(obj));
+  const getReprogAt = () => parseInt(localStorage.getItem(KEY_REPROG_AT) || "0", 10);
+  const setReprogAt = (ts) => localStorage.setItem(KEY_REPROG_AT, String(ts));
+  const getReprogCount = () => parseInt(localStorage.getItem(KEY_REPROG_COUNT) || "0", 10);
+  const setReprogCount = (n) => localStorage.setItem(KEY_REPROG_COUNT, String(n));
+
+  // Utiles de fecha
+  const today = new Date(); today.setHours(0,0,0,0);
+  const isoToday = today.toISOString().slice(0,10);
+  const tomorrow = new Date(today.getTime() + 24*3600*1000);
+  const isoTomorrow = tomorrow.toISOString().slice(0,10);
+
+  $$("input[type=date]").forEach(i => i.min = isoToday); // por default
+
+  function prettyDate(yyyyMMdd){
+    if(!yyyyMMdd) return "";
+    const [y,m,d] = yyyyMMdd.split("-").map(Number);
+    const dt = new Date(y, m-1, d);
+    return dt.toLocaleDateString("es-MX", {month:"short", day:"2-digit", year:"numeric"});
+  }
+
+  // Render tarjeta y UI (visibilidad de botones)
+  function renderAppt(){
+    const a = getAppt();
+    const btnSolicitar = $("#pc-btn-solicitar");
+    const btnReprog = $("#pc-btn-reprog");
+    const btnCancel = $("#pc-btn-cancel");
+
+    if(a){
+      // Rellena tarjeta
+      $("[data-pc='fecha']").textContent = a.fecha || $("[data-pc='fecha']").textContent;
+      $("[data-pc='hora']").textContent  = a.hora  || $("[data-pc='hora']").textContent;
+      $("[data-pc='motivo']").textContent= a.motivo|| $("[data-pc='motivo']").textContent;
+      $("[data-pc='estado']").textContent= a.estado|| "Confirmada";
+
+      // Oculta “Solicitar” si ya hay cita
+      if(btnSolicitar) btnSolicitar.style.display = "none";
+
+      // Reprogramar visible
+      if(btnReprog) btnReprog.style.display = "";
+
+      // Cancelar abre mailto con detalles
+      if(btnCancel){
+        const nombre = ($("#pc-nombre")?.textContent || "Paciente").trim();
+        const correo = "dentista.choyo@gmail.com";
+        const subject = encodeURIComponent("Solicitud de cancelación de cita");
+        const body = encodeURIComponent(
+`Hola Dr. Castellón,
+
+Deseo solicitar la cancelación de mi cita.
+
+Datos de la cita:
+- Paciente: ${nombre}
+- Servicio: ${a.servicio || a.motivo || "—"}
+- Motivo: ${a.motivo || "—"}
+- Fecha: ${a.fecha || "—"}
+- Hora: ${a.hora || "—"}
+
+Gracias de antemano.
+`
+        );
+        btnCancel.href = `mailto:${correo}?subject=${subject}&body=${body}`;
+      }
+    } else {
+      // No hay cita -> mostrar “Solicitar” y ocultar “Reprogramar/Cancelar”
+      if(btnSolicitar) btnSolicitar.style.display = "";
+      if(btnReprog) btnReprog.style.display = "none";
+      if(btnCancel) btnCancel.style.display = "none";
+    }
+  }
+
+  // Poblar servicios del <select> con el catálogo (coincidir con landing/index.html)
+  function populateServices(){
+    const sel = $("#svc");
+    if(!sel) return;
+    sel.innerHTML = `<option value="">— Selecciona —</option>` +
+      SERVICES.map(s => `<option>${s}</option>`).join("");
+  }
+
+  // Formularios
+  const fAgendar = $("#pc-form-agendar");
+  const fReprog  = $("#pc-form-reprog");
+
+  // Política de reprogramación: una cada 24h y no mismo día
+  function canReprogram(newDateISO){
+    // No mismo día: debe ser >= mañana
+    if(newDateISO < isoTomorrow){
+      toast("No puedes reprogramar para hoy. Debe ser desde mañana.");
+      return false;
+    }
+    // Una sola vez por 24h
+    const last = getReprogAt();
+    if(last){
+      const diff = Date.now() - last; // ms
+      if(diff < 24*3600*1000){
+        const hrs = Math.ceil((24*3600*1000 - diff)/3600000);
+        toast(`Ya reprogramaste recientemente. Intenta en ${hrs} h.`);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // === Agendar ===
+  if(fAgendar){
+    fAgendar.addEventListener("submit", (e)=>{
+      e.preventDefault();
+      // Si ya existe una cita, bloquear “solicitar” de nuevo
+      if(getAppt()){
+        toast("Ya tienes una cita. Usa Reprogramar.");
+        location.hash = "";
+        return;
+      }
+      const fd = new FormData(fAgendar);
+      const appt = {
+        servicio: fd.get("servicio") || "—",
+        fechaISO: fd.get("fecha") || isoTomorrow,
+        fecha: prettyDate(fd.get("fecha") || isoTomorrow),
+        hora: fd.get("hora") || "—",
+        motivo: (fd.get("motivo") || "").trim() || (fd.get("servicio") || "—"),
+        estado: "Confirmada",
+      };
+      setAppt(appt);
+      toast("Cita creada");
+      renderAppt();
+      location.hash = ""; // cerrar modal
+    });
+  }
+
+  // === Reprogramar ===
+  if(fReprog){
+    // La nueva fecha debe ser >= mañana
+    const rf = $("#rf");
+    if(rf) rf.min = isoTomorrow;
+
+    fReprog.addEventListener("submit", (e)=>{
+      e.preventDefault();
+      const cur = getAppt();
+      if(!cur){
+        toast("No tienes cita para reprogramar.");
+        location.hash = "";
+        return;
+      }
+      const fd = new FormData(fReprog);
+      const newISO = fd.get("fecha");
+      const newHora = fd.get("hora");
+
+      if(!canReprogram(newISO)) return;
+
+      cur.fechaISO = newISO;
+      cur.fecha = prettyDate(newISO);
+      cur.hora  = newHora || cur.hora;
+      cur.estado = "Reprogramada";
+      setAppt(cur);
+
+      setReprogAt(Date.now());
+      setReprogCount(getReprogCount() + 1);
+
+      toast("Cita reprogramada");
+      renderAppt();
+      location.hash = "";
+    });
+  }
+
+  // === ICS ===
+  function toICS(appt){
+    // Construye fecha/hora con zona simplificada (demo)
+    const now = new Date();
+    let dt = appt.fechaISO ? new Date(appt.fechaISO) : now;
+    const [hh="10", mm="00"] = (appt.hora || "").split(":");
+    dt.setHours(parseInt(hh,10)||10, parseInt(mm,10)||0, 0);
+    const dtEnd = new Date(dt.getTime() + 30*60000);
+
+    const fmt = (d) => {
+      const pad = (n)=> String(n).padStart(2,"0");
+      return d.getUTCFullYear()
+        + pad(d.getUTCMonth()+1)
+        + pad(d.getUTCDate()) + "T"
+        + pad(d.getUTCHours())
+        + pad(d.getUTCMinutes())
+        + pad(d.getUTCSeconds()) + "Z";
+    };
+
+    const lines = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//RC Consultorio//Paciente//ES",
+      "BEGIN:VEVENT",
+      "UID:" + (Date.now()) + "@rc-paciente",
+      "DTSTAMP:" + fmt(new Date()),
+      "DTSTART:" + fmt(dt),
+      "DTEND:"   + fmt(dtEnd),
+      "SUMMARY:" + (appt.motivo || "Cita dental"),
+      "LOCATION:" + (document.querySelector("[data-pc='consultorio']")?.textContent || "Consultorio"),
+      "DESCRIPTION:" + (appt.servicio ? ("Servicio: " + appt.servicio) : "Cita"),
+      "END:VEVENT",
+      "END:VCALENDAR"
+    ];
+    return lines.join("\r\n");
+  }
+  const btnICS = $("#pc-btn-ics");
+  if(btnICS){
+    btnICS.addEventListener("click", ()=>{
+      const a = getAppt();
+      if(!a){ toast("Primero crea una cita."); return; }
+      const blob = new Blob([toICS(a)], {type:"text/calendar;charset=utf-8"});
+      const url  = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "cita_rc.ics";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast(".ics generado");
+    });
+  }
+
+  // Inicialización
+  populateServices();
+  renderAppt();
+})();
+</script>
 
 {% endblock %}
