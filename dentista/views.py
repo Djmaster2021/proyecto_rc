@@ -1,3 +1,4 @@
+# dentista/views.py
 from django.shortcuts import render
 
 def dashboard(request):
@@ -8,3 +9,6 @@ def agenda(request):
 
 def pacientes(request):
     return render(request, "dentista/pacientes.html")
+
+def pagos(request):
+    return render(request, "dentista/pagos.html")

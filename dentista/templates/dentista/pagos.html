@@ -1,0 +1,180 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Pagos{% endblock %}
+{% block dcontent %}
+
+<section class="pg-scope pg-wrap">
+  <header class="pg-header">
+    <h2 class="pg-title">Pagos</h2>
+    <div class="pg-filters">
+      <label class="pg-field">
+        <span>Rango</span>
+        <select class="pg-input" disabled>
+          <option>Hoy</option><option>Semana</option><option>Mes</option>
+        </select>
+      </label>
+      <label class="pg-field">
+        <span>Método</span>
+        <select class="pg-input" disabled>
+          <option>Todos</option><option>Efectivo</option><option>Tarjeta</option><option>Transferencia</option>
+        </select>
+      </label>
+      <label class="pg-search">
+        <input class="pg-input" placeholder="Buscar por paciente o concepto…" disabled>
+      </label>
+    </div>
+  </header>
+
+  <div class="pg-grid">
+    <!-- Pagos del día -->
+    <article class="pg-card">
+      <div class="pg-card-head">
+        <h3>Pagos de hoy</h3>
+        <div class="pg-legend">
+          <span class="pg-badge pg-ok">Pagado</span>
+          <span class="pg-badge pg-pend">Pendiente</span>
+          <span class="pg-badge pg-cancel">Cancelado</span>
+        </div>
+      </div>
+
+      <div class="pg-table-wrap">
+        <table class="pg-table" aria-label="Pagos de hoy">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Paciente</th>
+              <th>Concepto</th>
+              <th>Método</th>
+              <th class="pg-right">Monto</th>
+              <th>Estatus</th>
+              <th class="pg-right"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>10:30</td>
+              <td>Martha Díaz</td>
+              <td>Resina 2 molar</td>
+              <td>Tarjeta</td>
+              <td class="pg-right">$ 850.00</td>
+              <td><span class="pg-badge pg-ok">Pagado</span></td>
+              <td class="pg-right"><button class="pg-btn pg-ghost" disabled>Recibo</button></td>
+            </tr>
+            <tr>
+              <td>11:15</td>
+              <td>Ana López</td>
+              <td>Limpieza</td>
+              <td>Efectivo</td>
+              <td class="pg-right">$ 500.00</td>
+              <td><span class="pg-badge pg-pend">Pendiente</span></td>
+              <td class="pg-right"><button class="pg-btn pg-ghost" disabled>Registrar pago</button></td>
+            </tr>
+            <tr>
+              <td>13:30</td>
+              <td>Cecilia Romero</td>
+              <td>Blanqueamiento</td>
+              <td>—</td>
+              <td class="pg-right">—</td>
+              <td><span class="pg-badge pg-cancel">Cancelado</span></td>
+              <td></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" class="pg-right pg-total-label">Total del día</td>
+              <td class="pg-right pg-total">$ 1,350.00</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </article>
+
+    <!-- Ingresos últimos 30 días -->
+    <article class="pg-card">
+      <div class="pg-card-head">
+        <h3>Ingresos (últimos 30 días)</h3>
+        <div class="pg-sub">Valores simulados (frontend)</div>
+      </div>
+      <div class="pg-chart-wrap">
+        <canvas id="pgChart" height="240"></canvas>
+      </div>
+    </article>
+  </div>
+</section>
+
+<style>
+/* ====== Estilos encapsulados Pagos ====== */
+.pg-scope{--pg-fg: currentColor; --pg-line: rgba(127,127,127,.25)}
+.pg-scope .pg-wrap{color:var(--pg-fg)}
+.pg-scope .pg-title{margin:0;font-size:1.25rem;font-weight:700}
+.pg-scope .pg-header{display:flex;align-items:end;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem}
+.pg-scope .pg-filters{display:flex;gap:.5rem;align-items:end;flex-wrap:wrap}
+.pg-scope .pg-field{display:flex;flex-direction:column;gap:.3rem;font-size:.85rem;opacity:.9}
+.pg-scope .pg-input{background:transparent;border:1px solid var(--pg-line);border-radius:.6rem;padding:.45rem .6rem;min-width:160px;color:inherit}
+.pg-scope .pg-search .pg-input{min-width:260px}
+
+.pg-scope .pg-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:1000px){.pg-scope .pg-grid{grid-template-columns:1fr}}
+.pg-scope .pg-card{border:1px solid var(--pg-line);border-radius:.9rem;padding:1rem;background:transparent}
+.pg-scope .pg-card-head{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:.5rem}
+.pg-scope .pg-card-head h3{margin:0;font-size:1.05rem}
+.pg-scope .pg-sub{opacity:.75;font-size:.9rem}
+
+.pg-scope .pg-legend{display:flex;gap:.4rem;flex-wrap:wrap}
+.pg-scope .pg-badge{padding:.2rem .5rem;border-radius:.6rem;font-size:.78rem;font-weight:700;display:inline-block;border:1px solid var(--pg-line)}
+.pg-scope .pg-ok{background:rgba(34,197,94,.12);color:#22c55e;border-color:rgba(34,197,94,.35)}
+.pg-scope .pg-pend{background:rgba(245,158,11,.12);color:#f59e0b;border-color:rgba(245,158,11,.35)}
+.pg-scope .pg-cancel{background:rgba(239,68,68,.12);color:#ef4444;border-color:rgba(239,68,68,.35)}
+
+.pg-scope .pg-table{width:100%;border-collapse:collapse}
+.pg-scope .pg-table th,.pg-scope .pg-table td{border-bottom:1px solid var(--pg-line);padding:.7rem .5rem;text-align:left;vertical-align:middle}
+.pg-scope .pg-right{text-align:right}
+.pg-scope .pg-total-label{font-weight:700;opacity:.85}
+.pg-scope .pg-total{font-weight:800}
+
+.pg-scope .pg-table-wrap{overflow:auto;border-radius:.6rem}
+.pg-scope .pg-btn{border:1px solid var(--pg-line);border-radius:.6rem;background:transparent;padding:.45rem .7rem;color:inherit;font-weight:600}
+.pg-scope .pg-ghost{opacity:.8}
+
+.pg-scope .pg-chart-wrap{height:260px}
+</style>
+
+<!-- Chart solo frontend (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+  const el = document.getElementById('pgChart');
+  if(!el) return;
+  // Datos de ejemplo: 30 días
+  const labels = Array.from({length:30}, (_,i)=>`D${i+1}`);
+  const data = Array.from({length:30}, ()=> Math.round(300 + Math.random()*700));
+  new Chart(el, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Ingresos',
+        data,
+        tension: .35,
+        borderColor: '#5B8DEF',
+        backgroundColor: 'rgba(91,141,239,.18)',
+        fill: true,
+        pointRadius: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: 'rgba(127,127,127,.18)' } }
+      },
+      plugins: { legend: { labels: { color: getComputedStyle(document.body).color } } }
+    }
+  });
+})();
+</script>
+
+{% endblock %}
