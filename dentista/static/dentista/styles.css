@@ -38,4 +38,82 @@
   .ag-scope .ag-grid,
   .pt-scope .pt-kpis,
   .pg-scope .pg-grid{ grid-template-columns:1fr !important; }
+  .pg-scope .pg-chart-wrap{height:260px}
+
+}
+
+/* ====== Responsive core (añadir al final) ====== */
+
+/* Tipografía y contenedor fluidos */
+:root{
+  --container-max: 1200px;
+  --space: clamp(.75rem, 2vw, 1.25rem);
+  --fs-base: clamp(14px, 1.2vw, 16px);
+  --fs-sm: clamp(12px, .9vw, 14px);
+  --fs-lg: clamp(16px, 1.6vw, 20px);
+}
+*{ box-sizing: border-box; min-width: 0; }
+html{ font-size:100%; }
+body{ font-size: var(--fs-base); line-height:1.5; }
+.container{ width:min(100% - 2*var(--space), var(--container-max)); margin-inline:auto; }
+
+/* Utilidades anti-overflow */
+.u-wrap{ overflow-wrap:anywhere; word-break:break-word; }
+.u-ellipsis{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* Grids fluidos (mejora de .grid existente) */
+.grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%,260px), 1fr));
+  gap:1rem;
+}
+.grid > *{ min-width:0; } /* clave para que hijos no desborden */
+
+/* Tablas: scroll suave y apilable opcional */
+.table-wrap, .pg-table-wrap{ overflow:auto; border-radius:8px; -webkit-overflow-scrolling:touch; }
+.table{ width:100%; border-collapse:collapse; }
+.table th, .table td{ padding:.6rem .8rem; vertical-align:top; }
+.table td, .table th{ max-width:24ch; }
+.table td{ overflow-wrap:anywhere; }
+
+/* Modo apilado: aplica a <table class="table table--stack"> */
+@media (max-width:700px){
+  .table--stack thead{ display:none; }
+  .table--stack, .table--stack tbody, .table--stack tr, .table--stack td{ display:block; width:100%; }
+  .table--stack tr{ border:1px solid #e5e7eb; border-radius:8px; padding:.4rem; margin-block:.6rem; }
+  .table--stack td{ display:grid; grid-template-columns: 10ch 1fr; gap:.5rem; align-items:start; }
+  .table--stack td::before{
+    content: attr(data-label);
+    font-weight:600; color:#374151; white-space:nowrap;
+  }
+}
+
+/* Gráficas 100% responsive (Chart.js/ECharts/Apex) */
+.chart-wrap{
+  width:100%;
+  aspect-ratio:16/9;     /* controla alto sin fijarlo */
+  max-height:70vh;
+}
+.chart-wrap > canvas,
+.chart-wrap > div{ width:100% !important; height:100% !important; }
+
+/* Agenda: vista semanal desplazable en móviles sin romper */
+@media (max-width:900px){
+  .ag-scope .ag-board{ overflow:auto; }
+  .ag-scope .ag-board-head,
+  .ag-scope .ag-grid{ min-width: 860px; } /* evita colapso de columnas */
+}
+
+/* Mantén tu regla para colapsar grids internos */
+@media (max-width:1200px){
+  .ag-scope .ag-grid,
+  .pt-scope .pt-kpis,
+  .pg-scope .pg-grid{ grid-template-columns:1fr !important; }
+  .pg-scope .pg-chart-wrap{height:260px}
+
+}
+
+/* Accesibilidad: respeta reduce motion */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
 }

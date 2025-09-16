@@ -11,9 +11,9 @@
 
   <article class="card" style="padding:1rem;background:#fff;border:1px solid #e5e7eb;border-radius:12px;min-height:260px">
     <h3 style="margin:0 0 .5rem">Citas por día</h3>
-    <div style="height:220px"><canvas id="chartCitas"></canvas></div>
+    <div class="chart-wrap"><canvas id="chartCitas"></canvas></div>
   </article>
-
+  
   <article class="card" style="padding:1rem;background:#fff;border:1px solid #e5e7eb;border-radius:12px">
     <h3 style="margin:0 0 .5rem">Últimos pacientes</h3>
     <div class="table-wrap">
@@ -33,3 +33,33 @@
 <!-- Chart.js solo aquí (pagos ya lo incluye en su propia vista) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 {% endblock %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('chartCitas');
+    if(!el || !window.Chart) return;
+  
+    new Chart(el, {
+      type: 'line',
+      data: {
+        labels: ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],
+        datasets: [{
+          label: 'Citas',
+          data: [3,5,4,7,6,2,1],
+          tension:.35,
+          fill:true,
+          pointRadius:0
+        }]
+      },
+      options: {
+        responsive:true,
+        maintainAspectRatio:false,
+        scales:{
+          x:{ ticks:{ autoSkip:true } },
+          y:{ beginAtZero:true }
+        }
+      }
+    });
+  });
+  </script>
+  

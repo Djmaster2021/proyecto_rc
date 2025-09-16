@@ -1,10 +1,14 @@
-from django.urls import path
-from . import views
-
-app_name = "accounts"
+from django.contrib import admin
+from django.urls import path, include
 
 urlpatterns = [
-    path("login/", views.login_view, name="login"),
-    path("register/", views.register_view, name="register"),
-    path("logout/", views.logout_view, name="logout"),
+    path('admin/', admin.site.urls),
+
+    # Monta accounts con namespace
+    path('accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
+
+    # Rutas de tus otras apps...
+    path('dentista/', include('dentista.urls')),
+    path('paciente/', include('paciente.urls')),
+    # path('', include('proyecto_rc.urls')),  # si usas landing
 ]

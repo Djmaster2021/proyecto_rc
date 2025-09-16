@@ -1,9 +1,14 @@
-<nav class="navbar">
-  <a href="{% url 'home' %}" class="brand">RC</a>
-  <ul class="nav">
-    <li><a href="{% url 'paciente:dashboard' %}">Paciente</a></li>
-    <li><a href="{% url 'dentista:dashboard' %}">Dentista</a></li>
-    <li><a href="{% url 'accounts:login' %}">Ingresar</a></li>
-    
-  </ul>
+{% load static %}
+<nav class="rc-navbar navbar-blur">
+  <div class="rc-wrap">
+    <a class="rc-logo" href="{% url 'home' %}">Consultorio <span>Dental</span></a>
+    <ul class="rc-menu">
+      <li><a href="{% url 'home' %}#servicios">Servicios</a></li>
+      <li><a href="{% url 'home' %}#acerca">Acerca</a></li>
+      <li><a href="{% url 'home' %}#pagos">Pagos</a></li>
+      <li><a href="{% url 'home' %}#contacto">Contacto</a></li>
+      <li><a class="rc-btn rc-btn--ghost" href="{% url 'accounts:login' %}">Iniciar sesión</a></li>
+      <li><a class="rc-btn rc-btn--primary" href="{% url 'paciente:citas' %}">Agenda tu cita</a></li>
+    </ul>
+  </div>
 </nav>

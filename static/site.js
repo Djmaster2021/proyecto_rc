@@ -67,3 +67,14 @@
     });
   });
 })();
+
+// Scroll suave si no lo tienes
+if ('scrollBehavior' in document.documentElement.style === false) {
+  // polyfill simple
+}
+// Navbar shrink
+const nav=document.querySelector('.navbar');
+if(nav){
+  const onScroll=()=> nav.classList.toggle('navbar-blur', window.scrollY>8);
+  window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+}

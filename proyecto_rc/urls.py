@@ -5,11 +5,11 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-
-    # Landing pública (fuera de las apps)
+    #Home
     path("", TemplateView.as_view(template_name="landing/index.html"), name="home"),
-    # Frontends por sección
-    path("dentista/", include(("dentista.urls", "dentista"), namespace="dentista")),
+
+    #Apps
     path("accounts/", include(("accounts.urls", "accounts"), namespace="accounts")),
+    path("dentista/", include(("dentista.urls", "dentista"), namespace="dentista")),
     path("paciente/", include(("paciente.urls", "paciente"), namespace="paciente")),
 ]

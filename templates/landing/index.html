@@ -1,228 +1,220 @@
 {% extends "_components/base_site.html" %}
 {% load static %}
 
-{% block title %}Inicio · Consultorio “Rodolfo Castellón”{% endblock %}
+{% block title %}Consultorio Dental Rodolfo Castellón | Sistema integral de pacientes, citas y pagos{% endblock %}
+{% block meta_description %}Atención dental profesional en Puerto Vallarta. Sistema integral para pacientes, citas y pagos. WhatsApp 322 889 2558.{% endblock %}
 
-{# Ocultamos el navbar global para no duplicarlo en esta portada #}
-{% block site_nav %}{% endblock %}
+{% block extra_head %}
+<link rel="preload" href="{% static 'img/fondodentista1.jpg' %}" as="image">
+<style>
+  :root{
+    --bg:#0b1220; --panel:#0f172a; --muted:#93a1b3; --ink:#e8eef7;
+    --brand:#2ee6a6; --brand-2:#72e4ff; --ring:rgba(46,230,166,.35); --glass:rgba(255,255,255,.06);
+  }
+  html{scroll-behavior:smooth} body{background:var(--bg);color:var(--ink)}
+  .wrap{max-width:1180px;margin:auto;padding:0 1.2rem}
+  section{padding:82px 0; position:relative}
+  .grid{display:grid;gap:1.2rem} .grid-2{grid-template-columns:1.15fr .85fr} .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .muted{color:var(--muted)}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.06);
+        border-radius:20px;padding:1.2rem;box-shadow:0 20px 60px rgba(0,0,0,.25);backdrop-filter: blur(6px);
+        transform:translateY(0);transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease}
+  .card:hover{ transform:translateY(-4px); border-color:rgba(114,228,255,.28); box-shadow:0 28px 70px rgba(16,147,173,.18) }
+  .hero{min-height:86svh; display:grid; place-items:center; overflow:hidden;
+        background: radial-gradient(1200px 600px at 10% -10%, rgba(114,228,255,.18), transparent 60%),
+                    radial-gradient(900px 520px at 100% 10%, rgba(46,230,166,.18), transparent 60%),
+                    url("{% static 'img/fondodentista1.jpg' %}") center/cover no-repeat}
+  .hero::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(11,18,32,.7),rgba(11,18,32,.85))}
+  .hero-inner{ position:relative; z-index:2; text-align:center; padding:3.2rem 0 }
+  .kicker{color:var(--brand-2);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.85rem}
+  h1{font-size:clamp(2rem,5vw,3.6rem);line-height:1.06;margin:.65rem 0 1rem}
+  .lead{color:#cfe7f6;max-width:820px;margin:0 auto 1.5rem;font-size:clamp(1rem,1.4vw,1.12rem)}
+  .cta{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:.6rem;border:1px solid rgba(255,255,255,.14);
+       background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
+       padding:.78rem 1.05rem;border-radius:999px;font-weight:800;color:var(--ink);text-decoration:none}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 14px 36px -10px var(--ring)}
+  .btn--primary{background:linear-gradient(90deg,var(--brand),var(--brand-2));border-color:transparent;color:#04131a}
+  .blob{position:absolute; width:600px; height:600px; filter:blur(40px); opacity:.55; z-index:1;
+        background:radial-gradient(circle at 30% 30%, var(--brand), transparent 55%),
+                   radial-gradient(circle at 70% 60%, var(--brand-2), transparent 45%);
+        animation:floaty 14s ease-in-out infinite alternate}
+  .blob.bl2{right:-160px; top:-80px; transform:scale(1.1); animation-duration:18s}
+  .blob.bl1{left:-180px; bottom:-160px; animation-duration:16s}
+  @keyframes floaty{ from{transform:translateY(-12px) rotate(0deg)} to{transform:translateY(12px) rotate(6deg)} }
+  .wave-top, .wave-btm{ position:relative; height:70px } .wave-top svg, .wave-btm svg{ position:absolute; width:100%; height:100%; left:0; top:0; display:block }
+  .wave-top path{ fill:var(--bg) } .wave-btm path{ fill:var(--panel) }
+  .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin-top:1.2rem}
+  .stat{border:1px dashed rgba(255,255,255,.12);border-radius:16px;padding:1rem 1.2rem;background:var(--glass)}
+  .stat strong{font-size:clamp(1.6rem,3vw,2.2rem); background:linear-gradient(90deg,#fff,var(--brand-2));-webkit-background-clip:text;color:transparent}
+  .svc{display:flex;gap:.9rem;align-items:flex-start}
+  .ico{width:42px;height:42px;border-radius:12px;background:linear-gradient(180deg,rgba(114,228,255,.2),rgba(114,228,255,.08));
+       display:grid;place-items:center;border:1px solid rgba(114,228,255,.25);flex:0 0 42px}
+  .badges{display:flex;flex-wrap:wrap;gap:.55rem} .badge{border:1px solid rgba(255,255,255,.14);background:var(--glass);padding:.45rem .75rem;border-radius:999px}
+  .carousel{position:relative;overflow:hidden} .track{display:flex;gap:1rem;transition:transform .6s cubic-bezier(.2,.7,.2,1)} .tcard{min-width:calc(50% - .5rem)}
+  .rating{display:flex;gap:2px;margin:.2rem 0 .1rem} .tooth{width:20px;height:20px} .tooth path{fill:#334155} .tooth.filled path{fill:var(--brand)}
+  .car-ctrl{display:flex;gap:.5rem;justify-content:flex-end;margin-top:.6rem} .ctrl{border:1px solid rgba(255,255,255,.16);background:var(--glass);border-radius:10px;padding:.45rem .6rem;cursor:pointer}
+  .contact-card input,.contact-card textarea{width:100%;padding:.9rem;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.03);color:var(--ink)}
+  .contact-grid{display:grid;gap:1.2rem;grid-template-columns:1.1fr .9fr}
+  .reveal{opacity:0;transform:translateY(16px);transition:all .7s cubic-bezier(.2,.7,.2,1)} .reveal.in{opacity:1;transform:none}
+  @media (max-width:900px){ .grid-2{grid-template-columns:1fr} .grid-3{grid-template-columns:1fr 1fr} .tcard{min-width:100%} }
+  @media (max-width:640px){ .grid-3{grid-template-columns:1fr} }
+</style>
+{% endblock %}
 
 {% block content %}
-<header class="header header--light">
-  <nav class="nav" aria-label="Principal">
-    <button class="burger" id="burger" aria-label="Abrir menú"
-            aria-controls="mobile-panel" aria-expanded="false">☰</button>
-
-    <a href="#inicio" class="brand" aria-label="Inicio">
-      <span class="brand__text">RC</span>
-    </a>
-
-    <div class="menu" role="menubar" aria-label="Secciones">
-      <a href="#inicio"     data-section="inicio"     class="active" role="menuitem">Inicio</a>
-      <a href="#servicios"  data-section="servicios"  role="menuitem">Servicios</a>
-      <a href="#pagos"      data-section="pagos"      role="menuitem">Pagos</a>
-      <a href="#contacto"   data-section="contacto"   role="menuitem">Contáctanos</a>
+<header class="hero">
+  <div class="blob bl1"></div><div class="blob bl2"></div>
+  <div class="hero-inner wrap">
+    <div class="kicker">Odontología integral • Puerto Vallarta</div>
+    <h1 class="reveal">Consultorio Dental Rodolfo Castellón</h1>
+    <p class="lead reveal"><strong>Sistema integral</strong> para la <strong>gestión de pacientes, citas y pagos</strong>. Tecnología moderna, trato humano y precios accesibles.</p>
+    <div class="cta reveal">
+      <a class="btn btn--primary" href="https://wa.me/523228892558?text=Hola%20me%20gustar%C3%ADa%20agendar%20una%20cita" target="_blank" rel="noopener">💬 WhatsApp</a>
+      <a class="btn" href="{% url 'paciente:citas' %}">🗓️ Agenda tu cita</a>
+      <a class="btn" href="{% url 'accounts:login' %}">🔐 Iniciar sesión</a>
     </div>
-
-    <div class="auth">
-      <a href="{% url 'accounts:login' %}" class="btn btn--cta">Ingresar</a>
-    </div>
-  </nav>
-
-  <!-- Panel móvil -->
-  <div class="panel" id="mobile-panel">
-    <div class="panel-inner">
-      <div class="row">
-        <a href="#inicio" data-section="inicio" class="active">Inicio</a>
-        <a href="#servicios" data-section="servicios">Servicios</a>
-        <a href="#pagos" data-section="pagos">Pagos</a>
-        <a href="#contacto" data-section="contacto">Contáctanos</a>
-      </div>
+    <div class="stats">
+      <div class="stat reveal"><strong>10k+</strong><div class="muted">Procedimientos realizados</div></div>
+      <div class="stat reveal"><strong>4.9/5</strong><div class="muted">Satisfacción de pacientes</div></div>
+      <div class="stat reveal"><strong>15+ años</strong><div class="muted">Experiencia del Dr. Castellón</div></div>
     </div>
   </div>
 </header>
 
-  <main>
-    <!-- Hero -->
-    <header id="inicio" class="plx-section is-hero">
-      <div class="plx-layer bg" data-plx-speed="0.25"
-           style="--plx-img: url('{% static "img/fondodentista1.jpg" %}');"></div>
-      <div class="plx-inner">
-        <h1>Consultorio “Rodolfo Castellón”</h1>
-        <p>Sistema integral para la gestión de pacientes, citas y pagos.</p>
-        <p class="home-links">
-          <a class="btn btn--cta" href="{% url 'accounts:login' %}">Ingresar</a>
-        </p>
-        <a class="scroll-down" href="#servicios" aria-label="Bajar a servicios">▼</a>
+<div class="wave-btm"><svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,32 C240,70 480,-8 720,20 C960,48 1200,80 1440,50 L1440,0 L0,0 Z"/></svg></div>
+
+<main style="background:var(--panel)">
+  <!-- Servicios -->
+  <section id="servicios" class="wrap">
+    <h2 class="reveal" style="margin-top:0">Servicios principales</h2>
+    <p class="muted reveal">Tratamientos personalizados para cada sonrisa.</p>
+    <div class="grid grid-3" style="margin-top:1.2rem">
+      <article class="card reveal svc"><div class="ico">🦷</div><div><h3>Odontología General</h3><p class="muted">Diagnóstico, profilaxis y restauraciones estéticas.</p></div></article>
+      <article class="card reveal svc"><div class="ico">😬</div><div><h3>Ortodoncia</h3><p class="muted">Brackets estéticos y alineadores con plan digital.</p></div></article>
+      <article class="card reveal svc"><div class="ico">🧩</div><div><h3>Restaurativa</h3><p class="muted">Resinas, incrustaciones y coronas con ajuste natural.</p></div></article>
+      <article class="card reveal svc"><div class="ico">✨</div><div><h3>Estética</h3><p class="muted">Blanqueamiento y carillas de alta estética.</p></div></article>
+      <article class="card reveal svc"><div class="ico">🛠️</div><div><h3>Prótesis e Implantes</h3><p class="muted">Soluciones funcionales y duraderas.</p></div></article>
+      <article class="card reveal svc"><div class="ico">⏰</div><div><h3>Recordatorios & Agenda</h3><p class="muted">Expediente digital y recordatorios por WhatsApp/SMS.</p></div></article>
+    </div>
+  </section>
+
+  <!-- Acerca -->
+  <section id="acerca" class="wrap">
+    <div class="grid grid-2">
+      <div class="reveal">
+        <h2>Acerca del consultorio</h2>
+        <p class="muted">Dirigido por el Dr. Rodolfo Castellón. <strong>Garantizamos que tu salud bucal reciba el mejor cuidado.</strong><br>¡Bienvenidos al Consultorio Dental Rodolfo Castellón! Un lugar donde nos apasiona ayudar a nuestros pacientes a lograr y mantener una boca sana y una sonrisa hermosa.</p>
+        <p class="muted">Ofrecemos un ambiente acogedor y agradable. Tratamientos de última generación, <strong>tecnología innovadora</strong> y <strong>precios accesibles</strong>. Nuestro compromiso es crear una experiencia dental excepcional y sin preocupaciones.</p>
+        <div style="margin-top:1rem"><a class="btn btn--primary" href="{% url 'paciente:citas' %}">Quiero una valoración</a></div>
       </div>
-    </header>
+      <div class="reveal">
+        <img src="{% static 'img/dentista2.jpg' %}" alt="Consultorio dental" style="width:100%;border-radius:22px;box-shadow:0 26px 60px rgba(0,0,0,.35)">
+      </div>
+    </div>
+  </section>
 
-        <!-- Servicios -->
-        <section id="servicios" class="content-section">
-          <div class="container">
-            <h2 class="title">Servicios</h2>
-    
-            <div class="cards-servicios">
-              <input type="radio" name="servicio" id="serv-none" class="card-toggle" checked hidden>
-    
-              <!-- Odontología General -->
-              <article class="card-servicio">
-                <input type="radio" name="servicio" id="serv-general" class="card-toggle">
-                <div class="card-header">
-                  <img src="{% static 'img/odontologia general.png' %}" alt="Ícono de odontología general">
-                  <div class="card-title">
-                    <h3>Odontología General</h3>
-                    <label for="serv-general" class="btn-select" role="button">Seleccionar</label>
-                  </div>
-                </div>
-                <div class="card-detalles">
-                  <p>Evaluación completa de la salud oral, diagnóstico y prevención de enfermedades.</p>
-                  <ul class="svc-bullets">
-                    <li>Limpieza profunda</li><li>Radiografías</li><li>Resinas</li><li>Extracciones</li>
-                  </ul>
-                </div>
-              </article>
-    
-              <!-- Odontología Estética -->
-              <article class="card-servicio">
-                <input type="radio" name="servicio" id="serv-estetica" class="card-toggle">
-                <div class="card-header">
-                  <img src="{% static 'img/Odontología estética.png' %}" alt="Ícono de odontología estética">
-                  <div class="card-title">
-                    <h3>Odontología Estética</h3>
-                    <label for="serv-estetica" class="btn-select" role="button">Seleccionar</label>
-                  </div>
-                </div>
-                <div class="card-detalles">
-                  <p>Mejora de la apariencia dental con tratamientos mínimamente invasivos.</p>
-                  <ul class="svc-bullets">
-                    <li>Blanqueamiento</li><li>Carillas</li><li>Resinas estéticas</li><li>Contorneado dental</li>
-                  </ul>
-                </div>
-              </article>
-    
-              <!-- Odontología Restaurativa -->
-              <article class="card-servicio">
-                <input type="radio" name="servicio" id="serv-restaurativa" class="card-toggle">
-                <div class="card-header">
-                  <img src="{% static 'img/odontologia Restaurativa.png' %}" alt="Ícono de odontología restaurativa">
-                  <div class="card-title">
-                    <h3>Odontología Restaurativa</h3>
-                    <label for="serv-restaurativa" class="btn-select" role="button">Seleccionar</label>
-                  </div>
-                </div>
-                <div class="card-detalles">
-                  <p>Recupera forma y función de piezas afectadas por caries o fracturas.</p>
-                  <ul class="svc-bullets">
-                    <li>Resinas compuestas</li><li>Incrustaciones</li><li>Coronas</li><li>Reconstrucciones</li>
-                  </ul>
-                </div>
-              </article>
-    
-              <!-- Ortodoncia -->
-              <article class="card-servicio">
-                <input type="radio" name="servicio" id="serv-ortodoncia" class="card-toggle">
-                <div class="card-header">
-                  <img src="{% static 'img/Ortodoncia.png' %}" alt="Ícono de ortodoncia">
-                  <div class="card-title">
-                    <h3>Ortodoncia</h3>
-                    <label for="serv-ortodoncia" class="btn-select" role="button">Seleccionar</label>
-                  </div>
-                </div>
-                <div class="card-detalles">
-                  <p>Corrección de la posición de dientes y mordida.</p>
-                  <ul class="svc-bullets">
-                    <li>Brackets metálicos/estéticos</li><li>Alineadores</li><li>Retenedores</li>
-                  </ul>
-                </div>
-              </article>
-    
-              <!-- Prótesis e Implantes -->
-              <article class="card-servicio">
-                <input type="radio" name="servicio" id="serv-implantes" class="card-toggle">
-                <div class="card-header">
-                  <img src="{% static 'img/protesis e implantes.png' %}" alt="Ícono de prótesis e implantes">
-                  <div class="card-title">
-                    <h3>Prótesis e Implantes</h3>
-                    <label for="serv-implantes" class="btn-select" role="button">Seleccionar</label>
-                  </div>
-                </div>
-                <div class="card-detalles">
-                  <p>Soluciones fijas o removibles para reemplazar dientes ausentes.</p>
-                  <ul class="svc-bullets">
-                    <li>Implantes dentales</li><li>Puentes y coronas</li><li>Prótesis totales y parciales</li><li>Mantenimiento y ajuste</li>
-                  </ul>
-                </div>
-              </article>
-    
+  <!-- Pagos -->
+  <section id="pagos" class="wrap">
+    <h2 class="reveal">Pagos y coberturas</h2>
+    <p class="muted reveal">Elige el método que prefieras.</p>
+    <div class="badges reveal">
+      <span class="badge">💵 Efectivo</span><span class="badge">🌐 Pagos en línea</span><span class="badge">🏦 Depósitos</span><span class="badge">📄 Facturación CFDI</span>
+    </div>
+  </section>
+
+  <!-- Testimonios carrusel -->
+  <section class="wrap">
+    <h2 class="reveal">Testimonios</h2>
+    <div class="carousel">
+      <div class="track" id="ttrack">
+        <article class="card tcard reveal">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:44px;height:44px;border-radius:50%;background:#123040;display:grid;place-items:center">MG</div>
+            <div>
+              <div class="rating">{% for i in "12345" %}<svg class="tooth filled" viewBox="0 0 24 24"><path d="M12 2c4.5 0 7 3.5 7 6.8 0 2.3-1.1 3.8-2.1 4.7-.6.5-.8 1.3-.7 2.1.1 1.3.1 3.3-.9 4.6-.7.9-2 .8-2.8-.1-.6-.7-1.1-1.9-1.4-3-.3 1.1-.8 2.3-1.4 3-.8.9-2.1 1-2.8.1-1-1.3-1-3.3-.9-4.6.1-.8-.1-1.6-.7-2.1C6.1 12.6 5 11.1 5 8.8 5 5.5 7.5 2 12 2z"/></svg>{% endfor %}</div>
+              <p><strong>María G.</strong></p><p class="muted">Servicio excelente, cero dolor y el doctor explica todo con paciencia.</p>
             </div>
           </div>
-          <a class="scroll-down" href="#pagos" aria-label="Bajar a pagos">▼</a>
-        </section>
-    
-        <!-- Slice -->
-        <section class="plx-section is-slice">
-          <div class="plx-layer bg" data-plx-speed="0.10"
-               style="--plx-img: url('{% static "img/disponibilidad.jpg" %}');"></div>
-          <div class="plx-inner"><h3 class="slice-title">Atención confiable · Disponibilidad 24/7</h3></div>
-        </section>
-    
-        <!-- Pagos -->
-        <section id="pagos" class="content-section alt">
-          <div class="container">
-            <h2 class="title">Pagos en línea</h2>
-            <p>Integramos Mercado Pago para transferencias y tarjetas. Pagos seguros y confirmación inmediata.</p>
-            <a class="btn" href="{% url 'dentista:dashboard' %}">Ir al Panel del Dentista</a>
-          </div>
-        </section>
-    
-        <!-- Slice -->
-        <section class="plx-section is-slice">
-          <div class="plx-layer bg" data-plx-speed="0.01"
-               style="--plx-img: url('{% static "img/recordatorios.jpg" %}');"></div>
-          <div class="plx-inner"><h3 class="slice-title">Recordatorios y penalizaciones automáticas</h3></div>
-        </section>
-    
-        <!-- Contacto -->
-        <section id="contacto" class="content-section">
-          <div class="container">
-            <h2 class="title">Contacto</h2>
-            <p><strong>Horario:</strong> 2:00–8:00 PM · Comida: 4:30–5:00 PM</p>
-            <p><strong>Correo:</strong> <a href="mailto:dentista.choyo@gmail.com">dentista.choyo@gmail.com</a></p>
-            <p><strong>Teléfonos:</strong><br>
-              <a href="tel:+523223496155">322-349-61-55</a> /
-              <a href="tel:+523222244847">322-22-44-847</a>
-            </p>
-            <p><strong>Dirección:</strong><br> Calle Guatemala #125, Col. del Toro, El Pitillal, Puerto Vallarta, Jal.</p>
-    
-            <div class="visit-box">
-              <h3>📍 ¡Visítanos!</h3>
-              <p>Encuéntranos fácilmente en Google Maps</p>
-              <a href="https://www.google.com/maps?q=Calle+Guatemala+125,+El+Pitillal,+Puerto+Vallarta,+Jalisco&hl=es&z=16"
-                 target="_blank" class="visit-btn" rel="noopener">Ver en Google Maps</a>
-    
-              <div class="map-frame">
-                <iframe
-                  src="https://www.google.com/maps?q=Calle+Guatemala+125,+El+Pitillal,+Puerto+Vallarta,+Jalisco&output=embed"
-                  width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"
-                  referrerpolicy="no-referrer-when-downgrade"></iframe>
-              </div>
+        </article>
+        <article class="card tcard reveal">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:44px;height:44px;border-radius:50%;background:#123040;display:grid;place-items:center">JP</div>
+            <div>
+              <div class="rating">{% for i in "1234" %}<svg class="tooth filled" viewBox="0 0 24 24"><path d="M12 2c4.5 0 7 3.5 7 6.8 0 2.3-1.1 3.8-2.1 4.7-.6.5-.8 1.3-.7 2.1.1 1.3.1 3.3-.9 4.6-.7.9-2 .8-2.8-.1-.6-.7-1.1-1.9-1.4-3-.3 1.1-.8 2.3-1.4 3-.8.9-2.1 1-2.8.1-1-1.3-1-3.3-.9-4.6.1-.8-.1-1.6-.7-2.1C6.1 12.6 5 11.1 5 8.8 5 5.5 7.5 2 12 2z"/></svg>{% endfor %}<svg class="tooth" viewBox="0 0 24 24"><path d="M12 2c4.5 0 7 3.5 7 6.8 0 2.3-1.1 3.8-2.1 4.7-.6.5-.8 1.3-.7 2.1.1 1.3.1 3.3-.9 4.6-.7.9-2 .8-2.8-.1-.6-.7-1.1-1.9-1.4-3-.3 1.1-.8 2.3-1.4 3-.8.9-2.1 1-2.8.1-1-1.3-1-3.3-.9-4.6.1-.8-.1-1.6-.7-2.1C6.1 12.6 5 11.1 5 8.8 5 5.5 7.5 2 12 2z"/></svg></div>
+              <p><strong>Jorge P.</strong></p><p class="muted">Instalaciones limpias y trato muy amable. Recomendado.</p>
             </div>
           </div>
+        </article>
+        <article class="card tcard reveal">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:44px;height:44px;border-radius:50%;background:#123040;display:grid;place-items:center">LR</div>
+            <div>
+              <div class="rating">{% for i in "12345" %}<svg class="tooth filled" viewBox="0 0 24 24"><path d="M12 2c4.5 0 7 3.5 7 6.8 0 2.3-1.1 3.8-2.1 4.7-.6.5-.8 1.3-.7 2.1.1 1.3.1 3.3-.9 4.6-.7.9-2 .8-2.8-.1-.6-.7-1.1-1.9-1.4-3-.3 1.1-.8 2.3-1.4 3-.8.9-2.1 1-2.8.1-1-1.3-1-3.3-.9-4.6.1-.8-.1-1.6-.7-2.1C6.1 12.6 5 11.1 5 8.8 5 5.5 7.5 2 12 2z"/></svg>{% endfor %}</div>
+              <p><strong>Luisa R.</strong></p><p class="muted">Me sentí en confianza desde la primera valoración.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="car-ctrl"><button class="ctrl" id="prev">◀</button><button class="ctrl" id="next">▶</button></div>
+    </div>
+  </section>
 
-          <div class="layout">
-            <aside class="sidebar">
-              <div class="side-title">Navegación</div>
-              <nav class="side-links" aria-label="Secundario">
-                <a href="#inicio">Inicio</a>
-                <a href="#servicios">Servicios</a>
-                <a href="#pagos">Pagos</a>
-                <a href="#contacto">Contacto</a>
-              </nav>
-            </aside>
+  <!-- Contacto -->
+  <section id="contacto" class="wrap">
+    <h2 class="reveal">Contacto y ubicación</h2>
+    <div class="contact-grid">
+      <div class="card contact-card reveal">
+        <ul class="muted" style="list-style:none;padding:0;margin:0 0 1rem 0;display:grid;gap:.4rem">
+          <li><strong>Teléfono / WhatsApp:</strong> <a href="tel:+523228892558">+52 322 889 2558</a> · <a target="_blank" rel="noopener" href="https://wa.me/523228892558">Abrir WhatsApp</a></li>
+          <li><strong>Correo:</strong> <a href="mailto:dentista.choyo@gmail.com">dentista.choyo@gmail.com</a></li>
+          <li><strong>Dirección:</strong> Calle Guatemala #125, Col. del Toro, El Pitillal, Puerto Vallarta, Jal.</li>
+          <li><strong>Horario:</strong> 2:00–8:00 PM · <em>Comida: 4:30–5:00 PM</em></li>
+        </ul>
+        <form method="post" action="#" onsubmit="event.preventDefault(); alert('¡Gracias! Te contactamos enseguida.');">
+          <div style="display:grid;gap:.75rem;grid-template-columns:1fr 1fr">
+            <input name="nombre" placeholder="Nombre" required>
+            <input name="telefono" placeholder="Teléfono / WhatsApp" inputmode="tel">
+          </div>
+          <input name="email" type="email" placeholder="Correo">
+          <textarea name="mensaje" rows="4" placeholder="Cuéntanos qué necesitas" required></textarea>
+          <button class="btn btn--primary" type="submit">Enviar mensaje</button>
+        </form>
+      </div>
+      <div class="reveal">
+        <iframe title="Mapa del consultorio" loading="lazy" style="width:100%;height:420px;border:0;border-radius:18px"
+          src="https://www.google.com/maps?q=Calle%20Guatemala%20125%20El%20Pitillal%20Puerto%20Vallarta&output=embed"></iframe>
+        <div style="margin-top:.75rem;display:flex;gap:.6rem;flex-wrap:wrap">
+          <a class="btn" href="tel:+523228892558">📞 Llamar</a>
+          <a class="btn" target="_blank" rel="noopener" href="https://wa.me/523228892558?text=Hola%20quisiera%20informes">💬 WhatsApp</a>
+          <a class="btn" target="_blank" rel="noopener" href="https://maps.google.com/?q=Calle%20Guatemala%20125%20El%20Pitillal%20Puerto%20Vallarta">🗺️ Abrir en Google Maps</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
 
-        </section>
-  </main>
-</div>
+<div class="wave-top"><svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,50 C240,20 480,80 720,50 C960,20 1200,-10 1440,20 L1440,70 L0,70 Z"/></svg></div>
 
+<a aria-label="WhatsApp" class="btn btn--primary" id="whats-fab"
+   href="https://wa.me/523228892558?text=Hola%20me%20gustar%C3%ADa%20agendar%20una%20cita" target="_blank" rel="noopener">WhatsApp</a>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+  const fab=document.getElementById('whats-fab');
+  if(fab){Object.assign(fab.style,{position:'fixed',right:'18px',bottom:'18px',zIndex:60,boxShadow:'0 20px 40px -16px rgba(46,230,166,.6)'})}
+  const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&e.target.classList.add('in')), {threshold:.16});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  const hero=document.querySelector('.hero');
+  hero.addEventListener('mousemove', (e)=>{const r=hero.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5;const y=(e.clientY-r.top)/r.height-.5;hero.style.backgroundPosition=`${50+x*2}% ${50+y*2}%`;});
+  const track=document.getElementById('ttrack'); let idx=0;
+  function move(n){const cards=track.children.length; idx=(idx+n+cards)%cards; const w=track.children[0].getBoundingClientRect().width+16; track.style.transform=`translateX(${-idx*w}px)`;}
+  document.getElementById('prev').onclick=()=>move(-1); document.getElementById('next').onclick=()=>move(1); setInterval(()=>move(1), 6000);
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Dentist","name":"Consultorio Dental Rodolfo Castellón",
+"address":{"@type":"PostalAddress","streetAddress":"Calle Guatemala #125, Col. del Toro, El Pitillal","addressLocality":"Puerto Vallarta","addressRegion":"Jalisco","addressCountry":"MX"},
+"telephone":"+52 322 889 2558","email":"dentista.choyo@gmail.com","openingHours":"Mo-Su 14:00-20:00","url":"https://tudominio.mx"}
+</script>
 {% endblock %}

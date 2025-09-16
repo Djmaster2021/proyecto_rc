@@ -159,3 +159,35 @@ section { padding: 3.5rem 0; }
   .burger{ display:inline-grid; place-items:center }
   .brand{ justify-self:center }
 }
+
+/* ===== Layout utilitario ===== */
+.rc-wrap{max-width:1100px;margin:auto;padding:0 1rem}
+.rc-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border-radius:999px;
+  border:1px solid #d9e3ee;background:#fff;font-weight:600;text-decoration:none}
+.rc-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px -12px rgba(40,180,135,.35)}
+.rc-btn--primary{background:#28b487;border-color:#28b487;color:#fff}
+.rc-btn--ghost{background:#fff;color:#0f172a}
+
+/* ===== Navbar ===== */
+.rc-navbar{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(10px);
+  background:rgba(255,255,255,.7);border-bottom:1px solid #eaeef3}
+.rc-navbar .rc-logo{font-weight:800;letter-spacing:.2px;text-decoration:none;color:#0f172a}
+.rc-navbar .rc-logo span{color:#28b487}
+.rc-menu{list-style:none;display:flex;gap:.75rem;align-items:center;margin:0;padding:.6rem 0}
+.rc-menu a{text-decoration:none;color:#0f172a}
+@media (max-width:720px){
+  .rc-menu{flex-wrap:wrap;justify-content:flex-end}
+}
+
+/* ===== WhatsApp FAB (por si falla el JS) ===== */
+#whats-fab{position:fixed;right:16px;bottom:16px;z-index:60;
+  box-shadow:0 12px 24px -12px rgba(40,180,135,.6)}
+
+  /* Botones, navbar y FAB ya definidos en pasos previos */
+.rc-wrap{max-width:1100px;margin:auto;padding:0 1rem}
+.rc-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border-radius:999px;
+  border:1px solid #d9e3ee;background:#fff;font-weight:600;text-decoration:none}
+.rc-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px -12px rgba(40,180,135,.35)}
+.rc-btn--primary{background:#28b487;border-color:#28b487;color:#fff}
+.navbar-blur{backdrop-filter:saturate(140%) blur(10px);background:rgba(255,255,255,.7);border-bottom:1px solid #eaeef3}
+#whats-fab{position:fixed;right:16px;bottom:16px;z-index:60;box-shadow:0 12px 24px -12px rgba(40,180,135,.6)}
