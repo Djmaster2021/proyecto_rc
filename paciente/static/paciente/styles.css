@@ -1,108 +1,79 @@
-/* Styles específicos de la sección Paciente */
-.table { width: 100%; border-collapse: collapse; }
-.table th, .table td { padding: .6rem .8rem; border-bottom: 1px solid #232836; }
-
-/* === Tokens y base (no invasivo, compatibles con dark/light) === */
 :root{
-  --bg:#0b0c0f;
-  --surface:#10131a;
-  --surface-2:#141a24;
-  --text:#e7e9ee;
-  --muted:#9aa3b2;
-  --border:#232836;
-  --primary:#60a5fa;
-  --primary-600:#3b82f6;
-  --success:#22c55e;
-  --danger:#ef4444;
-  --radius:14px;
-  --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.25);
-}
-@media (prefers-color-scheme: light){
-  :root{
-    --bg:#ffffff; --surface:#f7f7f9; --surface-2:#f0f1f5;
-    --text:#141824; --muted:#596174; --border:#e6e8ee;
-    --primary:#2563eb; --primary-600:#1d4ed8;
-    --shadow:0 1px 2px rgba(0,0,0,.06), 0 10px 30px rgba(0,0,0,.08);
-  }
-}
-body{background:linear-gradient(180deg,var(--bg),var(--surface)); color:var(--text);}
-
-/* === Layout suaves para títulos/acciones (úsalos donde quieras) === */
-.container{width:min(1100px,92%); margin-inline:auto}
-.page-head{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin:8px 0 16px}
-.page-title{margin:0; font-size:1.45rem}
-.page-sub{margin:.2rem 0 0; color:var(--muted); font-size:.95rem}
-.actions{display:flex; gap:8px; flex-wrap:wrap}
-
-/* === Cards genéricas (sirven también para _components/card.html) === */
-.card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  overflow:hidden;
-}
-.card--muted{background:var(--surface-2)}
-.card__header{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; border-bottom:1px solid var(--border)}
-.card__title{margin:0; font-size:1.05rem}
-.card__section{padding:14px 16px; border-top:1px dashed var(--border)}
-.card__footer{display:flex; gap:10px; padding:12px 16px; border-top:1px solid var(--border)}
-
-/* === Botones consistentes === */
-.btn{
-  --_bg:var(--surface-2);
-  display:inline-flex; align-items:center; gap:.5rem;
-  background:var(--_bg); color:var(--text);
-  border:1px solid var(--border); border-radius:12px;
-  padding:9px 12px; font-weight:600; text-decoration:none; cursor:pointer;
-}
-.btn:hover{filter:brightness(.97)}
-.btn--primary{--_bg:var(--primary); color:#fff; border-color:color-mix(in oklab, var(--primary) 55%, black)}
-.btn--primary:hover{background:var(--primary-600)}
-.btn--ghost{background:transparent}
-.btn--sm{padding:6px 10px; border-radius:10px; font-size:.9rem}
-
-/* === Badges para estados (Atendida, Cancelada, etc.) === */
-.badge{
-  display:inline-flex; align-items:center; gap:.35rem;
-  padding:3px 10px; border-radius:999px; font-size:.85rem;
-  background:var(--surface-2); border:1px solid var(--border);
-}
-.badge--success{background:color-mix(in oklab, var(--success) 18%, var(--surface)); color:color-mix(in oklab, var(--success) 75%, black)}
-.badge--danger{background:color-mix(in oklab, var(--danger) 18%, var(--surface)); color:color-mix(in oklab, var(--danger) 75%, black)}
-
-/* === Tabla mejorada (mantiene tus selectores .table) === */
-.table-wrap{overflow:auto}
-.table{min-width:640px; border:1px solid var(--border); border-radius:12px; overflow:hidden;}
-.table thead th{background:var(--surface-2); color:var(--muted); text-transform:uppercase; font-size:.78rem; letter-spacing:.04em}
-.table tbody tr:hover{background:color-mix(in oklab, var(--surface-2) 70%, transparent)}
-.table th,.table td{text-align:left}
-
-/* Responsive “stacked” en móvil, sin romper desktop */
-@media (max-width:720px){
-  .table{min-width:0; border-radius:10px}
-  .table thead{display:none}
-  .table tbody tr{display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:10px 10px; border-bottom:1px solid var(--border)}
-  .table td{border:0; padding:0}
-  .table td[data-label]::before{content: attr(data-label) " · "; color:var(--muted); margin-right:6px}
+  --bg:#ffffff; --surface:#fff; --surface-2:#f6f7f9; --text:#111827; --muted:#6b7280;
+  --border:#e5e7eb; --primary:#2563eb; --primary-600:#1d4ed8; --success:#16a34a; --danger:#dc2626;
+  --radius:14px; --radius-sm:10px; --shadow:0 2px 10px rgba(0,0,0,.06);
 }
 
-/* === Listado de documentos (si lo agregas) === */
-.doclist{list-style:none; margin:0; padding:8px}
-.doclist__item{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 6px; border-bottom:1px dashed var(--border)}
-.doclist__item:last-child{border-bottom:0}
-.doclist__name{font-weight:600}
-.doclist__type{color:var(--muted); font-size:.9rem}
+/* Layout util */
+.grid-2cols{display:grid; grid-template-columns:1fr 1fr; gap:1rem}
+@media (max-width:900px){ .grid-2cols{grid-template-columns:1fr} }
 
-/* === Perfil sencillo (si lo agregas) === */
-.profile{display:grid; grid-template-columns:1fr 1fr; gap:10px 24px}
-@media (max-width:720px){.profile{grid-template-columns:1fr}}
-.field{display:flex; gap:8px; padding:6px 0; border-bottom:1px dotted var(--border)}
-.field:last-child{border-bottom:0}
-.field__label{min-width:140px; color:var(--muted)}
+/* Card */
+.card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden }
+.card__header{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; border-bottom:1px solid var(--border) }
+.card__title{ margin:0; font-size:1.05rem }
+.card__section{ padding:14px 16px }
+.card__footer{ display:flex; gap:10px; padding:12px 16px; border-top:1px solid var(--border) }
 
-/* === Paginación genérica === */
-.pagination{display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 0}
-.page-link{display:inline-block; padding:8px 12px; border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--text); background:var(--surface-2)}
-.page-link.is-disabled{opacity:.5; pointer-events:none}
-.page-info{color:var(--muted)}
+/* Botones */
+.btn{ --_bg:var(--surface-2); display:inline-flex; align-items:center; gap:.5rem;
+  background:var(--_bg); color:var(--text); border:1px solid var(--border);
+  border-radius:var(--radius-sm); padding:9px 12px; font-weight:600; cursor:pointer }
+.btn:hover{ background:#eef0f3 }
+.btn--primary{ --_bg:var(--primary); color:#fff; border-color:rgba(0,0,0,.1) }
+.btn--primary:hover{ background:var(--primary-600) }
+.btn--ghost{ background:#fff }
+.btn--sm{ padding:6px 10px; border-radius:8px; font-size:.9rem }
+
+/* Chips */
+.chip{ display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .55rem; border-radius:999px; font-size:.85rem; background:var(--surface-2); border:1px solid var(--border) }
+.chip--ok{ background:#e8f7ee; color:#097a4b; border-color:#bfe8cf }
+.chip--cancel{ background:#fdecec; color:#9b1c1c; border-color:#f4c7c7 }
+.chip--rescheduled{ background:#eef5ff; color:#194aa6; border-color:#cfe0ff }
+
+/* Tabla */
+.table-wrap{ overflow:auto }
+.table{ width:100%; min-width:640px; border-collapse:collapse }
+.table thead th{ background:var(--surface-2); color:#495064; text-transform:uppercase; font-size:.78rem; letter-spacing:.04em; text-align:left }
+.table th,.table td{ padding:.6rem .8rem; border-bottom:1px solid var(--border) }
+
+/* Documentos */
+.doclist{ list-style:none; margin:0; padding:8px }
+.doclist__item{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 6px; border-bottom:1px dashed var(--border) }
+.doclist__item:last-child{ border-bottom:0 }
+
+/* Perfil */
+.profile{ display:grid; grid-template-columns:1fr 1fr; gap:10px 24px }
+@media (max-width:720px){ .profile{ grid-template-columns:1fr } }
+.field{ display:flex; gap:8px; padding:6px 0; border-bottom:1px dotted var(--border) }
+.field:last-child{ border-bottom:0 }
+.field__label{ min-width:140px; color:var(--muted) }
+.muted{ color:var(--muted); font-size:.92rem }
+
+/* Dialogs (<dialog>) */
+.dlg::backdrop{ background:rgba(0,0,0,.35) }
+.dlg .dlg__card{ width:min(620px,96vw); border:1px solid var(--border); border-radius:var(--radius); padding:0; background:var(--surface); color:var(--text); box-shadow:0 10px 30px rgba(0,0,0,.15) }
+.dlg__head{ display:flex; align-items:center; justify-content:space-between; padding:.9rem 1rem; border-bottom:1px solid var(--border) }
+.dlg__x{ border:1px solid var(--border); background:#fff; border-radius:.5rem; padding:.35rem .55rem; cursor:pointer }
+.dlg__body{ padding:1rem }
+.dlg__foot{ display:flex; justify-content:flex-end; gap:.5rem; padding:0 1rem 1rem }
+.policies{ margin:.5rem 0 0 1rem }
+.policies li{ margin:.25rem 0 }
+
+/* Form grid en diálogos */
+.form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px 16px }
+@media (max-width:640px){ .form-grid{ grid-template-columns:1fr } }
+.f{ display:flex; flex-direction:column; gap:.35rem }
+.f__label{ font-weight:700; font-size:.95rem }
+.f__input{
+  width:100%; height:40px; border:1px solid #d1d5db; border-radius:10px;
+  padding:.5rem .65rem; background:#fff; color:#0b0f14;
+  transition:border-color .12s ease, box-shadow .12s ease;
+}
+.f__input::placeholder{ color:#9aa3af }
+.f__input:focus{ outline:none; border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.14) }
+
+/* PDF dentro del diálogo de políticas */
+.pdf-wrap{ aspect-ratio:4/3; width:min(920px, 90vw); max-height:70vh }
+@media (max-width:720px){ .pdf-wrap{ aspect-ratio:3/4; width:94vw; max-height:72vh } }
+.pdf-frame{ width:100%; height:100%; border:1px solid var(--border); border-radius:12px; background:#f8f9fb }

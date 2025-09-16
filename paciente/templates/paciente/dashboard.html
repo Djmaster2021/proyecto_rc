@@ -1,79 +1,156 @@
 {% extends "paciente/base.html" %}
-{% block ptitle %}Dashboard{% endblock %}
-{% block pcontent %}
-  <h3>Bienvenido/a</h3>
-  {% include "_components/card.html" with title="Tu próxima cita" body="Aquí irá información de la próxima cita…" %}
+{% load static %}
 
-  <!-- ===== IA (frontend puro) ===== -->
-  <button id="aiFab" class="ai-fab" aria-label="Abrir asistente IA">IA</button>
-  <aside id="aiDock" class="ai-dock" aria-hidden="true">
-    <header class="ai-head">
-      <strong>Asistente IA</strong>
-      <button id="aiClose" class="ai-icon" aria-label="Cerrar">✕</button>
-    </header>
-    <div id="aiBody" class="ai-body" role="log" aria-live="polite">
-      <div class="ai-tip">👋 Te ayudo a navegar y entender tu área de paciente.</div>
-      <div class="ai-suggests">
-        <button class="ai-chip" data-q="Muéstrame mis citas">Mis citas</button>
-        <button class="ai-chip" data-q="Quiero ver mis pagos">Ver pagos</button>
-        <button class="ai-chip" data-q="¿Qué puedo hacer aquí?">¿Qué hay aquí?</button>
+{% block ptitle %}Paciente - Dashboard{% endblock %}
+{% block header_title %}Paciente{% endblock %}
+
+{% block pcontent %}
+
+  <!-- Acciones (JS decide visibilidad) -->
+  <div class="actions" style="display:flex; gap:.5rem; margin:.25rem 0 1rem">
+    <button id="btnCrear"     type="button" class="btn">Crear cita</button>
+    <button id="btnReprogram" type="button" class="btn btn--ghost">Reprogramar</button>
+    <a      id="btnCancel"    class="btn btn--ghost" href="#">Cancelar</a>
+  </div>
+
+  <!-- Próxima cita -->
+  <section class="card" style="margin-bottom:1rem">
+    <div class="card__header">
+      <h2 class="card__title">Tu próxima cita</h2>
+      <span id="apEstadoChip" class="chip chip--rescheduled" hidden>Reprogramada</span>
+    </div>
+    <div class="card__section">
+      <p><strong>Fecha:</strong> <span id="apFecha">15 sep 2025</span>
+         &nbsp; <strong>Hora:</strong> <span id="apHora">10:30</span></p>
+      <p><strong>Motivo:</strong> <span id="apMotivo">Limpieza</span></p>
+      <p><strong>Consultorio:</strong> <span id="apConsultorio">Dr. Castellón · Sala 2</span></p>
+    </div>
+    <div class="card__footer actions">
+      <button id="btnICS" class="btn">Agregar a calendario</button>
+      <button class="btn btn--ghost" onclick="document.getElementById('polDialog').showModal()">Indicaciones / Políticas</button>
+    </div>
+  </section>
+
+  <div class="grid-2cols">
+    <!-- Historial -->
+    <section class="card">
+      <div class="card__header"><h3 class="card__title">Historial de citas</h3></div>
+      <div class="card__section table-wrap">
+        <table class="table">
+          <thead><tr><th>Fecha</th><th>Hora</th><th>Motivo</th><th>Estado</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>2025-08-20</td><td>09:00</td><td>Revisión</td><td><span class="chip chip--ok">Atendida</span></td><td><button class="btn btn--sm">Recibo</button></td></tr>
+            <tr><td>2025-07-15</td><td>12:30</td><td>Resina</td><td><span class="chip chip--ok">Atendida</span></td><td><button class="btn btn--sm">Recibo</button></td></tr>
+            <tr><td>2025-06-10</td><td>10:00</td><td>Limpieza</td><td><span class="chip chip--cancel">Cancelada</span></td><td><button class="btn btn--sm">Motivo</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card__footer"><span class="page-info">Página 1 de 1</span></div>
+    </section>
+
+    <!-- Documentos -->
+    <section class="card">
+      <div class="card__header"><h3 class="card__title">Documentos</h3></div>
+      <ul class="doclist">
+        <li class="doclist__item"><span class="doclist__name">Consentimiento informado (PDF)</span><button class="btn btn--sm">Descargar</button></li>
+        <li class="doclist__item"><span class="doclist__name">Plan de tratamiento (PDF)</span><button class="btn btn--sm">Descargar</button></li>
+        <li class="doclist__item"><span class="doclist__name">Factura #001245 (PDF)</span><button class="btn btn--sm">Descargar</button></li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- Perfil -->
+  <section class="card" style="margin-top:1rem">
+    <div class="card__header"><h3 class="card__title">Mi perfil</h3></div>
+    <div class="card__section">
+      <div class="profile">
+        <div class="field"><span class="field__label">Nombre</span>   <span id="pfNombre">Ana López</span></div>
+        <div class="field"><span class="field__label">Correo</span>   <span id="pfCorreo">ana@example.com</span></div>
+        <div class="field"><span class="field__label">Teléfono</span> <span id="pfTelefono">+52 55 1234 5678</span></div>
+        <div class="field"><span class="field__label">Dirección</span><span id="pfDireccion">Resplandor #932</span></div>
+        <div class="field"><span class="field__label">Saldo</span>    <span style="color: var(--primary)">$ 1,200</span></div>
+      </div>
+      <div class="actions" style="margin-top:.8rem">
+        <button type="button" class="btn" onclick="document.getElementById('editDialog').showModal()">Editar datos</button>
+        <button type="button" class="btn btn--ghost" onclick="document.getElementById('polDialog').showModal()">Ver políticas</button>
       </div>
     </div>
-    <form id="aiForm" class="ai-form" autocomplete="off">
-      <input id="aiInput" class="ai-input" placeholder="Escribe tu consulta… (Enter para enviar)" />
-      <button class="ai-send" aria-label="Enviar">➤</button>
+  </section>
+
+  <!-- Dialog: Crear cita -->
+  <dialog id="dlgCrear" class="dlg">
+    <form method="dialog" class="dlg__card" aria-labelledby="crTitle" id="formCrear">
+      <header class="dlg__head">
+        <h3 id="crTitle">Crear cita</h3>
+        <button class="dlg__x" aria-label="Cerrar">✕</button>
+      </header>
+      <div class="dlg__body">
+        <div class="form-grid">
+          <label class="f"><span class="f__label">Servicio</span>
+            <select class="f__input" id="crServicio" required>
+              <option value="">— Selecciona —</option>
+              <option>Limpieza</option><option>Resina</option><option>Revisión</option><option>Extracción</option><option>Blanqueamiento</option>
+            </select>
+          </label>
+          <label class="f"><span class="f__label">Fecha</span><input class="f__input" type="date" id="crFecha" required></label>
+          <label class="f"><span class="f__label">Hora</span><input class="f__input" type="time" id="crHora" required></label>
+          <label class="f"><span class="f__label">Motivo</span><input class="f__input" type="text" id="crMotivo" placeholder="Ej. limpieza semestral"></label>
+        </div>
+        <p class="muted">Si ya hay una cita activa no podrás crear otra.</p>
+      </div>
+      <footer class="dlg__foot">
+        <button class="btn btn--ghost" value="cancel">Cancelar</button>
+        <button class="btn btn--primary" id="btnCrearSubmit" value="default">Confirmar</button>
+      </footer>
     </form>
-  </aside>
+  </dialog>
 
-  <style>
-    .ai-fab{position:fixed;right:18px;bottom:18px;border:1px solid rgba(127,127,127,.35);background:transparent;color:inherit;border-radius:999px;padding:.7rem 1rem;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:60}
-    .ai-dock{position:fixed;right:18px;bottom:18px;top:18px;width:min(420px,92vw);background:transparent;border:1px solid rgba(127,127,127,.25);border-radius:1rem;display:flex;flex-direction:column;transform:translateY(calc(100% + 18px));transition:transform .25s ease;z-index:61;backdrop-filter:blur(6px)}
-    .ai-dock[aria-hidden="false"]{transform:translateY(0)}
-    .ai-head{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;border-bottom:1px solid rgba(127,127,127,.25)}
-    .ai-icon{border:1px solid rgba(127,127,127,.25);background:transparent;border-radius:.6rem;padding:.35rem .55rem}
-    .ai-body{padding:1rem;display:flex;flex-direction:column;gap:.6rem;overflow:auto;max-height:65vh}
-    .ai-suggests{display:flex;flex-wrap:wrap;gap:.4rem}
-    .ai-chip{border:1px solid rgba(127,127,127,.35);background:transparent;border-radius:999px;padding:.35rem .6rem;font-size:.85rem}
-    .ai-msg{border:1px solid rgba(127,127,127,.25);border-radius:.7rem;padding:.55rem .7rem;white-space:pre-wrap}
-    .ai-msg.user{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.35)}
-    .ai-msg.bot{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.35)}
-    .ai-form{display:flex;gap:.5rem;padding:.8rem 1rem;border-top:1px solid rgba(127,127,127,.25)}
-    .ai-input{flex:1;border:1px solid rgba(127,127,127,.35);border-radius:.6rem;background:transparent;color:inherit;padding:.5rem .6rem}
-    .ai-send{border:1px solid rgba(127,127,127,.35);background:transparent;border-radius:.6rem;padding:.5rem .7rem}
-    @media (max-width:720px){.ai-dock{top:auto;height:72vh}}
-  </style>
+  <!-- Dialog: Políticas con PDF -->
+  <dialog id="polDialog" class="dlg">
+    <form method="dialog" class="dlg__card" aria-labelledby="polTitle">
+      <header class="dlg__head">
+        <h3 id="polTitle">Políticas del consultorio</h3>
+        <button class="dlg__x" aria-label="Cerrar">✕</button>
+      </header>
+      <div class="dlg__body">
+        <div class="pdf-wrap">
+          <iframe class="pdf-frame"
+                  src="{% static 'docs/politicas_dentista_rc.pdf' %}#view=FitH"
+                  title="Políticas del consultorio (PDF)" loading="lazy"></iframe>
+        </div>
+        <div class="pdf-fallback" hidden>
+          <p>No pudimos mostrar el PDF. Descárgalo:</p>
+          <a class="btn btn--primary" href="{% static 'docs/politicas_dentista_rc.pdf' %}" download>Descargar PDF</a>
+        </div>
+      </div>
+      <footer class="dlg__foot">
+        <a class="btn btn--ghost" href="{% static 'docs/politicas_dentista_rc.pdf' %}" target="_blank" rel="noopener">Abrir en pestaña</a>
+        <a class="btn" href="{% static 'docs/politicas_dentista_rc.pdf' %}" download>Descargar PDF</a>
+        <button class="btn btn--primary">Entendido</button>
+      </footer>
+    </form>
+  </dialog>
 
-  <script>
-    (function(){
-      const $=s=>document.querySelector(s);
-      const fab=$('#aiFab'), dock=$('#aiDock'), close=$('#aiClose'), body=$('#aiBody'), form=$('#aiForm'), input=$('#aiInput');
-      const urlCitas = document.querySelector('a[href*="citas"]')?.href || "{% url 'paciente:citas' %}";
-      const urlPagos = document.querySelector('a[href*="pagos"]')?.href || "{% url 'paciente:pagos' %}";
+  <!-- Dialog: Editar perfil (front-only) -->
+  <dialog id="editDialog" class="dlg">
+    <form method="dialog" class="dlg__card" aria-labelledby="edTitle" id="editForm">
+      <header class="dlg__head">
+        <h3 id="edTitle">Editar datos</h3>
+        <button class="dlg__x" aria-label="Cerrar">✕</button>
+      </header>
+      <div class="dlg__body">
+        <div class="form-grid">
+          <label class="f"><span class="f__label">Nombre</span><input class="f__input" type="text" id="inNombre" value="Ana López"></label>
+          <label class="f"><span class="f__label">Correo</span><input class="f__input" type="email" id="inCorreo" value="ana@example.com"></label>
+          <label class="f"><span class="f__label">Teléfono</span><input class="f__input" type="tel" id="inTelefono" value="+52 55 1234 5678"></label>
+        </div>
+        <p class="muted">Este formulario es solo demostración. Luego lo conectamos a Django.</p>
+      </div>
+      <footer class="dlg__foot">
+        <button class="btn btn--ghost" value="cancel">Cancelar</button>
+        <button class="btn btn--primary" id="btnGuardar" value="default">Guardar</button>
+      </footer>
+    </form>
+  </dialog>
 
-      function open(){dock.setAttribute('aria-hidden','false'); input?.focus();}
-      function closeDock(){dock.setAttribute('aria-hidden','true');}
-      function msg(role,txt){const d=document.createElement('div'); d.className='ai-msg '+(role==='user'?'user':'bot'); d.textContent=txt; body.appendChild(d); body.scrollTop=body.scrollHeight;}
-
-      function answer(q){
-        const t=(q||'').toLowerCase();
-        if(t.includes('cita')){ window.location.href=urlCitas; return 'Abriendo “Mis citas”…'; }
-        if(t.includes('pago')){ window.location.href=urlPagos; return 'Abriendo “Pagos”…'; }
-        if(t.includes('qué puedo')||t.includes('que puedo')||t.includes('aquí')){
-          return 'Aquí verás un resumen personal, accesos a tus citas y a tus pagos. Puedo llevarte directo a cualquiera.';
-        }
-        return 'Puedo abrir “Mis citas” o “Pagos”, o contarte qué puedes hacer aquí. Prueba: “Muéstrame mis citas”.';
-      }
-
-      fab?.addEventListener('click', open);
-      close?.addEventListener('click', closeDock);
-      window.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDock(); });
-      body?.addEventListener('click', e=>{const b=e.target.closest('.ai-chip'); if(!b) return; input.value=b.dataset.q||''; input.focus();});
-      form?.addEventListener('submit', e=>{
-        e.preventDefault();
-        const q=input.value.trim(); if(!q) return;
-        msg('user',q); input.value='';
-        msg('bot',answer(q));
-      });
-    })();
-  </script>
 {% endblock %}
