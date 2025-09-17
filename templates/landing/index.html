@@ -66,18 +66,18 @@
 <header class="hero">
   <div class="blob bl1"></div><div class="blob bl2"></div>
   <div class="hero-inner wrap">
-    <div class="kicker">Odontología integral • Puerto Vallarta</div>
+    <div class="kicker">SISTEMA INTEGRAL DE GESTIÓN PARA EL CONSULTORIO DENTAL “RODOLFO CASTELLÓN” • Puerto Vallarta</div>
     <h1 class="reveal">Consultorio Dental Rodolfo Castellón</h1>
     <p class="lead reveal"><strong>Sistema integral</strong> para la <strong>gestión de pacientes, citas y pagos</strong>. Tecnología moderna, trato humano y precios accesibles.</p>
     <div class="cta reveal">
       <a class="btn btn--primary" href="https://wa.me/523228892558?text=Hola%20me%20gustar%C3%ADa%20agendar%20una%20cita" target="_blank" rel="noopener">💬 WhatsApp</a>
-      <a class="btn" href="{% url 'paciente:citas' %}">🗓️ Agenda tu cita</a>
+      <a class="btn" href="{% url 'accounts:login' %}">🗓️ Agenda tu cita</a>
       <a class="btn" href="{% url 'accounts:login' %}">🔐 Iniciar sesión</a>
     </div>
     <div class="stats">
-      <div class="stat reveal"><strong>10k+</strong><div class="muted">Procedimientos realizados</div></div>
-      <div class="stat reveal"><strong>4.9/5</strong><div class="muted">Satisfacción de pacientes</div></div>
-      <div class="stat reveal"><strong>15+ años</strong><div class="muted">Experiencia del Dr. Castellón</div></div>
+      <div class="stat reveal"><strong>2k+</strong><div class="muted">Procedimientos realizados</div></div>
+      <div class="stat reveal"><strong>5/5 ✨</strong><div class="muted">Satisfacción de pacientes</div></div>
+      <div class="stat reveal"><strong>8+ años</strong><div class="muted">Experiencia del Dr. Castellón</div></div>
     </div>
   </div>
 </header>
@@ -86,46 +86,113 @@
 
 <main style="background:var(--panel)">
   <!-- Servicios -->
-  <section id="servicios" class="wrap">
-    <h2 class="reveal" style="margin-top:0">Servicios principales</h2>
-    <p class="muted reveal">Tratamientos personalizados para cada sonrisa.</p>
-    <div class="grid grid-3" style="margin-top:1.2rem">
-      <article class="card reveal svc"><div class="ico">🦷</div><div><h3>Odontología General</h3><p class="muted">Diagnóstico, profilaxis y restauraciones estéticas.</p></div></article>
-      <article class="card reveal svc"><div class="ico">😬</div><div><h3>Ortodoncia</h3><p class="muted">Brackets estéticos y alineadores con plan digital.</p></div></article>
-      <article class="card reveal svc"><div class="ico">🧩</div><div><h3>Restaurativa</h3><p class="muted">Resinas, incrustaciones y coronas con ajuste natural.</p></div></article>
-      <article class="card reveal svc"><div class="ico">✨</div><div><h3>Estética</h3><p class="muted">Blanqueamiento y carillas de alta estética.</p></div></article>
-      <article class="card reveal svc"><div class="ico">🛠️</div><div><h3>Prótesis e Implantes</h3><p class="muted">Soluciones funcionales y duraderas.</p></div></article>
-      <article class="card reveal svc"><div class="ico">⏰</div><div><h3>Recordatorios & Agenda</h3><p class="muted">Expediente digital y recordatorios por WhatsApp/SMS.</p></div></article>
-    </div>
-  </section>
+<!-- Servicios -->
+<section id="servicios" class="wrap">
+  <h2 class="reveal" style="margin-top:0">Servicios principales</h2>
+  <p class="muted reveal">Tratamientos personalizados para cada sonrisa.</p>
+
+  <div class="grid grid-3" style="margin-top:1.2rem">
+    <!-- Odontología General -->
+    <article class="card reveal svc">
+      <div class="ico">
+        <img src="{% static 'img/odontologia general.png' %}" alt="Odontología general">
+      </div>
+      <div>
+        <h3>Odontología General</h3>
+        <p class="muted">Diagnóstico, profilaxis y restauraciones estéticas.</p>
+      </div>
+    </article>
+
+    <!-- Ortodoncia -->
+    <article class="card reveal svc">
+      <div class="ico">
+        <img src="{% static 'img/Ortodoncia.png' %}" alt="Ortodoncia">
+      </div>
+      <div>
+        <h3>Ortodoncia</h3>
+        <p class="muted">Brackets estéticos y alineadores con plan digital.</p>
+      </div>
+    </article>
+
+    <!-- Restaurativa -->
+    <article class="card reveal svc">
+      <div class="ico">
+        <img src="{% static 'img/odontologia Restaurativa.png' %}" alt="Odontología restaurativa">
+      </div>
+      <div>
+        <h3>Restaurativa</h3>
+        <p class="muted">Resinas, incrustaciones y coronas con ajuste natural.</p>
+      </div>
+    </article>
+
+    <!-- Estética -->
+    <article class="card reveal svc">
+      <div class="ico">
+        <img src="{% static 'img/Odontología estética.png' %}" alt="Odontología estética">
+      </div>
+      <div>
+        <h3>Estética</h3>
+        <p class="muted">Blanqueamiento y carillas de alta estética.</p>
+      </div>
+    </article>
+
+    <!-- Prótesis e Implantes -->
+    <article class="card reveal svc">
+      <div class="ico">
+        <img src="{% static 'img/protesis e implantes.png' %}" alt="Prótesis e implantes">
+      </div>
+      <div>
+        <h3>Prótesis e Implantes</h3>
+        <p class="muted">Soluciones funcionales y duraderas.</p>
+      </div>
+    </article>
+
+    <!-- Recordatorios & Agenda (DEJA EL ICONO) -->
+    <article class="card reveal svc">
+      <div class="ico">⏰</div>
+      <div>
+        <h3>Recordatorios & Agenda</h3>
+        <p class="muted">Expediente digital y recordatorios por WhatsApp/SMS.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
 
   <!-- Acerca -->
   <section id="acerca" class="wrap">
     <div class="grid grid-2">
       <div class="reveal">
         <h2>Acerca del consultorio</h2>
-        <p class="muted">Dirigido por el Dr. Rodolfo Castellón. <strong>Garantizamos que tu salud bucal reciba el mejor cuidado.</strong><br>¡Bienvenidos al Consultorio Dental Rodolfo Castellón! Un lugar donde nos apasiona ayudar a nuestros pacientes a lograr y mantener una boca sana y una sonrisa hermosa.</p>
-        <p class="muted">Ofrecemos un ambiente acogedor y agradable. Tratamientos de última generación, <strong>tecnología innovadora</strong> y <strong>precios accesibles</strong>. Nuestro compromiso es crear una experiencia dental excepcional y sin preocupaciones.</p>
-        <div style="margin-top:1rem"><a class="btn btn--primary" href="{% url 'paciente:citas' %}">Quiero una valoración</a></div>
+        <p class="muted">El <strong>Consultorio Dental del Dr. Rodolfo Castellón</strong> se encuentra ubicado en <strong>Calle Guatemala #125, Col. del Toro, El Pitillal, Puerto Vallarta, Jalisco</strong>. Un espacio diseñado para brindar confianza, comodidad y seguridad a cada paciente.</p>
+
+        <p class="muted">Contamos con <strong>tratamientos de última generación</strong>, tecnología innovadora y un trato humano cercano. Nuestro compromiso es ofrecer soluciones accesibles y efectivas para cuidar de tu salud bucal y mantener sonrisas sanas y estéticas.</p>
+        
+        <p class="muted">Nuestros horarios de atención son de <strong>lunes a sábado, de 2:00 pm a 8:00 pm</strong>, con un receso de <strong>4:00 pm a 5:00 pm</strong>. Además, para tu comodidad, contamos con un <strong>sistema de recordatorios personalizados</strong> que te ayuda a mantener constancia en tus citas y tratamientos.</p>
+        
+        <p class="muted">En el <strong>Consultorio Dental Rodolfo Castellón</strong> encontrarás un ambiente profesional y cálido, donde cada visita se convierte en una experiencia dental confiable, cómoda y libre de preocupaciones.</p>
+        
+        <a class="btn btn--primary" href="{% url 'accounts:login' %}">Quiero una valoración</a>
+
       </div>
       <div class="reveal">
-        <img src="{% static 'img/dentista2.jpg' %}" alt="Consultorio dental" style="width:100%;border-radius:22px;box-shadow:0 26px 60px rgba(0,0,0,.35)">
+        <img src="{% static 'img/dentista.jpg' %}" alt="Consultorio dental" style="width:100%;border-radius:22px;box-shadow:0 26px 60px rgba(0,0,0,.35)">
       </div>
     </div>
   </section>
 
   <!-- Pagos -->
   <section id="pagos" class="wrap">
-    <h2 class="reveal">Pagos y coberturas</h2>
-    <p class="muted reveal">Elige el método que prefieras.</p>
+    <h2 class="reveal">Formas de pagos</h2>
+    <p class="muted reveal">Elige el método de pago mas cómodo que prefieras.</p>
     <div class="badges reveal">
-      <span class="badge">💵 Efectivo</span><span class="badge">🌐 Pagos en línea</span><span class="badge">🏦 Depósitos</span><span class="badge">📄 Facturación CFDI</span>
+      <span class="badge">💵 Efectivo</span><span class="badge">🌐 Pagos en línea</span><span class="badge">🏦 Depósitos</span><span
     </div>
   </section>
 
   <!-- Testimonios carrusel -->
   <section class="wrap">
-    <h2 class="reveal">Testimonios</h2>
+    <h2 class="reveal">Comentarios</h2>
     <!-- Elfsight Google Reviews -->
 <!-- Elfsight Google Reviews | Untitled Google Reviews -->
 <script src="https://elfsightcdn.com/platform.js" async></script>
