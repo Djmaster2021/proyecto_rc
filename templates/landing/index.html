@@ -5,6 +5,7 @@
 {% block meta_description %}Atención dental profesional en Puerto Vallarta. Sistema integral para pacientes, citas y pagos. WhatsApp 322 889 2558.{% endblock %}
 
 {% block extra_head %}
+
 <link rel="preload" href="{% static 'img/fondodentista1.jpg' %}" as="image">
 <style>
   :root{
@@ -158,6 +159,11 @@
   </div>
 </section>
 
+<div class="sep">
+  <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+    <path d="M0,32 C240,70 480,-8 720,20 C960,48 1200,80 1440,50 L1440,0 L0,0 Z"/>
+  </svg>
+</div>
 
   <!-- Acerca -->
   <section id="acerca" class="wrap">
@@ -182,28 +188,35 @@
   </section>
 
   <!-- Pagos -->
-  <section id="pagos" class="wrap">
-    <h2 class="reveal">Formas de pagos</h2>
-    <p class="muted reveal">Elige el método de pago mas cómodo que prefieras.</p>
-    <div class="badges reveal">
-      <span class="badge">💵 Efectivo</span><span class="badge">🌐 Pagos en línea</span><span class="badge">🏦 Depósitos</span><span
+  <section id="pagos" class="sec sec--c">
+    <div class="wrap">
+      <h2 class="reveal">Formas de pago</h2>
+      <p class="muted reveal">Elige el método de pago más cómodo.</p>
+      <div class="badges reveal">
+        <span class="badge">💵 Efectivo</span>
+        <span class="badge">🌐 Pagos en línea</span>
+        <span class="badge">🏦 Depósitos</span>
+      </div>
     </div>
-  </section>
-
-  <!-- Testimonios carrusel -->
-  <section class="wrap">
-    <h2 class="reveal">Comentarios</h2>
-    <!-- Elfsight Google Reviews -->
-<!-- Elfsight Google Reviews | Untitled Google Reviews -->
-<script src="https://elfsightcdn.com/platform.js" async></script>
-<div class="elfsight-app-5c54d382-5b89-4915-8d3b-f3e667a87d9c" data-elfsight-app-lazy></div>
   </section>
   
 
+  <!-- Testimonios carrusel -->
+  <section class="sec sec--d">
+    <div class="wrap">
+      <h2 class="reveal">Comentarios</h2>
+      <script src="https://elfsightcdn.com/platform.js" async></script>
+      <div class="elfsight-app-5c54d382-5b89-4915-8d3b-f3e667a87d9c" data-elfsight-app-lazy></div>
+    </div>
+  </section>
+  
+  
+
   <!-- Contacto -->
-  <section id="contacto" class="wrap">
-    <h2 class="reveal">Contacto y ubicación</h2>
-    <div class="contact-grid">
+  <section id="contacto" class="sec sec--e">
+    <div class="wrap">
+      <h2 class="reveal">Contacto y ubicación</h2>
+      <div class="contact-grid">
       <div class="card contact-card reveal">
         <ul class="muted" style="list-style:none;padding:0;margin:0 0 1rem 0;display:grid;gap:.4rem">
           <li><strong>Teléfono / WhatsApp:</strong> <a href="tel:+523228892558">+52 322 889 2558</a> · <a target="_blank" rel="noopener" href="https://wa.me/523228892558">Abrir WhatsApp</a></li>
