@@ -1,0 +1,99 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+<!-- Bloque 1: Título de la página -->
+{% block dtitle %}Historial del Paciente | DentalSys{% endblock %}
+
+<!-- Bloque 2: Contenido de la página -->
+{% block dcontent %}
+<header class="main-header">
+    <!-- El nombre del paciente se pasará desde la vista en el futuro -->
+    <h1>Historial de: Ana García López</h1>
+    <div class="header-actions">
+        <a href="{% url 'dentista:pacientes' %}" class="action-button secondary">
+            <i class="ph-bold ph-arrow-left"></i>
+            <span>Volver a Pacientes</span>
+        </a>
+        <button class="action-button">
+            <i class="ph-bold ph-note-pencil"></i>
+            <span>Agregar Nota</span>
+        </button>
+    </div>
+</header>
+
+<!-- Tarjeta con el resumen de datos del paciente -->
+<section class="patient-summary-card">
+    <div class="patient-info-grid">
+        <div class="info-item">
+            <span class="info-label">Teléfono</span>
+            <span class="info-value">+52 55 1234 5678</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Correo Electrónico</span>
+            <span class="info-value">ana.garcia@email.com</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Próxima Cita</span>
+            <span class="info-value">28 de Oct, 2025 - 11:00</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Deuda Total</span>
+            <span class="info-value-danger">$ 850.00</span>
+        </div>
+    </div>
+</section>
+
+<!-- Tabla con el historial detallado de citas y pagos -->
+<div class="table-container">
+    <div class="table-header">
+        <h3>Historial de Citas</h3>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Servicio Realizado</th>
+                <th>Estado</th>
+                <th>Monto</th>
+                <th>Pago</th>
+                <th>Observaciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- NOTA: Estas filas se generarán con un bucle for de Django -->
+            <tr>
+                <td>20 de Sep, 2025</td>
+                <td>Ortodoncia</td>
+                <td><span class="status confirmed">Atendido</span></td>
+                <td>$2,500.00</td>
+                <td><span class="status confirmed">Pagado</span></td>
+                <td>Ajuste de brackets, sin complicaciones.</td>
+            </tr>
+            <tr>
+                <td>15 de Ago, 2025</td>
+                <td>Limpieza Profunda</td>
+                <td><span class="status confirmed">Atendido</span></td>
+                <td>$850.00</td>
+                <td><span class="status pending">Pendiente</span></td>
+                <td>Paciente refiere sensibilidad en molares.</td>
+            </tr>
+            <tr>
+                <td>01 de Jul, 2025</td>
+                <td>Consulta Inicial</td>
+                <td><span class="status confirmed">Atendido</span></td>
+                <td>$300.00</td>
+                <td><span class="status confirmed">Pagado</span></td>
+                <td>Se aprueba tratamiento de ortodoncia.</td>
+            </tr>
+             <tr>
+                <td>10 de Jun, 2025</td>
+                <td>Revisión General</td>
+                <td><span class="status cancelled">Cancelada</span></td>
+                <td>-</td>
+                <td>-</td>
+                <td>Paciente canceló por teléfono.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,202 +1,68 @@
-{# dentista/templates/dentista/agenda.html #}
 {% extends "dentista/base.html" %}
 {% load static %}
 
-{% block dtitle %}Agenda{% endblock %}
+{% block dtitle %}Agenda | DentalSys{% endblock %}
+
 {% block dcontent %}
-
-<section class="ag-scope ag-wrap">
-  <header class="ag-header">
-    <h2 class="ag-title">Agenda</h2>
-
-    <div class="ag-toolbar">
-      <div class="ag-controls">
-        <button class="ag-btn ag-ghost" disabled aria-label="Anterior">⟨</button>
-        <div class="ag-date">Semana 36 · 2025</div>
-        <button class="ag-btn ag-ghost" disabled aria-label="Siguiente">⟩</button>
-      </div>
-
-      <div class="ag-filters">
-        <label class="ag-field">
-          <span>Día</span>
-          <select class="ag-input" disabled>
-            <option>Lunes</option><option>Martes</option><option>Miércoles</option>
-            <option>Jueves</option><option>Viernes</option><option>Sábado</option>
-          </select>
-        </label>
-
-        <label class="ag-field">
-          <span>Estado</span>
-          <select class="ag-input" disabled>
-            <option>Todos</option><option>Pendiente</option><option>En sala</option>
-            <option>Atendido</option><option>Cancelado</option>
-          </select>
-        </label>
-
-        <label class="ag-search">
-          <input class="ag-input" placeholder="Buscar paciente o motivo…" disabled>
-        </label>
-      </div>
+<header class="main-header">
+    <h1>Agenda Semanal</h1>
+    <div class="header-actions">
+        <button class="action-button">
+            <i class="ph-bold ph-plus-circle"></i>
+            <span>Nueva Cita</span>
+        </button>
+        <div class="week-navigator">
+            <button class="nav-arrow"><i class="ph-bold ph-caret-left"></i></button>
+            <span class="week-display">20 - 26 Sep, 2025</span>
+            <button class="nav-arrow"><i class="ph-bold ph-caret-right"></i></button>
+        </div>
     </div>
-  </header>
+</header>
 
-  <!-- Vista semanal (maqueta estática) -->
-  <section class="ag-board">
-    <header class="ag-board-head">
-      <div class="ag-col time">Hora</div>
-      <div class="ag-col">Lun 01</div>
-      <div class="ag-col">Mar 02</div>
-      <div class="ag-col">Mié 03</div>
-      <div class="ag-col">Jue 04</div>
-      <div class="ag-col">Vie 05</div>
-      <div class="ag-col">Sáb 06</div>
-    </header>
-
-    <div class="ag-grid">
-      <!-- Columna Horas -->
-      <div class="ag-times">
-        <div>09:00</div>
-        <div>09:30</div>
-        <div>10:00</div>
-        <div>10:30</div>
-        <div>11:00</div>
-        <div>11:30</div>
-        <div>12:00</div>
-        <div>12:30</div>
-        <div>13:00</div>
-        <div>13:30</div>
-        <div>14:00</div>
-        <div>14:30</div>
-        <div>15:00</div>
-        <div>15:30</div>
-        <div>16:00</div>
-        <div>16:30</div>
-        <div>17:00</div>
-        <div>17:30</div>
-        <div>18:00</div>
-        <div>18:30</div>
-        <div>19:00</div>
-        <div>19:30</div>
-        <div>20:00</div>
-        <div>20:30</div>
-        <div>21:00</div>
-      </div>
-
-
-      <!-- Citas de ejemplo (cards flotantes) -->
-      <!-- Lunes 09:00–09:40 -->
-      <div class="ag-event ag-day-1 ag-row-1 ag-span-2 ag-badge-pend">
-        <div class="ag-event-title">Ana López · Limpieza</div>
-        <div class="ag-event-meta">09:00–09:40 · Pendiente</div>
-      </div>
-
-      <!-- Martes 09:40–10:20 -->
-      <div class="ag-event ag-day-2 ag-row-2 ag-span-2 ag-badge-sala">
-        <div class="ag-event-title">Carlos Pérez · Revisión caries</div>
-        <div class="ag-event-meta">09:40–10:20 · En sala</div>
-      </div>
-
-      <!-- Miércoles 10:30–11:10 -->
-      <div class="ag-event ag-day-3 ag-row-4 ag-span-2 ag-badge-ok">
-        <div class="ag-event-title">Martha Díaz · Resina 2 molar</div>
-        <div class="ag-event-meta">10:30–11:10 · Atendido</div>
-      </div>
-
-      <!-- Viernes 13:30–14:10 -->
-      <div class="ag-event ag-day-5 ag-row-10 ag-span-2 ag-badge-cancel">
-        <div class="ag-event-title">Cecilia Romero · Blanqueamiento</div>
-        <div class="ag-event-meta">13:30–14:10 · Cancelado</div>
-      </div>
+<div class="agenda-container">
+    <div class="agenda-header">
+        <div class="header-day">Lunes 20</div>
+        <div class="header-day">Martes 21</div>
+        <div class="header-day">Miércoles 22</div>
+        <div class="header-day">Jueves 23</div>
+        <div class="header-day">Viernes 24</div>
+        <div class="header-day">Sábado 25</div>
     </div>
+    <div class="agenda-grid">
+        <!-- Horarios de la izquierda -->
+        <div class="time-slots">
+            <div class="time-slot">09:00</div>
+            <div class="time-slot">10:00</div>
+            <div class="time-slot">11:00</div>
+            <div class="time-slot">12:00</div>
+            <div class="time-slot">13:00</div>
+            <div class="time-slot">14:00</div>
+            <div class="time-slot">15:00</div>
+            <div class="time-slot">16:00</div>
+            <div class="time-slot">17:00</div>
+            <div class="time-slot">18:00</div>
+        </div>
 
-    <!-- Leyenda -->
-    <div class="ag-legend">
-      <span class="ag-chip ag-badge-pend">Pendiente</span>
-      <span class="ag-chip ag-badge-sala">En sala</span>
-      <span class="ag-chip ag-badge-ok">Atendido</span>
-      <span class="ag-chip ag-badge-cancel">Cancelado</span>
+        <!-- Contenedor de las citas -->
+        <div class="appointments-wrapper">
+            <!-- Citas de ejemplo (se generarán con Django) -->
+            <div class="appointment status-confirmed" style="--start-row: 2; --duration: 2;"> <!-- 10:00 a 11:00 -->
+                <p class="appointment-patient">Ana García</p>
+                <p class="appointment-service">Ortodoncia</p>
+            </div>
+            <div class="appointment status-pending" style="--day: 2; --start-row: 1; --duration: 3;"> <!-- 09:00 a 10:30 -->
+                <p class="appointment-patient">Carlos López</p>
+                <p class="appointment-service">Limpieza Profunda</p>
+            </div>
+            <div class="appointment status-cancelled" style="--day: 4; --start-row: 5; --duration: 2;"> <!-- 13:00 a 14:00 -->
+                <p class="appointment-patient">Laura Martínez</p>
+                <p class="appointment-service">Extracción</p>
+            </div>
+             <div class="appointment status-confirmed" style="--day: 5; --start-row: 8; --duration: 4;"> <!-- 16:00 a 18:00 -->
+                <p class="appointment-patient">Emilio Segura</p>
+                <p class="appointment-service">Implante Dental</p>
+            </div>
+        </div>
     </div>
-  </section>
-
-  <!-- Lista del día (maqueta estática, opcional) -->
-  <section class="ag-card">
-    <h3>Agenda de hoy</h3>
-    <div class="ag-table-wrap">
-      <table class="ag-table">
-        <thead>
-          <tr><th>Hora</th><th>Paciente</th><th>Motivo</th><th>Estado</th><th>Pago</th><th></th></tr>
-        </thead>
-        <tbody>
-          <tr><td>09:00</td><td>Ana López</td><td>Limpieza</td><td><span class="ag-badge ag-badge-pend">Pendiente</span></td><td><span class="ag-pay ag-pend">Pendiente</span></td><td class="ag-right"><button class="ag-btn ag-ghost" disabled>Atender</button></td></tr>
-          <tr><td>09:40</td><td>Carlos Pérez</td><td>Revisión caries</td><td><span class="ag-badge ag-badge-sala">En sala</span></td><td><span class="ag-pay ag-pend">Pendiente</span></td><td class="ag-right"><button class="ag-btn ag-ghost" disabled>Atender</button></td></tr>
-          <tr><td>10:30</td><td>Martha Díaz</td><td>Resina 2 molar</td><td><span class="ag-badge ag-badge-ok">Atendido</span></td><td><span class="ag-pay ag-ok">Pagado</span></td><td></td></tr>
-          <tr><td>13:30</td><td>Cecilia Romero</td><td>Blanqueamiento</td><td><span class="ag-badge ag-badge-cancel">Cancelado</span></td><td>—</td><td></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-</section>
-
-<style>
-/* ===== Estilos encapsulados de Agenda (no tocan tu theme) ===== */
-.ag-scope{--ag-fg: currentColor; --ag-line: rgba(127,127,127,.25)}
-.ag-scope .ag-wrap{color:var(--ag-fg)}
-.ag-scope .ag-title{margin:0;font-size:1.25rem;font-weight:700}
-.ag-scope .ag-header{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1rem}
-
-/* Toolbar */
-.ag-scope .ag-toolbar{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;justify-content:space-between}
-.ag-scope .ag-controls{display:flex;align-items:center;gap:.5rem}
-.ag-scope .ag-date{font-weight:700;opacity:.9}
-.ag-scope .ag-filters{display:flex;gap:.5rem;align-items:end;flex-wrap:wrap}
-.ag-scope .ag-field{display:flex;flex-direction:column;gap:.3rem;font-size:.85rem;opacity:.9}
-.ag-scope .ag-input{background:transparent;border:1px solid var(--ag-line);border-radius:.6rem;padding:.45rem .6rem;min-width:160px;color:inherit}
-.ag-scope .ag-search .ag-input{min-width:260px}
-.ag-scope .ag-btn{border:1px solid var(--ag-line);border-radius:.6rem;background:transparent;padding:.45rem .7rem;color:inherit;font-weight:600}
-.ag-scope .ag-btn.ag-ghost{opacity:.75}
-
-/* Board semanal */
-.ag-scope .ag-board{margin-top:.5rem}
-.ag-scope .ag-board-head{display:grid;grid-template-columns:100px repeat(6,1fr);gap:.5rem;margin-bottom:.5rem}
-.ag-scope .ag-board-head .ag-col{border:1px solid var(--ag-line);border-radius:.6rem;padding:.55rem .6rem;opacity:.9}
-.ag-scope .ag-board-head .time{background:transparent}
-
-.ag-scope .ag-grid{position:relative;display:grid;grid-template-columns:100px repeat(6,1fr);gap:.5rem}
-.ag-scope .ag-times{display:grid;grid-template-rows:repeat(10,50px);gap:.5rem}
-.ag-scope .ag-times > div{border:1px solid var(--ag-line);border-radius:.6rem;display:flex;align-items:center;justify-content:center;font-size:.9rem;opacity:.85}
-
-.ag-scope .ag-day{display:grid;grid-template-rows:repeat(10,50px);gap:.5rem}
-.ag-scope .ag-slot{border:1px solid var(--ag-line);border-radius:.6rem;opacity:.2}
-
-.ag-scope .ag-event{position:absolute;border:1px solid var(--ag-line);border-radius:.7rem;padding:.55rem .65rem;font-size:.9rem;backdrop-filter: blur(1px)}
-.ag-scope .ag-event .ag-event-title{font-weight:700;margin-bottom:.15rem}
-.ag-scope .ag-event .ag-event-meta{opacity:.85;font-size:.82rem}
-
-/* Posicionamiento de eventos (día/row/span) */
-.ag-scope .ag-event{--colW: calc((100% - 100px - (6 * .5rem)) / 6); --gap:.5rem; --left:0; --top:0}
-.ag-scope .ag-event{left: calc(100px + var(--gap) + (var(--colW) + var(--gap)) * (var(--d) - 1)); top: calc(((50px + var(--gap)) * (var(--r) - 1))); width: calc(var(--colW)); height: calc((50px + var(--gap)) * var(--s) - var(--gap))}
-.ag-scope .ag-day-1{--d:1}.ag-day-2{--d:2}.ag-day-3{--d:3}.ag-day-4{--d:4}.ag-day-5{--d:5}.ag-day-6{--d:6}
-.ag-scope .ag-row-1{--r:1}.ag-row-2{--r:2}.ag-row-3{--r:3}.ag-row-4{--r:4}.ag-row-5{--r:5}.ag-row-6{--r:6}.ag-row-7{--r:7}.ag-row-8{--r:8}.ag-row-9{--r:9}.ag-row-10{--r:10}
-.ag-scope .ag-span-1{--s:1}.ag-span-2{--s:2}.ag-span-3{--s:3}.ag-span-4{--s:4}
-
-/* Chips/badges */
-.ag-scope .ag-badge{padding:.2rem .5rem;border-radius:.6rem;font-size:.78rem;font-weight:700;display:inline-block}
-.ag-scope .ag-badge-pend{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.35)}
-.ag-scope .ag-badge-sala{background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.35)}
-.ag-scope .ag-badge-ok{background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.35)}
-.ag-scope .ag-badge-cancel{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.35)}
-
-.ag-scope .ag-legend{display:flex;gap:.5rem;flex-wrap:wrap;margin:.75rem 0 1rem}
-.ag-scope .ag-chip{border:1px solid var(--ag-line);border-radius:.6rem;padding:.25rem .55rem}
-
-/* Tabla del día */
-.ag-scope .ag-card{border:1px solid var(--ag-line);border-radius:.9rem;padding:1rem;margin-top:.5rem;background:transparent}
-.ag-scope .ag-card h3{margin:0 0 .6rem}
-.ag-scope .ag-table{width:100%;border-collapse:collapse}
-.ag-scope .ag-table th,.ag-scope .ag-table td{border-bottom:1px solid var(--ag-line);padding:.7rem .5rem;text-align:left}
-.ag-scope .ag-pay.ag-ok{color:#22c55e;font-weight:700}
-.ag-scope .ag-pay.ag-pend{color:#f59e0b;font-weight:700}
-.ag-scope .ag-right{text-align:right}
-</style>
-
+</div>
 {% endblock %}

@@ -1,203 +1,121 @@
-{# dentista/templates/dentista/pacientes.html #}
-{% extends "dentista/base.html" %}
+
 {% load static %}
 
-{% block dtitle %}Pacientes{% endblock %}
+<!-- Bloque 1: Título de la página -->
+{% block dtitle %}Pacientes | DentalSys{% endblock %}
+
+<!-- Bloque 2: Contenido de la página -->
 {% block dcontent %}
-
-<section class="pt-scope pt-wrap">
-  <header class="pt-header">
-    <h2 class="pt-title">Pacientes</h2>
-
-    <div class="pt-toolbar">
-      <div class="pt-left">
-        <button class="pt-btn pt-outline" disabled>+ Nuevo paciente</button>
-      </div>
-
-      <div class="pt-right">
-        <label class="pt-field">
-          <span>Estado</span>
-          <select class="pt-input" disabled>
-            <option>Todos</option>
-            <option>Nuevo</option>
-            <option>Activo</option>
-            <option>En tratamiento</option>
-            <option>Inactivo</option>
-          </select>
-        </label>
-
-        <label class="pt-search">
-          <input class="pt-input" placeholder="Buscar por nombre, teléfono o correo…" disabled>
-        </label>
-      </div>
+<header class="main-header">
+    <h1>Gestión de Pacientes</h1>
+    <div class="header-actions">
+        <button class="action-button">
+            <i class="ph-bold ph-user-plus"></i>
+            <span>Nuevo Paciente</span>
+        </button>
     </div>
-  </header>
+</header>
 
-  <!-- Resumenes (opcional, estático) -->
-  <div class="pt-kpis">
-    <article class="pt-card">
-      <div class="pt-k-label">Total pacientes</div>
-      <div class="pt-k-value">248</div>
-      <div class="pt-k-sub">Activos: 173 · Nuevos: 12</div>
-    </article>
-    <article class="pt-card">
-      <div class="pt-k-label">Deudas pendientes</div>
-      <div class="pt-k-value">$ 12,450</div>
-      <div class="pt-k-sub">28 pacientes con saldo</div>
-    </article>
-    <article class="pt-card">
-      <div class="pt-k-label">Citas este mes</div>
-      <div class="pt-k-value">86</div>
-      <div class="pt-k-sub">Atendidas: 64 · Canceladas: 7</div>
-    </article>
-  </div>
-
-  <!-- Tabla de pacientes (maqueta estática) -->
-  <article class="pt-card">
-    <div class="pt-card-head">
-      <h3>Listado</h3>
-      <div class="pt-legend">
-        <span class="pt-badge pt-b-new">Nuevo</span>
-        <span class="pt-badge pt-b-act">Activo</span>
-        <span class="pt-badge pt-b-trt">En tratamiento</span>
-        <span class="pt-badge pt-b-off">Inactivo</span>
-      </div>
+<!-- Contenedor para filtros y barra de búsqueda -->
+<section class="filters-container">
+    <div class="search-bar">
+        <i class="ph ph-magnifying-glass"></i>
+        <input type="text" placeholder="Buscar por nombre, teléfono o correo...">
     </div>
-
-    <div class="pt-table-wrap">
-      <table class="pt-table">
-        <thead>
-          <tr>
-            <th>Paciente</th>
-            <th>Edad</th>
-            <th>Contacto</th>
-            <th>Última cita</th>
-            <th>Estado</th>
-            <th>Saldo</th>
-            <th class="pt-right"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <div class="pt-name">Ana López</div>
-              <div class="pt-sub">ana@example.com</div>
-            </td>
-            <td>29</td>
-            <td>+52 55 1234 5678</td>
-            <td>2025-08-20</td>
-            <td><span class="pt-badge pt-b-act">Activo</span></td>
-            <td><span class="pt-saldo ok">$ 0</span></td>
-            <td class="pt-right">
-              <button class="pt-btn pt-ghost" disabled>Ver ficha</button>
-              <button class="pt-btn pt-ghost" disabled>Historial</button>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <div class="pt-name">Carlos Pérez</div>
-              <div class="pt-sub">carlos.perez@example.com</div>
-            </td>
-            <td>41</td>
-            <td>+52 33 9876 5432</td>
-            <td>2025-08-28</td>
-            <td><span class="pt-badge pt-b-trt">En tratamiento</span></td>
-            <td><span class="pt-saldo warn">$ 1,200</span></td>
-            <td class="pt-right">
-              <button class="pt-btn pt-ghost" disabled>Ver ficha</button>
-              <button class="pt-btn pt-ghost" disabled>Historial</button>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <div class="pt-name">Martha Díaz</div>
-              <div class="pt-sub">martha.d@example.com</div>
-            </td>
-            <td>35</td>
-            <td>+52 81 2468 1357</td>
-            <td>2025-08-15</td>
-            <td><span class="pt-badge pt-b-new">Nuevo</span></td>
-            <td><span class="pt-saldo ok">$ 0</span></td>
-            <td class="pt-right">
-              <button class="pt-btn pt-ghost" disabled>Ver ficha</button>
-              <button class="pt-btn pt-ghost" disabled>Historial</button>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <div class="pt-name">Cecilia Romero</div>
-              <div class="pt-sub">ceci.r@example.com</div>
-            </td>
-            <td>52</td>
-            <td>+52 81 2233 4455</td>
-            <td>2025-07-30</td>
-            <td><span class="pt-badge pt-b-off">Inactivo</span></td>
-            <td><span class="pt-saldo warn">$ 650</span></td>
-            <td class="pt-right">
-              <button class="pt-btn pt-ghost" disabled>Ver ficha</button>
-              <button class="pt-btn pt-ghost" disabled>Historial</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Paginación (maqueta) -->
-    <div class="pt-pager">
-      <button class="pt-btn pt-ghost" disabled>« Anterior</button>
-      <span class="pt-page">Página 1 de 12</span>
-      <button class="pt-btn pt-ghost" disabled>Siguiente »</button>
-    </div>
-  </article>
+    <select class="filter-select">
+        <option value="">Todos los estados</option>
+        <option value="activo">Activo</option>
+        <option value="tratamiento">En Tratamiento</option>
+        <option value="inactivo">Inactivo</option>
+    </select>
 </section>
 
-<style>
-/* ===== Estilos encapsulados (no tocan tu theme) ===== */
-.pt-scope{--pt-fg: currentColor; --pt-line: rgba(127,127,127,.25)}
-.pt-scope .pt-wrap{color:var(--pt-fg)}
-.pt-scope .pt-title{margin:0 0 .25rem;font-size:1.25rem;font-weight:700}
+<!-- Tarjetas con estadísticas rápidas sobre los pacientes -->
+<section class="metrics-grid">
+    <div class="metric-card">
+        <div class="card-icon icon-green">
+            <i class="ph-bold ph-users-three"></i>
+        </div>
+        <div class="card-info">
+            <span class="card-title">Total de Pacientes</span>
+            <span class="card-value">248</span>
+        </div>
+    </div>
+    <div class="metric-card">
+        <div class="card-icon icon-blue">
+            <i class="ph-bold ph-user-check"></i>
+        </div>
+        <div class="card-info">
+            <span class="card-title">Pacientes Activos</span>
+            <span class="card-value">173</span>
+        </div>
+    </div>
+    <div class="metric-card">
+        <div class="card-icon icon-yellow">
+            <i class="ph-bold ph-user-circle-plus"></i>
+        </div>
+        <div class="card-info">
+            <span class="card-title">Nuevos (Este Mes)</span>
+            <span class="card-value">12</span>
+        </div>
+    </div>
+</section>
 
-.pt-scope .pt-toolbar{display:flex;align-items:end;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin:.5rem 0 1rem}
-.pt-scope .pt-left,.pt-scope .pt-right{display:flex;gap:.5rem;align-items:end;flex-wrap:wrap}
-.pt-scope .pt-field{display:flex;flex-direction:column;gap:.3rem;font-size:.85rem;opacity:.9}
-.pt-scope .pt-input{background:transparent;border:1px solid var(--pt-line);border-radius:.6rem;padding:.45rem .6rem;min-width:180px;color:inherit}
-.pt-scope .pt-search .pt-input{min-width:260px}
-
-.pt-scope .pt-btn{border:1px solid var(--pt-line);border-radius:.6rem;background:transparent;padding:.45rem .7rem;color:inherit;font-weight:600}
-.pt-scope .pt-outline{background:transparent}
-.pt-scope .pt-ghost{opacity:.8}
-
-.pt-scope .pt-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1rem}
-@media (max-width:1000px){.pt-scope .pt-kpis{grid-template-columns:1fr 1fr}}
-@media (max-width:620px){.pt-scope .pt-kpis{grid-template-columns:1fr}}
-.pt-scope .pt-card{border:1px solid var(--pt-line);border-radius:.9rem;padding:1rem;background:transparent}
-.pt-scope .pt-k-label{opacity:.75;font-size:.9rem}
-.pt-scope .pt-k-value{font-size:1.9rem;font-weight:800;margin:.2rem 0}
-.pt-scope .pt-k-sub{opacity:.75;font-size:.85rem}
-
-.pt-scope .pt-card-head{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:.5rem}
-.pt-scope .pt-card-head h3{margin:0;font-size:1.05rem}
-
-.pt-scope .pt-table{width:100%;border-collapse:collapse}
-.pt-scope .pt-table th,.pt-scope .pt-table td{border-bottom:1px solid var(--pt-line);padding:.7rem .5rem;text-align:left;vertical-align:middle}
-.pt-scope .pt-name{font-weight:700}
-.pt-scope .pt-sub{opacity:.75;font-size:.85rem}
-.pt-scope .pt-right{text-align:right}
-
-.pt-scope .pt-badge{padding:.2rem .5rem;border-radius:.6rem;font-size:.78rem;font-weight:700;display:inline-block;border:1px solid var(--pt-line)}
-.pt-scope .pt-b-new{background:rgba(59,130,246,.12);color:#3b82f6;border-color:rgba(59,130,246,.35)}
-.pt-scope .pt-b-act{background:rgba(34,197,94,.12);color:#22c55e;border-color:rgba(34,197,94,.35)}
-.pt-scope .pt-b-trt{background:rgba(245,158,11,.12);color:#f59e0b;border-color:rgba(245,158,11,.35)}
-.pt-scope .pt-b-off{background:rgba(239,68,68,.12);color:#ef4444;border-color:rgba(239,68,68,.35)}
-
-.pt-scope .pt-saldo.ok{color:#22c55e;font-weight:700}
-.pt-scope .pt-saldo.warn{color:#f59e0b;font-weight:700}
-
-.pt-scope .pt-pager{display:flex;align-items:center;justify-content:flex-end;gap:.6rem;margin-top:.75rem;opacity:.9}
-.pt-scope .pt-page{font-weight:600}
-</style>
-
+<!-- Tabla con el listado de todos los pacientes -->
+<div class="table-container">
+    <div class="table-header">
+        <h3>Listado de Pacientes</h3>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Nombre del Paciente</th>
+                <th>Contacto</th>
+                <th>Última Cita</th>
+                <th>Estado</th>
+                <th class="actions-column">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- NOTA: Estas filas se generarán con un bucle for de Django -->
+            <tr>
+                <td>Ana García López</td>
+                <td>ana.garcia@email.com</td>
+                <td>20 de Sep, 2025</td>
+                <td><span class="status confirmed">Activo</span></td>
+                <td class="actions-column">
+                    <a href="{% url 'dentista:historial' %}" class="action-link">Ver Historial</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Carlos López</td>
+                <td>+52 55 8765 4321</td>
+                <td>18 de Sep, 2025</td>
+                <td><span class="status pending">En Tratamiento</span></td>
+                <td class="actions-column">
+                    <a href="{% url 'dentista:historial' %}" class="action-link">Ver Historial</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Laura Martínez</td>
+                <td>laura.m@email.com</td>
+                <td>-</td>
+                <td><span class="status confirmed">Activo</span></td>
+                <td class="actions-column">
+                    <a href="{% url 'dentista:historial' %}" class="action-link">Ver Historial</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Juan Rodríguez</td>
+                <td>+52 55 1122 3344</td>
+                <td>05 de Ene, 2024</td>
+                <td><span class="status cancelled">Inactivo</span></td>
+                <td class="actions-column">
+                    <a href="{% url 'dentista:historial' %}" class="action-link">Ver Historial</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 {% endblock %}
+

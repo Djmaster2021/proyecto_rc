@@ -20,4 +20,3 @@ def reprogramar_placeholder(request, cita_id):
 
 def cancelar_placeholder(request, cita_id):
     return HttpResponse(f"Cancelar cita {cita_id} (placeholder).")
-

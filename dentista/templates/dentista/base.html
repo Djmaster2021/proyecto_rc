@@ -1,50 +1,85 @@
-{% extends "_components/base_site.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block dtitle %}DentalSys{% endblock %}</title>
 
-{% block title %}Área Dentista{% endblock %}
+    <!-- Fuentes / CSS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-{% block head_extra %}
-  <link rel="icon" href="{% static 'favicon.ico' %}">
-  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}">
-{% endblock %}
+    <!-- Hoja de estilos del app dentista -->
+    <link rel="stylesheet" href="{% static 'dentista/styles.css' %}">
 
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
+    <!-- Opcional: favicon del proyecto -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
-{% block content %}
-<div class="layout">
-  <!-- Sidebar / Drawer -->
-  <aside id="sidebar" class="sidebar" role="navigation" aria-label="Menú Dentista">
-    <h2 class="sidebar-title">Dentista</h2>
-    <nav class="sidebar-nav">
-      <ul>
-        <li><a href="{% url 'dentista:dashboard' %}">🏠 Dashboard</a></li>
-        <li><a href="{% url 'dentista:agenda' %}">📅 Agenda</a></li>
-        <li><a href="{% url 'dentista:pacientes' %}">👥 Pacientes</a></li>
-        <li><a href="{% url 'dentista:pagos' %}">💳 Pagos</a></li>
-      </ul>
-    </nav>
-  </aside>
+    <!-- Librerías externas -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container" id="dashboard-container">
+        <!-- ===== BARRA LATERAL (SIDEBAR) ===== -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="ph-bold ph-heartbeat"></i>
+                <span class="sidebar-title">DentalSys</span>
+                <button class="sidebar-toggle" id="sidebar-toggle">
+                    <i class="ph-bold ph-caret-left"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'dentista:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="ph-bold ph-gauge"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'dentista:agenda' %}" class="nav-item {% if request.resolver_match.url_name == 'agenda' %}active{% endif %}">
+                    <i class="ph-bold ph-calendar-blank"></i>
+                    <span>Agenda</span>
+                </a>
+                <a href="{% url 'dentista:pacientes' %}" class="nav-item {% if request.resolver_match.url_name == 'pacientes' %}active{% endif %}">
+                    <i class="ph-bold ph-users"></i>
+                    <span>Pacientes</span>
+                </a>
+                <a href="{% url 'dentista:pagos' %}" class="nav-item {% if request.resolver_match.url_name == 'pagos' %}active{% endif %}">
+                    <i class="ph-bold ph-money"></i>
+                    <span>Pagos</span>
+                </a>
+                <a href="{% url 'dentista:servicios' %}" class="nav-item {% if request.resolver_match.url_name == 'servicios' %}active{% endif %}">
+                    <i class="ph-bold ph-first-aid-kit"></i>
+                    <span>Servicios</span>
+                </a>
+                <a href="{% url 'dentista:reportes' %}" class="nav-item {% if request.resolver_match.url_name == 'reportes' %}active{% endif %}">
+                    <i class="ph-bold ph-chart-line"></i>
+                    <span>Reportes</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Foto del Dr. Castellón">
+                    <div class="user-info">
+                        <span class="user-name">Dr. Rodolfo Castellón</span>
+                        <span class="user-role">Dentista</span>
+                    </div>
+                </div>
+                 <button class="logout-button">
+                    <i class="ph-bold ph-sign-out"></i>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
 
-  <!-- Contenido -->
-  <div class="content-wrap">
-    <header class="topbar">
-      <button id="burgerBtn" class="burger" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">☰</button>
-      <h2 class="page-title">{% block dtitle %}{% endblock %}</h2>
-    </header>
+        <!-- ===== CONTENIDO PRINCIPAL ===== -->
+        <main class="main-content">
+            {% block dcontent %}{% endblock %}
+        </main>
+    </div>
 
-    <main class="main-content">
-      {% block dcontent %}{% endblock %}
-    </main>
-
-    <footer class="site-footer">
-      © 2025 Consultorio “Rodolfo Castellón”. Todos los derechos reservados.
-    </footer>
-  </div>
-</div>
-
-<!-- Backdrop para el drawer móvil -->
-<div id="backdrop" class="backdrop" hidden></div>
-
-<script src="{% static 'dentista/app.js' %}"></script>
-{% endblock %}
+    <!-- JS del app dentista -->
+    <script src="{% static 'dentista/app.js' %}"></script>
+</body>
+</html>

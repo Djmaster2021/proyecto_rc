@@ -1,0 +1,155 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+<!-- Bloque 1: Título de la página -->
+{% block dtitle %}Reportes | DentalSys{% endblock %}
+
+<!-- Bloque 2: Contenido de la página -->
+{% block dcontent %}
+<header class="main-header">
+    <h1>Reportes y Estadísticas</h1>
+    <div class="header-actions">
+        <button class="action-button secondary">
+            <i class="ph-bold ph-calendar"></i>
+            <span>Filtrar por Fecha</span>
+        </button>
+        <button class="action-button">
+            <i class="ph-bold ph-download-simple"></i>
+            <span>Exportar Todo</span>
+        </button>
+    </div>
+</header>
+
+<!-- Contenedor principal para los gráficos -->
+<section class="reports-grid">
+    <!-- Gráfico 1: Ingresos Anuales -->
+    <div class="chart-card">
+        <h3>Ingresos Anuales</h3>
+        <div class="chart-wrapper">
+            <canvas id="annualRevenueChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Gráfico 2: Citas por Servicio -->
+    <div class="chart-card">
+        <h3>Citas por Tipo de Servicio</h3>
+        <div class="chart-wrapper">
+            <canvas id="servicesChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Gráfico 3: Tasa de Asistencia (ocupa el ancho completo) -->
+    <div class="chart-card full-width">
+        <h3>Tasa de Asistencia vs. Cancelaciones (Últimos 6 meses)</h3>
+        <div class="chart-wrapper">
+            <canvas id="attendanceChart"></canvas>
+        </div>
+    </div>
+</section>
+
+<!-- Script para inicializar los gráficos de esta página -->
+<!-- CORRECCIÓN: Se añade el script de Chart.js aquí para asegurar que se cargue antes de usarlo. -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- GRÁFICO 1: INGRESOS ANUALES (BARRAS) ---
+    const revenueCanvas = document.getElementById('annualRevenueChart');
+    if (revenueCanvas) {
+        new Chart(revenueCanvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago'],
+                datasets: [{
+                    label: 'Ingresos Mensuales',
+                    data: [15500, 18200, 22100, 19800, 25200, 27500, 30100, 28800],
+                    backgroundColor: 'rgba(48, 162, 255, 0.2)',
+                    borderColor: 'rgba(48, 162, 255, 1)',
+                    borderWidth: 2,
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { ticks: { color: '#A0AEC0' }, grid: { color: 'rgba(57, 67, 89, 0.5)' } },
+                    x: { ticks: { color: '#A0AEC0' }, grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // --- GRÁFICO 2: CITAS POR SERVICIO (DONA) ---
+    const servicesCanvas = document.getElementById('servicesChart');
+    if (servicesCanvas) {
+        new Chart(servicesCanvas.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Limpieza', 'Ortodoncia', 'Extracción', 'Blanqueamiento', 'Otros'],
+                datasets: [{
+                    data: [40, 25, 15, 15, 5],
+                    backgroundColor: ['#30A2FF', '#00E0C7', '#F59E0B', '#8B5CF6', '#EF4444'],
+                    borderColor: '#1D2432',
+                    borderWidth: 4,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#A0AEC0', padding: 15, font: { size: 14 } }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- GRÁFICO 3: TASA DE ASISTENCIA (LÍNEA) ---
+    const attendanceCanvas = document.getElementById('attendanceChart');
+    if (attendanceCanvas) {
+        new Chart(attendanceCanvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto'],
+                datasets: [
+                    {
+                        label: 'Asistencias',
+                        data: [92, 94, 91, 95, 93, 96],
+                        borderColor: 'rgba(0, 224, 199, 1)',
+                        backgroundColor: 'rgba(0, 224, 199, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Cancelaciones',
+                        data: [5, 4, 6, 3, 5, 2],
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: '#A0AEC0', font: { size: 14 } }
+                    }
+                },
+                scales: {
+                    y: { ticks: { color: '#A0AEC0', callback: value => value + '%' }, grid: { color: 'rgba(57, 67, 89, 0.5)' } },
+                    x: { ticks: { color: '#A0AEC0' }, grid: { display: false } }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
