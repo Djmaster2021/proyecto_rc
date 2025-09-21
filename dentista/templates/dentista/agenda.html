@@ -15,7 +15,7 @@
       <option>Vista: Semana</option>
       <option>Vista: Día</option>
     </select>
-    <button class="btn-neon" data-modal="modalNewAppt">Nueva cita</button>
+    <button class="btn-neon" type="button">Nueva cita</button>
   </div>
 </header>
 
@@ -41,7 +41,7 @@
     <div class="panel-tools">
         <input class="input" placeholder="Buscar por paciente o servicio">
         <div class="spacer"></div>
-        <button class="btn-outline" data-toast="Lista exportada">Exportar lista</button>
+        <button class="btn-outline" type="button">Exportar lista</button>
     </div>
     <div class="table-wrap">
         <table class="table">
@@ -60,32 +60,5 @@
                 </tbody>
         </table>
     </div>
-</div>
-
-<div id="modalNewAppt" class="modal">
-  <div class="modal-box glass">
-    <div class="modal-head">
-      <h3>Nueva cita</h3>
-      <button class="btn-ghost" data-close>&times;</button>
-    </div>
-    <form>
-      <div class="row" style="margin-bottom:12px">
-        <input class="input" placeholder="Nombre del paciente" required>
-        <input class="input" type="date" required>
-        <input class="input" type="time" required>
-      </div>
-      <select class="input" style="margin-bottom:12px">
-        <option>Seleccionar servicio</option>
-        <option>Limpieza Profunda</option>
-        <option>Resina Estética</option>
-        <option>Ortodoncia</option>
-      </select>
-      <textarea class="input" rows="3" placeholder="Notas adicionales"></textarea>
-      <div class="row end mt">
-        <button class="btn-outline" type="button" data-close>Cancelar</button>
-        <button class="btn-neon" type="submit" data-toast="Cita agendada">Agendar cita</button>
-      </div>
-    </form>
-  </div>
 </div>
 {% endblock %}

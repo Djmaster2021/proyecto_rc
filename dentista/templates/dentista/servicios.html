@@ -10,7 +10,7 @@
     <div class="small text-muted">Catálogo clínico con tiempos, costos y recomendaciones</div>
   </div>
   <div class="toolbar-actions">
-    <button class="btn-neon alt" data-modal="modalNewService">Agregar servicio</button>
+    <button class="btn-neon alt" type="button">Agregar servicio</button>
   </div>
 </header>
 
@@ -19,7 +19,7 @@
   <div class="panel-tools">
       <input class="input" placeholder="Buscar procedimiento">
       <div class="spacer"></div>
-      <button class="btn-outline" data-toast="Catálogo exportado">Exportar catálogo</button>
+      <button class="btn-outline" type="button">Exportar catálogo</button>
   </div>
   <div class="table-wrap">
     <table class="table">
@@ -43,7 +43,7 @@
   <div class="panel-tools">
       <input class="input" placeholder="Buscar procedimiento">
       <div class="spacer"></div>
-      <button class="btn-outline" data-toast="Catálogo exportado">Exportar catálogo</button>
+      <button class="btn-outline" type="button">Exportar catálogo</button>
   </div>
   <div class="table-wrap">
     <table class="table">
@@ -67,7 +67,7 @@
   <div class="panel-tools">
       <input class="input" placeholder="Buscar procedimiento">
       <div class="spacer"></div>
-      <button class="btn-outline" data-toast="Catálogo exportado">Exportar catálogo</button>
+      <button class="btn-outline" type="button">Exportar catálogo</button>
   </div>
   <div class="table-wrap">
     <table class="table">
@@ -85,31 +85,4 @@
     </table>
   </div>
 </section>
-
-<div id="modalNewService" class="modal">
-  <div class="modal-box glass">
-    <div class="modal-head">
-      <h3>Nuevo servicio</h3>
-      <button class="btn-ghost" data-close>&times;</button>
-    </div>
-    <form>
-      <input class="input" placeholder="Nombre del servicio" required>
-      <div class="row" style="margin-bottom:12px; margin-top:12px;">
-        <input class="input" type="number" step="0.01" placeholder="Precio (MXN)" required>
-        <input class="input" type="number" placeholder="Duración (minutos)" required>
-      </div>
-      <textarea class="input" rows="3" placeholder="Descripción y notas" style="margin-bottom:12px;"></textarea>
-      <select class="input" required>
-          <option>Categoría</option>
-          <option>Odontología General</option>
-          <option>Odontología Estética</option>
-          <option>Ortodoncia</option>
-      </select>
-      <div class="row end mt">
-        <button class="btn-outline" type="button" data-close>Cancelar</button>
-        <button class="btn-neon alt" type="submit" data-toast="Servicio agregado">Agregar</button>
-      </div>
-    </form>
-  </div>
-</div>
 {% endblock %}

@@ -15,7 +15,7 @@
       <option>Pagados</option>
       <option>Pendientes</option>
     </select>
-    <button class="btn-neon" data-modal="modalNewPayment">Registrar pago</button>
+    <button class="btn-neon" type="button">Registrar pago</button>
   </div>
 </header>
 
@@ -23,8 +23,8 @@
   <div class="panel-tools">
     <input id="paymentsSearchInput" class="input" placeholder="Buscar por paciente o servicio">
     <div class="spacer"></div>
-    <button class="btn-outline" data-toast="CSV exportado">Exportar CSV</button>
-    <button class="btn-outline" data-toast="PDF generado">Exportar PDF</button>
+    <button class="btn-outline" type="button">Exportar CSV</button>
+    <button class="btn-outline" type="button">Exportar PDF</button>
   </div>
   <div class="table-wrap">
     <table class="table">
@@ -42,43 +42,6 @@
       <tbody id="paymentsTableBody">
         </tbody>
     </table>
-  </div>
-</div>
-
-<div id="modalNewPayment" class="modal">
-  <div class="modal-box glass">
-    <div class="modal-head">
-      <h3>Registrar pago</h3>
-      <button class="btn-ghost" data-close>&times;</button>
-    </div>
-    <form>
-      <div class="row" style="margin-bottom:12px">
-        <select class="input" required>
-          <option>Seleccionar paciente</option>
-          <option>Ana García</option>
-          <option>Laura M.</option>
-        </select>
-        <input class="input" type="date" required>
-      </div>
-      <select class="input" style="margin-bottom:12px">
-        <option>Seleccionar servicio</option>
-        <option>Ortodoncia</option>
-        <option>Limpieza</option>
-      </select>
-      <div class="row" style="margin-bottom:12px">
-        <input class="input" type="number" step="0.01" placeholder="Monto" required>
-        <select class="input" required>
-          <option>Método de pago</option>
-          <option>Efectivo</option>
-          <option>Tarjeta</option>
-          <option>Transferencia</option>
-        </select>
-      </div>
-      <div class="row end mt">
-        <button class="btn-outline" type="button" data-close>Cancelar</button>
-        <button class="btn-neon" type="submit" data-toast="Pago registrado">Registrar</button>
-      </div>
-    </form>
   </div>
 </div>
 {% endblock %}

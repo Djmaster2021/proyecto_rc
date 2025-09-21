@@ -10,7 +10,7 @@
     <div class="small text-muted">Resumen general del consultorio y acciones rápidas</div>
   </div>
   <div class="toolbar-actions">
-    <button class="btn-neon alt" data-toast="Recordatorios enviados">Enviar recordatorios</button>
+    <button class="btn-neon alt" type="button">Enviar recordatorios</button>
   </div>
 </header>
 
@@ -54,10 +54,10 @@
 
 <section class="card mt">
   <div class="tabs">
-    <button class="tab active" data-tab="t-planes">Planes de tratamiento</button>
-    <button class="tab" data-tab="t-inventario">Inventario</button>
-    <button class="tab" data-tab="t-presupuestos">Presupuestos</button>
-    <button class="tab" data-tab="t-ajustes">Ajustes rápidos</button>
+    <button class="tab active" type="button" data-tab="t-planes">Planes de tratamiento</button>
+    <button class="tab" type="button" data-tab="t-inventario">Inventario</button>
+    <button class="tab" type="button" data-tab="t-presupuestos">Presupuestos</button>
+    <button class="tab" type="button" data-tab="t-ajustes">Ajustes rápidos</button>
   </div>
 
   <div class="panel active" id="t-planes">
@@ -116,36 +116,22 @@
       <div class="card soft glow">
         <div class="muted tiny">Horarios</div>
         <div class="mt row">
-          <button class="btn-outline" data-toast="Horarios guardados">Editar horarios</button>
+          <button class="btn-outline" type="button">Editar horarios</button>
         </div>
       </div>
       <div class="card soft glow">
         <div class="muted tiny">Políticas de cancelación</div>
         <div class="mt row">
-          <button class="btn-outline" data-toast="Políticas actualizadas">Editar políticas</button>
+          <button class="btn-outline" type="button">Editar políticas</button>
         </div>
       </div>
       <div class="card soft glow">
         <div class="muted tiny">Recordatorios</div>
         <div class="mt row">
-          <button class="btn-outline" data-toast="Reglas guardadas">Ajustar reglas IA</button>
+          <button class="btn-outline" type="button">Ajustar reglas IA</button>
         </div>
       </div>
     </div>
   </div>
 </section>
-
-<div id="modalNotas" class="modal">
-  <div class="modal-box glass">
-    <div class="modal-head">
-      <h3>Notas rápidas</h3>
-      <button class="btn-ghost" data-close>&times;</button>
-    </div>
-    <textarea rows="5" class="input" placeholder="Escribe tu nota…"></textarea>
-    <div class="row end mt">
-      <button class="btn-outline" data-close>Cancelar</button>
-      <button class="btn-neon alt" data-toast="Nota guardada" data-close>Guardar</button>
-    </div>
-  </div>
-</div>
 {% endblock %}
