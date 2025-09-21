@@ -1,58 +1,57 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-<!-- Bloque 1: Título de la página -->
-{% block dtitle %}Mi Historial de Citas | DentalSys{% endblock %}
+{% block dtitle %}Portal Paciente | DentalSys{% endblock %}
 
-<!-- Bloque 2: Contenido de la página -->
 {% block dcontent %}
-<header class="main-header">
-    <!-- El nombre del paciente se cargaría dinámicamente desde la base de datos -->
-    <h1>Portal del Paciente: Adrián Aceves</h1>
-    <div class="header-actions">
-        <button class="action-button secondary">
-            <i class="ph-bold ph-printer"></i>
-            <span>Imprimir Historial</span>
-        </button>
-    </div>
+<header class="page-header">
+  <div>
+    <h1>Historial — <span class="highlight">Ana García</span></h1>
+    <div class="small text-muted">Registro de tratamientos, pagos y notas clínicas</div>
+  </div>
+  <div class="toolbar-actions">
+    <button class="btn-neon alt" data-toast="Nota agregada">Agregar nota</button>
+    <button class="btn-outline" data-toast="Adjunto subido">Adjuntar archivo</button>
+  </div>
 </header>
 
-<!-- Contenedor de la tabla con el historial del paciente -->
-<div class="table-container">
-    <div class="table-header">
-        <h3>Mi Historial de Citas</h3>
-        <p class="table-subtitle">Aquí puedes consultar el registro de tus citas atendidas.</p>
+<section class="card soft patient-summary">
+  <div class="grid" style="grid-template-columns: repeat(4, 1fr); gap: 16px;">
+    <div>
+      <div class="text-muted small">Teléfono</div>
+      <div>+52 55 1234 5678</div>
     </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Fecha</th>
-                <th>Servicio Realizado</th>
-                <th>Doctor</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- NOTA: Estas filas se generarían con un bucle for, mostrando solo las citas del paciente logueado -->
-            <tr>
-                <td>20 de Sep, 2025</td>
-                <td>Limpieza Bucal</td>
-                <td>Dr. Rodolfo Castellón</td>
-                <td><span class="status confirmed">Atendido</span></td>
-            </tr>
-            <tr>
-                <td>15 de Jul, 2025</td>
-                <td>Revisión General</td>
-                <td>Dr. Rodolfo Castellón</td>
-                <td><span class="status confirmed">Atendido</span></td>
-            </tr>
-            <tr>
-                <td>05 de Feb, 2025</td>
-                <td>Blanqueamiento Dental</td>
-                <td>Dr. Rodolfo Castellón</td>
-                <td><span class="status confirmed">Atendido</span></td>
-            </tr>
+    <div>
+      <div class="text-muted small">Email</div>
+      <div>ana.g@ejemplo.com</div>
+    </div>
+    <div>
+      <div class="text-muted small">Próx. cita</div>
+      <div>28 Oct, 2025 · 11:00</div>
+    </div>
+    <div>
+      <div class="text-muted small">Saldo</div>
+      <div class="kpi-value">$850.00</div>
+    </div>
+  </div>
+</section>
+
+<div class="card mt">
+  <h3>Historial de citas y pagos</h3>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Servicio</th>
+          <th>Monto</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="patientHistoryTableBody">
         </tbody>
     </table>
+  </div>
 </div>
 {% endblock %}

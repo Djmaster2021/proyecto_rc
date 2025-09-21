@@ -1,90 +1,115 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-<!-- Bloque 1: Título de la página -->
 {% block dtitle %}Servicios | DentalSys{% endblock %}
 
-<!-- Bloque 2: Contenido de la página -->
 {% block dcontent %}
-<header class="main-header">
-    <h1>Catálogo de Servicios</h1>
-    <div class="header-actions">
-        <button class="action-button">
-            <i class="ph-bold ph-plus-circle"></i>
-            <span>Nuevo Servicio</span>
-        </button>
-    </div>
+<header class="page-header">
+  <div>
+    <h1>Servicios & Protocolos</h1>
+    <div class="small text-muted">Catálogo clínico con tiempos, costos y recomendaciones</div>
+  </div>
+  <div class="toolbar-actions">
+    <button class="btn-neon alt" data-modal="modalNewService">Agregar servicio</button>
+  </div>
 </header>
 
-<!-- Contenedor de la tabla de servicios -->
-<div class="table-container">
-    <div class="table-header">
-        <h3>Listado de Servicios Ofrecidos</h3>
-    </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Nombre del Servicio</th>
-                <th>Duración Estimada</th>
-                <th>Precio</th>
-                <th>Estado</th>
-                <th class="actions-column">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- NOTA: Estas filas se generarán con un bucle for de Django -->
-            <tr>
-                <td>Limpieza Bucal</td>
-                <td>40 min</td>
-                <td>$ 500.00</td>
-                <td><span class="status confirmed">Activo</span></td>
-                <td class="actions-column">
-                    <button class="action-button-table secondary">Editar</button>
-                    <button class="action-button-table danger">Archivar</button>
-                </td>
-            </tr>
-            <tr>
-                <td>Extracción Simple</td>
-                <td>60 min</td>
-                <td>$ 800.00</td>
-                <td><span class="status confirmed">Activo</span></td>
-                <td class="actions-column">
-                    <button class="action-button-table secondary">Editar</button>
-                    <button class="action-button-table danger">Archivar</button>
-                </td>
-            </tr>
-            <tr>
-                <td>Tratamiento de Ortodoncia</td>
-                <td>90 min</td>
-                <td>$ 2,500.00 (Mensual)</td>
-                <td><span class="status confirmed">Activo</span></td>
-                <td class="actions-column">
-                    <button class="action-button-table secondary">Editar</button>
-                    <button class="action-button-table danger">Archivar</button>
-                </td>
-            </tr>
-            <tr>
-                <td>Blanqueamiento Dental</td>
-                <td>60 min</td>
-                <td>$ 1,200.00</td>
-                <td><span class="status confirmed">Activo</span></td>
-                <td class="actions-column">
-                    <button class="action-button-table secondary">Editar</button>
-                    <button class="action-button-table danger">Archivar</button>
-                </td>
-            </tr>
-            <tr>
-                <td>Implante Dental</td>
-                <td>120 min</td>
-                <td>$ 8,000.00</td>
-                <td><span class="status cancelled">Inactivo</span></td>
-                <td class="actions-column">
-                    <button class="action-button-table secondary">Editar</button>
-                    <button class="action-button-table success">Activar</button>
-                </td>
-            </tr>
+<section class="card mt">
+  <h3>Odontología General</h3>
+  <div class="panel-tools">
+      <input class="input" placeholder="Buscar procedimiento">
+      <div class="spacer"></div>
+      <button class="btn-outline" data-toast="Catálogo exportado">Exportar catálogo</button>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Procedimiento</th>
+          <th>Duración</th>
+          <th>Precio</th>
+          <th>Notas</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="generalServicesTableBody">
         </tbody>
     </table>
+  </div>
+</section>
+
+<section class="card mt">
+  <h3>Odontología Estética</h3>
+  <div class="panel-tools">
+      <input class="input" placeholder="Buscar procedimiento">
+      <div class="spacer"></div>
+      <button class="btn-outline" data-toast="Catálogo exportado">Exportar catálogo</button>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Procedimiento</th>
+          <th>Duración</th>
+          <th>Precio</th>
+          <th>Notas</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="aestheticServicesTableBody">
+        </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card mt">
+  <h3>Ortodoncia</h3>
+  <div class="panel-tools">
+      <input class="input" placeholder="Buscar procedimiento">
+      <div class="spacer"></div>
+      <button class="btn-outline" data-toast="Catálogo exportado">Exportar catálogo</button>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Procedimiento</th>
+          <th>Duración</th>
+          <th>Precio</th>
+          <th>Notas</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="orthodonticsTableBody">
+        </tbody>
+    </table>
+  </div>
+</section>
+
+<div id="modalNewService" class="modal">
+  <div class="modal-box glass">
+    <div class="modal-head">
+      <h3>Nuevo servicio</h3>
+      <button class="btn-ghost" data-close>&times;</button>
+    </div>
+    <form>
+      <input class="input" placeholder="Nombre del servicio" required>
+      <div class="row" style="margin-bottom:12px; margin-top:12px;">
+        <input class="input" type="number" step="0.01" placeholder="Precio (MXN)" required>
+        <input class="input" type="number" placeholder="Duración (minutos)" required>
+      </div>
+      <textarea class="input" rows="3" placeholder="Descripción y notas" style="margin-bottom:12px;"></textarea>
+      <select class="input" required>
+          <option>Categoría</option>
+          <option>Odontología General</option>
+          <option>Odontología Estética</option>
+          <option>Ortodoncia</option>
+      </select>
+      <div class="row end mt">
+        <button class="btn-outline" type="button" data-close>Cancelar</button>
+        <button class="btn-neon alt" type="submit" data-toast="Servicio agregado">Agregar</button>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}
-

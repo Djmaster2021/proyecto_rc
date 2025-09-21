@@ -1,121 +1,52 @@
-
+{% extends "dentista/base.html" %}
 {% load static %}
 
-<!-- Bloque 1: Título de la página -->
 {% block dtitle %}Pacientes | DentalSys{% endblock %}
 
-<!-- Bloque 2: Contenido de la página -->
 {% block dcontent %}
-<header class="main-header">
-    <h1>Gestión de Pacientes</h1>
-    <div class="header-actions">
-        <button class="action-button">
-            <i class="ph-bold ph-user-plus"></i>
-            <span>Nuevo Paciente</span>
-        </button>
-    </div>
+<header class="page-header">
+  <div>
+    <h1>Pacientes</h1>
+    <div class="small text-muted">Fichas, segmentación y acciones masivas</div>
+  </div>
+  <div class="toolbar-actions">
+    <input id="patientsSearchInput" class="input" placeholder="Buscar nombre, teléfono o email">
+    <button class="btn-neon alt" data-toast="Formulario paciente abierto">Agregar paciente</button>
+  </div>
 </header>
 
-<!-- Contenedor para filtros y barra de búsqueda -->
-<section class="filters-container">
-    <div class="search-bar">
-        <i class="ph ph-magnifying-glass"></i>
-        <input type="text" placeholder="Buscar por nombre, teléfono o correo...">
+<div class="card">
+  <div class="panel-tools">
+    <div class="row">
+      <select id="segmentFilter" class="btn-outline">
+        <option value="all">Todos</option>
+        <option value="active">Activos</option>
+        <option value="debt">Con deuda</option>
+        <option value="inactive">Inactivos</option>
+      </select>
+      <select id="sortFilter" class="btn-outline">
+        <option value="last_visit">Ordenar: última cita</option>
+        <option value="name">Ordenar: nombre (A-Z)</option>
+      </select>
     </div>
-    <select class="filter-select">
-        <option value="">Todos los estados</option>
-        <option value="activo">Activo</option>
-        <option value="tratamiento">En Tratamiento</option>
-        <option value="inactivo">Inactivo</option>
-    </select>
-</section>
-
-<!-- Tarjetas con estadísticas rápidas sobre los pacientes -->
-<section class="metrics-grid">
-    <div class="metric-card">
-        <div class="card-icon icon-green">
-            <i class="ph-bold ph-users-three"></i>
-        </div>
-        <div class="card-info">
-            <span class="card-title">Total de Pacientes</span>
-            <span class="card-value">248</span>
-        </div>
-    </div>
-    <div class="metric-card">
-        <div class="card-icon icon-blue">
-            <i class="ph-bold ph-user-check"></i>
-        </div>
-        <div class="card-info">
-            <span class="card-title">Pacientes Activos</span>
-            <span class="card-value">173</span>
-        </div>
-    </div>
-    <div class="metric-card">
-        <div class="card-icon icon-yellow">
-            <i class="ph-bold ph-user-circle-plus"></i>
-        </div>
-        <div class="card-info">
-            <span class="card-title">Nuevos (Este Mes)</span>
-            <span class="card-value">12</span>
-        </div>
-    </div>
-</section>
-
-<!-- Tabla con el listado de todos los pacientes -->
-<div class="table-container">
-    <div class="table-header">
-        <h3>Listado de Pacientes</h3>
-    </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Nombre del Paciente</th>
-                <th>Contacto</th>
-                <th>Última Cita</th>
-                <th>Estado</th>
-                <th class="actions-column">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- NOTA: Estas filas se generarán con un bucle for de Django -->
-            <tr>
-                <td>Ana García López</td>
-                <td>ana.garcia@email.com</td>
-                <td>20 de Sep, 2025</td>
-                <td><span class="status confirmed">Activo</span></td>
-                <td class="actions-column">
-                    <a href="{% url 'dentista:historial' %}" class="action-link">Ver Historial</a>
-                </td>
-            </tr>
-            <tr>
-                <td>Carlos López</td>
-                <td>+52 55 8765 4321</td>
-                <td>18 de Sep, 2025</td>
-                <td><span class="status pending">En Tratamiento</span></td>
-                <td class="actions-column">
-                    <a href="{% url 'dentista:historial' %}" class="action-link">Ver Historial</a>
-                </td>
-            </tr>
-            <tr>
-                <td>Laura Martínez</td>
-                <td>laura.m@email.com</td>
-                <td>-</td>
-                <td><span class="status confirmed">Activo</span></td>
-                <td class="actions-column">
-                    <a href="{% url 'dentista:historial' %}" class="action-link">Ver Historial</a>
-                </td>
-            </tr>
-            <tr>
-                <td>Juan Rodríguez</td>
-                <td>+52 55 1122 3344</td>
-                <td>05 de Ene, 2024</td>
-                <td><span class="status cancelled">Inactivo</span></td>
-                <td class="actions-column">
-                    <a href="{% url 'dentista:historial' %}" class="action-link">Ver Historial</a>
-                </td>
-            </tr>
+    <div class="spacer"></div>
+    <button class="btn-outline" data-toast="Exportación iniciada">Exportar CSV</button>
+    <button class="btn-neon" data-toast="Campaña iniciada">Enviar campaña</button>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Contacto</th>
+          <th>Última cita</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="patientsTableBody">
         </tbody>
     </table>
+  </div>
 </div>
 {% endblock %}
-

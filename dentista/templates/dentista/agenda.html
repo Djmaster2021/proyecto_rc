@@ -4,65 +4,88 @@
 {% block dtitle %}Agenda | DentalSys{% endblock %}
 
 {% block dcontent %}
-<header class="main-header">
-    <h1>Agenda Semanal</h1>
-    <div class="header-actions">
-        <button class="action-button">
-            <i class="ph-bold ph-plus-circle"></i>
-            <span>Nueva Cita</span>
-        </button>
-        <div class="week-navigator">
-            <button class="nav-arrow"><i class="ph-bold ph-caret-left"></i></button>
-            <span class="week-display">20 - 26 Sep, 2025</span>
-            <button class="nav-arrow"><i class="ph-bold ph-caret-right"></i></button>
-        </div>
-    </div>
+<header class="page-header">
+  <div>
+    <h1>Agenda</h1>
+    <div class="small text-muted">Vista semanal de citas y acciones rápidas</div>
+  </div>
+  <div class="toolbar-actions">
+    <div class="live-clock" id="liveClock"></div>
+    <select class="btn-outline">
+      <option>Vista: Semana</option>
+      <option>Vista: Día</option>
+    </select>
+    <button class="btn-neon" data-modal="modalNewAppt">Nueva cita</button>
+  </div>
 </header>
 
-<div class="agenda-container">
-    <div class="agenda-header">
-        <div class="header-day">Lunes 20</div>
-        <div class="header-day">Martes 21</div>
-        <div class="header-day">Miércoles 22</div>
-        <div class="header-day">Jueves 23</div>
-        <div class="header-day">Viernes 24</div>
-        <div class="header-day">Sábado 25</div>
+<div class="card">
+  <div class="agenda-view">
+    <div class="days-header">
+      <div class="day-name">Lun</div>
+      <div class="day-name">Mar</div>
+      <div class="day-name">Mie</div>
+      <div class="day-name">Jue</div>
+      <div class="day-name">Vie</div>
+      <div class="day-name">Sab</div>
+      <div class="day-name">Dom</div>
     </div>
-    <div class="agenda-grid">
-        <!-- Horarios de la izquierda -->
-        <div class="time-slots">
-            <div class="time-slot">09:00</div>
-            <div class="time-slot">10:00</div>
-            <div class="time-slot">11:00</div>
-            <div class="time-slot">12:00</div>
-            <div class="time-slot">13:00</div>
-            <div class="time-slot">14:00</div>
-            <div class="time-slot">15:00</div>
-            <div class="time-slot">16:00</div>
-            <div class="time-slot">17:00</div>
-            <div class="time-slot">18:00</div>
-        </div>
+    
+    <div class="agenda-grid" id="agendaGrid">
+      </div>
+  </div>
+</div>
 
-        <!-- Contenedor de las citas -->
-        <div class="appointments-wrapper">
-            <!-- Citas de ejemplo (se generarán con Django) -->
-            <div class="appointment status-confirmed" style="--start-row: 2; --duration: 2;"> <!-- 10:00 a 11:00 -->
-                <p class="appointment-patient">Ana García</p>
-                <p class="appointment-service">Ortodoncia</p>
-            </div>
-            <div class="appointment status-pending" style="--day: 2; --start-row: 1; --duration: 3;"> <!-- 09:00 a 10:30 -->
-                <p class="appointment-patient">Carlos López</p>
-                <p class="appointment-service">Limpieza Profunda</p>
-            </div>
-            <div class="appointment status-cancelled" style="--day: 4; --start-row: 5; --duration: 2;"> <!-- 13:00 a 14:00 -->
-                <p class="appointment-patient">Laura Martínez</p>
-                <p class="appointment-service">Extracción</p>
-            </div>
-             <div class="appointment status-confirmed" style="--day: 5; --start-row: 8; --duration: 4;"> <!-- 16:00 a 18:00 -->
-                <p class="appointment-patient">Emilio Segura</p>
-                <p class="appointment-service">Implante Dental</p>
-            </div>
-        </div>
+<div class="card mt">
+    <h3>Próximas citas detalladas</h3>
+    <div class="panel-tools">
+        <input class="input" placeholder="Buscar por paciente o servicio">
+        <div class="spacer"></div>
+        <button class="btn-outline" data-toast="Lista exportada">Exportar lista</button>
     </div>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Paciente</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Servicio</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="upcomingApptsTableBody">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modalNewAppt" class="modal">
+  <div class="modal-box glass">
+    <div class="modal-head">
+      <h3>Nueva cita</h3>
+      <button class="btn-ghost" data-close>&times;</button>
+    </div>
+    <form>
+      <div class="row" style="margin-bottom:12px">
+        <input class="input" placeholder="Nombre del paciente" required>
+        <input class="input" type="date" required>
+        <input class="input" type="time" required>
+      </div>
+      <select class="input" style="margin-bottom:12px">
+        <option>Seleccionar servicio</option>
+        <option>Limpieza Profunda</option>
+        <option>Resina Estética</option>
+        <option>Ortodoncia</option>
+      </select>
+      <textarea class="input" rows="3" placeholder="Notas adicionales"></textarea>
+      <div class="row end mt">
+        <button class="btn-outline" type="button" data-close>Cancelar</button>
+        <button class="btn-neon" type="submit" data-toast="Cita agendada">Agendar cita</button>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

@@ -1,0 +1,68 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Soporte | DentalSys{% endblock %}
+
+{% block dcontent %}
+<header class="page-header">
+  <div>
+    <h1>Soporte & Ayuda</h1>
+    <div class="small text-muted">Encuentra respuestas, reporta problemas y solicita asistencia</div>
+  </div>
+  <div class="toolbar-actions">
+    <button class="btn-neon alt" data-modal="modalReport">Reportar problema</button>
+  </div>
+</header>
+
+<section class="grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">
+  <div class="card soft">
+    <h3 class="m0">Base de conocimientos</h3>
+    <p class="text-muted tiny">Busca en nuestra biblioteca de artículos y guías.</p>
+    <div class="mt">
+      <button class="btn-chip">Ir a documentación</button>
+    </div>
+  </div>
+  <div class="card soft">
+    <h3 class="m0">Contacto directo</h3>
+    <p class="text-muted tiny">Habla con nuestro equipo de soporte técnico.</p>
+    <div class="mt">
+      <button class="btn-chip">Contactar por email</button>
+    </div>
+  </div>
+</section>
+
+<section class="card mt">
+  <h3>Preguntas frecuentes</h3>
+  <div class="accordion" id="faqAccordion">
+    <div class="accordion-item">
+      <button class="accordion-header">¿Cómo agrego un nuevo paciente?</button>
+      <div class="accordion-content">
+        <p>Puedes agregar un nuevo paciente desde la sección de "Pacientes" haciendo clic en el botón "Agregar paciente". Llena los datos requeridos y guarda la información.</p>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <button class="accordion-header">¿Cómo se integra MercadoPago?</button>
+      <div class="accordion-content">
+        <p>La integración con MercadoPago se gestiona desde la sección de "Configuración". Necesitarás tus claves de API para conectar tu cuenta y empezar a recibir pagos en línea.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="modalReport" class="modal">
+  <div class="modal-box glass">
+    <div class="modal-head">
+      <h3>Reportar problema</h3>
+      <button class="btn-ghost" data-close>&times;</button>
+    </div>
+    <form>
+      <input class="input" placeholder="Asunto del problema" required>
+      <textarea class="input mt" rows="5" placeholder="Describe el problema en detalle"></textarea>
+      <div class="row end mt">
+        <button class="btn-outline" type="button" data-close>Cancelar</button>
+        <button class="btn-neon alt" type="submit" data-toast="Reporte enviado">Enviar reporte</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

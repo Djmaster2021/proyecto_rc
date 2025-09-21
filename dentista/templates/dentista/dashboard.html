@@ -4,94 +4,148 @@
 {% block dtitle %}Dashboard | DentalSys{% endblock %}
 
 {% block dcontent %}
-<header class="main-header">
+<header class="page-header">
+  <div>
     <h1>Dashboard</h1>
-    <div class="header-actions">
-        <button class="action-button">
-            <i class="ph-bold ph-plus-circle"></i>
-            <span>Nueva Cita</span>
-        </button>
-        <button class="action-button secondary">
-            <i class="ph-bold ph-user-plus"></i>
-            <span>Nuevo Paciente</span>
-        </button>
-    </div>
+    <div class="small text-muted">Resumen general del consultorio y acciones rápidas</div>
+  </div>
+  <div class="toolbar-actions">
+    <button class="btn-neon alt" data-toast="Recordatorios enviados">Enviar recordatorios</button>
+  </div>
 </header>
 
-<section class="metrics-grid">
-    <div class="metric-card">
-        <div class="card-icon icon-blue">
-            <i class="ph-bold ph-calendar-check"></i>
-        </div>
-        <div class="card-info">
-            <span class="card-title">Citas de Hoy</span>
-            <span class="card-value">12</span>
-            <span class="card-detail">5 confirmadas - 2 pendientes</span>
-        </div>
+<div class="grid kpis">
+  <div class="card soft glow">
+    <div class="kpi-label">Citas de hoy</div>
+    <div class="kpi-value highlight" data-counter="8">0</div>
+  </div>
+  <div class="card soft glow">
+    <div class="kpi-label">Pacientes activos</div>
+    <div class="kpi-value grad-cyan" data-counter="145">0</div>
+  </div>
+  <div class="card soft glow">
+    <div class="kpi-label">Pagos pendientes</div>
+    <div class="kpi-value" data-counter="12">0</div>
+  </div>
+  <div class="card soft glow">
+    <div class="kpi-label">Próximos pagos</div>
+    <div class="kpi-value" data-counter="5">0</div>
+  </div>
+</div>
+
+<div class="grid two mt">
+  <div class="card">
+    <h3>Ingresos vs. Gastos</h3>
+    <div class="chart-box mt">
+      <canvas id="balanceChart"></canvas>
     </div>
-    <div class="metric-card">
-        <div class="card-icon icon-green">
-            <i class="ph-bold ph-user-list"></i>
-        </div>
-        <div class="card-info">
-            <span class="card-title">Pacientes Activos</span>
-            <span class="card-value">48</span>
-            <span class="card-detail">12 nuevos este mes</span>
-        </div>
+  </div>
+
+  <div class="card">
+    <h3>Actividad reciente</h3>
+    <div class="panel-tools">
+      <div class="spacer"></div>
+      <div class="small text-muted" id="lastUpdate"></div>
     </div>
-    <div class="metric-card">
-        <div class="card-icon icon-yellow">
-            <i class="ph-bold ph-wallet"></i>
-        </div>
-        <div class="card-info">
-            <span class="card-title">Ingresos (Semana)</span>
-            <span class="card-value">$7,250</span>
-            <span class="card-detail-positive">+ $5,000 vs semana pasada</span>
-        </div>
+    <ul class="list" id="auditList">
+      </ul>
+  </div>
+</div>
+
+<section class="card mt">
+  <div class="tabs">
+    <button class="tab active" data-tab="t-planes">Planes de tratamiento</button>
+    <button class="tab" data-tab="t-inventario">Inventario</button>
+    <button class="tab" data-tab="t-presupuestos">Presupuestos</button>
+    <button class="tab" data-tab="t-ajustes">Ajustes rápidos</button>
+  </div>
+
+  <div class="panel active" id="t-planes">
+    <div class="table-wrap">
+      <table class="table" id="treatmentTable">
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Tratamiento</th>
+            <th>Progreso</th>
+            <th>Última actualización</th>
+          </tr>
+        </thead>
+        <tbody>
+          </tbody>
+      </table>
     </div>
-    <div class="metric-card">
-         <div class="card-icon icon-red">
-            <i class="ph-bold ph-warning-circle"></i>
-        </div>
-        <div class="card-info">
-            <span class="card-title">Deudas Pendientes</span>
-            <span class="card-value">$12,450</span>
-            <span class="card-detail">28 pacientes con saldo</span>
-        </div>
+  </div>
+
+  <div class="panel" id="t-inventario">
+    <div class="table-wrap">
+      <table class="table" id="inventoryTable">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Stock</th>
+            <th>Fecha de caducidad</th>
+          </tr>
+        </thead>
+        <tbody>
+          </tbody>
+      </table>
     </div>
+  </div>
+
+  <div class="panel" id="t-presupuestos">
+    <div class="table-wrap">
+      <table class="table" id="budgetTable">
+        <thead>
+          <tr>
+            <th>Presupuesto</th>
+            <th>Paciente</th>
+            <th>Fecha</th>
+            <th>Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel" id="t-ajustes">
+    <div class="grid inv">
+      <div class="card soft glow">
+        <div class="muted tiny">Horarios</div>
+        <div class="mt row">
+          <button class="btn-outline" data-toast="Horarios guardados">Editar horarios</button>
+        </div>
+      </div>
+      <div class="card soft glow">
+        <div class="muted tiny">Políticas de cancelación</div>
+        <div class="mt row">
+          <button class="btn-outline" data-toast="Políticas actualizadas">Editar políticas</button>
+        </div>
+      </div>
+      <div class="card soft glow">
+        <div class="muted tiny">Recordatorios</div>
+        <div class="mt row">
+          <button class="btn-outline" data-toast="Reglas guardadas">Ajustar reglas IA</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<section class="data-section">
-    <div class="chart-container">
-        <h3>Actividad de Citas Semanal</h3>
-        <canvas id="weeklyActivityChart"></canvas>
+<div id="modalNotas" class="modal">
+  <div class="modal-box glass">
+    <div class="modal-head">
+      <h3>Notas rápidas</h3>
+      <button class="btn-ghost" data-close>&times;</button>
     </div>
-    <div class="patient-list">
-        <h3>Próximas Citas</h3>
-        <ul>
-            <li class="patient-item">
-                <div class="patient-details">
-                    <span class="patient-name">Adrián Aceves</span>
-                    <span class="appointment-time">14:00 - Limpieza Bucal</span>
-                </div>
-                <span class="status confirmed">Confirmada</span>
-            </li>
-            <li class="patient-item">
-                 <div class="patient-details">
-                    <span class="patient-name">Emilio Segura</span>
-                    <span class="appointment-time">15:00 - Ortodoncia</span>
-                </div>
-                <span class="status pending">Pendiente</span>
-            </li>
-             <li class="patient-item">
-                 <div class="patient-details">
-                    <span class="patient-name">Ana García</span>
-                    <span class="appointment-time">16:30 - Blanqueamiento</span>
-                </div>
-                <span class="status confirmed">Confirmada</span>
-            </li>
-        </ul>
-        <a href="{% url 'dentista:agenda' %}" class="view-all">Ver toda la agenda →</a>
+    <textarea rows="5" class="input" placeholder="Escribe tu nota…"></textarea>
+    <div class="row end mt">
+      <button class="btn-outline" data-close>Cancelar</button>
+      <button class="btn-neon alt" data-toast="Nota guardada" data-close>Guardar</button>
     </div>
-</section>
+  </div>
+</div>
 {% endblock %}

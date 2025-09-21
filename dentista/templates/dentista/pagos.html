@@ -1,105 +1,84 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-<!-- Bloque 1: Título de la página -->
 {% block dtitle %}Pagos | DentalSys{% endblock %}
 
-<!-- Bloque 2: Contenido de la página -->
 {% block dcontent %}
-<header class="main-header">
-    <h1>Control de Pagos e Ingresos</h1>
-    <div class="header-actions">
-        <button class="action-button secondary">
-            <i class="ph-bold ph-download-simple"></i>
-            <span>Exportar Reporte</span>
-        </button>
-        <button class="action-button">
-            <i class="ph-bold ph-plus-circle"></i>
-            <span>Registrar Pago Manual</span>
-        </button>
-    </div>
+<header class="page-header">
+  <div>
+    <h1>Pagos & Facturación</h1>
+    <div class="small text-muted">Control de ingresos, generación de recibos y recordatorios</div>
+  </div>
+  <div class="toolbar-actions">
+    <select class="btn-outline">
+      <option>Todos</option>
+      <option>Pagados</option>
+      <option>Pendientes</option>
+    </select>
+    <button class="btn-neon" data-modal="modalNewPayment">Registrar pago</button>
+  </div>
 </header>
 
-<!-- Contenedor para filtros y barra de búsqueda -->
-<section class="filters-container">
-    <div class="search-bar">
-        <i class="ph ph-magnifying-glass"></i>
-        <input type="text" placeholder="Buscar por paciente, servicio o ID de transacción...">
-    </div>
-    <select class="filter-select">
-        <option value="">Todos los métodos</option>
-        <option value="efectivo">Efectivo</option>
-        <option value="tarjeta">Tarjeta (MercadoPago)</option>
-        <option value="transferencia">Transferencia</option>
-    </select>
-     <select class="filter-select">
-        <option value="">Todos los estados</option>
-        <option value="pagado">Pagado</option>
-        <option value="pendiente">Pendiente</option>
-        <option value="reembolsado">Reembolsado</option>
-    </select>
-</section>
-
-<!-- Tabla con el listado de transacciones recientes -->
-<div class="table-container">
-    <div class="table-header">
-        <h3>Transacciones Recientes</h3>
-    </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Fecha y Hora</th>
-                <th>Paciente</th>
-                <th>Servicio</th>
-                <th>Método</th>
-                <th>Monto</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- NOTA: Estas filas se generarán con un bucle for de Django -->
-            <tr>
-                <td>20 Sep, 2025 - 14:30</td>
-                <td>Adrián Aceves</td>
-                <td>Limpieza Bucal</td>
-                <td><span class="method-tag tag-card">Tarjeta</span></td>
-                <td>$ 500.00</td>
-                <td><span class="status confirmed">Pagado</span></td>
-            </tr>
-            <tr>
-                <td>20 Sep, 2025 - 15:15</td>
-                <td>Emilio Segura</td>
-                <td>Ortodoncia</td>
-                <td><span class="method-tag tag-cash">Efectivo</span></td>
-                <td>$ 2,500.00</td>
-                <td><span class="status confirmed">Pagado</span></td>
-            </tr>
-            <tr>
-                <td>19 Sep, 2025 - 11:00</td>
-                <td>Ana García</td>
-                <td>Blanqueamiento</td>
-                <td>-</td>
-                <td>$ 1,200.00</td>
-                <td><span class="status pending">Pendiente</span></td>
-            </tr>
-             <tr>
-                <td>18 Sep, 2025 - 17:00</td>
-                <td>Carlos López</td>
-                <td>Extracción</td>
-                <td><span class="method-tag tag-transfer">Transferencia</span></td>
-                <td>$ 800.00</td>
-                <td><span class="status confirmed">Pagado</span></td>
-            </tr>
-             <tr>
-                <td>15 Sep, 2025 - 10:45</td>
-                <td>Laura Martínez</td>
-                <td>Consulta</td>
-                <td><span class="method-tag tag-cash">Efectivo</span></td>
-                <td>$ 300.00</td>
-                <td><span class="status cancelled">Reembolsado</span></td>
-            </tr>
+<div class="card">
+  <div class="panel-tools">
+    <input id="paymentsSearchInput" class="input" placeholder="Buscar por paciente o servicio">
+    <div class="spacer"></div>
+    <button class="btn-outline" data-toast="CSV exportado">Exportar CSV</button>
+    <button class="btn-outline" data-toast="PDF generado">Exportar PDF</button>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Paciente</th>
+          <th>Fecha</th>
+          <th>Servicio</th>
+          <th>Monto</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="paymentsTableBody">
         </tbody>
     </table>
+  </div>
+</div>
+
+<div id="modalNewPayment" class="modal">
+  <div class="modal-box glass">
+    <div class="modal-head">
+      <h3>Registrar pago</h3>
+      <button class="btn-ghost" data-close>&times;</button>
+    </div>
+    <form>
+      <div class="row" style="margin-bottom:12px">
+        <select class="input" required>
+          <option>Seleccionar paciente</option>
+          <option>Ana García</option>
+          <option>Laura M.</option>
+        </select>
+        <input class="input" type="date" required>
+      </div>
+      <select class="input" style="margin-bottom:12px">
+        <option>Seleccionar servicio</option>
+        <option>Ortodoncia</option>
+        <option>Limpieza</option>
+      </select>
+      <div class="row" style="margin-bottom:12px">
+        <input class="input" type="number" step="0.01" placeholder="Monto" required>
+        <select class="input" required>
+          <option>Método de pago</option>
+          <option>Efectivo</option>
+          <option>Tarjeta</option>
+          <option>Transferencia</option>
+        </select>
+      </div>
+      <div class="row end mt">
+        <button class="btn-outline" type="button" data-close>Cancelar</button>
+        <button class="btn-neon" type="submit" data-toast="Pago registrado">Registrar</button>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}
-

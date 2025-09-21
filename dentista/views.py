@@ -34,3 +34,13 @@ def historial(request):
 def vista_paciente(request):
     """Muestra la vista simplificada para el paciente."""
     return render(request, "dentista/vista-paciente.html")
+
+def configuracion(request):
+    """Página de configuración / ajustes."""
+    return render(request, "dentista/configuracion.html")
+
+def soporte(request):
+    """Página de soporte y ayuda."""
+    return render(request, "dentista/soporte.html")
+
+from django.shortcuts import render

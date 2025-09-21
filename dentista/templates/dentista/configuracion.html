@@ -1,0 +1,71 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Configuración | DentalSys{% endblock %}
+
+{% block dcontent %}
+<header class="page-header">
+  <div>
+    <h1>Configuración del sistema</h1>
+    <div class="small text-muted">Ajusta los parámetros del consultorio y la aplicación</div>
+  </div>
+  <div class="toolbar-actions">
+    <button class="btn-neon alt" data-toast="Configuración guardada">Guardar cambios</button>
+  </div>
+</header>
+
+<section class="card mt">
+  <h3>Horarios de atención</h3>
+  <p class="text-muted tiny">Define los días y horas laborales del consultorio, así como descansos.</p>
+  <div class="grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">
+    <div class="input-group">
+      <label class="small text-muted">Días laborales</label>
+      <input class="input" type="text" value="Lunes - Viernes">
+    </div>
+    <div class="input-group">
+      <label class="small text-muted">Horario general</label>
+      <input class="input" type="text" value="9:00 AM - 6:00 PM">
+    </div>
+  </div>
+  <div class="mt">
+    <button class="btn-chip">Editar horarios detallados</button>
+  </div>
+</section>
+
+<section class="card mt">
+  <h3>Políticas de cancelación y no-asistencia</h3>
+  <p class="text-muted tiny">Establece las reglas para las penalizaciones automáticas.</p>
+  <div class="grid" style="grid-template-columns: 1fr; gap: 16px;">
+    <div class="input-group">
+      <label class="small text-muted">Aviso de cancelación (horas)</label>
+      <input class="input" type="number" value="24">
+      <div class="small text-muted">Se aplicará un recargo si el paciente no cancela con este mínimo de antelación.</div>
+    </div>
+    <div class="input-group">
+      <label class="small text-muted">Notificaciones de recordatorio</label>
+      <input class="input" type="text" value="24 horas antes vía correo y SMS">
+    </div>
+  </div>
+</section>
+
+<section class="card mt">
+  <h3>Integración de servicios externos</h3>
+  <p class="text-muted tiny">Conecta con APIs de terceros para pagos y notificaciones.</p>
+  <div class="grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">
+    <div class="card soft">
+      <h4 class="m0">MercadoPago</h4>
+      <div class="small text-muted">Estado: <span class="badge badge-green">Conectado</span></div>
+      <div class="mt">
+        <button class="btn-chip">Ver API Key</button>
+      </div>
+    </div>
+    <div class="card soft">
+      <h4 class="m0">API de SMS</h4>
+      <div class="small text-muted">Estado: <span class="badge badge-yellow">No conectado</span></div>
+      <div class="mt">
+        <button class="btn-chip">Conectar</button>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
