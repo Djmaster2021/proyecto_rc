@@ -1,4 +1,9 @@
+
 /* ===== Reset mínimo */
+/*
+  Esto elimina estilos que los navegadores aplican por defecto (márgenes, rellenos, etc.).
+  Asegura que tu sitio se vea igual en todos los navegadores.
+*/
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
@@ -11,19 +16,38 @@ img { max-width: 100%; display: block; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
 
 /* ===== Helpers */
+/*
+  Una clase "ayudante" o "utilitaria".
+  Cualquier elemento con la clase "container" tendrá un ancho máximo de 1100px
+  y se centrará horizontalmente en la página.
+*/
 .container { width: min(1100px, 92vw); margin-inline: auto; }
 
 /* ===== Variables & anclas */
+  /*
+    Variables CSS. Permiten definir valores (como colores o tamaños) en un solo lugar.
+    Luego puedes reutilizarlos en todo el archivo con var(--nombre-variable).
+    Facilita mucho cambiar el diseño globalmente.
+  */
 :root{
   --nav-bg:#1e3a8a; --nav-bg-2:#1b3a82; --nav-text:#fff;
   --nav-muted:rgba(255,255,255,.75); --nav-hover:rgba(255,255,255,.14);
   --accent:#93c5fd; --container:min(1200px,92vw); --h:74px; --r:12px;
   --sidebar-w:240px;
 }
+
+/*
+  scroll-behavior:smooth -> El desplazamiento al hacer clic en un enlace de ancla (ej: #servicios) será suave.
+  scroll-margin-top -> Añade un espacio superior al anclar, para que el contenido no quede oculto detrás del navbar fijo.
+*/
 html{ scroll-behavior:smooth; }
 #inicio, #servicios, #pagos, #contacto { scroll-margin-top: 90px; }
 
-/* ===== Header oscuro (se usa en páginas internas si quieres) */
+/* ===== Header oscuro (para páginas internas) ===== */
+/*
+  Estilos para una barra de navegación con fondo oscuro.
+  - position: sticky; top: 0; -> Hace que la barra se quede fija en la parte superior al hacer scroll.
+*/
 .header{
   position: sticky; top: 0; z-index: 50;
   background: var(--nav-bg); color: var(--nav-text);
@@ -35,6 +59,8 @@ html{ scroll-behavior:smooth; }
   grid-template-columns: 1fr auto 1fr; /* brand | menu | auth */
   gap: 12px; width: var(--container); margin-inline: auto;
 }
+
+/* Estilos para el logo, menú, enlaces y botones de autenticación del header oscuro */
 .brand{ display:flex; align-items:center; gap:.6rem; font-weight:800; letter-spacing:.3px; }
 .menu{ display:flex; align-items:center; justify-content:center; gap:1.2rem; }
 .menu a{ padding:.45rem .9rem; border-radius:999px; color:var(--nav-muted); }
@@ -42,13 +68,19 @@ html{ scroll-behavior:smooth; }
 .menu a.active{ background:var(--nav-hover); color:var(--nav-text); font-weight:700; }
 .auth{ display:flex; justify-content:flex-end; align-items:center; gap:.6rem; }
 
-/* ===== Header LIGHT “Dentyx” (usado en la portada) */
+/* ===== Header LIGHT (usado en la portada) ===== */
+/*
+  Variante del header con fondo claro. Sobrescribe algunos colores del header oscuro.
+  Esta clase ".header--light" se usaría junto con la clase ".header".
+*/
 .header--light{
   position: sticky; top:0; z-index:50;
   background:#fff; color:#111827;
   border-bottom:1px solid rgba(0,0,0,.06);
   box-shadow:0 10px 25px -18px rgba(0,0,0,.22);
 }
+
+/* ... (reglas específicas para cambiar colores de texto, enlaces, etc., en la versión clara) ... */
 .header--light .nav{ width:min(1200px,92vw) }
 .header--light .brand{ color:#111827 }
 .header--light .menu a{ color:#374151 }
@@ -61,6 +93,7 @@ html{ scroll-behavior:smooth; }
 .header--light .panel a:hover{ background:#f3f4f6 }
 
 /* ===== Botones */
+/* Estilos base para todos los botones */
 .btn{
   display:inline-flex; align-items:center; justify-content:center;
   padding:.6rem 1.05rem; border-radius:999px; font-weight:700;
@@ -72,6 +105,7 @@ html{ scroll-behavior:smooth; }
 .btn--outline{ border-color:rgba(255,255,255,.35) }
 
 /* CTA morado tipo “Agendar cita” */
+/* Botón de Llamada a la Acción (Call To Action) */
 .btn--cta{
   background:#8f8ff5; color:#fff; border:1px solid #7d7ded;
   border-radius:9999px; padding:.6rem 1.2rem;
@@ -80,10 +114,24 @@ html{ scroll-behavior:smooth; }
 .header--light .btn--cta{ color:#fff; border-color:#7d7ded }
 
 /* ===== Hamburguesa / panel móvil */
+/*
+  Estilos para la versión móvil de la navegación.
+  El ícono de hamburguesa (.burger) solo se muestra en pantallas pequeñas.
+  El panel (.panel) que contiene los enlaces está oculto por defecto.
+*/
 .burger{
   display:none; width:40px; height:40px; border:0; background:transparent; color:inherit;
   border-radius:8px; cursor:pointer;
 }
+
+/* ... (estilos para el layout del panel móvil cuando se abre) ... */
+
+
+/* ===== Layout con sidebar (para panel de administración, blog, etc.) ===== */
+/*
+  Define una estructura de dos columnas: una barra lateral (.sidebar) y el contenido principal.
+  - display:grid -> Usa CSS Grid para crear las columnas.
+*/
 .burger:hover{ background:rgba(17,24,39,.06) }
 .panel{ display:none }
 .panel-inner{ width:var(--container); margin-inline:auto; display:grid; gap:.4rem; padding:.6rem 0 1rem; }
@@ -95,8 +143,11 @@ html{ scroll-behavior:smooth; }
   display:grid; grid-template-columns: var(--sidebar-w) 1fr; gap: 1.2rem;
   width:var(--container); margin: 1rem auto;
 }
+
+/* La barra lateral se queda fija mientras se hace scroll en el contenido */
 .sidebar{
   position: sticky; top: calc(var(--h) + 12px); align-self: start;
+   /* ... (estilos visuales de la barra lateral) ... */
   background:#f7f8fc; border:1px solid rgba(0,0,0,.08); border-radius:12px; padding:.8rem;
 }
 .side-title{ font-weight:800; margin:.2rem .4rem .6rem }
@@ -108,14 +159,19 @@ html{ scroll-behavior:smooth; }
 section { padding: 3.5rem 0; }
 .title{font-size:clamp(1.6rem,2.6vw,2rem); margin:0 0 1rem}
 
+/* Estilos para el efecto Parallax del Hero */
 .plx-section{ position: relative; min-height: 72vh; display: grid; place-items: center; overflow: clip }
 .plx-section.is-hero{ min-height: 92vh }
 .plx-section.is-slice{ min-height: 48vh }
+
+ /* La capa de la imagen de fondo. Se mueve a una velocidad diferente al hacer scroll. */
 .plx-layer.bg{
   position: absolute; inset: -10vh 0 -10vh; will-change: transform;
   background-image: var(--plx-img); background-size: cover; background-position: center; background-repeat: no-repeat;
   transform: translate3d(0,0,0);
 }
+
+/* El contenido de texto que va sobre la imagen de fondo */
 .plx-inner{
   position: relative; z-index: 1; text-align: center; padding: 2rem; max-width: 900px;
   background: color-mix(in oklab, canvas 88%, transparent); border: 1px solid rgba(127,127,127,.25);

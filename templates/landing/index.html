@@ -1,11 +1,21 @@
+<!--Le dice a Django que esta plantilla debe usar "base_site.html" como esqueleto.-->
 {% extends "_components/base_site.html" %}
 {% load static %}
 
+<!--Título específico para la página de inicio.-->
 {% block title %}Consultorio Dental Rodolfo Castellón | Sistema integral de pacientes, citas y pagos{% endblock %}
+
+<!--Meta descripción específica para la página de inicio.-->
 {% block meta_description %}Atención dental profesional en Puerto Vallarta. Sistema integral para pacientes, citas y pagos. WhatsApp 322 889 2558.{% endblock %}
 
+<!--Código extra para el <head>.
+  - "preload" le dice al navegador que empiece a cargar la imagen de fondo principal pronto.
+  - La etiqueta <style> contiene todos los estilos CSS que son exclusivos de esta página.-->
 {% block extra_head %}
 
+<!--Aquí van todos los estilos específicos de la página de inicio */
+  :root{ /* Variables de color y diseño para la página de inicio */ }
+  html{scroll-behavior:smooth} body{background:var(--bg);color:var(--ink)-->
 <link rel="preload" href="{% static 'img/fondodentista1.jpg' %}" as="image">
 <style>
   :root{
@@ -63,6 +73,7 @@
 </style>
 {% endblock %}
 
+<!--Contenido principal de la página.-->
 {% block content %}
 <header class="hero">
   <div class="blob bl1"></div><div class="blob bl2"></div>
@@ -253,7 +264,12 @@
    href="https://wa.me/523228892558?text=Hola%20me%20gustar%C3%ADa%20agendar%20una%20cita" target="_blank" rel="noopener">WhatsApp</a>
 {% endblock %}
 
+<!--JavaScript extra para la página de inicio.-->
 {% block extra_js %}
+
+<!--// Script para animaciones y funcionalidades interactivas de la página.
+  // ... (código para el botón de WhatsApp, animaciones de scroll, parallax del hero, carrusel, etc.) ...
+</script>-->
 <script>
   const fab=document.getElementById('whats-fab');
   if(fab){Object.assign(fab.style,{position:'fixed',right:'18px',bottom:'18px',zIndex:60,boxShadow:'0 20px 40px -16px rgba(46,230,166,.6)'})}
@@ -265,6 +281,9 @@
   function move(n){const cards=track.children.length; idx=(idx+n+cards)%cards; const w=track.children[0].getBoundingClientRect().width+16; track.style.transform=`translateX(${-idx*w}px)`;}
   document.getElementById('prev').onclick=()=>move(-1); document.getElementById('next').onclick=()=>move(1); setInterval(()=>move(1), 6000);
 </script>
+
+<!--// Datos estructurados (Schema.org) para SEO. Ayuda a Google a entender qué es tu negocio.
+  //-->
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Dentist","name":"Consultorio Dental Rodolfo Castellón",
 "address":{"@type":"PostalAddress","streetAddress":"Calle Guatemala #125, Col. del Toro, El Pitillal","addressLocality":"Puerto Vallarta","addressRegion":"Jalisco","addressCountry":"MX"},
