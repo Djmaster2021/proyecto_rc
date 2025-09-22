@@ -8,8 +8,7 @@
   <!--Cuerpo de la tarjeta.
       - Si se le pasa una variable "body", la mostrará directamente.
       - Si no, crea un bloque llamado "card_body" para que otra plantilla
-        pueda insertar contenido más complejo (como un formulario o una lista).
-    {% endcomment %}-->
+        pueda insertar contenido más complejo (como un formulario o una lista).-->
   <div class="card-body">
     {% if body %}{{ body }}{% else %}{% block card_body %}{% endblock %}{% endif %}
   </div>
