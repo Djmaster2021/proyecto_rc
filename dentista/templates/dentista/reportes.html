@@ -10,74 +10,29 @@
     <div class="small text-muted">Visión estratégica del negocio y KPIs operativos</div>
   </div>
   <div class="toolbar-actions">
-    <button class="btn-outline" type="button">Exportar dashboard</button>
-    <button class="btn-neon" type="button">Programar envío</button>
+    <button class="cyber-btn" type="button">Exportar Dashboard</button>
   </div>
 </header>
 
-<section class="card soft glow">
-    <div class="grid" style="grid-template-columns: repeat(4, 1fr); gap: 1rem;">
-      <div>
-        <div class="text-muted small">Ingresos totales (año)</div>
-        <div class="kpi-value">$ <span data-counter="190000">0</span></div>
-        <div class="small muted">Promedio mensual: $15,833</div>
-      </div>
-      <div>
-        <div class="text-muted small">Tasa de ocupación</div>
-        <div class="kpi-value" data-counter="92">0</div>
-        <div class="small muted">%</div>
-      </div>
-      <div>
-        <div class="text-muted small">Ingreso promedio/cita</div>
-        <div class="kpi-value">$<span data-counter="650">0</span></div>
-        <div class="small muted">MXN</div>
-      </div>
-      <div>
-        <div class="text-muted small">Pacientes nuevos</div>
-        <div class="kpi-value" data-counter="12">0</div>
-        <div class="small muted">Este mes</div>
-      </div>
-    </div>
-</section>
-
-<div class="grid two mt">
-  <div class="card">
-    <h3>Ingresos mensuales</h3>
-    <div class="chart-wrapper">
-      <canvas id="monthlyRevenue"></canvas>
-    </div>
-  </div>
-  <div class="card">
-    <h3>Uso de servicios</h3>
-    <div class="chart-wrapper">
-      <canvas id="doughnutServices"></canvas>
-    </div>
-  </div>
+<div class="grid kpis">
+  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Ingresos (año)</div><div class="kpi-value">$<span data-counter="190000">0</span></div></div></div>
+  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Tasa de ocupación</div><div class="kpi-value"><span data-counter="92">0</span>%</div></div></div>
+  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Ingreso / cita</div><div class="kpi-value">$<span data-counter="650">0</span></div></div></div>
+  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Pacientes nuevos (mes)</div><div class="kpi-value" data-counter="12">0</div></div></div>
 </div>
 
-<div class="card mt">
-  <h3>Reportes de pacientes</h3>
-  <div class="panel-tools">
-      <div class="spacer"></div>
-      <select class="btn-outline">
-        <option>Últimos 12 meses</option>
-        <option>Últimos 6 meses</option>
-      </select>
-      <button class="btn-outline" type="button">Generar reporte</button>
+<div class="grid two mt">
+  <div class="glow-card-wrapper">
+    <div class="cyber-card">
+      <h3>Ingresos mensuales</h3>
+      <div class="chart-box"><canvas id="monthlyRevenue"></canvas></div>
+    </div>
   </div>
-  <div class="table-wrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Servicio</th>
-          <th>Veces atendido</th>
-          <th>Ingreso total</th>
-          <th>Tasa de No-Show</th>
-        </tr>
-      </thead>
-      <tbody id="servicesReportTableBody">
-        </tbody>
-    </table>
+  <div class="glow-card-wrapper">
+    <div class="cyber-card">
+      <h3>Uso de servicios</h3>
+      <div class="chart-box"><canvas id="doughnutServices"></canvas></div>
+    </div>
   </div>
 </div>
 {% endblock %}

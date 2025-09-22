@@ -1,29 +1,28 @@
-<!-- Carga las etiquetas de Django para archivos estáticos.-->
 {% load static %}
+<nav class="rc-navbar">
+  <div class="rc-navbar-inner">
+    <a class="rc-logo" href="{% url 'home' %}">DentalSys <span>RC</span></a>
 
-<!--Contenedor principal de la barra de navegación.
-  La clase "rc-navbar" y "navbar-blur" le aplican los estilos desde site.css.-->
-<nav class="rc-navbar navbar-blur">
-  <div class="rc-wrap">
-
-    <!-- Logo del sitio. Es un enlace que lleva a la página de inicio.-->
-    <a class="rc-logo" href="{% url 'home' %}">Consultorio <span>Dental</span></a>
-
-    <!--Menú de navegación. Es una lista de enlaces.-->
     <ul class="rc-menu">
-
-      <!-- Cada "li" es un elemento del menú que lleva a una sección de la página de inicio.-->
       <li><a href="{% url 'home' %}#servicios">Servicios</a></li>
       <li><a href="{% url 'home' %}#acerca">Acerca</a></li>
       <li><a href="{% url 'home' %}#pagos">Pagos</a></li>
       <li><a href="{% url 'home' %}#contacto">Contacto</a></li>
-
-      <!-- Botones de acción principales.
-        - "Iniciar sesión" es un botón con estilo "fantasma" (rc-btn--ghost).
-        - "Agenda tu cita" es el botón principal (rc-btn--primary).
-        Ambos dirigen a la página de login de la app "accounts".-->
-      <li><a class="rc-btn rc-btn--ghost" href="{% url 'accounts:login' %}">Iniciar sesión</a></li>
+      <li><a class="rc-btn" href="{% url 'accounts:login' %}">Iniciar sesión</a></li>
       <li><a class="rc-btn rc-btn--primary" href="{% url 'accounts:login' %}">Agenda tu cita</a></li>
     </ul>
+
+    <button class="rc-burger" id="burger" aria-label="Abrir menú" aria-expanded="false">
+      <i class="ph ph-list"></i>
+    </button>
   </div>
 </nav>
+
+<div class="rc-mobile-panel" id="mobile-panel">
+  <a href="{% url 'home' %}#servicios">Servicios</a>
+  <a href="{% url 'home' %}#acerca">Acerca</a>
+  <a href="{% url 'home' %}#pagos">Pagos</a>
+  <a href="{% url 'home' %}#contacto">Contacto</a>
+  <a class="rc-btn" href="{% url 'accounts:login' %}">Iniciar sesión</a>
+  <a class="rc-btn rc-btn--primary" href="{% url 'accounts:login' %}">Agenda tu cita</a>
+</div>

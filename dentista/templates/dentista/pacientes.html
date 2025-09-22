@@ -10,43 +10,36 @@
     <div class="small text-muted">Fichas, segmentación y acciones masivas</div>
   </div>
   <div class="toolbar-actions">
-    <input id="patientsSearchInput" class="input" placeholder="Buscar nombre, teléfono o email">
-    <button class="btn-neon alt" type="button">Agregar paciente</button>
+    <input id="patientsSearchInput" class="input" placeholder="Buscar paciente...">
+    <button class="cyber-btn cyber-btn-glow" type="button">Agregar paciente</button>
   </div>
 </header>
 
-<div class="card">
-  <div class="panel-tools">
-    <div class="row">
-      <select id="segmentFilter" class="btn-outline">
-        <option value="all">Todos</option>
+<div class="glow-card-wrapper">
+  <div class="cyber-card">
+    <div class="panel-tools">
+      <select id="segmentFilter" class="cyber-btn">
+        <option value="all">Todos los pacientes</option>
         <option value="active">Activos</option>
         <option value="debt">Con deuda</option>
-        <option value="inactive">Inactivos</option>
       </select>
-      <select id="sortFilter" class="btn-outline">
-        <option value="last_visit">Ordenar: última cita</option>
-        <option value="name">Ordenar: nombre (A-Z)</option>
-      </select>
+      <div class="spacer"></div>
+      <button class="cyber-btn" type="button">Exportar CSV</button>
     </div>
-    <div class="spacer"></div>
-    <button class="btn-outline" type="button">Exportar CSV</button>
-    <button class="btn-neon" type="button">Enviar campaña</button>
-  </div>
-  <div class="table-wrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Contacto</th>
-          <th>Última cita</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="patientsTableBody">
-        </tbody>
-    </table>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Contacto</th>
+            <th>Última cita</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="patientsTableBody"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 {% endblock %}

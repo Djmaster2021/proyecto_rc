@@ -10,128 +10,48 @@
     <div class="small text-muted">Resumen general del consultorio y acciones rápidas</div>
   </div>
   <div class="toolbar-actions">
-    <button class="btn-neon alt" type="button">Enviar recordatorios</button>
+    <button class="cyber-btn" type="button">Enviar recordatorios</button>
   </div>
 </header>
 
 <div class="grid kpis">
-  <div class="card soft glow">
-    <div class="kpi-label">Citas de hoy</div>
-    <div class="kpi-value highlight" data-counter="8">0</div>
-  </div>
-  <div class="card soft glow">
-    <div class="kpi-label">Pacientes activos</div>
-    <div class="kpi-value grad-cyan" data-counter="145">0</div>
-  </div>
-  <div class="card soft glow">
-    <div class="kpi-label">Pagos pendientes</div>
-    <div class="kpi-value" data-counter="12">0</div>
-  </div>
-  <div class="card soft glow">
-    <div class="kpi-label">Próximos pagos</div>
-    <div class="kpi-value" data-counter="5">0</div>
-  </div>
+  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Citas de hoy</div><div class="kpi-value highlight" data-counter="8">0</div></div></div>
+  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Pacientes activos</div><div class="kpi-value" data-counter="145">0</div></div></div>
+  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Pagos pendientes</div><div class="kpi-value" data-counter="12">0</div></div></div>
+  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Próximos pagos</div><div class="kpi-value" data-counter="5">0</div></div></div>
 </div>
 
 <div class="grid two mt">
-  <div class="card">
-    <h3>Ingresos vs. Gastos</h3>
-    <div class="chart-box mt">
-      <canvas id="balanceChart"></canvas>
+  <div class="glow-card-wrapper">
+    <div class="cyber-card">
+      <h3>Ingresos vs. Gastos (Miles de MXN)</h3>
+      <div class="chart-box mt">
+        <canvas id="balanceChart"></canvas>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <h3>Actividad reciente</h3>
-    <div class="panel-tools">
-      <div class="spacer"></div>
-      <div class="small text-muted" id="lastUpdate"></div>
+  <div class="glow-card-wrapper">
+    <div class="cyber-card">
+      <h3>Actividad reciente</h3>
+      <ul class="list mt" id="auditList"></ul>
     </div>
-    <ul class="list" id="auditList">
-      </ul>
   </div>
 </div>
 
-<section class="card mt">
-  <div class="tabs">
-    <button class="tab active" type="button" data-tab="t-planes">Planes de tratamiento</button>
-    <button class="tab" type="button" data-tab="t-inventario">Inventario</button>
-    <button class="tab" type="button" data-tab="t-presupuestos">Presupuestos</button>
-    <button class="tab" type="button" data-tab="t-ajustes">Ajustes rápidos</button>
-  </div>
+<div class="glow-card-wrapper mt">
+  <div class="cyber-card">
+    <div class="tabs">
+      <button class="tab active cyber-btn" type="button" data-tab="t-planes">Planes de tratamiento</button>
+      <button class="tab cyber-btn" type="button" data-tab="t-inventario">Inventario</button>
+    </div>
 
-  <div class="panel active" id="t-planes">
-    <div class="table-wrap">
-      <table class="table" id="treatmentTable">
-        <thead>
-          <tr>
-            <th>Paciente</th>
-            <th>Tratamiento</th>
-            <th>Progreso</th>
-            <th>Última actualización</th>
-          </tr>
-        </thead>
-        <tbody>
-          </tbody>
-      </table>
+    <div class="panel active" id="t-planes">
+      <div class="table-wrap"><table class="data-table" id="treatmentTable"><thead><tr><th>Paciente</th><th>Tratamiento</th><th>Progreso</th><th>Última actualización</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="panel" id="t-inventario">
+      <div class="table-wrap"><table class="data-table" id="inventoryTable"><thead><tr><th>Producto</th><th>Categoría</th><th>Stock</th><th>Fecha de caducidad</th></tr></thead><tbody></tbody></table></div>
     </div>
   </div>
-
-  <div class="panel" id="t-inventario">
-    <div class="table-wrap">
-      <table class="table" id="inventoryTable">
-        <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Categoría</th>
-            <th>Stock</th>
-            <th>Fecha de caducidad</th>
-          </tr>
-        </thead>
-        <tbody>
-          </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="panel" id="t-presupuestos">
-    <div class="table-wrap">
-      <table class="table" id="budgetTable">
-        <thead>
-          <tr>
-            <th>Presupuesto</th>
-            <th>Paciente</th>
-            <th>Fecha</th>
-            <th>Monto</th>
-          </tr>
-        </thead>
-        <tbody>
-          </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="panel" id="t-ajustes">
-    <div class="grid inv">
-      <div class="card soft glow">
-        <div class="muted tiny">Horarios</div>
-        <div class="mt row">
-          <button class="btn-outline" type="button">Editar horarios</button>
-        </div>
-      </div>
-      <div class="card soft glow">
-        <div class="muted tiny">Políticas de cancelación</div>
-        <div class="mt row">
-          <button class="btn-outline" type="button">Editar políticas</button>
-        </div>
-      </div>
-      <div class="card soft glow">
-        <div class="muted tiny">Recordatorios</div>
-        <div class="mt row">
-          <button class="btn-outline" type="button">Ajustar reglas IA</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+</div>
 {% endblock %}

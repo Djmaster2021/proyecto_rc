@@ -1,21 +1,11 @@
-<!--Le dice a Django que esta plantilla debe usar "base_site.html" como esqueleto.-->
 {% extends "_components/base_site.html" %}
 {% load static %}
 
-<!--Título específico para la página de inicio.-->
 {% block title %}Consultorio Dental Rodolfo Castellón | Sistema integral de pacientes, citas y pagos{% endblock %}
 
-<!--Meta descripción específica para la página de inicio.-->
 {% block meta_description %}Atención dental profesional en Puerto Vallarta. Sistema integral para pacientes, citas y pagos. WhatsApp 322 889 2558.{% endblock %}
 
-<!--Código extra para el <head>.
-  - "preload" le dice al navegador que empiece a cargar la imagen de fondo principal pronto.
-  - La etiqueta <style> contiene todos los estilos CSS que son exclusivos de esta página.-->
 {% block extra_head %}
-
-<!--Aquí van todos los estilos específicos de la página de inicio */
-  :root{ /* Variables de color y diseño para la página de inicio */ }
-  html{scroll-behavior:smooth} body{background:var(--bg);color:var(--ink)-->
 <link rel="preload" href="{% static 'img/fondodentista1.jpg' %}" as="image">
 <style>
   :root{
@@ -58,22 +48,89 @@
   .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin-top:1.2rem}
   .stat{border:1px dashed rgba(255,255,255,.12);border-radius:16px;padding:1rem 1.2rem;background:var(--glass)}
   .stat strong{font-size:clamp(1.6rem,3vw,2.2rem); background:linear-gradient(90deg,#fff,var(--brand-2));-webkit-background-clip:text;color:transparent}
-  .svc{display:flex;gap:.9rem;align-items:flex-start}
-  .ico{width:42px;height:42px;border-radius:12px;background:linear-gradient(180deg,rgba(114,228,255,.2),rgba(114,228,255,.08));
-       display:grid;place-items:center;border:1px solid rgba(114,228,255,.25);flex:0 0 42px}
-  .badges{display:flex;flex-wrap:wrap;gap:.55rem} .badge{border:1px solid rgba(255,255,255,.14);background:var(--glass);padding:.45rem .75rem;border-radius:999px}
-  .carousel{position:relative;overflow:hidden} .track{display:flex;gap:1rem;transition:transform .6s cubic-bezier(.2,.7,.2,1)} .tcard{min-width:calc(50% - .5rem)}
-  .rating{display:flex;gap:2px;margin:.2rem 0 .1rem} .tooth{width:20px;height:20px} .tooth path{fill:#334155} .tooth.filled path{fill:var(--brand)}
-  .car-ctrl{display:flex;gap:.5rem;justify-content:flex-end;margin-top:.6rem} .ctrl{border:1px solid rgba(255,255,255,.16);background:var(--glass);border-radius:10px;padding:.45rem .6rem;cursor:pointer}
   .contact-card input,.contact-card textarea{width:100%;padding:.9rem;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.03);color:var(--ink)}
   .contact-grid{display:grid;gap:1.2rem;grid-template-columns:1.1fr .9fr}
   .reveal{opacity:0;transform:translateY(16px);transition:all .7s cubic-bezier(.2,.7,.2,1)} .reveal.in{opacity:1;transform:none}
-  @media (max-width:900px){ .grid-2{grid-template-columns:1fr} .grid-3{grid-template-columns:1fr 1fr} .tcard{min-width:100%} }
+  
+  /* --- INICIO: NUEVOS ESTILOS PARA TARJETAS DE SERVICIO --- */
+  .svc-card {
+    background: #111a2c;
+    border: 1px solid rgba(114, 228, 255, 0.15);
+    border-radius: 24px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
+  .svc-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(114, 228, 255, 0.4);
+    box-shadow: 0 20px 50px rgba(16, 147, 173, 0.15);
+  }
+  .svc-card-ico {
+    width: 54px;
+    height: 54px;
+    margin-bottom: 1rem;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .08), transparent);
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+  }
+  .svc-card-ico img {
+    width: 32px;
+    height: 32px;
+  }
+  .svc-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    color: var(--ink);
+  }
+  .svc-card p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin: 0 0 1rem 0;
+  }
+  .svc-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .svc-card ul li {
+    padding-left: 1.2em;
+    position: relative;
+    margin-bottom: 0.25rem;
+  }
+  .svc-card ul li::before {
+    content: '*';
+    position: absolute;
+    left: 0;
+    color: var(--brand);
+  }
+  .whatsapp-button {
+    margin-top: auto; /* Empuja el botón al final de la tarjeta */
+    align-self: flex-end; /* Lo alinea a la derecha */
+    background-color: #25D366;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: background-color .2s ease;
+  }
+  .whatsapp-button:hover {
+    background-color: #128C7E;
+  }
+  /* --- FIN: NUEVOS ESTILOS PARA TARJETAS DE SERVICIO --- */
+
+  @media (max-width:900px){ .grid-2{grid-template-columns:1fr} .grid-3{grid-template-columns:1fr 1fr} }
   @media (max-width:640px){ .grid-3{grid-template-columns:1fr} }
 </style>
 {% endblock %}
 
-<!--Contenido principal de la página.-->
 {% block content %}
 <header class="hero">
   <div class="blob bl1"></div><div class="blob bl2"></div>
@@ -87,9 +144,9 @@
       <a class="btn" href="{% url 'accounts:login' %}">🔐 Iniciar sesión</a>
     </div>
     <div class="stats">
-      <div class="stat reveal"><strong>500k+</strong><div class="muted">Procedimientos realizados</div></div>
-      <div class="stat reveal"><strong>5/5 ✨</strong><div class="muted">Satisfacción de pacientes</div></div>
-      <div class="stat reveal"><strong>8+ años</strong><div class="muted">Experiencia del Dr. Castellón</div></div>
+      <div class="stat reveal"><strong>500+</strong><div class="muted">Procedimientos realizados</div></div>
+      <div class="stat reveal"><strong>4.7/5 ✨</strong><div class="muted">Satisfacción de pacientes</div></div>
+      <div class="stat reveal"><strong>6+ años</strong><div class="muted">Experiencia del Dr. Castellón</div></div>
     </div>
   </div>
 </header>
@@ -97,75 +154,90 @@
 <div class="wave-btm"><svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,32 C240,70 480,-8 720,20 C960,48 1200,80 1440,50 L1440,0 L0,0 Z"/></svg></div>
 
 <main style="background:var(--panel)">
-  <!-- Servicios -->
-<!-- Servicios -->
-<section id="servicios" class="wrap">
+  <section id="servicios" class="wrap">
   <h2 class="reveal" style="margin-top:0">Servicios principales</h2>
   <p class="muted reveal">Tratamientos personalizados para cada sonrisa.</p>
 
   <div class="grid grid-3" style="margin-top:1.2rem">
-    <!-- Odontología General -->
-    <article class="card reveal svc">
-      <div class="ico">
-        <img src="{% static 'img/odontologia general.png' %}" alt="Odontología general">
+    
+    <article class="svc-card reveal">
+      <div class="svc-card-ico">
+        <img src="{% static 'img/odontologia general.png' %}" alt="Ícono Odontología general">
       </div>
-      <div>
-        <h3>Odontología General</h3>
-        <p class="muted">Diagnóstico, profilaxis y restauraciones estéticas.</p>
-      </div>
+      <h3>Odontología General</h3>
+      <p>Evaluación completa de la salud oral, diagnóstico y prevención de enfermedades.</p>
+      <ul>
+        <li>Limpieza profunda</li>
+        <li>Radiografías</li>
+        <li>Resinas</li>
+        <li>Extracciones</li>
+      </ul>
     </article>
 
-    <!-- Ortodoncia -->
-    <article class="card reveal svc">
-      <div class="ico">
-        <img src="{% static 'img/Ortodoncia.png' %}" alt="Ortodoncia">
+    <article class="svc-card reveal">
+      <div class="svc-card-ico">
+        <img src="{% static 'img/Ortodoncia.png' %}" alt="Ícono Ortodoncia">
       </div>
-      <div>
-        <h3>Ortodoncia</h3>
-        <p class="muted">Brackets estéticos y alineadores con plan digital.</p>
-      </div>
+      <h3>Ortodoncia</h3>
+      <p>Corrección de la posición de los dientes y la mandíbula para una sonrisa perfecta.</p>
+      <ul>
+        <li>Brackets metálicos/estéticos</li>
+        <li>Alineadores</li>
+        <li>Retenedores</li>
+      </ul>
     </article>
 
-    <!-- Restaurativa -->
-    <article class="card reveal svc">
-      <div class="ico">
-        <img src="{% static 'img/odontologia Restaurativa.png' %}" alt="Odontología restaurativa">
+    <article class="svc-card reveal">
+      <div class="svc-card-ico">
+        <img src="{% static 'img/odontologia Restaurativa.png' %}" alt="Ícono Odontología restaurativa">
       </div>
-      <div>
-        <h3>Restaurativa</h3>
-        <p class="muted">Resinas, incrustaciones y coronas con ajuste natural.</p>
-      </div>
+      <h3>Restaurativa</h3>
+      <p>Recupera forma y función de piezas afectadas por caries o fracturas.</p>
+      <ul>
+        <li>Resinas compuestas</li>
+        <li>Incrustaciones</li>
+        <li>Coronas</li>
+        <li>Reconstrucciones</li>
+      </ul>
     </article>
 
-    <!-- Estética -->
-    <article class="card reveal svc">
-      <div class="ico">
-        <img src="{% static 'img/Odontología estética.png' %}" alt="Odontología estética">
+    <article class="svc-card reveal">
+      <div class="svc-card-ico">
+        <img src="{% static 'img/Odontología estética.png' %}" alt="Ícono Odontología estética">
       </div>
-      <div>
-        <h3>Estética</h3>
-        <p class="muted">Blanqueamiento y carillas de alta estética.</p>
-      </div>
+      <h3>Estética</h3>
+      <p>Mejora de la apariencia dental con tratamientos mínimamente invasivos.</p>
+      <ul>
+        <li>Blanqueamiento</li>
+        <li>Carillas</li>
+        <li>Resinas estéticas</li>
+        <li>Contorneado dental</li>
+      </ul>
     </article>
 
-    <!-- Prótesis e Implantes -->
-    <article class="card reveal svc">
-      <div class="ico">
-        <img src="{% static 'img/protesis e implantes.png' %}" alt="Prótesis e implantes">
+    <article class="svc-card reveal">
+      <div class="svc-card-ico">
+        <img src="{% static 'img/protesis e implantes.png' %}" alt="Ícono Prótesis e implantes">
       </div>
-      <div>
-        <h3>Prótesis e Implantes</h3>
-        <p class="muted">Soluciones funcionales y duraderas.</p>
-      </div>
+      <h3>Prótesis e Implantes</h3>
+      <p>Soluciones fijas o removibles para reemplazar dientes ausentes.</p>
+      <ul>
+        <li>Implantes dentales</li>
+        <li>Puentes y coronas</li>
+        <li>Prótesis totales y parciales</li>
+        <li>Mantenimiento y ajuste</li>
+      </ul>
     </article>
 
-    <!-- Recordatorios & Agenda (DEJA EL ICONO) -->
-    <article class="card reveal svc">
-      <div class="ico">⏰</div>
-      <div>
-        <h3>Recordatorios & Agenda</h3>
-        <p class="muted">Expediente digital y recordatorios por WhatsApp/SMS.</p>
+    <article class="svc-card reveal">
+      <div class="svc-card-ico">
+        <img src="{% static 'img/recordatorio.png' %}" alt="Ícono Recordatorios y Agenda">
       </div>
+      <h3>Recordatorios & Agenda</h3>
+      <p>Expediente digital y recordatorios por correo electronico, WhatsApp y msg.</p>
+      <a href="https://wa.me/523228892558?text=Hola%20me%20gustar%C3%ADa%20agendar%20una%20cita" class="whatsapp-button" target="_blank" rel="noopener">
+        WhatsApp
+      </a>
     </article>
   </div>
 </section>
@@ -176,21 +248,14 @@
   </svg>
 </div>
 
-  <!-- Acerca -->
   <section id="acerca" class="wrap">
     <div class="grid grid-2">
       <div class="reveal">
         <h2>Acerca del consultorio</h2>
         <p class="muted">El <strong>Consultorio Dental del Dr. Rodolfo Castellón</strong> se encuentra ubicado en <strong>Calle Guatemala #125, Col. del Toro, El Pitillal, Puerto Vallarta, Jalisco</strong>. Un espacio diseñado para brindar confianza, comodidad y seguridad a cada paciente.</p>
-
         <p class="muted">Contamos con <strong>tratamientos de última generación</strong>, tecnología innovadora y un trato humano cercano. Nuestro compromiso es ofrecer soluciones accesibles y efectivas para cuidar de tu salud bucal y mantener sonrisas sanas y estéticas.</p>
-        
         <p class="muted">Nuestros horarios de atención son de <strong>lunes a sábado, de 2:00 pm a 8:00 pm</strong>, con un receso de <strong>4:00 pm a 5:00 pm</strong>. Además, para tu comodidad, contamos con un <strong>sistema de recordatorios personalizados</strong> que te ayuda a mantener constancia en tus citas y tratamientos.</p>
-        
-        <p class="muted">En el <strong>Consultorio Dental Rodolfo Castellón</strong> encontrarás un ambiente profesional y cálido, donde cada visita se convierte en una experiencia dental confiable, cómoda y libre de preocupaciones.</p>
-        
         <a class="btn btn--primary" href="{% url 'accounts:login' %}">Quiero una valoración</a>
-
       </div>
       <div class="reveal">
         <img src="{% static 'img/dentista.jpg' %}" alt="Consultorio dental" style="width:100%;border-radius:22px;box-shadow:0 26px 60px rgba(0,0,0,.35)">
@@ -198,7 +263,6 @@
     </div>
   </section>
 
-  <!-- Pagos -->
   <section id="pagos" class="sec sec--c">
     <div class="wrap">
       <h2 class="reveal">Formas de pago</h2>
@@ -211,8 +275,6 @@
     </div>
   </section>
   
-
-  <!-- Testimonios carrusel -->
   <section class="sec sec--d">
     <div class="wrap">
       <h2 class="reveal">Comentarios</h2>
@@ -221,9 +283,6 @@
     </div>
   </section>
   
-  
-
-  <!-- Contacto -->
   <section id="contacto" class="sec sec--e">
     <div class="wrap">
       <h2 class="reveal">Contacto y ubicación</h2>
@@ -236,10 +295,7 @@
           <li><strong>Horario:</strong> 2:00–8:00 PM · <em>Comida: 4:30–5:00 PM</em></li>
         </ul>
         <form method="post" action="#" onsubmit="event.preventDefault(); alert('¡Gracias! Te contactamos enseguida.');">
-          <div style="display:grid;gap:.75rem;grid-template-columns:1fr 1fr">
-            <input name="nombre" placeholder="Nombre" required>
-            <input name="telefono" placeholder="Teléfono / WhatsApp" inputmode="tel">
-          </div>
+          <div style="display:grid;gap:.75rem;grid-template-columns:1fr 1fr"><input name="nombre" placeholder="Nombre" required><input name="telefono" placeholder="Teléfono / WhatsApp" inputmode="tel"></div>
           <input name="email" type="email" placeholder="Correo">
           <textarea name="mensaje" rows="4" placeholder="Cuéntanos qué necesitas" required></textarea>
           <button class="btn btn--primary" type="submit">Enviar mensaje</button>
@@ -264,12 +320,7 @@
    href="https://wa.me/523228892558?text=Hola%20me%20gustar%C3%ADa%20agendar%20una%20cita" target="_blank" rel="noopener">WhatsApp</a>
 {% endblock %}
 
-<!--JavaScript extra para la página de inicio.-->
 {% block extra_js %}
-
-<!--// Script para animaciones y funcionalidades interactivas de la página.
-  // ... (código para el botón de WhatsApp, animaciones de scroll, parallax del hero, carrusel, etc.) ...
-</script>-->
 <script>
   const fab=document.getElementById('whats-fab');
   if(fab){Object.assign(fab.style,{position:'fixed',right:'18px',bottom:'18px',zIndex:60,boxShadow:'0 20px 40px -16px rgba(46,230,166,.6)'})}
@@ -279,11 +330,8 @@
   hero.addEventListener('mousemove', (e)=>{const r=hero.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5;const y=(e.clientY-r.top)/r.height-.5;hero.style.backgroundPosition=`${50+x*2}% ${50+y*2}%`;});
   const track=document.getElementById('ttrack'); let idx=0;
   function move(n){const cards=track.children.length; idx=(idx+n+cards)%cards; const w=track.children[0].getBoundingClientRect().width+16; track.style.transform=`translateX(${-idx*w}px)`;}
-  document.getElementById('prev').onclick=()=>move(-1); document.getElementById('next').onclick=()=>move(1); setInterval(()=>move(1), 6000);
 </script>
 
-<!--// Datos estructurados (Schema.org) para SEO. Ayuda a Google a entender qué es tu negocio.
-  //-->
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Dentist","name":"Consultorio Dental Rodolfo Castellón",
 "address":{"@type":"PostalAddress","streetAddress":"Calle Guatemala #125, Col. del Toro, El Pitillal","addressLocality":"Puerto Vallarta","addressRegion":"Jalisco","addressCountry":"MX"},

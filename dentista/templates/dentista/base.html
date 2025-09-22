@@ -8,7 +8,8 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
   <link rel="stylesheet" href="{% static 'dentista/styles.css' %}">
@@ -21,32 +22,32 @@
   <div class="shell">
     
     <aside id="sidebar" class="side" role="navigation" aria-label="Menú principal">
-      <div class="side-brand">
-        <button id="burger" aria-label="Contraer menú" class="btn-ghost icon-lg">
-          <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </button>
-        <div class="brand-glow">DentalSys</div>
-      </div>
+      <div>
+        <div class="side-brand">
+          <button id="burger" aria-label="Contraer menú" class="cyber-btn"><i class="ph ph-list"></i></button>
+          <div class="brand-glow">DentalSys</div>
+        </div>
 
-      <nav class="side-nav">
-        <a class="nav-item {% if 'dashboard' in request.path %}active{% endif %}" href="{% url 'dentista:dashboard' %}"><i class="ph-fill ph-house"></i><span>Dashboard</span></a>
-        <a class="nav-item {% if 'agenda' in request.path %}active{% endif %}" href="{% url 'dentista:agenda' %}"><i class="ph-fill ph-calendar-plus"></i><span>Agenda</span></a>
-        <a class="nav-item {% if 'pagos' in request.path %}active{% endif %}" href="{% url 'dentista:pagos' %}"><i class="ph-fill ph-currency-circle-dollar"></i><span>Pagos</span></a>
-        <a class="nav-item {% if 'pacientes' in request.path %}active{% endif %}" href="{% url 'dentista:pacientes' %}"><i class="ph-fill ph-folder-user"></i><span>Pacientes</span></a>
-        <a class="nav-item {% if 'servicios' in request.path %}active{% endif %}" href="{% url 'dentista:servicios' %}"><i class="ph-fill ph-tooth"></i><span>Servicios</span></a>
-        <a class="nav-item {% if 'reportes' in request.path %}active{% endif %}" href="{% url 'dentista:reportes' %}"><i class="ph-fill ph-chart-line"></i><span>Reportes</span></a>
-        <a class="nav-item {% if request.resolver_match.url_name == 'configuracion' %}active{% endif %}" href="{% url 'dentista:configuracion' %}"><i class="ph-fill ph-gear"></i><span>Configuración</span></a>
-        <a class="nav-item {% if request.resolver_match.url_name == 'soporte' %}active{% endif %}" href="{% url 'dentista:soporte' %}"><i class="ph-fill ph-question-mark-circle"></i><span>Soporte</span></a>
-      </nav>
+        <nav class="side-nav">
+          <a class="nav-item {% if 'dashboard' in request.path %}active{% endif %}" href="{% url 'dentista:dashboard' %}"><i class="ph-fill ph-house"></i><span>Dashboard</span></a>
+          <a class="nav-item {% if 'agenda' in request.path %}active{% endif %}" href="{% url 'dentista:agenda' %}"><i class="ph-fill ph-calendar-plus"></i><span>Agenda</span></a>
+          <a class="nav-item {% if 'pagos' in request.path %}active{% endif %}" href="{% url 'dentista:pagos' %}"><i class="ph-fill ph-currency-circle-dollar"></i><span>Pagos</span></a>
+          <a class="nav-item {% if 'pacientes' in request.path %}active{% endif %}" href="{% url 'dentista:pacientes' %}"><i class="ph-fill ph-folder-user"></i><span>Pacientes</span></a>
+          <a class="nav-item {% if 'servicios' in request.path %}active{% endif %}" href="{% url 'dentista:servicios' %}"><i class="ph-fill ph-tooth"></i><span>Servicios</span></a>
+          <a class="nav-item {% if 'reportes' in request.path %}active{% endif %}" href="{% url 'dentista:reportes' %}"><i class="ph-fill ph-chart-line"></i><span>Reportes</span></a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'configuracion' %}active{% endif %}" href="{% url 'dentista:configuracion' %}"><i class="ph-fill ph-gear"></i><span>Configuración</span></a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'soporte' %}active{% endif %}" href="{% url 'dentista:soporte' %}"><i class="ph-fill ph-question"></i><span>Soporte</span></a>
+        </nav>
+      </div>
 
       <div class="side-user">
         <img src="{% static 'img/dr-castellon.png' %}" alt="Avatar del Dr. Castellón" class="avatar">
-        <div class="user-meta">
+        <div>
           <strong>Dr. Castellón</strong>
-          <small class="muted">Cirujano Dentista</small>
+          <br><small class="text-muted">Cirujano Dentista</small>
         </div>
         <div class="spacer"></div>
-        <button class="btn-ghost" title="Cerrar sesión"><i class="ph ph-sign-out"></i></button>
+        <button class="cyber-btn" title="Cerrar sesión"><i class="ph ph-sign-out"></i></button>
       </div>
     </aside>
 

@@ -11,54 +11,18 @@
   </div>
   <div class="toolbar-actions">
     <div class="live-clock" id="liveClock"></div>
-    <select class="btn-outline">
+    <select class="cyber-btn">
       <option>Vista: Semana</option>
       <option>Vista: Día</option>
     </select>
-    <button class="btn-neon" type="button">Nueva cita</button>
+    <button class="cyber-btn cyber-btn-glow" type="button">Nueva cita</button>
   </div>
 </header>
 
-<div class="card">
-  <div class="agenda-view">
-    <div class="days-header">
-      <div class="day-name">Lun</div>
-      <div class="day-name">Mar</div>
-      <div class="day-name">Mie</div>
-      <div class="day-name">Jue</div>
-      <div class="day-name">Vie</div>
-      <div class="day-name">Sab</div>
-      <div class="day-name">Dom</div>
-    </div>
-    
-    <div class="agenda-grid" id="agendaGrid">
-      </div>
+<div class="glow-card-wrapper">
+  <div class="cyber-card">
+    <div class="days-header"></div>
+    <div class="agenda-grid" id="agendaGrid"></div>
   </div>
-</div>
-
-<div class="card mt">
-    <h3>Próximas citas detalladas</h3>
-    <div class="panel-tools">
-        <input class="input" placeholder="Buscar por paciente o servicio">
-        <div class="spacer"></div>
-        <button class="btn-outline" type="button">Exportar lista</button>
-    </div>
-    <div class="table-wrap">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Paciente</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Servicio</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="upcomingApptsTableBody">
-                </tbody>
-        </table>
-    </div>
 </div>
 {% endblock %}

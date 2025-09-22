@@ -6,83 +6,29 @@
 {% block dcontent %}
 <header class="page-header">
   <div>
-    <h1>Servicios & Protocolos</h1>
-    <div class="small text-muted">Catálogo clínico con tiempos, costos y recomendaciones</div>
+    <h1>Catálogo de Servicios</h1>
+    <div class="small text-muted">Procedimientos clínicos, tiempos y costos</div>
   </div>
   <div class="toolbar-actions">
-    <button class="btn-neon alt" type="button">Agregar servicio</button>
+    <button class="cyber-btn cyber-btn-glow" type="button">Agregar servicio</button>
   </div>
 </header>
 
-<section class="card mt">
-  <h3>Odontología General</h3>
-  <div class="panel-tools">
-      <input class="input" placeholder="Buscar procedimiento">
-      <div class="spacer"></div>
-      <button class="btn-outline" type="button">Exportar catálogo</button>
-  </div>
-  <div class="table-wrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Procedimiento</th>
-          <th>Duración</th>
-          <th>Precio</th>
-          <th>Notas</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="generalServicesTableBody">
-        </tbody>
-    </table>
-  </div>
+<section class="mt">
+  <h3 class="highlight">Odontología General</h3>
+  <div class="service-card-grid mt" id="generalServicesGrid">
+    </div>
 </section>
 
-<section class="card mt">
-  <h3>Odontología Estética</h3>
-  <div class="panel-tools">
-      <input class="input" placeholder="Buscar procedimiento">
-      <div class="spacer"></div>
-      <button class="btn-outline" type="button">Exportar catálogo</button>
-  </div>
-  <div class="table-wrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Procedimiento</th>
-          <th>Duración</th>
-          <th>Precio</th>
-          <th>Notas</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="aestheticServicesTableBody">
-        </tbody>
-    </table>
-  </div>
+<section class="mt">
+  <h3 class="highlight">Odontología Estética</h3>
+  <div class="service-card-grid mt" id="aestheticServicesGrid">
+    </div>
 </section>
 
-<section class="card mt">
-  <h3>Ortodoncia</h3>
-  <div class="panel-tools">
-      <input class="input" placeholder="Buscar procedimiento">
-      <div class="spacer"></div>
-      <button class="btn-outline" type="button">Exportar catálogo</button>
-  </div>
-  <div class="table-wrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Procedimiento</th>
-          <th>Duración</th>
-          <th>Precio</th>
-          <th>Notas</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="orthodonticsTableBody">
-        </tbody>
-    </table>
-  </div>
+<section class="mt">
+  <h3 class="highlight">Ortodoncia</h3>
+  <div class="service-card-grid mt" id="orthodonticsServicesGrid">
+    </div>
 </section>
 {% endblock %}

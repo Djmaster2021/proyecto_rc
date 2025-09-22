@@ -1,80 +1,60 @@
 (() => {
   'use strict';
+
   const ready = (fn) => (document.readyState === 'loading')
-    ? document.addEventListener('DOMContentLoaded', fn, { once:true })
+    ? document.addEventListener('DOMContentLoaded', fn, { once: true })
     : fn();
 
   ready(() => {
-    /* ===== Parallax simple (ya lo tenías) ===== */
-    const layers = Array.from(document.querySelectorAll('[data-plx-speed]'));
-    function updateParallax(){
-      const y = window.scrollY || 0;
-      for (const el of layers){
-        const speed = parseFloat(el.getAttribute('data-plx-speed'))||0.2;
-        el.style.transform = `translate3d(0, ${-(y*speed)}px, 0)`;
-      }
-    }
-    window.addEventListener('scroll', () => requestAnimationFrame(updateParallax), {passive:true});
-    window.addEventListener('resize', () => requestAnimationFrame(updateParallax));
-    updateParallax();
-
-    /* ===== Hamburguesa accesible (ya lo tenías) ===== */
+    const navbar = document.querySelector('.rc-navbar');
     const burger = document.getElementById('burger');
-    const panel  = document.getElementById('mobile-panel');
-    if (burger && panel){
-      burger.addEventListener('click', () => {
-        const open = burger.getAttribute('aria-expanded') === 'true';
-        burger.setAttribute('aria-expanded', String(!open));
-        panel.style.display = open ? 'none' : 'block';
+    const mobilePanel = document.getElementById('mobile-panel');
+
+    // 1. Efecto de desenfoque en la Navbar al hacer scroll
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        navbar?.classList.add('is-scrolled');
+      } else {
+        navbar?.classList.remove('is-scrolled');
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    // 2. Funcionalidad del Menú Hamburguesa
+    if (burger && mobilePanel) {
+      const toggleMenu = () => {
+        const isOpen = mobilePanel.classList.toggle('is-open');
+        burger.classList.toggle('is-active', isOpen);
+        burger.setAttribute('aria-expanded', String(isOpen));
+        burger.innerHTML = isOpen ? '<i class="ph ph-x"></i>' : '<i class="ph ph-list"></i>';
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+      };
+      
+      burger.addEventListener('click', toggleMenu);
+
+      mobilePanel.addEventListener('click', (e) => {
+        if (e.target.tagName === 'A') {
+          toggleMenu();
+        }
       });
     }
+    
+    // 3. Animaciones de revelado de elementos al hacer scroll
+    const revealElements = document.querySelectorAll('.reveal');
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+          }
+        });
+      }, { threshold: 0.1 });
 
-    /* ===== Header glass → solid al hacer scroll ===== */
-    const header = document.querySelector('.header');
-    const onScrollHeader = () => {
-      const solid = window.scrollY > 24;
-      header?.classList.toggle('header--solid', solid);
-      header?.classList.toggle('header--glass', !solid);
-    };
-    window.addEventListener('scroll', onScrollHeader, {passive:true});
-    onScrollHeader();
-
-    /* ===== Highlighter de navegación por sección ===== */
-    const links = Array.from(document.querySelectorAll('[data-section]'));
-    const sections = ['inicio','servicios','pagos','contacto']
-      .map(id => document.getElementById(id))
-      .filter(Boolean);
-
-    const activate = (id) => {
-      for (const a of links){
-        const match = a.getAttribute('data-section') === id;
-        a.classList.toggle('active', match);
-        if (match) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
-      }
-    };
-
-    // IntersectionObserver para detectar sección visible
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) activate(e.target.id); });
-    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0.01 });
-
-    sections.forEach(s => io.observe(s));
-
-    // Enlace manual (hash) también activa
-    window.addEventListener('hashchange', () => {
-      const id = (location.hash || '#inicio').replace('#','');
-      activate(id);
-    });
+      revealElements.forEach(el => observer.observe(el));
+    } else {
+      // Si el navegador es muy antiguo, simplemente muestra los elementos
+      revealElements.forEach(el => el.classList.add('in'));
+    }
   });
 })();
-
-// Scroll suave si no lo tienes
-if ('scrollBehavior' in document.documentElement.style === false) {
-  // polyfill simple
-}
-// Navbar shrink
-const nav=document.querySelector('.navbar');
-if(nav){
-  const onScroll=()=> nav.classList.toggle('navbar-blur', window.scrollY>8);
-  window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
-}
