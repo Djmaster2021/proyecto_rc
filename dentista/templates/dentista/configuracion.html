@@ -1,7 +1,7 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-{% block dtitle %}Configuración | DentalSys{% endblock %}
+{% block dtitle %}Configuración | C.D. Rodolfo Castellón{% endblock %}
 
 {% block dcontent %}
 <header class="page-header">
@@ -10,62 +10,164 @@
     <div class="small text-muted">Ajusta los parámetros del consultorio y la aplicación</div>
   </div>
   <div class="toolbar-actions">
-    <button class="btn-neon alt" data-toast="Configuración guardada">Guardar cambios</button>
+    <button class="cyber-btn" id="save-all-settings" type="button">Guardar cambios</button>
   </div>
 </header>
 
-<section class="card mt">
-  <h3>Horarios de atención</h3>
-  <p class="text-muted tiny">Define los días y horas laborales del consultorio, así como descansos.</p>
-  <div class="grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">
-    <div class="input-group">
-      <label class="small text-muted">Días laborales</label>
-      <input class="input" type="text" value="Lunes - Viernes">
-    </div>
-    <div class="input-group">
-      <label class="small text-muted">Horario general</label>
-      <input class="input" type="text" value="9:00 AM - 6:00 PM">
-    </div>
-  </div>
-  <div class="mt">
-    <button class="btn-chip">Editar horarios detallados</button>
-  </div>
-</section>
-
-<section class="card mt">
-  <h3>Políticas de cancelación y no-asistencia</h3>
-  <p class="text-muted tiny">Establece las reglas para las penalizaciones automáticas.</p>
-  <div class="grid" style="grid-template-columns: 1fr; gap: 16px;">
-    <div class="input-group">
-      <label class="small text-muted">Aviso de cancelación (horas)</label>
-      <input class="input" type="number" value="24">
-      <div class="small text-muted">Se aplicará un recargo si el paciente no cancela con este mínimo de antelación.</div>
-    </div>
-    <div class="input-group">
-      <label class="small text-muted">Notificaciones de recordatorio</label>
-      <input class="input" type="text" value="24 horas antes vía correo y SMS">
-    </div>
-  </div>
-</section>
-
-<section class="card mt">
-  <h3>Integración de servicios externos</h3>
-  <p class="text-muted tiny">Conecta con APIs de terceros para pagos y notificaciones.</p>
-  <div class="grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">
-    <div class="card soft">
-      <h4 class="m0">MercadoPago</h4>
-      <div class="small text-muted">Estado: <span class="badge badge-green">Conectado</span></div>
-      <div class="mt">
-        <button class="btn-chip">Ver API Key</button>
+<section class="glow-card-wrapper">
+  <div class="cyber-card">
+    <h3>Mi Perfil</h3>
+    <div class="dentist-profile-grid">
+      <div class="dentist-profile-avatar">
+        <img src="{% static 'img/dr-castellon.png' %}" alt="Foto de perfil del Dr. Castellón" id="dentist-profile-img-view">
+        <div class="dentist-profile-actions">
+          <button class="cyber-btn" id="btn-edit-dentist-profile" type="button">Editar Perfil</button>
+          <button class="cyber-btn" id="btn-change-dentist-password" type="button">Cambiar Contraseña</button>
+        </div>
       </div>
-    </div>
-    <div class="card soft">
-      <h4 class="m0">API de SMS</h4>
-      <div class="small text-muted">Estado: <span class="badge badge-yellow">No conectado</span></div>
-      <div class="mt">
-        <button class="btn-chip">Conectar</button>
+      <div class="dentist-profile-details">
+        <div class="detail-item">
+          <small class="text-muted">Nombre</small>
+          <p id="dentist-name-view">Dr. Rodolfo Castellón</p>
+        </div>
+        <div class="detail-item">
+          <small class="text-muted">Especialidad</small>
+          <p id="dentist-spec-view">Cirujano Dentista</p>
+        </div>
+        <div class="detail-item">
+          <small class="text-muted">Email de la cuenta</small>
+          <p id="dentist-email-view">r.castellon@consultorio.com</p>
+        </div>
+        <div class="detail-item">
+          <small class="text-muted">Teléfono de Contacto</small>
+          <p id="dentist-phone-view">+52 322 123 4567</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
+
+<section class="glow-card-wrapper mt">
+  <div class="cyber-card">
+    <h3>Horarios de atención</h3>
+    <p class="text-muted small">Define los días y horas laborales del consultorio, así como descansos.</p>
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+      <div class="input-group">
+        <label class="small text-muted">Días laborales</label>
+        <input class="input" type="text" value="Lunes - Viernes">
+      </div>
+      <div class="input-group">
+        <label class="small text-muted">Horario general</label>
+        <input class="input" type="text" value="9:00 AM - 8:00 PM">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="glow-card-wrapper mt">
+    <div class="cyber-card">
+        <h3>Políticas de cancelación y no-asistencia</h3>
+        <p class="text-muted small">Establece las reglas para las penalizaciones automáticas.</p>
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+            <div class="input-group">
+            <label class="small text-muted">Aviso de cancelación (horas)</label>
+            <input class="input" type="number" value="24">
+            <div class="small text-muted">Se aplicará un recargo si el paciente no cancela con este mínimo de antelación.</div>
+            </div>
+            <div class="input-group">
+            <label class="small text-muted">Notificaciones de recordatorio</label>
+            <input class="input" type="text" value="24 horas antes vía correo y SMS">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="glow-card-wrapper mt">
+    <div class="cyber-card">
+        <h3>Integración de servicios externos</h3>
+        <p class="text-muted small">Conecta con APIs de terceros para pagos y notificaciones.</p>
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+            <div class="cyber-card" style="background:var(--color-surface-soft)">
+                <h4 class="m0">MercadoPago</h4>
+                <div class="small text-muted">Estado: <span style="color:var(--color-accent-cyber)">Conectado</span></div>
+                <div class="mt">
+                    <button class="cyber-btn">Ver API Key</button>
+                </div>
+            </div>
+            <div class="cyber-card" style="background:var(--color-surface-soft)">
+                <h4 class="m0">API de SMS</h4>
+                <div class="small text-muted">Estado: <span style="color:var(--color-warning-cyber)">No conectado</span></div>
+                <div class="mt">
+                    <button class="cyber-btn">Conectar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="modal-perfil-dentista" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Editar mi Perfil</h3>
+      <button class="modal-close">&times;</button>
+    </div>
+    <form id="form-perfil-dentista">
+      <div style="text-align:center; margin-bottom: 1rem;">
+        <img src="{% static 'img/dr-castellon.png' %}" alt="Foto de perfil" id="dentist-profile-img-modal" style="width: 120px; height: 120px; border-radius: 50%; border: 2px solid var(--color-primary-cyber); object-fit: cover;">
+        <div style="margin-top: 1rem;">
+            <label for="dentist-photo-input" class="cyber-btn">Cambiar foto</label>
+            <input type="file" id="dentist-photo-input" accept="image/*" style="display:none;">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="dentist-name-input">Nombre</label>
+        <input type="text" id="dentist-name-input" class="input" required>
+      </div>
+       <div class="form-group">
+        <label for="dentist-spec-input">Especialidad</label>
+        <input type="text" id="dentist-spec-input" class="input" required>
+      </div>
+      <div class="form-group">
+        <label for="dentist-email-input">Email</label>
+        <input type="email" id="dentist-email-input" class="input" required>
+      </div>
+      <div class="form-group">
+        <label for="dentist-phone-input">Teléfono</label>
+        <input type="tel" id="dentist-phone-input" class="input" required>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="cyber-btn modal-close">Cancelar</button>
+        <button type="submit" class="cyber-btn">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="modal-password-dentista" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Cambiar Contraseña</h3>
+      <button class="modal-close">&times;</button>
+    </div>
+    <form id="form-password-dentista">
+      <div class="form-group">
+        <label for="current-password">Contraseña Actual</label>
+        <input type="password" id="current-password" class="input" required>
+      </div>
+      <div class="form-group">
+        <label for="new-password">Nueva Contraseña</label>
+        <input type="password" id="new-password" class="input" required>
+      </div>
+      <div class="form-group">
+        <label for="confirm-password">Confirmar Nueva Contraseña</label>
+        <input type="password" id="confirm-password" class="input" required>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="cyber-btn modal-close">Cancelar</button>
+        <button type="submit" class="cyber-btn">Actualizar Contraseña</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 {% endblock %}

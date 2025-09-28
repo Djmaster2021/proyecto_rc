@@ -4,19 +4,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{% block dtitle %}DentalSys{% endblock %}</title>
+  <title>{% block dtitle %}C.D. Rodolfo Castellón{% endblock %}</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}">
+  
+  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}?v=1.1">
   <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="{% static 'dentista/app.js' %}" defer></script>
+  <script src="{% static 'dentista/app.js' %}?v=1.1" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -24,8 +24,8 @@
     <aside id="sidebar" class="side" role="navigation" aria-label="Menú principal">
       <div>
         <div class="side-brand">
-          <button id="burger" aria-label="Contraer menú" class="cyber-btn"><i class="ph ph-list"></i></button>
-          <div class="brand-glow">DentalSys</div>
+          <button id="burger" class="cyber-btn" aria-label="Contraer menú"><i class="ph ph-list"></i></button>
+          <div class="brand-glow">Consultorio Dental Rodolfo Castellón</div>
         </div>
 
         <nav class="side-nav">
@@ -41,7 +41,7 @@
       </div>
 
       <div class="side-user">
-        <img src="{% static 'img/dr-castellon.png' %}" alt="Avatar del Dr. Castellón" class="avatar">
+        <img src="{% static 'img/dr-castellon.png' %}" alt="Avatar del Dr. Castellón" class="avatar" id="sidebar-avatar-img">
         <div>
           <strong>Dr. Castellón</strong>
           <br><small class="text-muted">Cirujano Dentista</small>

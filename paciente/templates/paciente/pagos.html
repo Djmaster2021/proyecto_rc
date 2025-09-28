@@ -1,76 +1,279 @@
 {% extends "paciente/base.html" %}
-{% block ptitle %}Pagos{% endblock %}
+{% block ptitle %}Pago Seguro{% endblock %}
+
 {% block pcontent %}
-  <h3>Pagos</h3>
-  <p>Resumen de pagos y recibos próximamente…</p>
+<div class="payment-experience-container">
 
-  <!-- ===== IA (frontend puro) ===== -->
-  <button id="aiFab" class="ai-fab" aria-label="Abrir asistente IA">IA</button>
-  <aside id="aiDock" class="ai-dock" aria-hidden="true">
-    <header class="ai-head">
-      <strong>Asistente IA</strong>
-      <button id="aiClose" class="ai-icon" aria-label="Cerrar">✕</button>
-    </header>
-    <div id="aiBody" class="ai-body" role="log" aria-live="polite">
-      <div class="ai-tip">💳 Te ayudo con tus pagos.</div>
-      <div class="ai-suggests">
-        <button class="ai-chip" data-q="¿Cómo veo mis citas?">Ir a citas</button>
-        <button class="ai-chip" data-q="¿Qué puedo hacer aquí?">¿Qué hay aquí?</button>
-      </div>
+    <div class="payment-flow-card">
+        
+        <div class="payment-header">
+            <h1 class="secure-title">Pago Seguro</h1>
+            <div id="payment-summary" class="payment-summary">
+                </div>
+        </div>
+
+        <div class="card-flipper" id="card-flipper">
+            <div class="card-wrapper"></div>
+        </div>
+
+        <form id="form-tarjeta" novalidate>
+            <div class="form-grid">
+                <div class="form-group span-2">
+                    <label for="card-number">Número de Tarjeta</label>
+                    <div class="input-wrapper">
+                        <input type="tel" name="number" id="card-number" required>
+                        <span class="validation-icon" id="number-validation-icon"></span>
+                    </div>
+                </div>
+
+                <div class="form-group span-2">
+                    <label for="card-name">Nombre del Titular</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="name" id="card-name" required>
+                        <span class="validation-icon" id="name-validation-icon"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="card-expiry">Vencimiento</label>
+                    <div class="input-wrapper">
+                        <input type="tel" name="expiry" id="card-expiry" required>
+                        <span class="validation-icon" id="expiry-validation-icon"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="card-cvc">CVC</label>
+                    <div class="input-wrapper">
+                        <input type="tel" name="cvc" id="card-cvc" required>
+                        <span class="validation-icon" id="cvc-validation-icon"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="cyber-btn cyber-btn-glow submit-payment-btn">
+                Pagar <span id="payment-amount-btn"></span>
+            </button>
+        </form>
     </div>
-    <form id="aiForm" class="ai-form" autocomplete="off">
-      <input id="aiInput" class="ai-input" placeholder="Escribe tu consulta… (Enter para enviar)" />
-      <button class="ai-send" aria-label="Enviar">➤</button>
-    </form>
-  </aside>
+</div>
 
-  <style>
-    .ai-fab{position:fixed;right:18px;bottom:18px;border:1px solid rgba(127,127,127,.35);background:transparent;color:inherit;border-radius:999px;padding:.7rem 1rem;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:60}
-    .ai-dock{position:fixed;right:18px;bottom:18px;top:18px;width:min(420px,92vw);background:transparent;border:1px solid rgba(127,127,127,.25);border-radius:1rem;display:flex;flex-direction:column;transform:translateY(calc(100% + 18px));transition:transform .25s ease;z-index:61;backdrop-filter:blur(6px)}
-    .ai-dock[aria-hidden="false"]{transform:translateY(0)}
-    .ai-head{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;border-bottom:1px solid rgba(127,127,127,.25)}
-    .ai-icon{border:1px solid rgba(127,127,127,.25);background:transparent;border-radius:.6rem;padding:.35rem .55rem}
-    .ai-body{padding:1rem;display:flex;flex-direction:column;gap:.6rem;overflow:auto;max-height:65vh}
-    .ai-suggests{display:flex;flex-wrap:wrap;gap:.4rem}
-    .ai-chip{border:1px solid rgba(127,127,127,.35);background:transparent;border-radius:999px;padding:.35rem .6rem;font-size:.85rem}
-    .ai-msg{border:1px solid rgba(127,127,127,.25);border-radius:.7rem;padding:.55rem .7rem;white-space:pre-wrap}
-    .ai-msg.user{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.35)}
-    .ai-msg.bot{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.35)}
-    .ai-form{display:flex;gap:.5rem;padding:.8rem 1rem;border-top:1px solid rgba(127,127,127,.25)}
-    .ai-input{flex:1;border:1px solid rgba(127,127,127,.35);border-radius:.6rem;background:transparent;color:inherit;padding:.5rem .6rem}
-    .ai-send{border:1px solid rgba(127,127,127,.35);background:transparent;border-radius:.6rem;padding:.5rem .7rem}
-    @media (max-width:720px){.ai-dock{top:auto;height:72vh}}
-  </style>
+<div id="modal-factura" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header"><h3>Factura de Pago</h3><button class="modal-close">&times;</button></div>
+        <div id="factura-body" style="font-family: monospace; color: var(--color-text-light);"></div>
+        <div class="form-actions"><button type="button" class="cyber-btn modal-close">Cerrar</button></div>
+    </div>
+</div>
+<div id="modal-custom-alert" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header"><h3 id="custom-alert-title"></h3><button class="modal-close">&times;</button></div>
+        <div id="custom-alert-message"></div>
+        <div class="form-actions"><button type="button" class="cyber-btn modal-close">OK</button></div>
+    </div>
+</div>
 
-  <script>
-    (function(){
-      const $=s=>document.querySelector(s);
-      const fab=$('#aiFab'), dock=$('#aiDock'), close=$('#aiClose'), body=$('#aiBody'), form=$('#aiForm'), input=$('#aiInput');
-      const urlCitas = document.querySelector('a[href*="citas"]')?.href || "{% url 'paciente:citas' %}";
+<style>
+    :root { --card-flip-duration: 0.6s; }
+    .payment-experience-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* Alinea arriba para mejor visibilidad en pantallas pequeñas */
+        min-height: calc(100vh - 80px); /* Ajusta según la altura de tu topbar */
+        padding: 2rem;
+        overflow-y: auto;
+    }
+    .payment-flow-card {
+        max-width: 500px;
+        width: 100%;
+        background: var(--color-surface-card);
+        border: 1px solid var(--color-border-subtle);
+        border-radius: var(--border-radius-base);
+        padding: 2.5rem;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 0 40px rgba(0, 224, 255, 0.1);
+    }
+    .payment-header { text-align: center; margin-bottom: 1.5rem; }
+    .secure-title { margin-bottom: 0.5rem; color: var(--color-text-light); }
+    .payment-summary { font-size: 0.9rem; color: var(--color-text-muted); }
+    
+    .card-flipper { perspective: 1000px; margin-bottom: 2rem; }
+    .card-flipper.flipped .card-wrapper { transform: rotateY(180deg); }
+    .card-wrapper { transition: transform var(--card-flip-duration); transform-style: preserve-3d; height: 250px; } /* Altura fija para evitar saltos */
+    .jp-card-front, .jp-card-back { backface-visibility: hidden; }
+    .jp-card-back { transform: rotateY(180deg); }
 
-      function open(){dock.setAttribute('aria-hidden','false'); input?.focus();}
-      function closeDock(){dock.setAttribute('aria-hidden','true');}
-      function msg(role,txt){const d=document.createElement('div'); d.className='ai-msg '+(role==='user'?'user':'bot'); d.textContent=txt; body.appendChild(d); body.scrollTop=body.scrollHeight;}
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .form-group { position: relative; }
+    .form-group.span-2 { grid-column: span 2; }
+    
+    .form-group label {
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .input-wrapper { position: relative; }
+    .form-grid input {
+        width: 100%;
+        background: rgba(0,0,0,0.2);
+        border: 1px solid var(--color-border-subtle);
+        border-radius: 0.5rem;
+        padding: 0.8rem;
+        color: var(--color-text-light);
+        font-size: 1rem;
+        transition: all 0.2s ease-in-out;
+    }
+    .form-grid input:focus {
+        border-color: var(--color-primary-cyber);
+        box-shadow: 0 0 0 3px rgba(0, 224, 255, 0.15);
+        outline: none;
+    }
+    
+    .validation-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%) scale(0);
+        width: 20px;
+        height: 20px;
+        transition: transform 0.2s ease;
+    }
+    .validation-icon.visible { transform: translateY(-50%) scale(1); }
+    .form-grid input.valid { border-color: var(--color-accent); }
+    .form-grid input.invalid { border-color: var(--color-danger); }
 
-      function answer(q){
-        const t=(q||'').toLowerCase();
-        if(t.includes('cita')){ window.location.href=urlCitas; return 'Abriendo “Citas”…'; }
-        if(t.includes('qué puedo')||t.includes('que puedo')||t.includes('aquí')){
-          return 'Aquí verás tus pagos/recibos (en esta maqueta aún no hay tabla). Puedo llevarte a “Citas”.';
+    .submit-payment-btn { width: 100%; margin-top: 2rem; padding: 1rem; font-size: 1.1rem; justify-content: center; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    'use strict';
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+
+    // --- Selectores ---
+    const cardFlipper = $('#card-flipper');
+    const cardForm = $('#form-tarjeta');
+    const numberInput = $('#card-number'), nameInput = $('#card-name'), expiryInput = $('#card-expiry'), cvcInput = $('#card-cvc');
+    const numberIcon = $('#number-validation-icon'), nameIcon = $('#name-validation-icon'), expiryIcon = $('#expiry-validation-icon'), cvcIcon = $('#cvc-validation-icon');
+    const modalFactura = $('#modal-factura');
+    const modalCustomAlert = $('#modal-custom-alert');
+    
+    // --- Lógica de Modales ---
+    const openModal = (modal) => modal.classList.add('is-visible');
+    const closeModal = (modal) => modal.classList.remove('is-visible');
+    $$('.modal-close').forEach(btn => btn.addEventListener('click', (e) => closeModal(e.target.closest('.modal-overlay'))));
+
+    // --- Lógica de Datos (LocalStorage) ---
+    const LS_PROXIMA_CITA = 'rc_proxima_cita';
+    const getProx = () => { try { return JSON.parse(localStorage.getItem(LS_PROXIMA_CITA)); } catch { return null; } }
+    const setProx = (cita) => localStorage.setItem(LS_PROXIMA_CITA, JSON.stringify(cita));
+    const prettyDate = (iso) => new Date(iso + 'T00:00:00').toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" });
+
+    // --- Lógica de la Experiencia de Usuario (UX) ---
+    if (typeof Card !== 'undefined') {
+        new Card({
+            form: '#form-tarjeta',
+            container: '.card-wrapper',
+            formSelectors: { numberInput: '#card-number', expiryInput: '#card-expiry', cvcInput: '#card-cvc', nameInput: '#card-name' }
+        });
+    } else {
+        console.error("Card.js no está cargado. Asegúrate de que el script está en base.html");
+    }
+    
+    cvcInput.addEventListener('focus', () => cardFlipper.classList.add('flipped'));
+    cvcInput.addEventListener('blur', () => cardFlipper.classList.remove('flipped'));
+
+    // --- Lógica de Validación Visual ---
+    const setValidationState = (input, icon, isValid) => {
+        const checkSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--color-accent')}" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>`;
+        const errorSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--color-danger')}" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>`;
+        icon.innerHTML = isValid ? checkSVG : errorSVG;
+        icon.classList.add('visible');
+        input.classList.remove('valid', 'invalid');
+        if (input.value.length > 0) {
+            input.classList.add(isValid ? 'valid' : 'invalid');
+        } else {
+            icon.classList.remove('visible');
         }
-        return 'Puedo llevarte a “Citas” o contarte qué puedes hacer aquí.';
-      }
+    };
+    
+    let isNumberValid, isNameValid, isExpiryValid, isCvcValid;
+    numberInput.addEventListener('input', () => { isNumberValid = /^\d{4}\s\d{4}\s\d{4}\s\d{4}$/.test(numberInput.value); setValidationState(numberInput, numberIcon, isNumberValid); });
+    nameInput.addEventListener('input', () => { isNameValid = nameInput.value.trim().length > 3; setValidationState(nameInput, nameIcon, isNameValid); });
+    expiryInput.addEventListener('input', () => { 
+        isExpiryValid = false;
+        if (/^\d{2}\s\/\s\d{2}$/.test(expiryInput.value)) {
+            const [month, year] = expiryInput.value.split(' / ').map(n => parseInt(n,10));
+            const now = new Date();
+            const currentYear = now.getFullYear() % 100;
+            isExpiryValid = year > currentYear || (year === currentYear && month >= now.getMonth() + 1);
+        }
+        setValidationState(expiryInput, expiryIcon, isExpiryValid);
+    });
+    cvcInput.addEventListener('input', () => { isCvcValid = /^\d{3,4}$/.test(cvcInput.value); setValidationState(cvcInput, cvcIcon, isCvcValid); });
 
-      fab?.addEventListener('click', open);
-      close?.addEventListener('click', closeDock);
-      window.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDock(); });
-      body?.addEventListener('click', e=>{const b=e.target.closest('.ai-chip'); if(!b) return; input.value=b.dataset.q||''; input.focus();});
-      form?.addEventListener('submit', e=>{
+    // --- Lógica de Procesamiento de Pago ---
+    const renderPaymentDetails = () => {
+        const proxCita = getProx();
+        if (proxCita && proxCita.estado !== 'Pagada') {
+            const monto = "500.00";
+            $('#payment-summary').textContent = `Estás pagando una cita de ${proxCita.motivo}.`;
+            $('#payment-amount-btn').textContent = `$${monto} MXN`;
+        } else {
+            $('.payment-flow-card').innerHTML = '<h2 style="text-align: center;">No tienes pagos pendientes.</h2>';
+        }
+    };
+
+    const processPayment = () => {
+        const proxCita = getProx();
+        const alertTitle = $('#custom-alert-title'), alertMessage = $('#custom-alert-message');
+        alertTitle.textContent = "Procesando Pago";
+        alertMessage.innerHTML = `<p>Conectando de forma segura con el servidor...</p>`;
+        openModal(modalCustomAlert);
+
+        setTimeout(() => {
+            proxCita.estado = 'Pagada';
+            proxCita.pago = "500.00";
+            setProx(proxCita);
+
+            alertTitle.textContent = "¡Pago Exitoso!";
+            alertMessage.innerHTML = `
+                <p>Tu pago ha sido procesado correctamente.</p>
+                <p>Se ha enviado un correo de confirmación con tu factura a <strong>ana@example.com</strong>.</p>
+                <div class="form-actions" style="margin-top: 1.5rem; justify-content: center;">
+                    <button id="btn-ver-factura" class="cyber-btn">Ver Factura</button>
+                    <a href="{% url 'paciente:dashboard' %}" class="cyber-btn cyber-btn-glow" style="text-decoration: none;">Dashboard</a>
+                </div>
+            `;
+            $('#btn-ver-factura').addEventListener('click', () => { showInvoice(proxCita); closeModal(modalCustomAlert); });
+        }, 2000);
+    };
+
+    const showInvoice = (cita) => {
+        const transactionId = `MP-SIM-${Date.now()}`;
+        $('#factura-body').innerHTML = `
+            <p><strong>Consultorio Dental "Rodolfo Castellón"</strong></p><p>-----------------------------------</p>
+            <p><strong>ID Transacción:</strong> ${transactionId}</p><p><strong>Fecha:</strong> ${new Date().toLocaleDateString("es-MX")}</p>
+            <p><strong>Paciente:</strong> Ana López</p><p>-----------------------------------</p>
+            <p><strong>Concepto:</strong> Cita - ${cita.motivo}</p><p><strong>Monto Pagado:</strong> $${cita.pago} MXN</p>
+            <p><strong>Método:</strong> Tarjeta (Simulado)</p><p>-----------------------------------</p><p>Gracias por su pago.</p>
+        `;
+        openModal(modalFactura);
+    };
+
+    // --- Inicialización y Evento Submit Final ---
+    renderPaymentDetails();
+    
+    cardForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const q=input.value.trim(); if(!q) return;
-        msg('user',q); input.value='';
-        msg('bot',answer(q));
-      });
-    })();
-  </script>
+        if (isNumberValid && isNameValid && isExpiryValid && isCvcValid) {
+            processPayment();
+        } else {
+            alert('Por favor, revisa los datos de tu tarjeta. Hay campos con errores.');
+        }
+    });
+});
+</script>
 {% endblock %}

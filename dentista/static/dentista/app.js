@@ -1,6 +1,5 @@
 // Inicializa toda la UI del dashboard cuando el DOM está listo
 document.addEventListener('DOMContentLoaded', () => {
-    // Definimos las constantes de colores aquí para que sean accesibles globalmente
     const Style = getComputedStyle(document.body);
     const COLOR_PRIMARY = Style.getPropertyValue('--color-primary-cyber').trim() || '#00e0ff';
     const COLOR_SECONDARY = Style.getPropertyValue('--color-secondary-cyber').trim() || '#764ba2';
@@ -18,16 +17,19 @@ function initUI(p, s, a, w, tm, bs) {
     initTabs();
     initToast();
     initCounters();
-    renderCharts(p, s, a, w, tm, bs); // Pasa los colores a las gráficas
-    renderAllData(); // Renderiza datos iniciales de tablas
+    initModals(); 
+    renderCharts(p, s, a, w, tm, bs); 
+    renderAllData(); 
     initAgenda();
     initPaymentsPage();
-    initServicesPage(); // Llama a la nueva función de servicios
+    initServicesPage(); 
     initPatientsPage();
-    initReportsPage(p, s, a, w, tm, bs); // Pasa los colores a las gráficas de reportes
+    initReportsPage(p, s, a, w, tm, bs);
+    initConfiguracionPage(); 
+    initSoportePage();
 }
 
-// --- Funciones de Layout y UI (sin cambios, excepto Burger) --- //
+// --- Funciones de Layout y UI --- //
 function setLiveClock() {
     const clockElement = document.getElementById('liveClock');
     if (clockElement) {
@@ -75,6 +77,32 @@ function initToast() {
         const btn = e.target.closest('[data-toast]');
         if (btn) showToast(btn.dataset.toast);
     });
+    const saveAllBtn = document.getElementById('save-all-settings');
+    if(saveAllBtn) {
+        saveAllBtn.addEventListener('click', () => showToast('Configuración guardada con éxito'));
+    }
+}
+
+function initModals() {
+    document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.closest('.modal-overlay').classList.remove('is-visible');
+        });
+    });
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.addEventListener('click', e => {
+            if(e.target === modal) {
+                modal.classList.remove('is-visible');
+            }
+        });
+    });
+}
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if(modal) {
+        modal.classList.add('is-visible');
+    }
 }
 
 function initCounters() {
@@ -137,8 +165,14 @@ function renderCharts(primary, secondary, accent, warning, textMuted, borderSubt
 }
 
 // --- Mock Data (Simulación de Backend) --- //
-// Se añade la propiedad 'image' a los servicios
 const MOCK_DATA = {
+    dentistProfile: {
+        name: 'Dr. Rodolfo Castellón',
+        specialty: 'Cirujano Dentista',
+        email: 'r.castellon@consultorio.com',
+        phone: '+52 322 123 4567',
+        photoUrl: '/static/img/dr-castellon.png'
+    },
     services: {
         general: [
             { procedure: 'Limpieza profunda', duration: '45-60 min', price: '$850', image: 'limpieza.jpg' },
@@ -154,11 +188,9 @@ const MOCK_DATA = {
             { procedure: 'Alineadores Invisibles', duration: '20-30 min', price: 'desde $25,000', image: 'alineadores.jpg' },
         ]
     },
-    // ... (El resto de los datos de MOCK_DATA permanece igual)
     audit: [{ t: '20 Sep 2025, 14:35', user: 'Dr. Castellón', action: 'Cita creada', details: 'Agendó a Ana García.' }, { t: '20 Sep 2025, 14:00', user: 'Sistema', action: 'Recordatorio enviado', details: 'Recordatorio a Juan Perez.' }, { t: '19 Sep 2025, 18:00', user: 'Ana García', action: 'Pago recibido', details: 'Recibió pago en línea de $850.' }, { t: '19 Sep 2025, 17:00', user: 'Dr. Castellón', action: 'Servicio actualizado', details: 'Actualizó el precio de Blanqueamiento.' }],
     treatmentPlans: [{ patient: 'Juan Pérez', treatment: 'Ortodoncia (Fase 1)', progress: '25%', lastUpdate: '18 Sep 2025' }, { patient: 'Laura García', treatment: 'Limpieza y Resina', progress: '100%', lastUpdate: '20 Sep 2025' }],
     inventory: [{ product: 'Resina Composita', category: 'Materiales', stock: '12 unidades', expiryDate: '10/2026' }, { product: 'Guantes Nitrilo', category: 'Consumibles', stock: 'Bajo', expiryDate: 'N/A' }],
-    budgets: [{ title: 'Implante dental', patient: 'Carlos Ruiz', date: '20 Sep 2025', amount: '$9,800.00' }, { title: 'Extracción de muela', patient: 'Sofía López', date: '19 Sep 2025', amount: '$1,200.00' }],
     agendaAppointments: { '2025-09-22': [{ time: '10:00 AM', patient: 'Ana García', service: 'Limpieza', status: 'Confirmada', id: 'A-223' }, { time: '04:00 PM', patient: 'Emilio Segura', service: 'Ortodoncia', status: 'Pendiente', id: 'A-224' }], '2025-09-23': [{ time: '11:30 AM', patient: 'Carlos López', service: 'Blanqueamiento', status: 'Confirmada', id: 'A-225' }], '2025-09-24': [], '2025-09-25': [{ time: '03:00 PM', patient: 'María Ruiz', service: 'Resina', status: 'Pendiente', id: 'A-226' }], '2025-09-26': [{ time: '09:00 AM', patient: 'Juan Rodríguez', service: 'Extracción', status: 'Confirmada', id: 'A-227' }, { time: '10:30 AM', patient: 'Daniela Aceves', service: 'Revisión', status: 'Confirmada', id: 'A-228' }], '2025-09-27': [], '2025-09-28': [] },
     payments: [{ id: 'P-001', date: '2025-09-20', patient: 'Ana García', service: 'Ortodoncia', amount: 2500, status: 'Pagado', action: 'Recibo' }, { id: 'P-002', date: '2025-09-18', patient: 'Laura M.', service: 'Limpieza', amount: 850, status: 'Pendiente', action: 'Recordar' }, { id: 'P-003', date: '2025-09-15', patient: 'Juan D.', service: 'Resina', amount: 1500, status: 'Pagado', action: 'Recibo' }, { id: 'P-004', date: '2025-09-12', patient: 'Sofía S.', service: 'Blanqueamiento', amount: 1200, status: 'Pendiente', action: 'Recordar' }],
     patients: [{ id: 'P-001', name: 'Ana García', email: 'ana.g@ejemplo.com', phone: '+52 55 1234 5678', lastVisit: '2025-09-20', status: 'Activo' }, { id: 'P-002', name: 'Carlos López', email: 'carlos@ej.com', phone: '+52 55 8765 4321', lastVisit: '2025-09-18', status: 'En tratamiento' }, { id: 'P-003', name: 'Juan Rodríguez', email: 'juan.r@ej.com', phone: '+52 55 1122 3344', lastVisit: '2025-01-05', status: 'Inactivo' }, { id: 'P-004', name: 'María Ruíz', email: 'maria.r@ej.com', phone: '+52 55 9988 7766', lastVisit: '2025-09-25', status: 'Con deuda' }]
@@ -166,9 +198,30 @@ const MOCK_DATA = {
 
 // --- Renderizado de Datos --- //
 function renderAllData() {
-    // Estas funciones llenan las tablas del dashboard
-    const list = document.getElementById('auditList');
-    if(list) list.innerHTML = MOCK_DATA.audit.map(item => `<li><div><strong>${item.action}</strong><small class="text-muted"> ${item.details}</small></div><small class="text-muted">${item.t}</small></li>`).join('');
+    const auditList = document.getElementById('auditList');
+    if (auditList) {
+        const iconMap = {
+            'Cita creada': 'ph-calendar-plus',
+            'Recordatorio enviado': 'ph-bell-ringing',
+            'Pago recibido': 'ph-currency-circle-dollar',
+            'Servicio actualizado': 'ph-pencil-simple'
+        };
+
+        auditList.innerHTML = MOCK_DATA.audit.map(item => {
+            const iconClass = iconMap[item.action] || 'ph-info';
+            return `
+                <li class="audit-item">
+                    <i class="ph ${iconClass} audit-icon"></i>
+                    <div>
+                        <strong>${item.action}:</strong>
+                        <span class="text-muted">${item.details}</span>
+                    </div>
+                    <div class="spacer"></div>
+                    <small class="text-muted">${item.t}</small>
+                </li>
+            `;
+        }).join('');
+    }
 
     const treatmentTable = document.querySelector('#treatmentTable tbody');
     if(treatmentTable) treatmentTable.innerHTML = MOCK_DATA.treatmentPlans.map(item => `<tr><td>${item.patient}</td><td>${item.treatment}</td><td>${item.progress}</td><td>${item.lastUpdate}</td></tr>`).join('');
@@ -177,7 +230,122 @@ function renderAllData() {
 
 // --- Lógica de Páginas Específicas --- //
 
-// Agenda Mejorada
+function initConfiguracionPage() {
+    if (!document.getElementById('dentist-profile-grid')) return;
+
+    const profile = MOCK_DATA.dentistProfile;
+
+    function updateAllProfileImages(newUrl) {
+        const imgView = document.getElementById('dentist-profile-img-view');
+        const imgModal = document.getElementById('dentist-profile-img-modal');
+        const sidebarAvatar = document.getElementById('sidebar-avatar-img');
+        
+        if (imgView) imgView.src = newUrl;
+        if (imgModal) imgModal.src = newUrl;
+        if (sidebarAvatar) sidebarAvatar.src = newUrl;
+    }
+    
+    const nameView = document.getElementById('dentist-name-view');
+    const specView = document.getElementById('dentist-spec-view');
+    const emailView = document.getElementById('dentist-email-view');
+    const phoneView = document.getElementById('dentist-phone-view');
+
+    const nameInput = document.getElementById('dentist-name-input');
+    const specInput = document.getElementById('dentist-spec-input');
+    const emailInput = document.getElementById('dentist-email-input');
+    const phoneInput = document.getElementById('dentist-phone-input');
+    const photoInput = document.getElementById('dentist-photo-input');
+
+    function renderProfile() {
+        if(nameView) nameView.textContent = profile.name;
+        if(specView) specView.textContent = profile.specialty;
+        if(emailView) emailView.textContent = profile.email;
+        if(phoneView) phoneView.textContent = profile.phone;
+        updateAllProfileImages(profile.photoUrl);
+    }
+
+    document.getElementById('btn-edit-dentist-profile')?.addEventListener('click', () => {
+        nameInput.value = profile.name;
+        specInput.value = profile.specialty;
+        emailInput.value = profile.email;
+        phoneInput.value = profile.phone;
+        openModal('modal-perfil-dentista');
+    });
+
+    document.getElementById('btn-change-dentist-password')?.addEventListener('click', () => {
+        openModal('modal-password-dentista');
+    });
+
+    document.getElementById('form-perfil-dentista')?.addEventListener('submit', e => {
+        e.preventDefault();
+        profile.name = nameInput.value;
+        profile.specialty = specInput.value;
+        profile.email = emailInput.value;
+        profile.phone = phoneInput.value;
+        renderProfile();
+        document.getElementById('modal-perfil-dentista').classList.remove('is-visible');
+        showToast('Perfil actualizado con éxito');
+    });
+    
+    document.getElementById('form-password-dentista')?.addEventListener('submit', e => {
+        e.preventDefault();
+        document.getElementById('modal-password-dentista').classList.remove('is-visible');
+        showToast('Contraseña actualizada');
+    });
+
+    photoInput?.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const newPhotoUrl = event.target.result;
+                profile.photoUrl = newPhotoUrl;
+                updateAllProfileImages(newPhotoUrl);
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    renderProfile();
+}
+
+function initSoportePage() {
+    const accordion = document.getElementById('faq-accordion');
+    if (accordion) {
+        accordion.addEventListener('click', e => {
+            const header = e.target.closest('.accordion-header');
+            if (!header) return;
+
+            const item = header.parentElement;
+            const content = header.nextElementSibling;
+            
+            item.classList.toggle('active');
+            if (item.classList.contains('active')) {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            } else {
+                content.style.maxHeight = 0;
+            }
+        });
+    }
+
+    const btnReport = document.getElementById('btn-report-problem');
+    if (btnReport) {
+        btnReport.addEventListener('click', () => {
+            openModal('modal-report-problem');
+        });
+    }
+
+    const formReport = document.getElementById('form-report-problem');
+    if(formReport) {
+        formReport.addEventListener('submit', e => {
+            e.preventDefault();
+            document.getElementById('modal-report-problem').classList.remove('is-visible');
+            showToast('Reporte enviado con éxito. Gracias.');
+        });
+    }
+}
+
+
 function initAgenda() {
     const agendaGrid = document.getElementById('agendaGrid');
     if (!agendaGrid) return;
@@ -214,7 +382,6 @@ function initAgenda() {
     }
 }
 
-// Servicios (Nuevo renderizado con tarjetas)
 function initServicesPage() {
     renderServiceGrid('general');
     renderServiceGrid('aesthetic');
@@ -236,7 +403,6 @@ function renderServiceGrid(category) {
                         <span><i class="ph ph-clock"></i> ${service.duration}</span>
                         <span><i class="ph ph-tag"></i> ${service.price}</span>
                     </div>
-                    <p class="text-muted small">${service.notes || ''}</p>
                     <div class="service-card-actions">
                         <button class="cyber-btn" style="flex:1;">Editar</button>
                         <button class="cyber-btn cyber-btn-danger"><i class="ph ph-trash"></i></button>
@@ -246,10 +412,6 @@ function renderServiceGrid(category) {
         </div>
     `).join('');
 }
-
-
-// El resto de funciones de renderizado de tablas (pacientes, pagos, etc.)
-// pueden permanecer igual, ya que el estilo lo controla el nuevo CSS.
 
 function initPatientsPage() {
     const tableBody = document.getElementById('patientsTableBody');
