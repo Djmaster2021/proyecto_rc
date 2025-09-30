@@ -10,6 +10,7 @@
     <div class="small text-muted">Resumen general del consultorio y acciones rápidas</div>
   </div>
   <div class="toolbar-actions">
+    <div class="live-datetime" id="live-datetime-dentist"></div>
     <button class="cyber-btn" type="button">Enviar recordatorios</button>
   </div>
 </header>
@@ -18,7 +19,7 @@
   <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Citas de hoy</div><div class="kpi-value highlight" data-counter="8">0</div></div></div>
   <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Pacientes activos</div><div class="kpi-value" data-counter="145">0</div></div></div>
   <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Pagos pendientes</div><div class="kpi-value" data-counter="12">0</div></div></div>
-  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Próximos pagos</div><div class="kpi-value" data-counter="5">0</div></div></div>
+  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Penalizaciones pendientes</div><div class="kpi-value" data-counter="2" style="color: var(--color-warning-cyber);">0</div></div></div>
 </div>
 
 <div class="grid two mt">
@@ -47,7 +48,7 @@
     </div>
 
     <div class="panel active" id="t-planes">
-      <div class="table-wrap"><table class="data-table" id="treatmentTable"><thead><tr><th>Paciente</th><th>Tratamiento</th><th>Progreso</th><th>Última actualización</th></tr></thead><tbody></tbody></table></div>
+      <div class="table-wrap"><table class="data-table" id="treatmentTable"><thead><tr><th>ID Paciente</th><th>Paciente</th><th>Tratamiento</th><th>Progreso</th><th>Última actualización</th></tr></thead><tbody></tbody></table></div>
     </div>
     <div class="panel" id="t-inventario">
       <div class="table-wrap"><table class="data-table" id="inventoryTable"><thead><tr><th>Producto</th><th>Categoría</th><th>Stock</th><th>Fecha de caducidad</th></tr></thead><tbody></tbody></table></div>

@@ -11,6 +11,7 @@ urlpatterns = [
     path("pacientes/", getattr(views, "pacientes", TemplateView.as_view(template_name="dentista/pacientes.html")), name="pacientes"),
     path("pagos/", getattr(views, "pagos", TemplateView.as_view(template_name="dentista/pagos.html")), name="pagos"),
     path("servicios/", getattr(views, "servicios", TemplateView.as_view(template_name="dentista/servicios.html")), name="servicios"),
+    path("penalizaciones/", views.penalizaciones, name="penalizaciones"),
     path("reportes/", getattr(views, "reportes", TemplateView.as_view(template_name="dentista/reportes.html")), name="reportes"),
     path("historial/", getattr(views, "historial", TemplateView.as_view(template_name="dentista/historial.html")), name="historial"),
     path("vista-paciente/", getattr(views, "vista_paciente", TemplateView.as_view(template_name="dentista/vista-paciente.html")), name="vista_paciente"),

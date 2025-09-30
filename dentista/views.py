@@ -24,6 +24,10 @@ def reportes(request):
     """Muestra la página de reportes y estadísticas."""
     return render(request, "dentista/reportes.html")
 
+def penalizaciones(request):
+    """Muestra la gestión de penalizaciones por inasistencia."""
+    return render(request, "dentista/penalizaciones.html")
+
 def historial(request):
     """
     Muestra el historial detallado de un paciente específico.

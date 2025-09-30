@@ -12,11 +12,11 @@
   
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   
-  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}?v=1.1">
+  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}?v=1.2">
   <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="{% static 'dentista/app.js' %}?v=1.1" defer></script>
+  <script src="{% static 'dentista/app.js' %}?v=1.2" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -32,6 +32,7 @@
           <a class="nav-item {% if 'dashboard' in request.path %}active{% endif %}" href="{% url 'dentista:dashboard' %}"><i class="ph-fill ph-house"></i><span>Dashboard</span></a>
           <a class="nav-item {% if 'agenda' in request.path %}active{% endif %}" href="{% url 'dentista:agenda' %}"><i class="ph-fill ph-calendar-plus"></i><span>Agenda</span></a>
           <a class="nav-item {% if 'pagos' in request.path %}active{% endif %}" href="{% url 'dentista:pagos' %}"><i class="ph-fill ph-currency-circle-dollar"></i><span>Pagos</span></a>
+          <a class="nav-item {% if 'penalizaciones' in request.path %}active{% endif %}" href="{% url 'dentista:penalizaciones' %}"><i class="ph-fill ph-warning-octagon"></i><span>Penalizaciones</span></a>
           <a class="nav-item {% if 'pacientes' in request.path %}active{% endif %}" href="{% url 'dentista:pacientes' %}"><i class="ph-fill ph-folder-user"></i><span>Pacientes</span></a>
           <a class="nav-item {% if 'servicios' in request.path %}active{% endif %}" href="{% url 'dentista:servicios' %}"><i class="ph-fill ph-tooth"></i><span>Servicios</span></a>
           <a class="nav-item {% if 'reportes' in request.path %}active{% endif %}" href="{% url 'dentista:reportes' %}"><i class="ph-fill ph-chart-line"></i><span>Reportes</span></a>

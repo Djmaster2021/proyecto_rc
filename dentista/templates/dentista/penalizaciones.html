@@ -1,0 +1,43 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Penalizaciones | C.D. Rodolfo Castellón{% endblock %}
+
+{% block dcontent %}
+<header class="page-header">
+  <div>
+    <h1>Asistencia & Penalizaciones</h1>
+    <div class="small text-muted">Gestión de inasistencias, cancelaciones tardías y recargos aplicados</div>
+  </div>
+  <div class="toolbar-actions">
+     <input id="penaltiesSearchInput" class="input" placeholder="Buscar por paciente..." style="width: 250px;">
+     <select id="penaltyStatusFilter" class="cyber-btn">
+        <option value="all">Todos los estados</option>
+        <option value="pending">Pendientes</option>
+        <option value="paid">Pagadas</option>
+     </select>
+  </div>
+</header>
+
+<div class="glow-card-wrapper">
+  <div class="cyber-card">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID Penalización</th>
+            <th>ID Paciente</th>
+            <th>Paciente</th>
+            <th>Cita Incumplida</th>
+            <th>Motivo</th>
+            <th>Estado</th>
+            <th>Recargo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="penaltiesTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

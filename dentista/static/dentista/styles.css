@@ -1,4 +1,3 @@
-/* ==== Tema Futurista Consultorio Dental Rodolfo Castellón (Unificado) ==== */
 :root {
   /* --- Paleta de Colores Futurista --- */
   --color-primary-cyber: #00e0ff;
@@ -7,12 +6,13 @@
   --color-accent-cyber: #39ff14;
   --color-accent-cyber-rgb: 57, 255, 20;
   --color-danger-cyber: #ff4d4d;
+  --color-danger-cyber-rgb: 255, 77, 77;
   --color-warning-cyber: #ffc107;
   --color-warning-cyber-rgb: 255, 193, 7;
 
   /* --- Fondos y Superficies --- */
   --color-bg-dark: #0a0f14;
-  --color-surface-card: rgba(14, 22, 32, 0.7); /* Tono azulado oscuro */
+  --color-surface-card: rgba(14, 22, 32, 0.7);
   --color-surface-soft: rgba(255, 255, 255, 0.02);
   --color-glass-effect: rgba(255, 255, 255, 0.03);
 
@@ -28,7 +28,7 @@
 
   /* --- Sombras y Efectos --- */
   --shadow-deep: 0 20px 40px rgba(2, 6, 23, 0.6);
-  --transition-speed: 0.3s; /* Variable para la velocidad de la animación */
+  --transition-speed: 0.3s;
 }
 
 
@@ -83,7 +83,7 @@ body {
   backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
-  overflow-x: hidden; /* Evita desbordamiento horizontal */
+  overflow-x: hidden;
 }
 
 .side-brand {
@@ -129,7 +129,7 @@ body {
   align-items: center;
   gap: 12px;
   transition: all 0.2s ease;
-  white-space: nowrap; /* Evita que el texto se rompa en dos líneas */
+  white-space: nowrap;
 }
 
 .nav-item span {
@@ -150,7 +150,7 @@ body {
 
 .nav-item i {
   font-size: 1.4rem;
-  min-width: 24px; /* Asegura que los iconos siempre tengan su espacio */
+  min-width: 24px;
 }
 
 .side-user {
@@ -178,7 +178,6 @@ body {
   min-width: 40px;
 }
 
-/* === Lógica para Sidebar Colapsado === */
 .shell.collapsed .brand-glow,
 .shell.collapsed .nav-item span,
 .shell.collapsed .side-user > div,
@@ -186,7 +185,7 @@ body {
   opacity: 0;
   visibility: hidden;
   width: 0;
-  transition: opacity 0.1s, visibility 0s linear 0.1s, width 0s linear 0.1s; /* Desaparece rápido */
+  transition: opacity 0.1s, visibility 0s linear 0.1s, width 0s linear 0.1s;
 }
 
 /* --- Encabezado de Página --- */
@@ -203,8 +202,17 @@ body {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
+.live-datetime {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  background: var(--color-surface-soft);
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-subtle);
+}
 
 /* --- Botones Futuristas --- */
 .cyber-btn {
@@ -342,6 +350,14 @@ body {
   background: var(--color-surface-soft);
 }
 
+.action-link {
+    color: var(--color-primary-cyber);
+    text-decoration: none;
+    font-weight: 500;
+}
+.action-link:hover {
+    text-decoration: underline;
+}
 
 /* --- Formularios y Modales --- */
 .input, select.cyber-btn {
@@ -411,7 +427,7 @@ select.cyber-btn {
   font-size: 2rem;
   font-weight: 700;
 }
-.highlight, .live-clock {
+.highlight {
   color: var(--color-primary-cyber);
   text-shadow: 0 0 8px var(--color-primary-cyber);
 }
@@ -537,9 +553,11 @@ select.cyber-btn {
 }
 .appointment-card strong { color: var(--color-text-light); }
 .appointment-card small { color: var(--color-text-muted); }
-.pill { padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.8rem; }
+.pill { padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.8rem; font-weight: 500;}
 .pill.ok { background: rgba(var(--color-accent-cyber-rgb), 0.1); color: var(--color-accent-cyber); }
 .pill.warn { background: rgba(var(--color-warning-cyber-rgb), 0.1); color: var(--color-warning-cyber); }
+.pill.danger { background: rgba(var(--color-danger-cyber-rgb), 0.1); color: var(--color-danger-cyber); }
+
 
 /* Servicios (Nuevo diseño con tarjetas) */
 .service-card-grid {
@@ -586,6 +604,36 @@ select.cyber-btn {
   margin-top: auto;
   display: flex;
   gap: 8px;
+}
+
+.service-card-description {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin: 0 0 16px 0;
+    flex-grow: 1;
+}
+.service-card-procedures {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px 0;
+    font-size: 0.9rem;
+}
+.service-card-procedures li {
+    position: relative;
+    padding-left: 1.5em;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-light);
+}
+.service-card-procedures li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.4em;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-primary-cyber);
+    box-shadow: 0 0 6px var(--color-primary-cyber);
 }
 
 /* Toast (Notificaciones) */
@@ -660,7 +708,7 @@ select.cyber-btn {
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
   background: var(--color-surface-soft);
-  overflow: hidden; /* Importante para que el contenido no se desborde */
+  overflow: hidden;
 }
 .accordion-header {
   width: 100%;
@@ -705,7 +753,7 @@ select.cyber-btn {
 }
 
 @media (max-width: 992px) {
-  .shell.collapsed {
+  .shell {
     grid-template-columns: 84px 1fr;
   }
   .agenda-grid, .days-header {

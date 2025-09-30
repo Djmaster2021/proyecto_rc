@@ -10,48 +10,66 @@
     <div class="small text-muted">Registro de tratamientos, pagos y notas clínicas</div>
   </div>
   <div class="toolbar-actions">
-    <button class="btn-neon alt" type="button">Agregar nota</button>
-    <button class="btn-outline" type="button">Adjuntar archivo</button>
+    <div class="live-datetime" id="live-datetime-patient"></div>
+    <button class="cyber-btn" type="button">Agendar nueva cita</button>
   </div>
 </header>
 
-<section class="card soft patient-summary">
-  <div class="grid" style="grid-template-columns: repeat(4, 1fr); gap: 16px;">
-    <div>
-      <div class="text-muted small">Teléfono</div>
-      <div>+52 55 1234 5678</div>
-    </div>
-    <div>
-      <div class="text-muted small">Email</div>
-      <div>ana.g@ejemplo.com</div>
-    </div>
-    <div>
-      <div class="text-muted small">Próx. cita</div>
-      <div>28 Oct, 2025 · 11:00</div>
-    </div>
-    <div>
-      <div class="text-muted small">Saldo</div>
-      <div class="kpi-value">$850.00</div>
+<section class="glow-card-wrapper">
+  <div class="cyber-card">
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+      <div>
+        <div class="text-muted small">Teléfono</div>
+        <div>+52 55 1234 5678</div>
+      </div>
+      <div>
+        <div class="text-muted small">Email</div>
+        <div>ana.g@ejemplo.com</div>
+      </div>
+      <div>
+        <div class="text-muted small">Próx. cita</div>
+        <div>28 Oct, 2025 · 11:00</div>
+      </div>
+      <div>
+        <div class="text-muted small">Saldo Pendiente</div>
+        <div class="kpi-value" style="color:var(--color-warning-cyber)">$850.00</div>
+      </div>
     </div>
   </div>
 </section>
 
-<div class="card mt">
-  <h3>Historial de citas y pagos</h3>
-  <div class="table-wrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Servicio</th>
-          <th>Monto</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="patientHistoryTableBody">
-        </tbody>
-    </table>
+<div class="glow-card-wrapper mt">
+  <div class="cyber-card">
+    <h3>Historial de Citas y Pagos</h3>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Servicio</th>
+            <th>Monto</th>
+            <th>Estado del Pago</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="patientHistoryTableBody">
+          <tr>
+            <td>2025-09-20</td>
+            <td>Ortodoncia (ajuste)</td>
+            <td>$2,500.00</td>
+            <td><span class="pill ok">Pagado</span></td>
+            <td><a href="#" class="action-link">Ver Recibo</a></td>
+          </tr>
+          <tr>
+            <td>2025-08-15</td>
+            <td>Limpieza profunda</td>
+            <td>$850.00</td>
+            <td><span class="pill warn">Pendiente</span></td>
+            <td><a href="#" class="action-link">Pagar ahora</a></td>
+          </tr>
+          </tbody>
+      </table>
+    </div>
   </div>
 </div>
 {% endblock %}
