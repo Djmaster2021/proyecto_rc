@@ -11,7 +11,7 @@ urlpatterns = [
     # landing / home
     path("", TemplateView.as_view(template_name="landing/index.html"), name="home"),
 
-    # apps (uso de include con namespace consistente)
+    # apps
     path("accounts/", include(("accounts.urls", "accounts"), namespace="accounts")),
     path("dentista/", include(("dentista.urls", "dentista"), namespace="dentista")),
     path("paciente/", include(("paciente.urls", "paciente"), namespace="paciente")),
@@ -19,5 +19,7 @@ urlpatterns = [
     path("domain/", include(("domain.urls", "domain"), namespace="domain")),
 ]
 
+# En dev, sirve estáticos y media desde Django
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
