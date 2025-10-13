@@ -13,9 +13,9 @@
     <a class="brand" href="#" aria-label="Rodolfo Castellón">RC</a>
     <div class="theme-toggle" id="themeToggle">
       <input type="radio" name="t" id="t-light" value="light" checked>
-      <label class="toggle-chip" for="t-light" title="Modo claro">Claro</label>
+      <label class="toggle-chip" for="t-light">Claro</label>
       <input type="radio" name="t" id="t-dark" value="dark">
-      <label class="toggle-chip" for="t-dark" title="Modo oscuro">Oscuro</label>
+      <label class="toggle-chip" for="t-dark">Oscuro</label>
     </div>
   </header>
 
@@ -29,60 +29,55 @@
             <p class="subtitle">Accede con tu cuenta y rol</p>
           </div>
 
-          <form class="auth-form" method="post" action="{% url 'accounts:login' %}">
+          <form method="post" class="auth-form" action="{% url 'accounts:login' %}">
             {% csrf_token %}
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
 
-            <fieldset class="roles" aria-label="Selecciona tu rol">
-              <input type="radio" name="role" id="role-admin" value="ADMIN" checked>
-              <label for="role-admin" class="role-chip">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm-9 9a9 9 0 0 1 18 0"/></svg>
-                Administrador
-              </label>
+            <!-- Selector de rol -->
+            <div class="role-switch" style="margin-bottom: .75rem;">
+              <input type="radio" id="r-admin" name="role" value="admin" {% if role == 'admin' %}checked{% endif %}>
+              <label for="r-admin">Administrador</label>
 
-              <input type="radio" name="role" id="role-dentista" value="DENTISTA">
-              <label for="role-dentista" class="role-chip">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v10a2 2 0 0 1-2 2h-4l-2 2-2-2H6a2 2 0 0 1-2-2V7zM7 7V5a5 5 0 0 1 10 0v2"/></svg>
-                Dentista
-              </label>
+              <input type="radio" id="r-dent" name="role" value="dentista" {% if role == 'dentista' %}checked{% endif %}>
+              <label for="r-dent">Dentista</label>
 
-              <input type="radio" name="role" id="role-paciente" value="PACIENTE">
-              <label for="role-paciente" class="role-chip">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4"/></svg>
-                Paciente
-              </label>
-            </fieldset>
-
-            <div class="field">
-              <label for="id_username">Correo o usuario</label>
-              <input id="id_username" name="username" type="text" autocomplete="username" required placeholder="ej. juan@correo.com">
+              <input type="radio" id="r-pac" name="role" value="paciente" {% if not role or role == 'paciente' %}checked{% endif %}>
+              <label for="r-pac">Paciente</label>
             </div>
 
+            <!-- Usuario -->
             <div class="field">
-              <div class="label-row">
-                <label for="id_password">Contraseña</label>
-                <a class="link small" href="{% url 'accounts:password_reset' %}">¿Olvidaste tu contraseña?</a>
-              </div>
-              <div class="password-box">
-                <input id="id_password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••">
-                <button class="eye" type="button" aria-label="Mostrar u ocultar contraseña" title="Mostrar/ocultar">
-                  <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7Zm0 11a4 4 0 1 1 4-4 4 4 0 0 1-4 4Z"/></svg>
-                  <svg class="eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 2l20 20M10.58 10.58A3 3 0 0 0 9 12a3 3 0 0 0 3 3 3 3 0 0 0 1.42-.38M6.1 6.1C3.45 7.61 1.51 9.66 1 12c1.73 3.89 6 7 11 7a11.64 11.64 0 0 0 5.06-1.14M14.12 9.88A3 3 0 0 0 12 9a3 3 0 0 0-3 3 3 3 0 0 0 .88 2.12M12 5a11.64 11.64 0 0 1 10.94 7"/></svg>
-                </button>
-              </div>
+              <label for="id_username" class="muted">Correo o usuario</label>
+              <input id="id_username" class="input" type="text" name="username"
+                     value="{{ username|default_if_none:'' }}" autocomplete="username" required
+                     placeholder="ej. juan@correo.com">
             </div>
 
-            <button class="btn btn-primary w-100" type="submit">Entrar</button>
+            <!-- Contraseña -->
+            <div class="field" style="margin-bottom: .5rem;">
+              <label for="id_password" class="muted">Contraseña</label>
+              <input id="id_password" class="input" type="password" name="password"
+                     autocomplete="current-password" required>
+            </div>
+
+            <!-- Enlaces + botón -->
+            <div class="flex-between" style="align-items:center; gap:12px;">
+              <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <a class="link" href="{% url 'accounts:password_reset' %}">¿Olvidaste tu contraseña?</a>
+                <span class="muted">·</span>
+                <a class="link" href="{% url 'accounts:register' %}">Regístrate</a>
+              </div>
+              <button class="btn btn-primary">Entrar</button>
+            </div>
 
             {% if messages %}
-              <ul class="messages">
-                {% for msg in messages %}
-                  <li class="msg {{ msg.tags }}">{{ msg }}</li>
+              <ul style="margin-top:.75rem; padding-left:16px; color:#c0392b;">
+                {% for m in messages %}
+                  <li>{{ m }}</li>
                 {% endfor %}
               </ul>
             {% endif %}
           </form>
-
-          <p class="form-meta">¿No tienes cuenta? <a class="link" href="{% url 'accounts:login' %}#signup">Regístrate</a></p>
         </div>
       </div>
     </section>

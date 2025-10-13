@@ -1,25 +1,17 @@
-# proyecto_rc/urls.py
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-from django.conf import settings
-from django.conf.urls.static import static
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-
-    # landing / home
+    # Portada pública (usa tu archivo existente en templates/landing/index.html)
     path("", TemplateView.as_view(template_name="landing/index.html"), name="home"),
 
-    # apps
+    # Apps
     path("accounts/", include(("accounts.urls", "accounts"), namespace="accounts")),
     path("dentista/", include(("dentista.urls", "dentista"), namespace="dentista")),
     path("paciente/", include(("paciente.urls", "paciente"), namespace="paciente")),
     path("api/", include(("api.urls", "api"), namespace="api")),
-    path("domain/", include(("domain.urls", "domain"), namespace="domain")),
-]
 
-# En dev, sirve estáticos y media desde Django
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # Admin
+    path("admin/", admin.site.urls),
+]

@@ -1,3 +1,3 @@
+# paciente/admin.py
 from django.contrib import admin
-
-# Register your models here.
+# No registramos Paciente aquí; se registra en domain/admin.py

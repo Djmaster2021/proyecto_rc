@@ -1,19 +1,41 @@
-# accounts/urls.py
-from django.urls import path, include
-from django.views.generic import TemplateView
-from . import views
+from django.urls import path
+from django.contrib.auth import views as auth_views
+from .views import LoginAndRedirectView, logout_view, RegisterView
 
 app_name = "accounts"
 
 urlpatterns = [
-    # Dashboard / índice de accounts
-    path("", getattr(views, "index", TemplateView.as_view(template_name="accounts/base.html")), name="index"),
+    path("login/", LoginAndRedirectView.as_view(), name="login"),
+    path("logout/", logout_view, name="logout"),
+    path("register/", RegisterView.as_view(), name="register"),
 
-    # Registro / login / logout (si tienes vistas custom, se usan, si no se usan templates)
-    path("register/", getattr(views, "register", TemplateView.as_view(template_name="accounts/register.html")), name="register"),
-    path("login/", getattr(views, "login_view", TemplateView.as_view(template_name="accounts/login.html")), name="login"),
-    path("logout/", getattr(views, "logout_view", TemplateView.as_view(template_name="accounts/base.html")), name="logout"),
-
-    # Incluir las rutas provistas por django.contrib.auth (login, logout, password reset, etc.)
-    path("", include("django.contrib.auth.urls")),
+    # Password reset (usa tus templates en accounts/templates/accounts/)
+    path(
+        "password_reset/",
+        auth_views.PasswordResetView.as_view(
+            template_name="accounts/password_reset_form.html"
+        ),
+        name="password_reset",
+    ),
+    path(
+        "password_reset/done/",
+        auth_views.PasswordResetDoneView.as_view(
+            template_name="accounts/password_reset_done.html"
+        ),
+        name="password_reset_done",
+    ),
+    path(
+        "reset/<uidb64>/<token>/",
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name="accounts/password_reset_confirm.html"
+        ),
+        name="password_reset_confirm",
+    ),
+    path(
+        "reset/done/",
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name="accounts/password_reset_complete.html"
+        ),
+        name="password_reset_complete",
+    ),
 ]

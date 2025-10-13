@@ -1,3 +1,5 @@
+// dentista/static/dentista/app.js
+
 // Inicializa toda la UI del dashboard cuando el DOM está listo
 document.addEventListener('DOMContentLoaded', () => {
     const Style = getComputedStyle(document.body);
@@ -24,7 +26,7 @@ function initUI(p, s, a, w, tm, bs) {
     renderAllData();
     initAgenda();
     initPaymentsPage();
-    initServicesPage();
+    initServicesPage(); // <-- Esta es la función que hemos actualizado
     initPatientsPage();
     initReportsPage(p, s, a, w, tm, bs);
     initConfiguracionPage();
@@ -186,44 +188,7 @@ const MOCK_DATA = {
         phone: '+52 322 123 4567',
         photoUrl: '/static/img/dr-castellon.png'
     },
-    services: [
-        {
-            title: 'Odontología General',
-            description: 'Evaluación completa de la salud oral, diagnóstico y prevención de enfermedades.',
-            procedures: ['Limpieza profunda', 'Radiografías', 'Resinas', 'Extracciones'],
-            image: 'odontologia general.png'
-        },
-        {
-            title: 'Ortodoncia',
-            description: 'Corrección de la posición de los dientes y la mandíbula para una sonrisa perfecta.',
-            procedures: ['Brackets metálicos/estéticos', 'Alineadores', 'Retenedores'],
-            image: 'Ortodoncia.png'
-        },
-        {
-            title: 'Odontología Restaurativa',
-            description: 'Recupera forma y función de piezas afectadas por caries o fracturas.',
-            procedures: ['Resinas compuestas', 'Incrustaciones', 'Coronas', 'Reconstrucciones'],
-            image: 'odontologia Restaurativa.png'
-        },
-        {
-            title: 'Odontología Estética',
-            description: 'Mejora de la apariencia dental con tratamientos mínimamente invasivos.',
-            procedures: ['Blanqueamiento', 'Carillas', 'Resinas estéticas', 'Contorneado dental'],
-            image: 'Odontología estética.png'
-        },
-        {
-            title: 'Prótesis e Implantes',
-            description: 'Soluciones fijas o removibles para reemplazar dientes ausentes.',
-            procedures: ['Implantes dentales', 'Puentes y coronas', 'Prótesis totales y parciales', 'Mantenimiento y ajuste'],
-            image: 'protesis e implantes.png'
-        },
-        {
-            title: 'Recordatorios & Agenda',
-            description: 'Expediente digital y recordatorios por correo electronico, WhatsApp y msg.',
-            procedures: ['Confirmación de citas', 'Seguimiento post-tratamiento', 'Alertas personalizadas'],
-            image: 'recordatorio.png'
-        }
-    ],
+    // La lista de 'services' fue eliminada de aquí. Ahora se obtiene de la API.
     audit: [
         { t: '26 Sep 2025, 20:05', user: 'Sistema', action: 'Cuenta suspendida', details: 'Paciente David R. (ID: P-005) suspendido por 3 penalizaciones.' },
         { t: '26 Sep 2025, 20:05', user: 'Sistema', action: 'Penalización automática', details: 'Generada para David R. (ID: P-005) por inasistencia.' },
@@ -446,37 +411,61 @@ function initAgenda() {
     }
 }
 
-function initServicesPage() {
+// ==================================================================
+// ==                 FUNCIÓN MODIFICADA PARA USAR API             ==
+// ==================================================================
+async function initServicesPage() {
     const container = document.getElementById('allServicesGrid');
     if (!container) return;
 
-    const services = MOCK_DATA.services || [];
-    container.innerHTML = services.map(service => {
-        const proceduresHtml = service.procedures.map(proc => `<li>${proc}</li>`).join('');
+    try {
+        // 1. Hacemos la petición a nuestra API real en lugar de usar MOCK_DATA
+        const response = await fetch('/api/servicios/');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const services = await response.json(); // 2. Convertimos la respuesta a JSON
 
-        return `
-        <div class="glow-card-wrapper">
-            <div class="service-card">
-                <img src="/static/img/${service.image}" alt="${service.title}" class="service-card-img">
-                <div class="service-card-body">
-                    <h4>${service.title}</h4>
-                    <p class="service-card-description">${service.description}</p>
-                    <ul class="service-card-procedures">
-                        ${proceduresHtml}
-                    </ul>
-                    <div class="service-card-actions">
-                        <button class="cyber-btn" style="flex:1;">
-                            <i class="ph ph-pencil-simple"></i> Editar
-                        </button>
-                        <button class="cyber-btn cyber-btn-danger">
-                            <i class="ph ph-trash"></i>
-                        </button>
+        // 3. Renderizamos los datos que vienen de la base de datos
+        if (services.length === 0) {
+            container.innerHTML = "<p>No hay servicios registrados. Agrégalos en el panel de Admin.</p>";
+            return;
+        }
+
+        container.innerHTML = services.map(service => {
+            // Usamos una imagen por defecto ya que el modelo no tiene campo de imagen aún
+            const image = 'odontologia general.png'; 
+
+            return `
+            <div class="glow-card-wrapper">
+                <div class="service-card">
+                    <img src="/static/img/${image}" alt="${service.nombre}" class="service-card-img">
+                    <div class="service-card-body">
+                        <h4>${service.nombre}</h4>
+                        <p class="service-card-description">${service.descripcion}</p>
+                        
+                        <div class="service-card-details">
+                            <span>Precio:</span>
+                            <strong>$${parseFloat(service.precio).toFixed(2)}</strong>
+                        </div>
+                        <div class="service-card-actions">
+                            <button class="cyber-btn" style="flex:1;">
+                                <i class="ph ph-pencil-simple"></i> Editar
+                            </button>
+                            <button class="cyber-btn cyber-btn-danger">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        `;
-    }).join('');
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error("No se pudieron cargar los servicios:", error);
+        container.innerHTML = "<p>Error al cargar los servicios. Revisa la consola para más detalles.</p>";
+    }
 }
 
 

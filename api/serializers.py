@@ -2,13 +2,12 @@
 
 from rest_framework import serializers
 from accounts.models import User, PerfilDentista
-from domain.models import Servicio
+from domain.models import Servicio  # Solo necesitamos importar el modelo Servicio
 
-# # Serializer para el modelo Servicio
 class ServicioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Servicio
-        fields = '__all__'
+        fields = ("id", "nombre", "descripcion", "precio", "activo")
 
 # # Serializer para el perfil del dentista
 class PerfilDentistaSerializer(serializers.ModelSerializer):
