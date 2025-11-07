@@ -1,0 +1,46 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Historial del Paciente | C.D. Rodolfo Castellón{% endblock %}
+
+{% block dcontent %}
+<header class="main-header">
+  <div>
+    <h1>Historial clínico — <span class="highlight">Ana García</span></h1>
+    <div class="small text-muted">Registro de tratamientos, pagos y notas clínicas</div>
+  </div>
+  <div class="row">
+    <button class="btn btn-outline" data-action-toast="Nota agregada">Agregar nota</button>
+    <button class="btn btn-primary" data-action-toast="Adjunto subido">Adjuntar archivo</button>
+  </div>
+</header>
+
+<section class="patient-summary card" style="margin-bottom:12px">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+    <div><div class="text-muted small">Teléfono</div><div>+52 55 1234 5678</div></div>
+    <div><div class="text-muted small">Email</div><div>ana.g@ejemplo.com</div></div>
+    <div><div class="text-muted small">Próx. cita</div><div>28 Oct, 2025 · 11:00</div></div>
+    <div><div class="text-muted small">Saldo</div><div style="color:var(--danger);font-weight:800">$850.00</div></div>
+  </div>
+</section>
+
+<div class="card">
+  <h3>Timeline de citas y tratamientos</h3>
+  <ul style="list-style:none;padding:0;margin:12px 0 0 0">
+    <li style="padding:12px;border-bottom:1px dashed rgba(255,255,255,0.03)">
+      <div style="display:flex;justify-content:space-between"><strong>20 Sep 2025 — Ortodoncia (ajuste)</strong><span class="text-muted small">$2,500 · Pagado</span></div>
+      <div class="text-muted small">Observaciones: buen avance, programar próximo ajuste en 4 semanas.</div>
+    </li>
+
+    <li style="padding:12px;border-bottom:1px dashed rgba(255,255,255,0.03)">
+      <div style="display:flex;justify-content:space-between"><strong>15 Ago 2025 — Limpieza profunda</strong><span class="text-muted small">$850 · Pendiente</span></div>
+      <div class="text-muted small">Observaciones: sensibilidad en molares inferiores.</div>
+    </li>
+  </ul>
+
+  <div style="margin-top:12px;display:flex;gap:8px">
+    <button class="btn btn-primary" data-action-toast="Pago registrado">Registrar pago</button>
+    <button class="btn btn-outline" data-action-toast="Recordatorio enviado">Enviar recordatorio</button>
+  </div>
+</div>
+{% endblock %}

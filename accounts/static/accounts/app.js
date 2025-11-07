@@ -21,31 +21,22 @@
   applyTheme();
 })();
 
-// ===== Mostrar/ocultar contraseña ==========================================
+// ===== Accesibilidad: Enter en botones de rol =================================
 (() => {
-  const box = document.querySelector('.password-box');
-  if (!box) return;
-  const input = box.querySelector('input');
-  const btn = box.querySelector('.eye');
-  btn?.addEventListener('click', () => {
-    const reveal = input.type === 'password';
-    input.type = reveal ? 'text' : 'password';
-    box.classList.toggle('show', reveal);
-    input.focus();
-  });
-})();
-
-// ===== Accesibilidad: Enter en chips de rol =================================
-(() => {
-  document.querySelectorAll('.role-chip').forEach(label => {
-    label.setAttribute('tabindex', '0');
+  // Actualizado para que coincida con la clase .role-toggle
+  document.querySelectorAll('.role-toggle label').forEach(label => {
+    label.setAttribute('tabindex', '0'); // Permite enfocar con Tab
     label.addEventListener('keydown', e => {
+      // Activa el 'radio' al presionar Enter o Espacio
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         const id = label.getAttribute('for');
         const input = document.getElementById(id);
-        input.checked = true;
-        input.dispatchEvent(new Event('change', { bubbles:true }));
+        if (input) {
+          input.checked = true;
+          // Dispara el evento change por si otro script depende de él
+          input.dispatchEvent(new Event('change', { bubbles:true }));
+        }
       }
     });
   });

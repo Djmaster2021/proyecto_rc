@@ -1,0 +1,203 @@
+/* ==========================================================================
+   LOGIN RC — Azul/Menta/Plateado + Glow borders + Dark/Light
+   ========================================================================== */
+
+   :root{
+    --bg:#f7fafc; --bg-soft:#eef2f7; --panel:#ffffff;
+    --text:#0f172a; --text-dim:#235499; --border:#e5e7eb;
+    --blue:#3d68ce; --mint:#205851; --ring-rgb:37,99,235;
+    --shadow:0 10px 24px rgba(2,6,23,.08);
+    --r-xl:22px; --r:12px; --space:20px;
+  }
+  :root:has(#t-dark:checked){
+    --bg:#0e1116; --bg-soft:#141925; --panel:#0f1420;
+    --text:#e6e8ee; --text-dim:#a9b0be; --border:rgba(255,255,255,.12);
+    --blue:#22d3ee; --mint:#5eead4; --ring-rgb:34,211,238;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  
+  /* Reset/base */
+  *{ box-sizing:border-box }
+  html,body{ height:100% }
+  body{
+    margin:0; color:var(--text);
+    font:400 16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial;
+    background:
+      radial-gradient(1100px 700px at 10% -10%, color-mix(in oklab, var(--mint) 22%, transparent) 0, transparent 55%),
+      radial-gradient(900px 600px at 110% 0%, rgba(var(--ring-rgb), .10) 0, transparent 50%),
+      var(--bg);
+  }
+  
+  /* Topbar + toggle */
+  .site-topbar{
+    position:sticky; top:0; z-index:5;
+    display:flex; align-items:center; gap:12px; justify-content:space-between;
+    padding:14px var(--space);
+    background: color-mix(in oklab, var(--panel) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .brand{
+    display:inline-grid; place-items:center;
+    width:28px;height:28px;border-radius:12px;
+    background:linear-gradient(135deg,var(--blue),var(--mint));
+    color:#fff; font-weight:900; letter-spacing:.5px; text-decoration:none;
+  }
+  .theme-toggle{ display:flex; gap:10px; align-items:center; }
+  .theme-toggle input{
+    position:absolute; width:1px; height:1px; overflow:hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border:0; padding:0;
+  }
+  .toggle-chip{
+    border:1px solid var(--border);
+    border-radius:10px; padding:6px 10px; cursor:pointer;
+    color:var(--text-dim);
+    background: color-mix(in oklab, var(--panel) 92%, transparent);
+    font-size:13px; font-weight:600; transition:filter .2s ease, transform .05s ease;
+  }
+  .toggle-chip:hover{ filter:brightness(1.03) }
+  .toggle-chip:active{ transform:translateY(1px) }
+  #t-light:checked ~ .toggle-chip[for="t-light"]{
+    color:#000; font-weight:700; border-color:transparent;
+    background:linear-gradient(135deg,var(--mint),var(--blue));
+  }
+  #t-dark:checked ~ .toggle-chip[for="t-dark"]{
+    color:#fff; font-weight:700; border-color:transparent;
+    background:linear-gradient(135deg,var(--blue),var(--mint));
+  }
+  
+  /* Layout login */
+  .site-main{ min-height:calc(100vh - 120px); display:grid; place-items:center; padding:42px 20px }
+  .auth-hero{ width:100%; max-width:960px; margin:auto }
+  
+  /* Glow card */
+  .glow-card{ position:relative; border-radius:28px; padding:2px; isolation:isolate; }
+  .glow-card::before{
+    content:""; position:absolute; inset:-2px; z-index:-1; border-radius:inherit;
+    background: conic-gradient(from 0deg,
+      color-mix(in oklab, var(--blue) 70%, transparent) 0deg,
+      color-mix(in oklab, var(--mint) 70%, transparent) 120deg,
+      rgba(var(--ring-rgb), .85) 240deg,
+      color-mix(in oklab, var(--blue) 70%, transparent) 360deg
+    );
+    filter: blur(14px) saturate(120%);
+    animation: spin 12s linear infinite;
+    opacity:.9;
+  }
+  @keyframes spin{ to{ transform: rotate(1turn) } }
+  
+  /* Card */
+  .login-card{
+    width:100%; max-width:520px; margin:auto;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    border-radius:24px; padding:28px;
+  }
+  
+  /* Encabezado */
+  .card-head{ text-align:center; margin-bottom:18px }
+  .logo{
+    width:64px;height:64px;margin:0 auto 12px;border-radius:16px;
+    background:linear-gradient(135deg,var(--blue),var(--mint));
+    display:grid; place-items:center; color:#fff; font-weight:900;
+    box-shadow:0 10px 22px rgba(var(--ring-rgb), .25);
+  }
+  .title{ margin:6px 0 2px; font-size:24px; font-weight:800; letter-spacing:.2px }
+  .subtitle{ margin:0; color:var(--text-dim); font-size:14.5px }
+  
+  /* Form */
+  .auth-form{ display:grid; gap:16px; margin-top:12px }
+  .field{ display:grid; gap:6px }
+  .label-row{ display:flex; justify-content:space-between; align-items:center }
+  .field label{ font-size:14px; color:var(--text-dim) }
+  .field input{
+    background:#fff; color:#0f172a;
+    border:1px solid var(--border); border-radius:12px;
+    padding:12px 14px; outline:none; transition:border .2s, box-shadow .2s, background .2s;
+  }
+  :root:has(#t-dark:checked) .field input{ background:#0b111a; color:var(--text) }
+  .field input:hover{ border-color: color-mix(in oklab, var(--border) 60%, var(--blue) 40%); }
+  .field input:focus{
+    border-color: rgba(var(--ring-rgb), .75);
+    box-shadow: 0 0 0 4px rgba(var(--ring-rgb), .18);
+  }
+  
+  /* Password */
+  .password-box{ position:relative; display:grid }
+  .password-box .eye{
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    border:0; background:transparent; padding:6px; cursor:pointer; color:var(--text-dim);
+  }
+  .password-box svg{ width:20px; height:20px; display:block }
+  .eye-off{ display:none }
+  .password-box.show .eye-open{ display:none }
+  .password-box.show .eye-off{ display:block }
+  
+  /* Roles */
+  .roles{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:4px 0 6px;
+    border:0; padding:0;
+  }
+  .roles input{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path: inset(50%); }
+  .role-chip{
+    display:flex; gap:8px; align-items:center; justify-content:center;
+    border:1px solid var(--border);
+    background: color-mix(in oklab, var(--panel) 94%, transparent);
+    color: var(--text-dim);
+    padding:10px 12px; border-radius:12px; cursor:pointer; font-weight:600;
+    transition: filter .2s ease, transform .05s ease, border-color .2s;
+  }
+  .role-chip:hover{ filter:brightness(1.03) }
+  .role-chip:active{ transform: translateY(1px) }
+  .role-chip svg{ width:18px; height:18px; }
+  #role-admin:checked + .role-chip,
+  #role-dentista:checked + .role-chip,
+  #role-paciente:checked + .role-chip{
+    color:#fff; border-color:transparent;
+    background: linear-gradient(135deg, var(--blue), var(--mint));
+  }
+  
+  /* Botones/links */
+  .w-100{ width:100% }
+  .btn{
+    border:1px solid var(--border);
+    padding:12px 14px; border-radius:12px;
+    color: var(--text);
+    background: color-mix(in oklab, var(--panel) 92%, transparent);
+    cursor:pointer; transition: filter .2s ease, transform .05s ease;
+  }
+  .btn:hover{ filter: brightness(1.03) }
+  .btn:active{ transform: translateY(1px) }
+  .btn-primary{
+    border:none;
+    background: linear-gradient(135deg, var(--blue), var(--mint));
+    color:#fff; font-weight:700;
+  }
+  .btn-primary:hover{ filter: brightness(1.05) }
+  
+  .form-meta{ text-align:center; margin-top:6px }
+  .link{ color: var(--blue); text-decoration:none; font-size:14px }
+  .link.small{ font-size:12.5px }
+  .link:hover{ text-decoration:underline }
+  
+  /* Mensajes */
+  .messages{ list-style:none; padding:0; margin:8px 0 0; display:grid; gap:6px }
+  .msg{ padding:8px 10px; border-radius:10px; font-size:13px }
+  .msg.success{ background:rgba(16,185,129,.12); color:#059669 }
+  .msg.error{ background:rgba(239,68,68,.14); color:#b91c1c }
+  .msg.warning{ background:rgba(234,179,8,.14); color:#92400e }
+  
+  /* Footer */
+  .site-footer{
+    text-align:center; color: var(--text-dim);
+    padding:16px var(--space); border-top:1px solid var(--border);
+    background: var(--bg-soft);
+  }
+  
+  /* Responsive */
+  @media (max-width:560px){
+    .login-card{ padding:22px; border-radius:18px }
+    .roles{ grid-template-columns:1fr; }
+  }
+  

@@ -1,12 +1,16 @@
-from typing import Optional
+from django.shortcuts import render, redirect
+from django.contrib.auth import logout
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.contrib.auth.views import LoginView
+from django.views.generic import CreateView
+from django.urls import reverse_lazy
+from .forms import PacienteRegisterForm  # <-- Importamos nuestro formulario pulido
 from django.views import View
+from django.http import HttpRequest, HttpResponse
+from django.contrib.auth import authenticate, login, get_user_model
+from typing import Optional
 
-User = get_user_model()
+# --- Lógica de Login (tuya, mejorada) ---
 
 ROLE_TO_URL = {
     "admin": "/admin/",
@@ -15,7 +19,6 @@ ROLE_TO_URL = {
 }
 
 def _safe_next(next_param: Optional[str]) -> Optional[str]:
-    # No permitir redirecciones externas
     if not next_param:
         return None
     if next_param.startswith("/") and not next_param.startswith("//"):
@@ -40,45 +43,47 @@ class LoginAndRedirectView(View):
             return render(request, self.template_name, {"next": next_url, "role": role, "username": username})
 
         login(request, user)
-
-        # Prioridad al ?next=
         if next_url:
             return redirect(next_url)
-
+        
         # Redirigir según rol elegido
         dest = ROLE_TO_URL.get(role, "/paciente/")
         return redirect(dest)
 
-def logout_view(request: HttpRequest) -> HttpResponse:
+
+# --- Vista de Logout ---
+def logout_view(request):
     logout(request)
-    messages.success(request, "Has cerrado sesión correctamente.")
-    return redirect(reverse("accounts:login"))
+    messages.info(request, "Has cerrado sesión exitosamente.")
+    # Usamos reverse_lazy en lugar de reverse para evitar importación circular
+    return redirect(reverse_lazy('accounts:login')) 
 
-class RegisterView(View):
-    template_name = "accounts/register.html"
 
-    def get(self, request: HttpRequest) -> HttpResponse:
-        return render(request, self.template_name)
+# --- ¡AQUÍ ESTÁ LA VISTA DE REGISTRO PULIDA! ---
+# Esto define el RegisterView que tu urls.py ya está importando.
 
-    def post(self, request: HttpRequest) -> HttpResponse:
-        username = request.POST.get("username", "").strip()
-        email = request.POST.get("email", "").strip()
-        password1 = request.POST.get("password1", "")
-        password2 = request.POST.get("password2", "")
-        role = request.POST.get("role", "paciente")
+class RegisterView(CreateView):
+    """
+    Vista basada en clase para registrar un nuevo Paciente.
+    Usa el formulario 'PacienteRegisterForm' que creamos.
+    """
+    form_class = PacienteRegisterForm
+    template_name = 'accounts/register.html'
+    success_url = reverse_lazy('accounts:login') # A dónde ir después del registro
 
-        if not username or not password1:
-            messages.error(request, "Usuario y contraseña son obligatorios.")
-            return render(request, self.template_name, request.POST)
+    def form_valid(self, form):
+        """
+        Esto se llama cuando el formulario es válido.
+        El .save() de nuestro formulario ya hace toda la magia.
+        """
+        response = super().form_valid(form)
+        messages.success(self.request, f"¡Cuenta creada! Ya puedes iniciar sesión.")
+        return response
 
-        if password1 != password2:
-            messages.error(request, "Las contraseñas no coinciden.")
-            return render(request, self.template_name, request.POST)
-
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Ese usuario ya existe.")
-            return render(request, self.template_name, request.POST)
-
-        user = User.objects.create_user(username=username, email=email, password=password1)
-        login(request, user)
-        return redirect(ROLE_TO_URL.get(role, "/paciente/"))
+    def form_invalid(self, form):
+        """
+        Esto se llama si el formulario no es válido (ej. contraseñas no coinciden)
+        """
+        # El formulario ya trae los errores, solo mostramos un mensaje general
+        messages.error(self.request, "Error al registrarse. Por favor, revisa los datos.")
+        return super().form_invalid(form)

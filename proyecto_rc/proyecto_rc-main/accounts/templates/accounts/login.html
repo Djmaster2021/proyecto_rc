@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Iniciar sesión — RC</title>
+  <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
+  <link rel="stylesheet" href="{% static 'accounts/styles.css' %}">
+</head>
+<body>
+  <header class="site-topbar">
+    <a class="brand" href="#" aria-label="Rodolfo Castellón">RC</a>
+    <div class="theme-toggle" id="themeToggle">
+      <input type="radio" name="t" id="t-light" value="light" checked>
+      <label class="toggle-chip" for="t-light">Claro</label>
+      <input type="radio" name="t" id="t-dark" value="dark">
+      <label class="toggle-chip" for="t-dark">Oscuro</label>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <section class="auth-hero">
+      <div class="glow-card">
+        <div class="login-card">
+          <div class="card-head">
+            <div class="logo">RC</div>
+            <h1 class="title">Bienvenido</h1>
+            <p class="subtitle">Accede con tu cuenta y rol</p>
+          </div>
+
+          <form method="post" class="auth-form" action="{% url 'accounts:login' %}">
+            {% csrf_token %}
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+            <!-- Selector de rol -->
+            <div class="role-switch" style="margin-bottom: .75rem;">
+              <input type="radio" id="r-admin" name="role" value="admin" {% if role == 'admin' %}checked{% endif %}>
+              <label for="r-admin">Administrador</label>
+
+              <input type="radio" id="r-dent" name="role" value="dentista" {% if role == 'dentista' %}checked{% endif %}>
+              <label for="r-dent">Dentista</label>
+
+              <input type="radio" id="r-pac" name="role" value="paciente" {% if not role or role == 'paciente' %}checked{% endif %}>
+              <label for="r-pac">Paciente</label>
+            </div>
+
+            <!-- Usuario -->
+            <div class="field">
+              <label for="id_username" class="muted">Correo o usuario</label>
+              <input id="id_username" class="input" type="text" name="username"
+                     value="{{ username|default_if_none:'' }}" autocomplete="username" required
+                     placeholder="ej. juan@correo.com">
+            </div>
+
+            <!-- Contraseña -->
+            <div class="field" style="margin-bottom: .5rem;">
+              <label for="id_password" class="muted">Contraseña</label>
+              <input id="id_password" class="input" type="password" name="password"
+                     autocomplete="current-password" required>
+            </div>
+
+            <!-- Enlaces + botón -->
+            <div class="flex-between" style="align-items:center; gap:12px;">
+              <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <a class="link" href="{% url 'accounts:password_reset' %}">¿Olvidaste tu contraseña?</a>
+                <span class="muted">·</span>
+                <a class="link" href="{% url 'accounts:register' %}">Regístrate</a>
+              </div>
+              <button class="btn btn-primary">Entrar</button>
+            </div>
+
+            {% if messages %}
+              <ul style="margin-top:.75rem; padding-left:16px; color:#c0392b;">
+                {% for m in messages %}
+                  <li>{{ m }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">© Consultorio Rodolfo Castellón</footer>
+  <script src="{% static 'accounts/app.js' %}"></script>
+</body>
+</html>

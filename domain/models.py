@@ -14,7 +14,7 @@ class TimeStampedModel(models.Model):
 
 
 class Paciente(TimeStampedModel):
-    nombre = models.CharField(max_length=150)
+    nombre = models.CharField(max_length=150, verbose_name="Nombre Completo")
     email = models.EmailField(blank=True, null=True)
     telefono = models.CharField(max_length=30, blank=True)
     direccion = models.CharField(max_length=255, blank=True)
@@ -34,11 +34,10 @@ class Dentista(TimeStampedModel):
         User, on_delete=models.SET_NULL, blank=True, null=True,
         related_name="dentista_domain"
     )
-    nombre = models.CharField(max_length=150)
+    nombre = models.CharField(max_length=150, verbose_name="Nombre Completo")
     email = models.EmailField(blank=True, null=True)
     telefono = models.CharField(max_length=30, blank=True)
     especialidad = models.CharField(max_length=120, blank=True)
-    # opcional, por si luego quieres usarla
     licencia = models.CharField(max_length=60, blank=True)
 
     def __str__(self):
@@ -55,8 +54,9 @@ class Administrador(TimeStampedModel):
         User, on_delete=models.SET_NULL, blank=True, null=True,
         related_name="administrador_domain"
     )
-    nombre = models.CharField(max_length=150)
+    nombre = models.CharField(max_length=150, verbose_name="Nombre Completo")
     email = models.EmailField(blank=True, null=True)
+    telefono = models.CharField(max_length=30, blank=True)
 
     def __str__(self):
         return self.nombre

@@ -1,0 +1,38 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Pagos | C.D. Rodolfo Castellón{% endblock %}
+
+{% block dcontent %}
+<header class="page-header">
+  <div>
+    <h1>Pagos & Facturación</h1>
+    <div class="small text-muted">Control de ingresos, generación de recibos y recordatorios</div>
+  </div>
+  <div class="toolbar-actions">
+     <input id="paymentsSearchInput" class="input" placeholder="Buscar por paciente o servicio">
+    <button class="cyber-btn cyber-btn-glow" type="button">Registrar pago</button>
+  </div>
+</header>
+
+<div class="glow-card-wrapper">
+  <div class="cyber-card">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID Pago</th>
+            <th>Paciente</th>
+            <th>Fecha</th>
+            <th>Servicio</th>
+            <th>Monto</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="paymentsTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% load static %}
+<nav class="rc-navbar">
+  <div class="rc-navbar-inner">
+    <a class="rc-logo" href="{% url 'home' %}">Consultorio Dental <span>RC</span></a>
+
+    <ul class="rc-menu">
+      <li><a href="{% url 'home' %}#servicios">Servicios</a></li>
+      <li><a href="{% url 'home' %}#acerca">Acerca</a></li>
+      <li><a href="{% url 'home' %}#pagos">Pagos</a></li>
+      <li><a href="{% url 'home' %}#contacto">Contacto</a></li>
+      <li><a class="rc-btn" href="{% url 'accounts:login' %}">Iniciar sesión</a></li>
+      <li><a class="rc-btn rc-btn--primary" href="{% url 'accounts:login' %}">Agenda tu cita</a></li>
+    </ul>
+
+    <button class="rc-burger" id="burger" aria-label="Abrir menú" aria-expanded="false">
+      <i class="ph ph-list"></i>
+    </button>
+  </div>
+</nav>
+
+<div class="rc-mobile-panel" id="mobile-panel">
+  <a href="{% url 'home' %}#servicios">Servicios</a>
+  <a href="{% url 'home' %}#acerca">Acerca</a>
+  <a href="{% url 'home' %}#pagos">Pagos</a>
+  <a href="{% url 'home' %}#contacto">Contacto</a>
+  <a class="rc-btn" href="{% url 'accounts:login' %}">Iniciar sesión</a>
+  <a class="rc-btn rc-btn--primary" href="{% url 'accounts:login' %}">Agenda tu cita</a>
+</div>

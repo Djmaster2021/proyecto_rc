@@ -34,13 +34,13 @@
             {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
 
             <!-- Selector de rol -->
-            <div class="role-switch" style="margin-bottom: .75rem;">
+            <div class="role-toggle">
               <input type="radio" id="r-admin" name="role" value="admin" {% if role == 'admin' %}checked{% endif %}>
               <label for="r-admin">Administrador</label>
-
+            
               <input type="radio" id="r-dent" name="role" value="dentista" {% if role == 'dentista' %}checked{% endif %}>
               <label for="r-dent">Dentista</label>
-
+            
               <input type="radio" id="r-pac" name="role" value="paciente" {% if not role or role == 'paciente' %}checked{% endif %}>
               <label for="r-pac">Paciente</label>
             </div>

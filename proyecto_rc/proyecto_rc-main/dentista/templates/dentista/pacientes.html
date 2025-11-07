@@ -1,0 +1,46 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Pacientes | C.D. Rodolfo Castellón{% endblock %}
+
+{% block dcontent %}
+<header class="page-header">
+  <div>
+    <h1>Pacientes</h1>
+    <div class="small text-muted">Fichas, segmentación y acciones masivas</div>
+  </div>
+  <div class="toolbar-actions">
+    <input id="patientsSearchInput" class="input" placeholder="Buscar paciente...">
+    <button class="cyber-btn cyber-btn-glow" type="button">Agregar paciente</button>
+  </div>
+</header>
+
+<div class="glow-card-wrapper">
+  <div class="cyber-card">
+    <div class="panel-tools">
+      <select id="segmentFilter" class="cyber-btn">
+        <option value="all">Todos los pacientes</option>
+        <option value="active">Activos</option>
+        <option value="debt">Con deuda</option>
+      </select>
+      <div class="spacer"></div>
+      <button class="cyber-btn" type="button">Exportar CSV</button>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID Paciente</th>
+            <th>Nombre</th>
+            <th>Contacto</th>
+            <th>Última cita</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="patientsTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

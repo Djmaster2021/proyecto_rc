@@ -1,0 +1,38 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Reportes | C.D. Rodolfo Castellón{% endblock %}
+
+{% block dcontent %}
+<header class="page-header">
+  <div>
+    <h1>Reportes & Analítica</h1>
+    <div class="small text-muted">Visión estratégica del negocio y KPIs operativos</div>
+  </div>
+  <div class="toolbar-actions">
+    <button class="cyber-btn" type="button">Exportar Dashboard</button>
+  </div>
+</header>
+
+<div class="grid kpis">
+  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Ingresos (año)</div><div class="kpi-value">$<span data-counter="190000">0</span></div></div></div>
+  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Tasa de ocupación</div><div class="kpi-value"><span data-counter="92">0</span>%</div></div></div>
+  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Ingreso / cita</div><div class="kpi-value">$<span data-counter="650">0</span></div></div></div>
+  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Pacientes nuevos (mes)</div><div class="kpi-value" data-counter="12">0</div></div></div>
+</div>
+
+<div class="grid two mt">
+  <div class="glow-card-wrapper">
+    <div class="cyber-card">
+      <h3>Ingresos mensuales</h3>
+      <div class="chart-box"><canvas id="monthlyRevenue"></canvas></div>
+    </div>
+  </div>
+  <div class="glow-card-wrapper">
+    <div class="cyber-card">
+      <h3>Uso de servicios</h3>
+      <div class="chart-box"><canvas id="doughnutServices"></canvas></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

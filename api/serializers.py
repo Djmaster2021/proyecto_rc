@@ -1,9 +1,11 @@
 # api/serializers.py
 
 from rest_framework import serializers
-from accounts.models import User, PerfilDentista
 from domain.models import Servicio  # Solo necesitamos importar el modelo Servicio
+from django.contrib.auth import get_user_model
+from domain.models import Dentista, Servicio  # Importamos los modelos correctos
 
+User = get_user_model() # Así se obtiene el User en Django
 class ServicioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Servicio
@@ -12,7 +14,7 @@ class ServicioSerializer(serializers.ModelSerializer):
 # # Serializer para el perfil del dentista
 class PerfilDentistaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PerfilDentista
+        model = Dentista
         fields = ['licencia', 'especialidad', 'telefono', 'foto_perfil']
 
 # # Serializer para el modelo de Usuario (incluye perfil anidado)

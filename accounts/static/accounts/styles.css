@@ -133,31 +133,68 @@
   .eye-off{ display:none }
   .password-box.show .eye-open{ display:none }
   .password-box.show .eye-off{ display:block }
+  /* ============ CÓDIGO DEL SELECTOR DE ROL ============ */
+/* Contenedor principal del selector de roles */
+.role-toggle {
+  display: inline-flex;
+  border-radius: var(--r); 
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 0.75rem; 
+}
+/* Contenedor principal del selector de roles */
+.role-toggle {
+  display: inline-flex;
+  border-radius: var(--r); 
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 0.75rem; 
   
-  /* Roles */
-  .roles{
-    display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:4px 0 6px;
-    border:0; padding:0;
-  }
-  .roles input{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path: inset(50%); }
-  .role-chip{
-    display:flex; gap:8px; align-items:center; justify-content:center;
-    border:1px solid var(--border);
-    background: color-mix(in oklab, var(--panel) 94%, transparent);
-    color: var(--text-dim);
-    padding:10px 12px; border-radius:12px; cursor:pointer; font-weight:600;
-    transition: filter .2s ease, transform .05s ease, border-color .2s;
-  }
-  .role-chip:hover{ filter:brightness(1.03) }
-  .role-chip:active{ transform: translateY(1px) }
-  .role-chip svg{ width:18px; height:18px; }
-  #role-admin:checked + .role-chip,
-  #role-dentista:checked + .role-chip,
-  #role-paciente:checked + .role-chip{
-    color:#fff; border-color:transparent;
-    background: linear-gradient(135deg, var(--blue), var(--mint));
-  }
+  /* --- AÑADE ESTA LÍNEA --- */
+  justify-self: center;
+  /* ------------------------- */
+}
+
+/* Ocultamos los input[type="radio"] reales */
+.role-toggle input[type="radio"] {
+  display: none;
+}
+
+/* Estilo para las etiquetas que ahora son nuestros botones */
+.role-toggle label {
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color: var(--panel); /* Fondo de panel */
+  color: var(--text-dim);      /* Color de texto atenuado */
+  font-size: 14px;
+  font-weight: 600; /* Coincide con tu .toggle-chip */
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s;
   
+  /* Borde para separar los botones */
+  border-left: 1px solid var(--border);
+}
+
+/* El primer botón no necesita un borde a la izquierda */
+.role-toggle label:first-of-type {
+  border-left: none;
+}
+
+/* Efecto al pasar el mouse (hover) */
+.role-toggle label:hover {
+  background-color: var(--bg-soft); /* Un fondo sutil al pasar el mouse */
+}
+
+/* * Esta es la parte clave:
+ * Cuando el input está :checked, seleccionamos la etiqueta (+)
+ * que le sigue y le cambiamos el estilo.
+*/
+.role-toggle input[type="radio"]:checked + label {
+  /* Estilo "seleccionado" que usa tu gradiente de tema */
+  background: linear-gradient(135deg, var(--blue), var(--mint));
+  color: #fff; /* Texto blanco cuando está seleccionado */
+  font-weight: 700;
+  border-color: transparent; /* Oculta el borde al estar activo */
+}
   /* Botones/links */
   .w-100{ width:100% }
   .btn{

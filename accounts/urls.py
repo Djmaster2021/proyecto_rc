@@ -1,15 +1,16 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import LoginAndRedirectView, logout_view, RegisterView
+from . import views  # Importa las vistas de accounts/views.py
 
 app_name = "accounts"
 
 urlpatterns = [
-    path("login/", LoginAndRedirectView.as_view(), name="login"),
-    path("logout/", logout_view, name="logout"),
-    path("register/", RegisterView.as_view(), name="register"),
+    # Vistas de Login, Logout y Register
+    path("login/", views.LoginAndRedirectView.as_view(), name="login"),
+    path("logout/", views.logout_view, name="logout"),
+    path("register/", views.RegisterView.as_view(), name="register"),
 
-    # Password reset (usa tus templates en accounts/templates/accounts/)
+    # Vistas de Reseteo de Contraseña
     path(
         "password_reset/",
         auth_views.PasswordResetView.as_view(

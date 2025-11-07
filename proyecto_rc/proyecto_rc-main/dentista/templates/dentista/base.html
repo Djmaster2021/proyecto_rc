@@ -1,0 +1,64 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block dtitle %}C.D. Rodolfo Castellón{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}?v=1.2">
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{% static 'dentista/app.js' %}?v=1.2" defer></script>
+</head>
+<body>
+  <div class="shell">
+    
+    <aside id="sidebar" class="side" role="navigation" aria-label="Menú principal">
+      <div>
+        <div class="side-brand">
+          <button id="burger" class="cyber-btn" aria-label="Contraer menú"><i class="ph ph-list"></i></button>
+          <div class="brand-glow"> Consultorio Dental </div>
+        </div>
+
+        <nav class="side-nav">
+          <a class="nav-item {% if 'dashboard' in request.path %}active{% endif %}" href="{% url 'dentista:dashboard' %}"><i class="ph-fill ph-house"></i><span>Dashboard</span></a>
+          <a class="nav-item {% if 'agenda' in request.path %}active{% endif %}" href="{% url 'dentista:agenda' %}"><i class="ph-fill ph-calendar-plus"></i><span>Agenda</span></a>
+          <a class="nav-item {% if 'pagos' in request.path %}active{% endif %}" href="{% url 'dentista:pagos' %}"><i class="ph-fill ph-currency-circle-dollar"></i><span>Pagos</span></a>
+          <a class="nav-item {% if 'penalizaciones' in request.path %}active{% endif %}" href="{% url 'dentista:penalizaciones' %}"><i class="ph-fill ph-warning-octagon"></i><span>Penalizaciones</span></a>
+          <a class="nav-item {% if 'pacientes' in request.path %}active{% endif %}" href="{% url 'dentista:pacientes' %}"><i class="ph-fill ph-folder-user"></i><span>Pacientes</span></a>
+          <a class="nav-item {% if 'servicios' in request.path %}active{% endif %}" href="{% url 'dentista:servicios' %}"><i class="ph-fill ph-tooth"></i><span>Servicios</span></a>
+          <a class="nav-item {% if 'reportes' in request.path %}active{% endif %}" href="{% url 'dentista:reportes' %}"><i class="ph-fill ph-chart-line"></i><span>Reportes</span></a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'configuracion' %}active{% endif %}" href="{% url 'dentista:configuracion' %}"><i class="ph-fill ph-gear"></i><span>Configuración</span></a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'soporte' %}active{% endif %}" href="{% url 'dentista:soporte' %}"><i class="ph-fill ph-question"></i><span>Soporte</span></a>
+        </nav>
+      </div>
+
+      <div class="side-user">
+        <img src="{% static 'img/dr-castellon.png' %}" alt="Avatar del Dr. Castellón" class="avatar" id="sidebar-avatar-img">
+        <div>
+          <strong>Dr. Castellón</strong>
+          <br><small class="text-muted">Cirujano Dentista</small>
+        </div>
+        <div class="spacer"></div>
+        <button class="cyber-btn" title="Cerrar sesión"><i class="ph ph-sign-out"></i></button>
+      </div>
+    </aside>
+
+    <main class="main" role="main">
+      {% block dcontent %}{% endblock %}
+    </main>
+
+  </div>
+
+  <div id="toast" class="toast" aria-live="polite" aria-atomic="true"></div>
+
+</body>
+</html>
