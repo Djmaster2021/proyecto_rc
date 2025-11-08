@@ -25,31 +25,31 @@ def _safe_next(next_param: Optional[str]) -> Optional[str]:
         return next_param
     return None
 
-class LoginAndRedirectView(View):
+class LoginAndRedirectView(LoginView):
     template_name = "accounts/login.html"
+    redirect_authenticated_user = True 
 
-    def get(self, request: HttpRequest) -> HttpResponse:
-        return render(request, self.template_name, {"next": request.GET.get("next")})
+    def get_success_url(self):
+        """
+        Esta función se ejecuta automáticamente cuando el login es exitoso.
+        Aquí es donde el 'policía de tráfico' decide a dónde mandarte.
+        """
+        user = self.request.user
 
-    def post(self, request: HttpRequest) -> HttpResponse:
-        role = request.POST.get("role", "paciente")
-        username = request.POST.get("username", "").strip()
-        password = request.POST.get("password", "")
-        next_url = _safe_next(request.POST.get("next")) or _safe_next(request.GET.get("next"))
-
-        user = authenticate(request, username=username, password=password)
-        if user is None:
-            messages.error(request, "Usuario o contraseña incorrectos.")
-            return render(request, self.template_name, {"next": next_url, "role": role, "username": username})
-
-        login(request, user)
-        if next_url:
-            return redirect(next_url)
         
-        # Redirigir según rol elegido
-        dest = ROLE_TO_URL.get(role, "/paciente/")
-        return redirect(dest)
+        if hasattr(user, 'perfil_dentista'):
+            return '/dentista/' 
+        
+        
+        if hasattr(user, 'perfil_administrador'):
+             return '/admin/dashboard/' 
+             
+        
+        if user.is_superuser:
+            return '/admin/'
 
+        
+        return '/paciente/'
 
 # --- Vista de Logout ---
 def logout_view(request):
