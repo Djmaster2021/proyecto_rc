@@ -1,0 +1,117 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Expediente: {{ paciente.nombre }} | Dentista{% endblock %}
+
+{% block dcontent %}
+<header class="page-header">
+  <div>
+    <a href="{% url 'dentista:pacientes' %}" style="color: var(--color-text-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+        <i class="ph ph-arrow-left"></i> Volver al directorio
+    </a>
+    <h1>Expediente Digital</h1>
+  </div>
+  <div class="toolbar-actions">
+      <button class="cyber-btn cyber-btn-secondary">Editar Datos</button>
+      <button class="cyber-btn">Agendar Cita</button>
+  </div>
+</header>
+
+<div class="grid grid-cols-3 gap-1-5">
+    <div class="glow-card-wrapper" style="grid-column: span 1;">
+        <div class="cyber-card" style="text-align: center;">
+            <img src="https://ui-avatars.com/api/?name={{ paciente.nombre }}&background=0D8ABC&color=fff&size=128" 
+                 alt="Avatar" style="border-radius: 50%; border: 3px solid var(--color-primary); margin-bottom: 1rem;">
+            <h2>{{ paciente.nombre }}</h2>
+            <div class="chip status-confirmada" style="display: inline-block; margin-bottom: 1.5rem;">
+                PAC-{{ paciente.id|stringformat:"04d" }}
+            </div>
+
+            <div style="text-align: left; margin-top: 1.5rem;">
+                <div style="margin-bottom: 1rem;">
+                    <label class="text-muted small">Correo Electrónico</label>
+                    <div>{{ paciente.user.email }}</div>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label class="text-muted small">Teléfono</label>
+                    <div>{{ paciente.telefono }}</div>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label class="text-muted small">Fecha de Nacimiento</label>
+                    <div>{{ paciente.fecha_nacimiento|default:"-- No registrada --" }}</div>
+                </div>
+                 <div style="margin-bottom: 1rem;">
+                    <label class="text-muted small">Dirección</label>
+                    <div>{{ paciente.direccion|default:"-- No registrada --" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-card mt">
+            <h3 class="card-title">Resumen</h3>
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-primary);">{{ total_citas }}</div>
+                    <div class="small text-muted">Total Citas</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-success-cyber);">{{ citas_completadas }}</div>
+                    <div class="small text-muted">Completadas</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-warning-cyber);">0</div>
+                    <div class="small text-muted">Inasistencias</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glow-card-wrapper" style="grid-column: span 2;">
+        <div class="cyber-card">
+            <h3 class="card-title">Historial de Citas y Tratamientos</h3>
+            
+            <div class="table-responsive mt">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tratamiento</th>
+                            <th>Notas / Diagnóstico</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cita in historial %}
+                        <tr>
+                            <td style="white-space: nowrap;">
+                                <div>{{ cita.fecha_hora_inicio|date:"d M Y" }}</div>
+                                <small class="text-muted">{{ cita.fecha_hora_inicio|time:"H:i A" }}</small>
+                            </td>
+                            <td>{{ cita.servicio.nombre }}</td>
+                            <td>
+                                {% if cita.notas %}
+                                    {{ cita.notas|truncatechars:50 }}
+                                {% else %}
+                                    <em class="text-muted">Sin notas</em>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="chip status-{{ cita.estado|lower }}">
+                                    {{ cita.get_estado_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 2rem;">
+                                Este paciente aún no tiene historial de citas.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

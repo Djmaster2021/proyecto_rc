@@ -773,3 +773,13 @@ select.cyber-btn {
   .days-header { display: none; }
   .page-header { flex-direction: column; align-items: flex-start; }
 }
+
+/* Asegura que todos los inputs y textareas tengan texto claro */
+.cyber-input, textarea, input[type="text"], input[type="date"], select {
+  color: var(--ink) !important; /* Usa tu variable de color claro */
+}
+
+/* Color específico para el placeholder (texto de ejemplo) */
+::placeholder {
+  color: rgba(232, 238, 247, 0.5); /* Color claro pero un poco transparente */
+}

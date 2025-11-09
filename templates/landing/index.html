@@ -1,8 +1,9 @@
 {% extends "_components/base_site.html" %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Consultorio Dental Rodolfo Castellón | Sistema integral{% endblock %}
-{% block meta_description %}Atención dental profesional en Puerto Vallarta. Citas en línea, pagos seguros.{% endblock %}
+{% block title %}{% trans "Consultorio Dental Rodolfo Castellón | Sistema integral" %}{% endblock %}
+{% block meta_description %}{% trans "Atención dental profesional en Puerto Vallarta. Citas en línea, pagos seguros." %}{% endblock %}
 
 {% block extra_head %}
 <link rel="preload" href="{% static 'img/fondodentista1.jpg' %}" as="image">
@@ -13,20 +14,22 @@
 <header class="hero">
   <div class="blob bl1"></div><div class="blob bl2"></div>
   <div class="hero-inner wrap">
-    <div class="kicker">SISTEMA INTEGRAL • PUERTO VALLARTA</div>
-    <h1 class="reveal">Consultorio Dental Rodolfo Castellón</h1>
-    <p class="lead reveal"><strong>Sistema integral</strong> para la <strong>gestión de pacientes, citas y pagos</strong>. Tecnología moderna, trato humano y precios accesibles.</p>
+    <div class="kicker">{% trans "SISTEMA INTEGRAL • PUERTO VALLARTA" %}</div>
+    <h1 class="reveal">{% trans "Consultorio Dental Rodolfo Castellón" %}</h1>
+    <p class="lead reveal">
+        {% blocktrans %}<strong>Sistema integral</strong> para la <strong>gestión de pacientes, citas y pagos</strong>. Tecnología moderna, trato humano y precios accesibles.{% endblocktrans %}
+    </p>
     
     <div class="cta reveal">
       <a class="rc-btn" href="https://wa.me/523228892558" target="_blank">💬 WhatsApp</a>
-      <a href="{% url 'accounts:login' %}" class="rc-btn">Iniciar sesión</a>
-      <a href="{% url 'accounts:register' %}" class="rc-btn rc-btn--primary">Agenda tu cita</a>
+      <a href="{% url 'accounts:login' %}" class="rc-btn">{% trans "Iniciar sesión" %}</a>
+      <a href="{% url 'accounts:register' %}" class="rc-btn rc-btn--primary">{% trans "Agenda tu cita" %}</a>
     </div>
 
     <div class="stats">
-      <div class="stat reveal"><strong>500+</strong><div class="muted">Procedimientos</div></div>
-      <div class="stat reveal"><strong>4.7/5 ✨</strong><div class="muted">Satisfacción</div></div>
-      <div class="stat reveal"><strong>6+ años</strong><div class="muted">Experiencia</div></div>
+      <div class="stat reveal"><strong>500+</strong><div class="muted">{% trans "Procedimientos" %}</div></div>
+      <div class="stat reveal"><strong>4.7/5 ✨</strong><div class="muted">{% trans "Satisfacción" %}</div></div>
+      <div class="stat reveal"><strong>6+ {% trans "años" %}</strong><div class="muted">{% trans "Experiencia" %}</div></div>
     </div>
   </div>
 </header>
@@ -35,38 +38,54 @@
 
 <main style="background:var(--panel)">
   <section id="servicios" class="wrap">
-    <h2 class="reveal" style="margin-top:0">Servicios principales</h2>
-    <p class="muted reveal">Tratamientos personalizados para cada sonrisa.</p>
+    <h2 class="reveal" style="margin-top:0">{% trans "Servicios principales" %}</h2>
+    <p class="muted reveal">{% trans "Tratamientos personalizados para cada sonrisa." %}</p>
     <div class="grid grid-3" style="margin-top:1.2rem">
       <article class="svc-card reveal">
         <div class="svc-card-ico"><img src="{% static 'img/odontologia general.png' %}" alt="General"></div>
-        <h3>Odontología General</h3>
-        <ul><li>Limpieza profunda</li><li>Resinas</li><li>Extracciones</li></ul>
+        <h3>{% trans "Odontología General" %}</h3>
+        <ul>
+            <li>{% trans "Limpieza profunda" %}</li>
+            <li>{% trans "Resinas" %}</li>
+            <li>{% trans "Extracciones" %}</li>
+        </ul>
       </article>
       <article class="svc-card reveal">
         <div class="svc-card-ico"><img src="{% static 'img/Ortodoncia.png' %}" alt="Ortodoncia"></div>
-        <h3>Ortodoncia</h3>
-        <ul><li>Brackets estéticos</li><li>Alineadores</li></ul>
+        <h3>{% trans "Ortodoncia" %}</h3>
+        <ul>
+            <li>{% trans "Brackets estéticos" %}</li>
+            <li>{% trans "Alineadores" %}</li>
+        </ul>
       </article>
       <article class="svc-card reveal">
         <div class="svc-card-ico"><img src="{% static 'img/Odontología estética.png' %}" alt="Estética"></div>
-        <h3>Estética</h3>
-        <ul><li>Blanqueamiento</li><li>Carillas</li></ul>
+        <h3>{% trans "Estética" %}</h3>
+        <ul>
+            <li>{% trans "Blanqueamiento" %}</li>
+            <li>{% trans "Carillas" %}</li>
+        </ul>
       </article>
       <article class="svc-card reveal">
         <div class="svc-card-ico"><img src="{% static 'img/odontologia Restaurativa.png' %}" alt="Restaurativa"></div>
-        <h3>Restaurativa</h3>
-        <ul><li>Coronas</li><li>Incrustaciones</li></ul>
+        <h3>{% trans "Restaurativa" %}</h3>
+        <ul>
+            <li>{% trans "Coronas" %}</li>
+            <li>{% trans "Incrustaciones" %}</li>
+        </ul>
       </article>
       <article class="svc-card reveal">
         <div class="svc-card-ico"><img src="{% static 'img/protesis e implantes.png' %}" alt="Implantes"></div>
-        <h3>Prótesis e Implantes</h3>
-        <ul><li>Implantes dentales</li><li>Puentes</li></ul>
+        <h3>{% trans "Prótesis e Implantes" %}</h3>
+        <ul>
+            <li>{% trans "Implantes dentales" %}</li>
+            <li>{% trans "Puentes" %}</li>
+        </ul>
       </article>
       <article class="svc-card reveal">
         <div class="svc-card-ico"><img src="{% static 'img/recordatorio.png' %}" alt="Agenda"></div>
-        <h3>Agenda Digital</h3>
-        <p>Recordatorios automáticos por correo y WhatsApp.</p>
+        <h3>{% trans "Agenda Digital" %}</h3>
+        <p>{% trans "Recordatorios automáticos por correo y WhatsApp." %}</p>
       </article>
     </div>
   </section>
@@ -76,10 +95,10 @@
   <section id="acerca" class="wrap" style="background:var(--bg); padding-top:2rem">
     <div class="grid grid-2">
       <div class="reveal">
-        <h2>Acerca del consultorio</h2>
-        <p class="muted">Ubicados en <strong>El Pitillal, Puerto Vallarta</strong>, ofrecemos tratamientos de última generación con un trato humano.</p>
-        <p class="muted">Horario: Lunes a Sábado, 2:00pm - 8:00pm.</p>
-        <a href="{% url 'accounts:register' %}" class="rc-btn rc-btn--primary">Quiero una valoración</a>
+        <h2>{% trans "Acerca del consultorio" %}</h2>
+        <p class="muted">{% trans "Ubicados en <strong>El Pitillal, Puerto Vallarta</strong>, ofrecemos tratamientos de última generación con un trato humano." %}</p>
+        <p class="muted">{% trans "Horario: Lunes a Sábado, 2:00pm - 8:00pm." %}</p>
+        <a href="{% url 'accounts:register' %}" class="rc-btn rc-btn--primary">{% trans "Quiero una valoración" %}</a>
       </div>
       <div class="reveal">
         <img src="{% static 'img/dentista.jpg' %}" alt="Consultorio" style="width:100%;border-radius:22px;box-shadow:0 26px 60px rgba(0,0,0,.35)">
@@ -88,16 +107,16 @@
   </section>
 
   <section id="pagos" class="wrap" style="text-align:center">
-    <h2 class="reveal">Formas de pago</h2>
+    <h2 class="reveal">{% trans "Formas de pago" %}</h2>
     <div class="badges reveal">
-      <span class="badge">💵 Efectivo</span>
-      <span class="badge">🌐 Pagos en línea (MercadoPago)</span>
-      <span class="badge">🏦 Transferencias</span>
+      <span class="badge">💵 {% trans "Efectivo" %}</span>
+      <span class="badge">🌐 {% trans "Pagos en línea (MercadoPago)" %}</span>
+      <span class="badge">🏦 {% trans "Transferencias" %}</span>
     </div>
   </section>
   
   <section class="wrap">
-    <h2 class="reveal">Lo que dicen nuestros pacientes</h2>
+    <h2 class="reveal">{% trans "Lo que dicen nuestros pacientes" %}</h2>
     <script src="https://elfsightcdn.com/platform.js" async></script>
     <div class="elfsight-app-5c54d382-5b89-4915-8d3b-f3e667a87d9c" data-elfsight-app-lazy></div>
   </section>
@@ -105,24 +124,24 @@
   <section id="contacto" class="wrap" style="background:var(--panel); padding-bottom:4rem">
     <div class="contact-grid">
       <div class="card reveal">
-        <h3>Contáctanos</h3>
+        <h3>{% trans "Contáctanos" %}</h3>
         <ul class="muted" style="list-style:none;padding:0;margin:0 0 1.5rem 0;display:grid;gap:.5rem">
           <li>📞 <a href="tel:+523228892558" style="color:var(--brand-2)">+52 322 889 2558</a></li>
           <li>📧 dentista.choyo@gmail.com</li>
-          <li>📍 Calle Guatemala #125, El Pitillal, Puerto Vallarta.</li>
+          <li>📍 {% trans "Calle Guatemala #125, El Pitillal, Puerto Vallarta." %}</li>
         </ul>
-        <form method="post" onsubmit="alert('Mensaje enviado (Demo)'); return false;">
+        <form method="post" onsubmit="alert('{% trans 'Mensaje enviado (Demo)' %}'); return false;">
           {% csrf_token %}
           <div class="grid-2" style="gap:.5rem; margin-bottom:.5rem">
-            <input class="rc-input" placeholder="Nombre" required>
-            <input class="rc-input" placeholder="Teléfono" required>
+            <input class="rc-input" placeholder="{% trans 'Nombre' %}" required>
+            <input class="rc-input" placeholder="{% trans 'Teléfono' %}" required>
           </div>
-          <textarea class="rc-input" rows="4" placeholder="¿En qué podemos ayudarte?" required></textarea>
-          <button class="rc-btn rc-btn--primary" style="width:100%; justify-content:center; margin-top:1rem">Enviar mensaje</button>
+          <textarea class="rc-input" rows="4" placeholder="{% trans '¿En qué podemos ayudarte?' %}" required></textarea>
+          <button class="rc-btn rc-btn--primary" style="width:100%; justify-content:center; margin-top:1rem">{% trans "Enviar mensaje" %}</button>
         </form>
       </div>
       <div class="reveal">
-        <iframe title="Ubicación" loading="lazy" style="width:100%;height:100%;min-height:400px;border:0;border-radius:20px"
+        <iframe title="{% trans 'Ubicación' %}" loading="lazy" style="width:100%;height:100%;min-height:400px;border:0;border-radius:20px"
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3733.329573439124!2d-105.2245!3d20.6565!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjDCsDM5JzIzLjQiTiAxMDXCsDEzJzI4LjIiVw!5e0!3m2!1ses-419!2smx!4v1690000000000!5m2!1ses-419!2smx"></iframe>
       </div>
     </div>
@@ -131,7 +150,7 @@
 
 <a href="https://wa.me/523228892558" target="_blank" 
    style="position:fixed; bottom:20px; right:20px; background:#25D366; color:white; padding:12px 24px; border-radius:50px; font-weight:bold; text-decoration:none; box-shadow:0 4px 12px rgba(0,0,0,0.3); z-index:100; display:flex; align-items:center; gap:8px;">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="24" alt="WhatsApp"> Agendar cita
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="24" alt="WhatsApp"> {% trans "Agendar cita" %}
 </a>
 {% endblock %}
 

@@ -12,11 +12,11 @@
   
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   
-  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}?v=1.2">
+  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}?v=1.3">
   <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="{% static 'dentista/app.js' %}?v=1.2" defer></script>
+  <script src="{% static 'dentista/app.js' %}?v=1.3" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -29,30 +29,63 @@
         </div>
 
         <nav class="side-nav">
-          <a class="nav-item {% if 'dashboard' in request.path %}active{% endif %}" href="{% url 'dentista:dashboard' %}"><i class="ph-fill ph-house"></i><span>Dashboard</span></a>
-          <a class="nav-item {% if 'agenda' in request.path %}active{% endif %}" href="{% url 'dentista:agenda' %}"><i class="ph-fill ph-calendar-plus"></i><span>Agenda</span></a>
-          <a class="nav-item {% if 'pagos' in request.path %}active{% endif %}" href="{% url 'dentista:pagos' %}"><i class="ph-fill ph-currency-circle-dollar"></i><span>Pagos</span></a>
-          <a class="nav-item {% if 'penalizaciones' in request.path %}active{% endif %}" href="{% url 'dentista:penalizaciones' %}"><i class="ph-fill ph-warning-octagon"></i><span>Penalizaciones</span></a>
-          <a class="nav-item {% if 'pacientes' in request.path %}active{% endif %}" href="{% url 'dentista:pacientes' %}"><i class="ph-fill ph-folder-user"></i><span>Pacientes</span></a>
-          <a class="nav-item {% if 'servicios' in request.path %}active{% endif %}" href="{% url 'dentista:servicios' %}"><i class="ph-fill ph-tooth"></i><span>Servicios</span></a>
-          <a class="nav-item {% if 'reportes' in request.path %}active{% endif %}" href="{% url 'dentista:reportes' %}"><i class="ph-fill ph-chart-line"></i><span>Reportes</span></a>
-          <a class="nav-item {% if request.resolver_match.url_name == 'configuracion' %}active{% endif %}" href="{% url 'dentista:configuracion' %}"><i class="ph-fill ph-gear"></i><span>Configuración</span></a>
-          <a class="nav-item {% if request.resolver_match.url_name == 'soporte' %}active{% endif %}" href="{% url 'dentista:soporte' %}"><i class="ph-fill ph-question"></i><span>Soporte</span></a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dentista:dashboard' %}">
+            <i class="ph-fill ph-house"></i><span>Dashboard</span>
+          </a>
+          <a class="nav-item {% if 'agenda' in request.path %}active{% endif %}" href="{% url 'dentista:agenda' %}">
+            <i class="ph-fill ph-calendar-plus"></i><span>Agenda</span>
+          </a>
+          <a class="nav-item {% if 'pagos' in request.path %}active{% endif %}" href="{% url 'dentista:pagos' %}">
+            <i class="ph-fill ph-currency-circle-dollar"></i><span>Pagos</span>
+          </a>
+          <a class="nav-item {% if 'penalizaciones' in request.path %}active{% endif %}" href="{% url 'dentista:penalizaciones' %}">
+            <i class="ph-fill ph-warning-octagon"></i><span>Penalizaciones</span>
+          </a>
+          <a class="nav-item {% if 'pacientes' in request.path %}active{% endif %}" href="{% url 'dentista:pacientes' %}">
+            <i class="ph-fill ph-folder-user"></i><span>Pacientes</span>
+          </a>
+          <a class="nav-item {% if 'servicios' in request.path %}active{% endif %}" href="{% url 'dentista:servicios' %}">
+            <i class="ph-fill ph-tooth"></i><span>Servicios</span>
+          </a>
+          <a class="nav-item {% if 'reportes' in request.path %}active{% endif %}" href="{% url 'dentista:reportes' %}">
+            <i class="ph-fill ph-chart-line"></i><span>Reportes</span>
+          </a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'configuracion' %}active{% endif %}" href="{% url 'dentista:configuracion' %}">
+            <i class="ph-fill ph-gear"></i><span>Configuración</span>
+          </a>
+          <a class="nav-item {% if request.resolver_match.url_name == 'soporte' %}active{% endif %}" href="{% url 'dentista:soporte' %}">
+            <i class="ph-fill ph-question"></i><span>Soporte</span>
+          </a>
         </nav>
       </div>
 
       <div class="side-user">
-        <img src="{% static 'img/dr-castellon.png' %}" alt="Avatar del Dr. Castellón" class="avatar" id="sidebar-avatar-img">
+        <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=0D8ABC&color=fff" alt="Doctor" class="avatar">
         <div>
-          <strong>Dr. Castellón</strong>
+          <strong>{{ user.first_name|default:"Dr." }} {{ user.last_name }}</strong>
           <br><small class="text-muted">Cirujano Dentista</small>
         </div>
         <div class="spacer"></div>
-        <button class="cyber-btn" title="Cerrar sesión"><i class="ph ph-sign-out"></i></button>
+        <a href="{% url 'accounts:logout' %}" class="cyber-btn" title="Cerrar sesión" style="color:inherit; text-decoration:none; display:flex; align-items:center; justify-content:center;">
+            <i class="ph ph-sign-out"></i>
+        </a>
       </div>
     </aside>
 
     <main class="main" role="main">
+      {% if messages %}
+        <div class="messages-container" style="margin-bottom: 1rem;">
+          {% for message in messages %}
+            <div style="padding: 1rem; border-radius: 12px; margin-bottom: 0.5rem; 
+                        background: {% if message.tags == 'error' %}rgba(255, 59, 48, 0.15){% else %}rgba(46, 230, 166, 0.15){% endif %}; 
+                        border: 1px solid {% if message.tags == 'error' %}var(--color-danger){% else %}var(--color-primary){% endif %};
+                        color: var(--color-text-primary);">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
       {% block dcontent %}{% endblock %}
     </main>
 

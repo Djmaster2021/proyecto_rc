@@ -468,3 +468,15 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(26px);
 }
+
+/* Fuerza el color del texto de las opciones para que sea visible en fondo blanco */
+select option {
+  color: #0f172a; /* Color oscuro (casi negro) para las letras */
+  background-color: #ffffff; /* Fondo blanco para asegurar contraste */
+}
+
+/* Opcional: Estilo específico para cuando el tema es oscuro, si quieres que el menú también sea oscuro */
+body.dark-mode select option {
+  color: #e8eef7; /* Color claro para el texto en modo oscuro */
+  background-color: #1e293b; /* Fondo oscuro para las opciones */
+}

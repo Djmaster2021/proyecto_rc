@@ -1,11 +1,11 @@
-{% load static %}
+{% load static i18n %}
 <!doctype html>
-<html lang="es">
+<html lang="{{ LANGUAGE_CODE|default:'es' }}">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>{% block title %}Consultorio Dental Rodolfo Castellón{% endblock %}</title>
-  <meta name="description" content="{% block meta_description %}Sistema Integral De Gestión Para El Consultorio Dental en Puerto Vallarta.{% endblock %}">
+  <title>{% block title %}{% trans "Consultorio Dental RC" %}{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}{% trans 'Sistema Integral De Gestión Para El Consultorio Dental.' %}{% endblock %}">
   <link rel="icon" href="{% static 'img/favicon.png' %}">
 
   <script src="https://unpkg.com/@phosphor-icons/web"></script>

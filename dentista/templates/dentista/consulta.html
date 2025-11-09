@@ -1,0 +1,63 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Consulta en Curso | {{ cita.paciente.nombre }}{% endblock %}
+
+{% block dcontent %}
+<header class="page-header">
+  <div>
+    <a href="{% url 'dentista:dashboard' %}" class="text-muted" style="text-decoration: none;">
+        <i class="ph ph-arrow-left"></i> Volver al Dashboard
+    </a>
+    <h1 style="color: var(--color-primary);">🩺 Consulta en Curso</h1>
+    <div class="small">Paciente: <strong>{{ cita.paciente.nombre }}</strong></div>
+  </div>
+</header>
+
+<div class="grid grid-cols-3 gap-1-5">
+    <div class="glow-card-wrapper" style="grid-column: span 1;">
+        <div class="cyber-card">
+            <h3 class="card-title">Datos del Paciente</h3>
+            <div style="text-align: center; margin: 1.5rem 0;">
+                <img src="https://ui-avatars.com/api/?name={{ cita.paciente.nombre }}&background=0D8ABC&color=fff&size=100" 
+                     alt="Paciente" style="border-radius: 50%; border: 2px solid var(--color-primary);">
+                <h4>{{ cita.paciente.nombre }}</h4>
+                <div class="text-muted small">{{ cita.paciente.telefono }}</div>
+            </div>
+            <hr style="border-color: var(--border-subtle); opacity: 0.3;">
+            <div style="margin-top: 1rem;">
+                <strong>Motivo de Cita:</strong>
+                <p class="text-accent">{{ cita.servicio.nombre }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="glow-card-wrapper" style="grid-column: span 2;">
+        <div class="cyber-card">
+            <h3 class="card-title">📝 Notas Clínicas & Diagnóstico</h3>
+            
+            <form method="POST" style="margin-top: 1.5rem;">
+                {% csrf_token %}
+                
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="notas_clinicas" style="display: block; margin-bottom: 0.5rem; color: var(--color-text-muted);">
+                        Detalles del procedimiento realizado, observaciones y recomendaciones:
+                    </label>
+                    <textarea id="notas_clinicas" name="notas_clinicas" rows="12" 
+                    class="cyber-input" 
+                    style="width: 100%; background: rgba(0,0,0,0.2); color: #fff; font-family: monospace; line-height: 1.5;"
+                    placeholder="Ej. Se realizó limpieza profunda..."></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <a href="{% url 'dentista:dashboard' %}" class="cyber-btn cyber-btn-secondary">Cancelar</a>
+                    <button type="submit" class="cyber-btn cyber-btn-glow" 
+                            onclick="return confirm('¿Estás seguro de finalizar esta consulta? Esta acción no se puede deshacer.');">
+                        ✅ Finalizar Consulta y Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,17 +1,25 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.conf.urls.i18n import i18n_patterns 
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    # Portada pública (usa tu archivo existente en templates/landing/index.html)
-    path("", TemplateView.as_view(template_name="landing/index.html"), name="home"),
-
-    # Apps
-    path("accounts/", include(("accounts.urls", "accounts"), namespace="accounts")),
-    path("dentista/", include(("dentista.urls", "dentista"), namespace="dentista")),
-    path("paciente/", include(("paciente.urls", "paciente"), namespace="paciente")),
-    path("api/", include(("api.urls", "api"), namespace="api")),
-
-    # Admin
-    path("admin/", admin.site.urls),
+    # Ruta técnica necesaria para que funcione el cambio de idioma
+    path("i18n/", include("django.conf.urls.i18n")),
 ]
+
+urlpatterns += i18n_patterns(
+    path("admin/", admin.site.urls),
+    path("", TemplateView.as_view(template_name="landing/index.html"), name="home"),
+    path("accounts/", include("accounts.urls")),
+    path("paciente/", include("paciente.urls")),
+    path("dentista/", include("dentista.urls")),
+    
+    # OPCIÓN PROFESIONAL: False = Español en raíz (/), Inglés con prefijo (/en/)
+    prefix_default_language=False
+)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

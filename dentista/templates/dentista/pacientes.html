@@ -6,39 +6,63 @@
 {% block dcontent %}
 <header class="page-header">
   <div>
-    <h1>Pacientes</h1>
-    <div class="small text-muted">Fichas, segmentación y acciones masivas</div>
-  </div>
-  <div class="toolbar-actions">
-    <input id="patientsSearchInput" class="input" placeholder="Buscar paciente...">
-    <button class="cyber-btn cyber-btn-glow" type="button">Agregar paciente</button>
+    <h1>Directorio de Pacientes</h1>
+    <div class="small text-muted">Gestión y consulta de expedientes</div>
   </div>
 </header>
 
 <div class="glow-card-wrapper">
   <div class="cyber-card">
-    <div class="panel-tools">
-      <select id="segmentFilter" class="cyber-btn">
-        <option value="all">Todos los pacientes</option>
-        <option value="active">Activos</option>
-        <option value="debt">Con deuda</option>
-      </select>
-      <div class="spacer"></div>
-      <button class="cyber-btn" type="button">Exportar CSV</button>
+    <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem;">
+        <form style="flex: 1; display: flex; gap: 0.5rem;">
+            <input type="text" name="q" class="cyber-input" placeholder="Buscar por nombre, correo o teléfono..." value="{{ query }}">
+            <button type="submit" class="cyber-btn">Buscar</button>
+        </form>
     </div>
-    <div class="table-wrap">
+
+    <div class="table-responsive">
       <table class="data-table">
         <thead>
           <tr>
-            <th>ID Paciente</th>
             <th>Nombre</th>
             <th>Contacto</th>
-            <th>Última cita</th>
-            <th>Estado</th>
+            <th>Fecha Registro</th>
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody id="patientsTableBody"></tbody>
+        <tbody>
+          {% for paciente in pacientes %}
+          <tr>
+            <td>
+                <div style="display: flex; align-items: center; gap: 0.8rem;">
+                    <img src="https://ui-avatars.com/api/?name={{ paciente.nombre }}&background=0D8ABC&color=fff&size=40" 
+                         alt="Avatar" style="border-radius: 50%; width: 40px; height: 40px;">
+                    <div>
+                        <strong>{{ paciente.nombre }}</strong>
+                        <br>
+                        <small class="text-muted">PAC-{{ paciente.id|stringformat:"04d" }}</small>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div>📧 {{ paciente.user.email }}</div>
+                <div>📱 {{ paciente.telefono }}</div>
+            </td>
+            <td>{{ paciente.created_at|date:"d M Y" }}</td>
+            <td>
+                <a href="{% url 'dentista:detalle_paciente' paciente.id %}" class="cyber-btn cyber-btn-sm">
+                    Ver Expediente
+                </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" style="text-align: center; padding: 2rem;">
+                No se encontraron pacientes.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
     </div>
   </div>

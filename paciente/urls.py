@@ -1,15 +1,25 @@
-# paciente/urls.py
 from django.urls import path
-from django.views.generic import TemplateView
 from . import views
 
 app_name = "paciente"
 
 urlpatterns = [
-    path("", getattr(views, "dashboard", TemplateView.as_view(template_name="paciente/dashboard.html")), name="dashboard"),
-    path("citas/", getattr(views, "citas", TemplateView.as_view(template_name="paciente/citas.html")), name="citas"),
-    path("pagos/", getattr(views, "pagos", TemplateView.as_view(template_name="paciente/pagos.html")), name="pagos"),
-    path("agendar/", views.agendar_placeholder, name="agendar"),
+    # --- VISTAS PRINCIPALES ---
+    path("", views.dashboard, name="dashboard"),
+    path("citas/", views.citas, name="citas"),
+    path("pagos/", views.pagos, name="pagos"),
+
+    # --- MOTOR DE AGENDAMIENTO ---
+    path("api/horarios/", views.api_horarios_disponibles, name="api_horarios"),
+    path("agendar/crear/", views.agendar_cita, name="agendar_crear"),
+
+    # --- FLUJO DE PAGOS (MERCADOPAGO) --- <--- ¡ESTO ES LO NUEVO!
+    path("pago/iniciar/<int:cita_id>/", views.iniciar_pago, name="iniciar_pago"),
+    path("pago/exito/", views.pago_exitoso, name="pago_exitoso"),
+    path("pago/fallo/", views.pago_fallido, name="pago_fallido"),
+    path("pago/pendiente/", views.pago_pendiente, name="pago_pendiente"),
+
+    # --- ACCIONES DE CITAS (PLACEHOLDERS) ---
     path("reprogramar/<int:cita_id>/", views.reprogramar_placeholder, name="reprogramar"),
     path("cancelar/<int:cita_id>/", views.cancelar_placeholder, name="cancelar"),
 ]
