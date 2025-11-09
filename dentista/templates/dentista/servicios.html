@@ -1,23 +1,142 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-{% block dtitle %}Servicios | C.D. Rodolfo Castellón{% endblock %}
+{% block dtitle %}Catálogo de Servicios | Dentista{% endblock %}
 
 {% block dcontent %}
 <header class="page-header">
   <div>
     <h1>Catálogo de Servicios</h1>
-    <div class="small text-muted">Gestión de procedimientos clínicos, descripciones y costos</div>
+    <div class="small text-muted">Gestiona tus tratamientos, precios y duración.</div>
   </div>
   <div class="toolbar-actions">
-    <button class="cyber-btn cyber-btn-glow" type="button">
-        <i class="ph ph-plus"></i> Agregar nuevo servicio
-    </button>
+      <button class="cyber-btn cyber-btn-glow" onclick="abrirModalServicio()">
+          + Nuevo Servicio
+      </button>
   </div>
 </header>
 
-<section class="mt">
-  <div class="service-card-grid mt" id="allServicesGrid">
+<div class="glow-card-wrapper">
+  <div class="cyber-card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Tratamiento</th>
+            <th>Precio (MXN)</th>
+            <th>Duración</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for servicio in servicios %}
+          <tr>
+            <td><strong>{{ servicio.nombre }}</strong></td>
+            <td class="text-accent">${{ servicio.precio }}</td>
+            <td>{{ servicio.duracion_estimada }} min</td>
+            <td>
+                {% if servicio.activo %}
+                    <span class="chip status-confirmada">Activo</span>
+                {% else %}
+                    <span class="chip status-cancelada">Inactivo</span>
+                {% endif %}
+            </td>
+            <td>
+              <button class="cyber-btn cyber-btn-sm cyber-btn-secondary btn-editar"
+              data-id="{{ servicio.id }}"
+              data-nombre="{{ servicio.nombre }}"
+              data-precio="{{ servicio.precio }}"
+              data-duracion="{{ servicio.duracion_estimada }}"
+              data-activo="{{ servicio.activo|yesno:'true,false' }}">
+          Editar
+      </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-</section>
+  </div>
+</div>
+
+<div id="modal-servicio" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center;">
+    <div class="cyber-card" style="width: 100%; max-width: 500px; margin: 2rem;">
+        <h3 id="modal-titulo">Nuevo Servicio</h3>
+        <form method="POST" style="margin-top: 1.5rem;">
+            {% csrf_token %}
+            <input type="hidden" id="srv-id" name="servicio_id">
+            
+            <div class="form-group mb-1">
+                <label class="text-muted small">Nombre del tratamiento</label>
+                <input type="text" id="srv-nombre" name="nombre" class="cyber-input" required placeholder="Ej. Blanqueamiento Zoom">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" class="mb-1">
+                <div class="form-group">
+                    <label class="text-muted small">Precio ($)</label>
+                    <input type="number" id="srv-precio" name="precio" class="cyber-input" required step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label class="text-muted small">Duración (minutos)</label>
+                    <input type="number" id="srv-duracion" name="duracion" class="cyber-input" required placeholder="Ej. 60">
+                </div>
+            </div>
+
+            <div class="form-group mb-1" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
+                <input type="checkbox" id="srv-activo" name="activo" checked style="accent-color: var(--brand);">
+                <label for="srv-activo">Disponible para agendar</label>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModalServicio()">Cancelar</button>
+                <button type="submit" class="cyber-btn cyber-btn-glow">Guardar Servicio</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const modal = document.getElementById('modal-servicio');
+      const tituloModal = document.getElementById('modal-titulo');
+      const form = modal.querySelector('form'); // Para resetear
+      const inputId = document.getElementById('srv-id');
+      const inputNombre = document.getElementById('srv-nombre');
+      const inputPrecio = document.getElementById('srv-precio');
+      const inputDuracion = document.getElementById('srv-duracion');
+      const checkActivo = document.getElementById('srv-activo');
+  
+      // Funciones para abrir/cerrar modal
+      window.abrirModalServicio = function() {
+          tituloModal.textContent = "Nuevo Servicio";
+          form.reset(); // Limpia todo el formulario
+          inputId.value = ""; 
+          checkActivo.checked = true; // Por defecto activo al crear
+          modal.style.display = 'flex';
+      }
+  
+      window.cerrarModalServicio = function() {
+          modal.style.display = 'none';
+      }
+  
+      // Escuchar clics en todos los botones de editar (La forma PRO)
+      document.querySelectorAll('.btn-editar').forEach(boton => {
+          boton.addEventListener('click', function() {
+              // Extraer datos guardados en los atributos data-
+              const ds = this.dataset;
+              
+              // Rellenar el modal
+              tituloModal.textContent = "Editar Servicio";
+              inputId.value = ds.id;
+              inputNombre.value = ds.nombre;
+              inputPrecio.value = ds.precio;
+              inputDuracion.value = ds.duracion;
+              checkActivo.checked = (ds.activo === 'true'); // Convertir texto "true" a booleano real
+              
+              modal.style.display = 'flex';
+          });
+      });
+  });
+  </script>   
 {% endblock %}

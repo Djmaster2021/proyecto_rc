@@ -23,9 +23,24 @@
             <img src="https://ui-avatars.com/api/?name={{ paciente.nombre }}&background=0D8ABC&color=fff&size=128" 
                  alt="Avatar" style="border-radius: 50%; border: 3px solid var(--color-primary); margin-bottom: 1rem;">
             <h2>{{ paciente.nombre }}</h2>
+
+            <div style="margin: 1rem 0; padding: 0.8rem; border-radius: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-subtle);">
+                <div class="small text-muted mb-1">Nivel de Riesgo (IA)</div>
+                {% if paciente.score_riesgo >= 0.8 %}
+                    <span class="chip status-cancelada" style="font-size: 1rem;">🔴 ALTO RIESGO</span>
+                    <p class="small text-danger mt-1">⚠️ Se recomienda solicitar pago por adelantado.</p>
+                {% elif paciente.score_riesgo >= 0.4 %}
+                    <span class="chip status-pendiente" style="font-size: 1rem; background: #f59e0b33; color: #fbbf24;">🟡 RIESGO MEDIO</span>
+                {% else %}
+                    <span class="chip status-confirmada" style="font-size: 1rem;">🟢 RIESGO BAJO</span>
+                {% endif %}
+            </div>
+            
             <div class="chip status-confirmada" style="display: inline-block; margin-bottom: 1.5rem;">
                 PAC-{{ paciente.id|stringformat:"04d" }}
             </div>
+            
+
 
             <div style="text-align: left; margin-top: 1.5rem;">
                 <div style="margin-bottom: 1rem;">

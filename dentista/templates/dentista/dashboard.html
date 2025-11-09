@@ -34,12 +34,6 @@
           <div class="kpi-value" style="color: var(--color-warning-cyber);">{{ kpi_pendientes }}</div>
       </div>
   </div>
-  <div class="glow-card-wrapper">
-      <div class="cyber-card">
-          <div class="text-muted">Ingresos del mes</div>
-          <div class="kpi-value">$0.00</div>
-      </div>
-  </div>
 </div>
 
 <div class="grid two mt">
@@ -83,17 +77,18 @@
                         </a>
                     {% endif %}
                     
-                    {% if cita.estado == 'CONFIRMADA' %}
-                        <a href="{% url 'dentista:completar_cita' cita.id %}" class="cyber-btn cyber-btn-sm">
-                            ✅ Completar
+                    {% if cita.estado == 'CONFIRMADA' or cita.estado == 'CONF_PACIENTE' %}
+                        <a href="{% url 'dentista:vista_consulta' cita.id %}" class="cyber-btn cyber-btn-sm">
+                            🩺 Atender
+                        </a>
+                        <a href="{% url 'dentista:marcar_no_show' cita.id %}" class="cyber-btn cyber-btn-sm cyber-btn-danger" title="Marcar Inasistencia" onclick="return confirm('¿Seguro que NO asistió?');">
+                            ❌
                         </a>
                     {% endif %}
 
-                    {% if cita.estado == 'CONFIRMADA' %}
-                    <a href="{% url 'dentista:vista_consulta' cita.id %}" class="cyber-btn cyber-btn-sm">
-                        🩺 Atender
-                    </a>
-                {% endif %}
+                    {% if cita.estado == 'COMPLETADA' %}
+                        <span class="text-muted"><i class="ph-fill ph-check-circle"></i> Listo</span>
+                    {% endif %}
                 </div>
               </td>
             </tr>
@@ -105,11 +100,9 @@
         <div style="padding: 3rem; text-align: center; color: var(--color-text-muted);">
             <i class="ph ph-calendar-x" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
             <p>No hay citas programadas para hoy.</p>
-            <p>¡Es un buen momento para revisar pendientes administrativos!</p>
         </div>
       {% endif %}
     </div>
   </div>
 </div>
-
 {% endblock %}

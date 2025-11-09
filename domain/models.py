@@ -109,13 +109,17 @@ class Disponibilidad(models.Model):
 
 class Cita(TimeStampedModel):
     """EL NÚCLEO: Registro de citas médicas."""
+    
     class EstadoCita(models.TextChoices):
         PENDIENTE = 'PENDIENTE', _('Pendiente de Confirmación')
-        CONFIRMADA = 'CONFIRMADA', _('Confirmada')
+        CONFIRMADA = 'CONFIRMADA', _('Confirmada por Dentista')
+        # Este es el que te falta o tiene otro nombre:
+        CONFIRMADA_PACIENTE = 'CONF_PACIENTE', _('Confirmada por Paciente (Email)') 
         COMPLETADA = 'COMPLETADA', _('Completada / Asistió')
         CANCELADA_PACIENTE = 'CANCEL_PAC', _('Cancelada por Paciente')
         CANCELADA_DENTISTA = 'CANCEL_DOC', _('Cancelada por Dentista')
         NO_SHOW = 'NO_SHOW', _('No Asistió (Inasistencia)')
+
 
     paciente = models.ForeignKey(Paciente, on_delete=models.PROTECT, related_name="citas")
     dentista = models.ForeignKey(Dentista, on_delete=models.PROTECT, related_name="agenda")

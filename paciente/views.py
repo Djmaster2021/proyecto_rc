@@ -9,6 +9,8 @@ from django.conf import settings
 from datetime import datetime
 from .mp_service import crear_preferencia_pago 
 from domain.models import Pago
+from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
+from django.views.decorators.http import require_GET
 
 # Importamos tus modelos y el servicio de cálculo de horarios
 from domain.models import Cita, Servicio, Dentista
@@ -96,16 +98,16 @@ def agendar_cita(request):
         )
 
         # 2. ENVIAR CORREO ELECTRÓNICO AUTOMÁTICO
-        asunto = '✅ Confirmación de Cita - Consultorio Dental RC'
+        asunto = ' Confirmación de Cita - Consultorio Dental RC'
         mensaje = f"""
 Hola {paciente.nombre},
 
 ¡Listo! Tu cita fue registrada con éxito.
 
-📅 Fecha: {fecha_inicio.strftime('%d/%m/%Y')}
-⏰ Hora: {fecha_inicio.strftime('%H:%M')}
-🦷 Tratamiento: {servicio.nombre}
-👨‍⚕️ Doctor: {dentista.nombre}
+ Fecha: {fecha_inicio.strftime('%d/%m/%Y')}
+ Hora: {fecha_inicio.strftime('%H:%M')}
+ Tratamiento: {servicio.nombre}
+ Doctor: {dentista.nombre}
 
 Recomendación: Por favor llega 10 minutos antes de tu cita para evitar contratiempos y actualizar cualquier dato necesario.
 
@@ -206,3 +208,30 @@ def pago_fallido(request):
 def pago_pendiente(request):
     messages.warning(request, "Tu pago está en proceso. Se actualizará cuando se confirme.")
     return redirect('paciente:dashboard')
+
+@require_GET
+def confirmar_por_email(request, token):
+    """
+    Vista pública que procesa el clic en el correo de recordatorio.
+    Usa criptografía para asegurar que nadie falsifique confirmaciones.
+    """
+    signer = TimestampSigner()
+    try:
+        # El token es válido solo por 48 horas (172800 segundos)
+        cita_id = signer.unsign(token, max_age=172800)
+        cita = get_object_or_404(Cita, id=cita_id)
+
+        if cita.estado == Cita.EstadoCita.PENDIENTE:
+            cita.estado = Cita.EstadoCita.CONFIRMADA_PACIENTE
+            cita.save()
+            # Aquí podrías renderizar una plantilla bonita de "¡Gracias!"
+            return HttpResponse("✅ ¡Gracias! Tu asistencia ha sido confirmada. Te esperamos.")
+        
+        elif cita.estado == Cita.EstadoCita.CONFIRMADA_PACIENTE:
+            return HttpResponse("ℹ️ Ya habías confirmado esta cita anteriormente.")
+
+        else:
+            return HttpResponse("⚠️ Esta cita ya no puede ser confirmada (quizás ya pasó o fue cancelada).")
+
+    except (BadSignature, SignatureExpired):
+        return HttpResponse("❌ El enlace de confirmación es inválido o ha expirado.")

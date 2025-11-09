@@ -1,36 +1,89 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-{% block dtitle %}Pagos | C.D. Rodolfo Castellón{% endblock %}
+{% block dtitle %}Finanzas | Dentista{% endblock %}
 
 {% block dcontent %}
 <header class="page-header">
   <div>
-    <h1>Pagos & Facturación</h1>
-    <div class="small text-muted">Control de ingresos, generación de recibos y recordatorios</div>
+    <h1>Control Financiero</h1>
+    <div class="small text-muted">Registro de ingresos y pagos recibidos</div>
   </div>
   <div class="toolbar-actions">
-     <input id="paymentsSearchInput" class="input" placeholder="Buscar por paciente o servicio">
-    <button class="cyber-btn cyber-btn-glow" type="button">Registrar pago</button>
+      <button class="cyber-btn">Registrar Pago Efectivo</button>
   </div>
 </header>
 
+<div class="grid grid-cols-3 gap-1-5 mb-2">
+    <div class="glow-card-wrapper">
+        <div class="cyber-card">
+            <div class="text-muted">Ingresos este Mes</div>
+            <div class="kpi-value highlight">${{ total_mes|floatformat:2 }}</div>
+        </div>
+    </div>
+    <div class="glow-card-wrapper">
+        <div class="cyber-card">
+            <div class="text-muted">Total Histórico</div>
+            <div class="kpi-value">${{ total_historico|floatformat:2 }}</div>
+        </div>
+    </div>
+    <div class="glow-card-wrapper">
+        <div class="cyber-card">
+            <div class="text-muted">Pagos Registrados</div>
+            <div class="kpi-value">{{ pagos.count }}</div>
+        </div>
+    </div>
+</div>
+
 <div class="glow-card-wrapper">
   <div class="cyber-card">
-    <div class="table-wrap">
+    <h3>Historial de Transacciones</h3>
+    <div class="table-responsive mt">
       <table class="data-table">
         <thead>
           <tr>
-            <th>ID Pago</th>
-            <th>Paciente</th>
             <th>Fecha</th>
-            <th>Servicio</th>
+            <th>Paciente</th>
+            <th>Concepto (Cita)</th>
+            <th>Método</th>
             <th>Monto</th>
             <th>Estado</th>
-            <th>Acciones</th>
           </tr>
         </thead>
-        <tbody id="paymentsTableBody"></tbody>
+        <tbody>
+          {% for pago in pagos %}
+          <tr>
+            <td>{{ pago.created_at|date:"d/m/Y H:i" }}</td>
+            <td>
+                <strong>{{ pago.cita.paciente.nombre }}</strong>
+            </td>
+            <td>
+                {{ pago.cita.servicio.nombre }}
+                <br><small class="text-muted">{{ pago.cita.fecha_hora_inicio|date:"d M, H:i" }}</small>
+            </td>
+            <td>
+                {% if pago.metodo == 'MERCADOPAGO' %}
+                    <span style="color: #009ee3;"><i class="ph-fill ph-credit-card"></i> MercadoPago</span>
+                {% else %}
+                    <span style="color: var(--color-success-cyber);"><i class="ph-fill ph-money"></i> Efectivo</span>
+                {% endif %}
+            </td>
+            <td style="font-weight: 700; font-size: 1.1rem;">
+                ${{ pago.monto }}
+            </td>
+            <td>
+                <span class="chip status-confirmada">Pagado</span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                <i class="ph ph-receipt" style="font-size: 3rem; opacity: 0.5; margin-bottom: 1rem;"></i>
+                <p>No hay pagos registrados todavía.</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
     </div>
   </div>
