@@ -68,15 +68,14 @@
                                         </a>
                                     {% endif %}
                                     
-                                    {% if cita.estado == 'CONFIRMADA' %}
+                                    {% if cita.estado == 'CONFIRMADA' or cita.estado == 'CONF_PACIENTE' or cita.estado == 'CONF_DENTISTA' %}
                                         <a href="{% url 'dentista:vista_consulta' cita.id %}" class="cyber-btn cyber-btn-sm" title="Atender Paciente">
-                                            🩺 Atender
+                                            🩺
+                                        </a>
+                                        <a href="{% url 'dentista:marcar_no_show' cita.id %}" class="cyber-btn cyber-btn-sm cyber-btn-danger" title="Marcar Inasistencia" onclick="return confirm('¿Seguro que NO asistió?');">
+                                            ❌
                                         </a>
                                     {% endif %}
-
-                                    <button class="cyber-btn cyber-btn-sm cyber-btn-secondary" title="Ver detalles / Editar">
-                                        <i class="ph-fill ph-pencil-simple"></i>
-                                    </button>
                                 </div>
                             </td>
                         </tr>

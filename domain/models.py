@@ -111,15 +111,17 @@ class Cita(TimeStampedModel):
     """EL NÚCLEO: Registro de citas médicas."""
     
     class EstadoCita(models.TextChoices):
-        PENDIENTE = 'PENDIENTE', _('Pendiente de Confirmación')
-        CONFIRMADA = 'CONFIRMADA', _('Confirmada por Dentista')
-        # Este es el que te falta o tiene otro nombre:
-        CONFIRMADA_PACIENTE = 'CONF_PACIENTE', _('Confirmada por Paciente (Email)') 
-        COMPLETADA = 'COMPLETADA', _('Completada / Asistió')
-        CANCELADA_PACIENTE = 'CANCEL_PAC', _('Cancelada por Paciente')
-        CANCELADA_DENTISTA = 'CANCEL_DOC', _('Cancelada por Dentista')
-        NO_SHOW = 'NO_SHOW', _('No Asistió (Inasistencia)')
-
+        PENDIENTE = 'PENDIENTE', 'Pendiente de Confirmación'
+        # Estados de Confirmación
+        CONFIRMADA = 'CONFIRMADA', 'Confirmada (General)' 
+        CONFIRMADA_PACIENTE = 'CONF_PACIENTE', 'Confirmada por Paciente (Email)'
+        CONFIRMADA_DENTISTA = 'CONF_DENTISTA', 'Confirmada por Dentista'
+        # Estados Finales
+        COMPLETADA = 'COMPLETADA', 'Completada / Asistió'
+        CANCELADA = 'CANCELADA', 'Cancelada General'
+        CANCELADA_PACIENTE = 'CANCEL_PAC', 'Cancelada por Paciente'
+        CANCELADA_DENTISTA = 'CANCEL_DOC', 'Cancelada por Dentista'
+        NO_SHOW = 'NO_SHOW', 'No Asistió (Falta)'
 
     paciente = models.ForeignKey(Paciente, on_delete=models.PROTECT, related_name="citas")
     dentista = models.ForeignKey(Dentista, on_delete=models.PROTECT, related_name="agenda")
@@ -174,3 +176,27 @@ class Pago(TimeStampedModel):
 
     def __str__(self):
         return f"Pago {self.id} - {self.get_estado_display()} (${self.monto})"
+    
+    # ... (tus modelos anteriores) ...
+
+class EncuestaSatisfaccion(TimeStampedModel):
+    """Guarda la calificación y el análisis de IA de cada cita."""
+    class Sentimiento(models.TextChoices):
+        POSITIVO = 'POS', 'Positivo 😊'
+        NEUTRAL = 'NEU', 'Neutral 😐'
+        NEGATIVO = 'NEG', 'Negativo 😡'
+
+    cita = models.OneToOneField(Cita, on_delete=models.CASCADE, related_name="encuesta")
+    calificacion = models.PositiveIntegerField(verbose_name="Estrellas (1-5)", choices=[(i, str(i)) for i in range(1, 6)])
+    comentario = models.TextField(blank=True, verbose_name="Opinión del Paciente")
+    
+    # Campos para la IA y Moderación
+    sentimiento_ia = models.CharField(max_length=3, choices=Sentimiento.choices, default=Sentimiento.NEUTRAL, verbose_name="Análisis IA")
+    es_publico = models.BooleanField(default=False, verbose_name="Visible en Landing Page")
+
+    def __str__(self):
+        return f"Reseña de {self.cita.paciente} - {self.calificacion}⭐"
+
+    class Meta:
+        verbose_name = "Encuesta de Satisfacción"
+        verbose_name_plural = "Encuestas de Satisfacción"

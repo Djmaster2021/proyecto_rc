@@ -1,60 +1,97 @@
-(() => {
-  'use strict';
+document.addEventListener('DOMContentLoaded', () => {
+    initNavbar();
+    initScrollReveal();
+    initChatbot();
+});
 
-  const ready = (fn) => (document.readyState === 'loading')
-    ? document.addEventListener('DOMContentLoaded', fn, { once: true })
-    : fn();
-
-  ready(() => {
+// --- 1. NAVBAR & MENÚ MÓVIL ---
+function initNavbar() {
     const navbar = document.querySelector('.rc-navbar');
     const burger = document.getElementById('burger');
     const mobilePanel = document.getElementById('mobile-panel');
 
-    // 1. Efecto de desenfoque en la Navbar al hacer scroll
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        navbar?.classList.add('is-scrolled');
-      } else {
-        navbar?.classList.remove('is-scrolled');
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
+    window.addEventListener('scroll', () => {
+        navbar?.classList.toggle('is-scrolled', window.scrollY > 20);
+    }, { passive: true });
 
-    // 2. Funcionalidad del Menú Hamburguesa
     if (burger && mobilePanel) {
-      const toggleMenu = () => {
-        const isOpen = mobilePanel.classList.toggle('is-open');
-        burger.classList.toggle('is-active', isOpen);
-        burger.setAttribute('aria-expanded', String(isOpen));
-        burger.innerHTML = isOpen ? '<i class="ph ph-x"></i>' : '<i class="ph ph-list"></i>';
-        document.body.style.overflow = isOpen ? 'hidden' : '';
-      };
-      
-      burger.addEventListener('click', toggleMenu);
-
-      mobilePanel.addEventListener('click', (e) => {
-        if (e.target.tagName === 'A') {
-          toggleMenu();
-        }
-      });
-    }
-    
-    // 3. Animaciones de revelado de elementos al hacer scroll
-    const revealElements = document.querySelectorAll('.reveal');
-    if ("IntersectionObserver" in window) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('in');
-          }
+        burger.addEventListener('click', () => {
+            const isOpen = mobilePanel.classList.toggle('is-open');
+            burger.innerHTML = isOpen ? '<i class="ph-bold ph-x"></i>' : '<i class="ph-bold ph-list"></i>';
+            document.body.style.overflow = isOpen ? 'hidden' : '';
         });
-      }, { threshold: 0.1 });
-
-      revealElements.forEach(el => observer.observe(el));
-    } else {
-      // Si el navegador es muy antiguo, simplemente muestra los elementos
-      revealElements.forEach(el => el.classList.add('in'));
+        mobilePanel.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobilePanel.classList.remove('is-open');
+                document.body.style.overflow = '';
+                burger.innerHTML = '<i class="ph-bold ph-list"></i>';
+            });
+        });
     }
-  });
-})();
+}
+
+// --- 2. ANIMACIONES SCROLL ---
+function initScrollReveal() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('in');
+        });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}
+
+// --- 3. CHATBOT INTELIGENTE ---
+function initChatbot() {
+    const el = {
+        widget: document.getElementById('rc-chatbot'),
+        trigger: document.getElementById('chat-trigger'),
+        close: document.getElementById('chat-close'),
+        msgs: document.getElementById('chat-messages'),
+        form: document.getElementById('chat-form'),
+        input: document.getElementById('chat-input')
+    };
+
+    if (!el.widget || !el.trigger) return;
+
+    el.trigger.onclick = () => {
+        const isHidden = el.widget.classList.toggle('chat-hidden');
+        if (!isHidden) setTimeout(() => el.input.focus(), 300);
+    };
+    el.close.onclick = () => el.widget.classList.add('chat-hidden');
+
+    const addMsg = (text, type, isLoader=false) => {
+        const div = document.createElement('div');
+        div.className = `chat-msg ${type}`;
+        if (isLoader) div.id = 'bot-loader';
+        div.innerHTML = isLoader ? '<i class="ph-bold ph-dots-three ph-beat"></i>' : text;
+        el.msgs.appendChild(div);
+        el.msgs.scrollTop = el.msgs.scrollHeight;
+        return div;
+    };
+
+    const send = async (text) => {
+        if (!text.trim()) return;
+        addMsg(text, 'user');
+        el.input.value = '';
+        const loader = addMsg('', 'bot', true);
+
+        try {
+            const res = await fetch('/api/chatbot/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mensaje: text })
+            });
+            const data = await res.json();
+            loader.remove();
+            addMsg(data.respuesta, 'bot');
+        } catch (err) {
+            loader.remove();
+            addMsg('⚠️ Error de conexión. Intenta de nuevo.', 'bot');
+        }
+    };
+
+    el.form.onsubmit = (e) => { e.preventDefault(); send(el.input.value); };
+    document.querySelectorAll('.quick-btn').forEach(btn => {
+        btn.onclick = () => send(btn.dataset.msg);
+    });
+}

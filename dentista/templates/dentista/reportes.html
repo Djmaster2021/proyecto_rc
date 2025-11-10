@@ -1,37 +1,81 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-{% block dtitle %}Reportes | C.D. Rodolfo Castellón{% endblock %}
+{% block dtitle %}Reportes | Dentista{% endblock %}
 
 {% block dcontent %}
 <header class="page-header">
   <div>
-    <h1>Reportes & Analítica</h1>
-    <div class="small text-muted">Visión estratégica del negocio y KPIs operativos</div>
-  </div>
-  <div class="toolbar-actions">
-    <button class="cyber-btn" type="button">Exportar Dashboard</button>
+    <h1>Reportes y Estadísticas</h1>
+    <div class="small text-muted">Analiza el rendimiento real de tu consultorio.</div>
   </div>
 </header>
 
+<div class="glow-card-wrapper mb-2">
+    <div class="cyber-card">
+        <form method="GET" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+            <div class="form-group">
+                <label class="text-muted small">Fecha Inicio</label>
+                <input type="date" name="inicio" value="{{ fecha_inicio }}" class="cyber-input">
+            </div>
+            <div class="form-group">
+                <label class="text-muted small">Fecha Fin</label>
+                <input type="date" name="fin" value="{{ fecha_fin }}" class="cyber-input">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="cyber-btn cyber-btn-glow">🔍 Filtrar Datos</button>
+            </div>
+            
+            <div style="flex-grow: 1;"></div>
+            
+            <div class="form-group" style="display: flex; gap: 0.5rem;">
+                <a href="{% url 'dentista:exportar_citas_csv' %}?inicio={{ fecha_inicio }}&fin={{ fecha_fin }}" 
+                   class="cyber-btn cyber-btn-secondary" title="Descargar Excel">
+                     CSV
+                </a>
+                <a href="{% url 'dentista:exportar_citas_pdf' %}?inicio={{ fecha_inicio }}&fin={{ fecha_fin }}" 
+                   class="cyber-btn" 
+                   style="background: var(--color-danger); color: white; border: none;"
+                   target="_blank" title="Ver reporte oficial">
+                   🖨️ PDF
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="grid kpis">
-  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Ingresos (año)</div><div class="kpi-value">$<span data-counter="190000">0</span></div></div></div>
-  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Tasa de ocupación</div><div class="kpi-value"><span data-counter="92">0</span>%</div></div></div>
-  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Ingreso / cita</div><div class="kpi-value">$<span data-counter="650">0</span></div></div></div>
-  <div class="glow-card-wrapper"><div class="cyber-card"><div class="text-muted">Pacientes nuevos (mes)</div><div class="kpi-value" data-counter="12">0</div></div></div>
+    <div class="glow-card-wrapper">
+        <div class="cyber-card">
+            <div class="text-muted">Total Citas (Periodo)</div>
+            <div class="kpi-value highlight">{{ total_citas }}</div>
+        </div>
+    </div>
+    <div class="glow-card-wrapper">
+        <div class="cyber-card">
+            <div class="text-muted">Pacientes Atendidos</div>
+            <div class="kpi-value" style="color: var(--color-success-cyber);">{{ citas_atendidas }}</div>
+        </div>
+    </div>
+    <div class="glow-card-wrapper">
+        <div class="cyber-card">
+            <div class="text-muted">Cancelaciones/Faltas</div>
+            <div class="kpi-value" style="color: var(--color-danger);">{{ citas_canceladas }}</div>
+        </div>
+    </div>
+    <div class="glow-card-wrapper">
+        <div class="cyber-card">
+            <div class="text-muted">Ingresos (Periodo)</div>
+            <div class="kpi-value">${{ ingresos_totales|floatformat:2 }}</div>
+        </div>
+    </div>
 </div>
 
 <div class="grid two mt">
   <div class="glow-card-wrapper">
     <div class="cyber-card">
-      <h3>Ingresos mensuales</h3>
-      <div class="chart-box"><canvas id="monthlyRevenue"></canvas></div>
-    </div>
-  </div>
-  <div class="glow-card-wrapper">
-    <div class="cyber-card">
-      <h3>Uso de servicios</h3>
-      <div class="chart-box"><canvas id="doughnutServices"></canvas></div>
+      <h3>Tendencia de Ingresos</h3>
+      <div class="chart-box"><canvas id="balanceChart"></canvas></div>
     </div>
   </div>
 </div>

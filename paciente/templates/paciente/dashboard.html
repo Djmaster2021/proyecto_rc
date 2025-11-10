@@ -1,7 +1,7 @@
 {% extends "paciente/base.html" %}
 {% load static %}
 
-{% block ptitle %}Dashboard del Paciente{% endblock %}
+{% block ptitle %}Dashboard | Paciente{% endblock %}
 
 {% block pcontent %}
   <section class="cyber-banner">
@@ -10,10 +10,16 @@
     
     <div class="cyber-actions">
       {% if not proxima_cita %}
-        <button id="btn-agendar" class="cyber-btn cyber-btn-glow">Agendar una nueva cita</button>
+        <button id="btn-agendar" class="cyber-btn cyber-btn-glow">
+            <i class="ph-bold ph-plus"></i> Agendar nueva cita
+        </button>
       {% else %}
-        <a href="{% url 'paciente:reprogramar' proxima_cita.id %}" class="cyber-btn">Reprogramar cita</a>
-        <button id="btn-cancelar" class="cyber-btn cyber-btn-danger" data-cita-id="{{ proxima_cita.id }}">Cancelar cita</button>
+        <a href="{% url 'paciente:reprogramar' proxima_cita.id %}" class="cyber-btn">
+            <i class="ph-bold ph-arrows-clockwise"></i> Reprogramar
+        </a>
+        <button id="btn-cancelar" class="cyber-btn cyber-btn-danger" data-cita-id="{{ proxima_cita.id }}">
+            <i class="ph-bold ph-x"></i> Cancelar
+        </button>
       {% endif %}
     </div>
   </section>
@@ -33,31 +39,36 @@
       
       <div class="glow-card-wrapper">
         <div class="cyber-card">
-          <h2 class="card-title">Tu Próxima Cita</h2>
+          <h2 class="card-title"><i class="ph-duotone ph-calendar-check"></i> Tu Próxima Cita</h2>
           <div id="proxima-cita-content">
             {% if proxima_cita %}
-            <div class="cita-destacada">
-              <p><strong>📅 Fecha:</strong> {{ proxima_cita.fecha_hora_inicio|date:"l d F, Y" }}</p>
-              <p><strong>⏰ Hora:</strong> {{ proxima_cita.fecha_hora_inicio|time:"h:i A" }}</p>
-              <p><strong>🦷 Tratamiento:</strong> {{ proxima_cita.servicio.nombre }}</p>
-              <p><strong>👨‍⚕️ Doctor:</strong> {{ proxima_cita.dentista.nombre }}</p>
-              
-              <div style="margin-top:1.5rem; display: flex; justify-content: space-between; align-items: center;">
-                <span class="chip status-{{ proxima_cita.estado|lower }}">{{ proxima_cita.get_estado_display }}</span>
-            
-                {% if proxima_cita.estado == 'CONFIRMADA' %}
-                    {% if not proxima_cita.pago_relacionado or proxima_cita.pago_relacionado.estado != 'COMPLETADO' %}
-                        <a href="{% url 'paciente:iniciar_pago' proxima_cita.id %}" class="cyber-btn cyber-btn-glow" style="text-decoration: none;">
-                            💳 Pagar ahora (${{ proxima_cita.servicio.precio }})
-                        </a>
-                    {% else %}
-                        <span class="text-success" style="font-weight: bold;">✅ ¡Pagado!</span>
-                    {% endif %}
-                {% endif %}
+              <div class="cita-destacada">
+                <p><i class="ph-fill ph-calendar-blank text-accent"></i> <strong>Fecha:</strong> {{ proxima_cita.fecha_hora_inicio|date:"l d F, Y" }}</p>
+                <p><i class="ph-fill ph-clock text-accent"></i> <strong>Hora:</strong> {{ proxima_cita.fecha_hora_inicio|time:"h:i A" }}</p>
+                <p><i class="ph-fill ph-tooth text-accent"></i> <strong>Tratamiento:</strong> {{ proxima_cita.servicio.nombre }}</p>
+                <p><i class="ph-fill ph-user-circle text-accent"></i> <strong>Doctor:</strong> {{ proxima_cita.dentista.nombre }}</p>
+                
+                <div style="margin-top:1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                  <span class="chip status-{{ proxima_cita.estado|lower }}">{{ proxima_cita.get_estado_display }}</span>
+
+                  {% if proxima_cita.estado == 'CONFIRMADA' or proxima_cita.estado == 'CONF_PACIENTE' %}
+                      {% if not proxima_cita.pago_relacionado or proxima_cita.pago_relacionado.estado != 'COMPLETADO' %}
+                          <a href="{% url 'paciente:iniciar_pago' proxima_cita.id %}" class="cyber-btn cyber-btn-glow" style="text-decoration: none;">
+                              <i class="ph-bold ph-credit-card"></i> Pagar ahora (${{ proxima_cita.servicio.precio }})
+                          </a>
+                      {% else %}
+                          <span class="text-success" style="font-weight: bold; display: flex; align-items: center; gap: 4px;">
+                              <i class="ph-fill ph-check-circle"></i> Pagado
+                          </span>
+                      {% endif %}
+                  {% endif %}
+                </div>
               </div>
-            </div>
             {% else %}
-              <p class="text-muted">No tienes citas próximas agendadas.</p>
+              <div style="text-align: center; padding: 2rem; color: var(--color-text-muted); opacity: 0.7;">
+                  <i class="ph-duotone ph-calendar-slash" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                  <p>No tienes citas próximas agendadas.</p>
+              </div>
             {% endif %}
           </div>
         </div>
@@ -65,7 +76,7 @@
 
       <div class="glow-card-wrapper">
         <div class="cyber-card">
-          <h2 class="card-title">Mi Perfil</h2>
+          <h2 class="card-title"><i class="ph-duotone ph-user-circle"></i> Mi Perfil</h2>
           <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
             <img id="perfil-img" src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=0D8ABC&color=fff&size=128" alt="Perfil" style="border-radius: 50%; border: 2px solid var(--color-primary); width: 70px; height: 70px; object-fit: cover;">
             <div>
@@ -74,15 +85,15 @@
               <p><strong>Email:</strong> {{ user.email }}</p>
             </div>
           </div>
-          <p><strong>Teléfono:</strong> {{ paciente.telefono }}</p>
-          <p><strong>Dirección:</strong> {{ paciente.direccion|default:"No registrada" }}</p>
+          <p><i class="ph-fill ph-phone"></i> <strong>Teléfono:</strong> {{ paciente.telefono }}</p>
+          <p><i class="ph-fill ph-map-pin"></i> <strong>Dirección:</strong> {{ paciente.direccion|default:"No registrada" }}</p>
         </div>
       </div>
     </div>
 
     <section class="glow-card-wrapper" style="margin-top: 1.5rem;">
       <div class="cyber-card">
-        <h2 class="card-title">Historial de Citas</h2>
+        <h2 class="card-title"><i class="ph-duotone ph-clock-counter-clockwise"></i> Historial de Citas</h2>
         <div class="table-responsive">
           <table class="data-table">
             <thead>
@@ -91,6 +102,7 @@
                 <th>Servicio</th>
                 <th>Doctor</th>
                 <th>Estado</th>
+                <th>Acción</th>
               </tr>
             </thead>
             <tbody>
@@ -100,13 +112,22 @@
                 <td>{{ cita.servicio.nombre }}</td>
                 <td>{{ cita.dentista.nombre }}</td>
                 <td><span class="chip status-{{ cita.estado|lower }}">{{ cita.get_estado_display }}</span></td>
+                <td>
+                    {% if cita.estado == 'COMPLETADA' and not cita.encuesta %}
+                        <a href="{% url 'paciente:encuesta_satisfaccion' cita.id %}" class="cyber-btn cyber-btn-sm" style="text-decoration: none;">
+                            ⭐ Calificar
+                        </a>
+                    {% endif %}
+                </td>
               </tr>
               {% empty %}
               <tr>
-                <td colspan="4" class="text-center">Aún no tienes historial de citas.</td>
+                <td colspan="5" class="text-center" style="padding: 2rem; color: var(--color-text-muted);">
+                    <i class="ph ph-folder-open" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                    Aún no tienes historial.
+                </td>
               </tr>
-              {% endfor %}
-            </tbody>
+              {% endfor %} </tbody>
           </table>
         </div>
       </div>
@@ -116,13 +137,11 @@
   <div id="modal-agendar" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>📅 Agendar Nueva Cita</h3>
-        <button class="modal-close">&times;</button>
+        <h3><i class="ph-duotone ph-calendar-plus"></i> Agendar Nueva Cita</h3>
+        <button class="modal-close"><i class="ph-bold ph-x"></i></button>
       </div>
-      
       <form id="form-agendar" method="POST" action="{% url 'paciente:agendar_crear' %}">
         {% csrf_token %}
-        
         <div class="form-group">
           <label for="agendar-servicio">Tratamiento deseado</label>
           <select id="agendar-servicio" name="servicio" required class="cyber-input">
@@ -134,12 +153,10 @@
             {% endfor %}
           </select>
         </div>
-
         <div class="form-group">
           <label for="agendar-fecha">Fecha preferida</label>
           <input type="date" id="agendar-fecha" name="fecha" required class="cyber-input">
         </div>
-
         <div class="form-group">
           <label for="agendar-hora">Horarios disponibles</label>
           <select id="agendar-hora" name="hora" required class="cyber-input" disabled>
@@ -147,26 +164,24 @@
           </select>
           <small class="text-muted" id="hora-help">Selecciona fecha para ver disponibilidad.</small>
         </div>
-
         <div class="form-group">
           <label for="agendar-notas">Notas adicionales (opcional)</label>
-          <textarea id="agendar-notas" name="notas" class="cyber-input" rows="2" placeholder="Ej. Tengo sensibilidad en una muela..."></textarea>
+          <textarea id="agendar-notas" name="notas" class="cyber-input" rows="2" placeholder="Ej. Tengo sensibilidad..."></textarea>
         </div>
-
         <div class="form-actions">
           <button type="button" class="cyber-btn cyber-btn-secondary modal-close">Cancelar</button>
-          <button type="submit" class="cyber-btn cyber-btn-glow" id="btn-confirmar-agendar" disabled>Confirmar Cita</button>
+          <button type="submit" class="cyber-btn cyber-btn-glow" id="btn-confirmar-agendar" disabled>
+              Confirmar Cita
+          </button>
         </div>
       </form>
     </div>
   </div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // --- 1. Configuración Inicial ---
     const modalAgendar = document.getElementById('modal-agendar');
     const btnAgendar = document.getElementById('btn-agendar');
     const fechaInput = document.getElementById('agendar-fecha');
@@ -175,14 +190,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnConfirmar = document.getElementById('btn-confirmar-agendar');
     const horaHelp = document.getElementById('hora-help');
 
-    // Establecer fecha mínima como HOY
     const hoy = new Date().toISOString().split('T')[0];
     if(fechaInput) fechaInput.min = hoy;
 
-    // --- 2. Funciones del Modal ---
-    function abrirModal() {
-        modalAgendar.classList.add('is-visible');
-    }
+    function abrirModal() { modalAgendar.classList.add('is-visible'); }
     function cerrarModal() {
         modalAgendar.classList.remove('is-visible');
         document.getElementById('form-agendar').reset();
@@ -191,59 +202,43 @@ document.addEventListener('DOMContentLoaded', function() {
         btnConfirmar.disabled = true;
     }
 
-    // Event Listeners para abrir/cerrar
     if(btnAgendar) btnAgendar.addEventListener('click', abrirModal);
-    
-    document.querySelectorAll('.modal-close').forEach(btn => {
-        btn.addEventListener('click', cerrarModal);
-    });
+    document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', cerrarModal));
 
-    // --- 3. MOTOR DE DISPONIBILIDAD (AJAX) ---
     async function consultarDisponibilidad() {
         const fecha = fechaInput.value;
         const servicioId = servicioInput.value;
-
-        // Solo consultamos si ambos campos tienen valor
         if (!fecha || !servicioId) return;
 
-        // Mostrar estado de "Cargando..."
         horaInput.disabled = true;
         horaInput.innerHTML = '<option>Buscando horarios...</option>';
-        horaHelp.textContent = 'Consultando agenda del Dr...';
+        horaHelp.innerHTML = '<i class="ph-bold ph-spinner-gap ph-spin"></i> Consultando agenda...';
 
         try {
-            // Llamada a tu nueva API
             const response = await fetch(`/paciente/api/horarios/?fecha=${fecha}&servicio_id=${servicioId}`);
             const horarios = await response.json();
-
-            // Limpiar dropdown
             horaInput.innerHTML = '';
 
             if (horarios.length > 0) {
-                // ¡Hay horarios! Llenar el select
                 horarios.forEach(hora => {
                     const option = document.createElement('option');
                     option.value = hora;
-                    option.textContent = hora; // La API ya devuelve formato "HH:MM"
+                    option.textContent = hora;
                     horaInput.appendChild(option);
                 });
                 horaInput.disabled = false;
                 btnConfirmar.disabled = false;
-                horaHelp.textContent = '✅ Horarios disponibles encontrados.';
+                horaHelp.innerHTML = '<i class="ph-fill ph-check-circle" style="color:var(--color-success-cyber)"></i> Horarios disponibles encontrados.';
             } else {
-                // No hay horarios ese día
-                horaInput.innerHTML = '<option value="">No hay disponibilidad este día</option>';
-                horaHelp.textContent = '❌ El doctor no tiene huecos para este día. Prueba otra fecha.';
+                horaInput.innerHTML = '<option value="">No hay disponibilidad</option>';
+                horaHelp.innerHTML = '<i class="ph-fill ph-x-circle" style="color:var(--color-danger)"></i> Sin huecos este día.';
             }
-
         } catch (error) {
-            console.error('Error al consultar API:', error);
             horaInput.innerHTML = '<option value="">Error de conexión</option>';
-            horaHelp.textContent = '⚠️ Error al conectar con el servidor.';
+            horaHelp.textContent = '⚠️ Error de red.';
         }
     }
 
-    // Escuchar cambios en fecha o servicio para disparar la consulta
     if(fechaInput && servicioInput) {
         fechaInput.addEventListener('change', consultarDisponibilidad);
         servicioInput.addEventListener('change', consultarDisponibilidad);

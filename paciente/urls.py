@@ -23,4 +23,5 @@ urlpatterns = [
     path("reprogramar/<int:cita_id>/", views.reprogramar_placeholder, name="reprogramar"),
     path("cancelar/<int:cita_id>/", views.cancelar_placeholder, name="cancelar"),
     path("confirmar-cita/<str:token>/", views.confirmar_por_email, name="confirmar_por_email"),
+    path("cita/<int:cita_id>/encuesta/", views.encuesta_satisfaccion, name="encuesta_satisfaccion"),
 ]

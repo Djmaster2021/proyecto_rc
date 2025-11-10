@@ -783,3 +783,28 @@ select.cyber-btn {
 ::placeholder {
   color: rgba(232, 238, 247, 0.5); /* Color claro pero un poco transparente */
 }
+
+/* --- Corrección Global de Inputs --- */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="time"],
+input[type="number"],
+select,
+textarea,
+.cyber-input {
+    background-color: rgba(11, 18, 32, 0.8) !important; /* Fondo oscuro (var(--bg) con transparencia) */
+    color: #e8eef7 !important; /* Texto claro (var(--ink)) */
+    border: 1px solid rgba(46, 230, 166, 0.3) !important; /* Borde sutil color marca */
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+/* Efecto al dar clic en el input */
+input:focus, select:focus, textarea:focus, .cyber-input:focus {
+    border-color: var(--brand) !important; /* Borde verde neón al escribir */
+    box-shadow: 0 0 15px rgba(46, 230, 166, 0.2); /* Pequeño resplandor */
+}

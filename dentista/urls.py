@@ -25,8 +25,11 @@ urlpatterns = [
     path("penalizaciones/", views.penalizaciones, name="penalizaciones"),
     
     # Otros
-    path("reportes/", views.reportes_placeholder, name="reportes"),
+    path("reportes/", views.reportes, name="reportes"),
+    path("reportes/exportar/citas/", views.exportar_citas_csv, name="exportar_citas_csv"),
+    path("reportes/exportar/pdf/", views.exportar_citas_pdf, name="exportar_citas_pdf"),
     path("configuracion/", views.configuracion, name="configuracion"),
     path("configuracion/eliminar/<int:horario_id>/", views.eliminar_horario, name="eliminar_horario"),
-    path("soporte/", views.soporte_placeholder, name="soporte"),
+    path("api/grafica/ingresos/", views.api_datos_grafica, name="api_grafica_ingresos"),
+    path("soporte/", views.soporte, name="soporte"),
 ]
