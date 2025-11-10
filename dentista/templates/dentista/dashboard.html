@@ -1,106 +1,110 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-{% block dtitle %}Dashboard | {{ dentista.nombre }}{% endblock %}
+{% block dtitle %}Inicio | Dr. {{ user.last_name }}{% endblock %}
 
 {% block dcontent %}
-<header class="page-header">
+<!-- ENCABEZADO DE BIENVENIDA -->
+<div class="welcome-header">
   <div>
-    <h1>Hola, {{ dentista.nombre }}</h1>
-    <div class="small text-muted">Resumen de hoy, {{ fecha_actual|date:"l d \d\e F" }}</div>
+    <h1 class="welcome-title">¡Hola, Dr. {{ dentista.nombre }}! 👋</h1>
+    <p class="welcome-subtitle">Aquí tienes el resumen operativo de hoy, <span id="live-datetime-dentist">cargando...</span></p>
   </div>
-  <div class="toolbar-actions">
-    <div class="live-datetime" id="live-datetime-dentist"></div>
-    <a href="{% url 'dentista:agenda' %}" class="cyber-btn">Ver Agenda Completa</a>
-  </div>
-</header>
-
-<div class="grid kpis">
-  <div class="glow-card-wrapper">
-      <div class="cyber-card">
-          <div class="text-muted">Citas para hoy</div>
-          <div class="kpi-value highlight">{{ citas_hoy.count }}</div>
-      </div>
-  </div>
-  <div class="glow-card-wrapper">
-      <div class="cyber-card">
-          <div class="text-muted">Pacientes totales</div>
-          <div class="kpi-value">{{ kpi_pacientes }}</div>
-      </div>
-  </div>
-  <div class="glow-card-wrapper">
-      <div class="cyber-card">
-          <div class="text-muted">Solicitudes pendientes</div>
-          <div class="kpi-value" style="color: var(--color-warning-cyber);">{{ kpi_pendientes }}</div>
-      </div>
+  <div class="header-actions">
+      <a href="{% url 'dentista:agenda' %}" class="cyber-btn cyber-btn-glow">
+          <i class="ph-bold ph-calendar-plus"></i> Ver Agenda Completa
+      </a>
   </div>
 </div>
 
-<div class="grid two mt">
-  <div class="glow-card-wrapper">
-    <div class="cyber-card">
-      <h3>📅 Agenda de Hoy</h3>
-      
-      {% if citas_hoy %}
-      <div class="table-responsive mt" style="max-height: 400px; overflow-y: auto;">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Hora</th>
-              <th>Paciente</th>
-              <th>Estado</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for cita in citas_hoy %}
-            <tr>
-              <td style="font-weight: 700; color: var(--color-primary);">
-                  {{ cita.fecha_hora_inicio|time:"H:i" }}
-              </td>
-              <td>
-                  <strong>{{ cita.paciente.nombre }}</strong>
-                  <br><small class="text-muted">{{ cita.servicio.nombre }}</small>
-              </td>
-              <td>
-                  <span class="chip status-{{ cita.estado|lower }}">
-                      {{ cita.get_estado_display }}
-                  </span>
-              </td>
-              <td>
-                <div style="display: flex; gap: 0.5rem;">
-                    {% if cita.estado == 'PENDIENTE' %}
-                        <a href="{% url 'dentista:confirmar_cita' cita.id %}" class="cyber-btn cyber-btn-sm" style="background: var(--color-success-cyber); color: #000;" title="Confirmar">
-                            <i class="ph-fill ph-check"></i>
-                        </a>
-                    {% endif %}
-                    {% if cita.estado == 'CONFIRMADA' or cita.estado == 'CONF_PACIENTE' %}
-                        <a href="{% url 'dentista:vista_consulta' cita.id %}" class="cyber-btn cyber-btn-sm" title="Atender">🩺</a>
-                        <a href="{% url 'dentista:marcar_no_show' cita.id %}" class="cyber-btn cyber-btn-sm cyber-btn-danger" title="No asistió" onclick="return confirm('¿Marcar inasistencia?');">❌</a>
-                    {% endif %}
-                </div>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-        <div style="padding: 3rem; text-align: center; color: var(--color-text-muted);">
-            <i class="ph ph-coffee" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-            <p>Agenda libre por hoy.</p>
+<!-- REJILLA PRINCIPAL DE WIDGETS -->
+<div class="dashboard-grid">
+    
+    <!-- WIDGET 1: KPIs (Indicadores Clave) -->
+    <div class="kpi-banner">
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="ph-duotone ph-calendar-check"></i></div>
+            <div class="kpi-data">
+                <span class="kpi-number">{{ citas_hoy.count }}</span>
+                <span class="kpi-label">Citas Hoy</span>
+            </div>
         </div>
-      {% endif %}
+        <div class="kpi-card">
+            <div class="kpi-icon warning"><i class="ph-duotone ph-clock-countdown"></i></div>
+            <div class="kpi-data">
+                <span class="kpi-number">{{ kpi_pendientes }}</span>
+                <span class="kpi-label">Solicitudes Pendientes</span>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon success"><i class="ph-duotone ph-users-three"></i></div>
+            <div class="kpi-data">
+                <span class="kpi-number">{{ kpi_pacientes }}</span>
+                <span class="kpi-label">Pacientes Totales</span>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="glow-card-wrapper">
-    <div class="cyber-card">
-      <h3>📈 Rendimiento Financiero</h3>
-      <div class="chart-box mt" style="height: 300px;">
-          <canvas id="balanceChart"></canvas>
-      </div>
+    <!-- WIDGET 2: AGENDA DEL DÍA (TIMELINE) -->
+    <div class="cyber-widget agenda-widget">
+        <div class="widget-header">
+            <h3><i class="ph-fill ph-calendar-day"></i> Agenda de Hoy</h3>
+            <span class="widget-badge">{{ citas_hoy.count }} citas</span>
+        </div>
+        <div class="widget-body custom-scroll">
+            {% if citas_hoy %}
+                <div class="timeline">
+                    {% for cita in citas_hoy %}
+                    <div class="timeline-item {{ cita.estado|lower }}">
+                        <div class="timeline-time">
+                            {{ cita.fecha_hora_inicio|time:"H:i" }}
+                        </div>
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content cyber-card-mini">
+                            <div class="cita-info">
+                                <strong>{{ cita.paciente.nombre }}</strong>
+                                <small>{{ cita.servicio.nombre }}</small>
+                            </div>
+                            <div class="cita-actions">
+                                {% if cita.estado == 'PENDIENTE' %}
+                                    <a href="{% url 'dentista:confirmar_cita' cita.id %}" class="mini-btn confirm" title="Confirmar">
+                                        <i class="ph-bold ph-check"></i>
+                                    </a>
+                                {% endif %}
+                                {% if cita.estado == 'CONFIRMADA' or cita.estado == 'CONF_PACIENTE' or cita.estado == 'CONF_DENTISTA' %}
+                                    <a href="{% url 'dentista:vista_consulta' cita.id %}" class="mini-btn attend" title="Atender">
+                                        🩺
+                                    </a>
+                                    <a href="{% url 'dentista:marcar_no_show' cita.id %}" class="mini-btn danger" title="Marcar No Asistió" onclick="return confirm('¿Seguro que NO asistió?');">
+                                        ❌
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="ph-duotone ph-coffee"></i>
+                    <p>¡Agenda libre por hoy! Disfruta tu café.</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
-  </div>
+
+    <!-- WIDGET 3: RESUMEN FINANCIERO (CONECTADO A BD) -->
+    <div class="cyber-widget finance-widget">
+        <div class="widget-header">
+            <h3><i class="ph-fill ph-chart-line-up"></i> Finanzas (Últimos 6 Meses)</h3>
+        </div>
+        <div class="widget-body">
+            <div class="chart-container" style="height: 250px; position: relative;">
+                <canvas id="balanceChart"></canvas>
+            </div>
+            <!-- (En un futuro aquí pondremos los KPIs de ingresos del mes) -->
+        </div>
+    </div>
+
 </div>
 {% endblock %}
