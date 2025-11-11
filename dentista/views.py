@@ -5,11 +5,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Sum, Q
-from django.db.models.functions import TruncMonth 
+from django.db.models.functions import TruncMonth
 from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
 from domain.models import Cita, Paciente, Servicio, Pago, Disponibilidad
-from domain.ai_services import calcular_score_riesgo
+# --- ¡IMPORT CORREGIDO! ---
+from domain.ai_services import calcular_score_riesgo, procesar_inasistencia 
+from datetime import timedelta
 
 # ==============================================================================
 # VISTAS PRINCIPALES (REALES)
@@ -145,12 +147,10 @@ def exportar_citas_pdf(request):
 # ==============================================================================
 # API GRÁFICAS (DASHBOARD)
 # ==============================================================================
-
 @login_required
 def api_datos_grafica(request):
     hoy = timezone.now().date()
-    seis_meses = hoy - timezone.timedelta(days=180)
-    # Aquí usamos TruncMonth que ahora sí está importado correctamente arriba
+    seis_meses = hoy - timedelta(days=180)
     datos = Pago.objects.filter(estado=Pago.EstadoPago.COMPLETADO, created_at__gte=seis_meses).annotate(mes=TruncMonth('created_at')).values('mes').annotate(total=Sum('monto')).order_by('mes')
     return JsonResponse({"labels": [d['mes'].strftime("%B") for d in datos], "ingresos": [float(d['total']) for d in datos], "gastos": [0]*len(datos)})
 
@@ -181,36 +181,20 @@ def vista_consulta(request, cita_id):
 def marcar_no_show(request, cita_id):
     cita = get_object_or_404(Cita, id=cita_id, dentista__user=request.user)
     if cita.fecha_hora_inicio < timezone.now():
-        cita.estado = Cita.EstadoCita.NO_SHOW
-        cita.save()
-        calcular_score_riesgo(cita.paciente)
-        messages.warning(request, f"Inasistencia registrada para {cita.paciente.nombre}.")
+        # --- LÓGICA IA CENTRALIZADA ---
+        mensaje = procesar_inasistencia(cita)
+        if "SUSPENDIDO" in mensaje: messages.error(request, mensaje)
+        else: messages.warning(request, mensaje)
     else:
         messages.error(request, "No puedes marcar inasistencia en una cita futura.")
     return redirect('dentista:dashboard')
 
-# dentista/views.py
-
-@login_required
-def soporte(request):
-    """Centro de ayuda y contacto con soporte técnico."""
-    if not hasattr(request.user, 'perfil_dentista'): return redirect("home")
-
-    if request.method == 'POST':
-        asunto = request.POST.get('asunto')
-        mensaje = request.POST.get('mensaje')
-        # Aquí podrías mandar un correo real a tu dirección de desarrollador
-        # Por ahora, solo simulamos el éxito
-        messages.success(request, f"Tu reporte '{asunto}' ha sido enviado a soporte técnico.")
-        return redirect('dentista:soporte')
-
-    return render(request, "dentista/soporte.html")
-
 @login_required
 def completar_cita(request, cita_id): return redirect('dentista:vista_consulta', cita_id=cita_id)
 @login_required
-def soporte_placeholder(request): return render(request, "dentista/base.html", {"dcontent": "<h1>Soporte (Próximamente)</h1>"})
-# Redirecciones de compatibilidad
+def soporte(request): return render(request, "dentista/soporte.html")
+
+# Redirecciones (Placeholders que ahora son reales)
 @login_required
 def pagos_placeholder(request): return redirect('dentista:pagos')
 @login_required

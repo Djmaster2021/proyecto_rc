@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const now = new Date();
             const dateStr = now.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
             const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-            clockElement.textContent = `${dateStr.charAt(0).toUpperCase() + dateStr.slice(1)} | ${timeStr}`;
+            const finalStr = `${dateStr.charAt(0).toUpperCase() + dateStr.slice(1)} | ${timeStr}`;
+            clockElement.textContent = finalStr;
         };
         updateClock();
         setInterval(updateClock, 30000); // Actualiza cada 30 seg
@@ -22,13 +23,13 @@ function initRealFinanceChart() {
     const canvas = document.getElementById('balanceChart');
     if (!canvas || typeof Chart === 'undefined') return;
     const ctx = canvas.getContext('2d');
-
-    // Llamamos a la API que creamos en views.py
+    
     fetch('/dentista/api/grafica/ingresos/')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error('Respuesta de red no fue OK');
+            return response.json();
+        })
         .then(data => {
-            
-            // Si no hay datos, mostramos un placeholder
             const labels = data.labels.length ? data.labels : ['Sin Ingresos'];
             const ingresos = data.ingresos.length ? data.ingresos : [0];
 

@@ -19,6 +19,7 @@ CSRF_TRUSTED_ORIGINS = os.getenv(
     "http://127.0.0.1:8000,http://localhost:8000,https://*.pythonanywhere.com"
 ).split(",")
 
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -28,8 +29,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "rest_framework",
-    "rest_framework.authtoken",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
 
+    # Mis Apps
     "accounts",
     "api",
     "dentista",
@@ -145,3 +148,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Le decimos a Django que lea estas variables de tu archivo .env
 MERCADOPAGO_PUBLIC_KEY = os.getenv('MP_PUBLIC_KEY')
 MERCADOPAGO_ACCESS_TOKEN = os.getenv('MP_ACCESS_TOKEN')
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}

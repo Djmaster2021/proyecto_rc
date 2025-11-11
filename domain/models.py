@@ -200,3 +200,147 @@ class EncuestaSatisfaccion(TimeStampedModel):
     class Meta:
         verbose_name = "Encuesta de Satisfacción"
         verbose_name_plural = "Encuestas de Satisfacción"
+
+    class Meta:
+        verbose_name = "Encuesta de Satisfacción"
+        verbose_name_plural = "Encuestas de Satisfacción"
+
+class Penalizacion(TimeStampedModel):
+    """
+    Registro de penalizaciones por inasistencias o cancelaciones tardías.
+    """
+    # domain/models.py
+
+# ... (Todo tu código hasta el final de la clase EncuestaSatisfaccion) ...
+
+    class Meta:
+        verbose_name = "Encuesta de Satisfacción"
+        verbose_name_plural = "Encuestas de Satisfacción"
+
+#
+# ¡¡AQUÍ TERMINA LA CLASE EncuestaSatisfaccion!!
+#
+
+#
+# ¡¡AQUÍ EMPIEZA LA NUEVA CLASE Penalizacion!!
+#
+# Pega esto al final de tu archivo domain/models.py
+# Asegúrate de que reemplace la clase Penalizacion rota.
+
+class Penalizacion(TimeStampedModel):
+    """
+    Registro de penalizaciones por inasistencias o cancelaciones tardías.
+    """
+    class TipoPenalizacion(models.TextChoices):
+        NO_SHOW = 'NO_SHOW', _('Inasistencia (No-Show)')
+        CANCELACION_TARDIA = 'CANCEL_TARDIA', _('Cancelación Tardia (<24h)')
+
+    class EstadoPenalizacion(models.TextChoices):
+        PENDIENTE = 'PENDIENTE', _('Pendiente de Pago')
+        LIQUIDADA = 'LIQUIDADA', _('Liquidada')
+        PERDONADA = 'PERDONADA', _('Perdonada (Admin)')
+
+    paciente = models.ForeignKey(
+        Paciente, 
+        on_delete=models.PROTECT, 
+        related_name="penalizaciones",
+        verbose_name="Paciente"
+    )
+    cita = models.ForeignKey(
+        Cita, 
+        on_delete=models.SET_NULL, 
+        related_name="penalizaciones",
+        null=True, blank=True,
+        verbose_name="Cita Incumplida"
+    )
+    tipo = models.CharField(
+        max_length=20, 
+        choices=TipoPenalizacion.choices, 
+        verbose_name="Motivo"
+    )
+    monto = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        verbose_name="Monto del Recargo"
+    )
+    estado = models.CharField(
+        max_length=20, 
+        choices=EstadoPenalizacion.choices, 
+        default=EstadoPenalizacion.PENDIENTE,
+        verbose_name="Estado de Pago"
+    )
+    
+    def __str__(self):
+        return f"Penalización a {self.paciente.nombre} por {self.get_tipo_display()} (${self.monto})"
+
+    class Meta:
+        verbose_name = "Penalización"
+        verbose_name_plural = "Penalizaciones"
+
+#
+# <-- ¡¡AQUÍ TERMINA Penalizacion!!
+#
+
+#
+# <-- ¡¡AQUÍ EMPIEZA Notificacion!! (SIN INDENTACIÓN)
+#
+class Notificacion(TimeStampedModel):
+    """
+    Registro de comunicaciones enviadas a los usuarios (Email, Push, SMS).
+    """
+    class Canal(models.TextChoices):
+        EMAIL = 'EMAIL', _('Correo Electrónico')
+        PUSH = 'PUSH', _('Notificación Push')
+        SMS = 'SMS', _('Mensaje SMS')
+
+    class Tipo(models.TextChoices):
+        RECORDATORIO = 'RECORDATORIO', _('Recordatorio de Cita')
+        CONFIRMACION = 'CONFIRMACION', _('Confirmación de Cita')
+        CANCELACION = 'CANCELACION', _('Cancelación de Cita')
+        PAGO = 'PAGO', _('Confirmación de Pago')
+        PENALIZACION = 'PENALIZACION', _('Aviso de Penalización')
+        MARKETING = 'MARKETING', _('Promoción')
+
+    usuario = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name="notificaciones",
+        verbose_name="Usuario"
+    )
+    cita = models.ForeignKey(
+        Cita, 
+        on_delete=models.SET_NULL, 
+        null=True, blank=True, 
+        related_name="notificaciones",
+        verbose_name="Cita Relacionada"
+    )
+    canal = models.CharField(
+        max_length=10, 
+        choices=Canal.choices, 
+        verbose_name="Canal de Envío"
+    )
+    tipo = models.CharField(
+        max_length=20, 
+        choices=Tipo.choices, 
+        verbose_name="Tipo de Notificación"
+    )
+    enviada_el = models.DateTimeField(
+        auto_now_add=True, 
+        verbose_name="Fecha de Envío"
+    )
+    contenido = models.TextField(
+        blank=True, 
+        verbose_name="Contenido (o payload)"
+    )
+    leida = models.BooleanField(
+        default=False, 
+        verbose_name="Leída por el usuario"
+    )
+
+    def __str__(self):
+        return f"Notificación ({self.get_canal_display()}) para {self.usuario.username} sobre {self.get_tipo_display()}"
+
+    class Meta:
+        ordering = ['-enviada_el']
+        verbose_name = "Notificación"
+        verbose_name_plural = "Notificaciones"

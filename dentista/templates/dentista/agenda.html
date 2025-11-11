@@ -1,98 +1,49 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-{% block dtitle %}Agenda Completa | Dentista{% endblock %}
+{% block dtitle %}Agenda Semanal | Dentista{% endblock %}
 
 {% block dcontent %}
 <header class="page-header">
   <div>
-    <h1>Agenda Completa</h1>
-    <div class="small text-muted">Próximas citas programadas (Total: {{ total_futuras }})</div>
+    <h1>Agenda Semanal</h1>
+    <div class="small text-muted">Vista de lunes a domingo. Citas confirmadas aparecen en verde.</div>
   </div>
   <div class="toolbar-actions">
-      <button class="cyber-btn">Nueva Cita Manual</button>
+      <button class="cyber-btn cyber-btn-glow">
+          <i class="ph-bold ph-plus"></i> Nueva Cita Manual
+      </button>
   </div>
 </header>
 
-<div class="glow-card-wrapper">
-  <div class="cyber-card">
-    
-    {% if citas %}
-        {% regroup citas by fecha_hora_inicio|date:"l d \d\e F, Y" as agenda_por_dias %}
-
-        {% for dia in agenda_por_dias %}
-            <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: var(--brand); border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem;">
-                📅 {{ dia.grouper|capfirst }}
-            </h3>
-
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 100px;">Hora</th>
-                            <th>Paciente</th>
-                            <th>Tratamiento</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for cita in dia.list %}
-                        <tr>
-                            <td style="font-weight: 700; font-size: 1.1rem;">
-                                {{ cita.fecha_hora_inicio|time:"H:i" }}
-                            </td>
-                            <td>
-                                <a href="{% url 'dentista:detalle_paciente' cita.paciente.id %}" style="color: inherit; text-decoration: none; font-weight: 600;">
-                                    {{ cita.paciente.nombre }}
-                                </a>
-                                <div class="small text-muted">{{ cita.paciente.telefono }}</div>
-                            </td>
-                            <td>
-                                {{ cita.servicio.nombre }}
-                                {% if cita.notas %}
-                                    <br>
-                                    <small class="text-muted" style="font-style: italic;">📝 "{{ cita.notas|truncatechars:30 }}"</small>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <span class="chip status-{{ cita.estado|lower }}">
-                                    {{ cita.get_estado_display }}
-                                </span>
-                            </td>
-                            <td>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    {% if cita.estado == 'PENDIENTE' %}
-                                        <a href="{% url 'dentista:confirmar_cita' cita.id %}" class="cyber-btn cyber-btn-sm" style="background: var(--color-success-cyber); color: #000;" title="Confirmar Cita">
-                                            <i class="ph-fill ph-check"></i>
-                                        </a>
-                                    {% endif %}
-                                    
-                                    {% if cita.estado == 'CONFIRMADA' or cita.estado == 'CONF_PACIENTE' or cita.estado == 'CONF_DENTISTA' %}
-                                        <a href="{% url 'dentista:vista_consulta' cita.id %}" class="cyber-btn cyber-btn-sm" title="Atender Paciente">
-                                            🩺
-                                        </a>
-                                        <a href="{% url 'dentista:marcar_no_show' cita.id %}" class="cyber-btn cyber-btn-sm cyber-btn-danger" title="Marcar Inasistencia" onclick="return confirm('¿Seguro que NO asistió?');">
-                                            ❌
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<div class="cyber-widget agenda-semanal">
+    <div class="agenda-header custom-scroll">
+        {% for dia in dias_semana %}
+            <div class="header-dia {% if dia == fecha_hoy %}today{% endif %}">
+                <span class="dia-nombre">{{ dia|date:"l"|slice:":3" }}</span>
+                <span class="dia-numero">{{ dia|date:"d" }}</span>
             </div>
         {% endfor %}
+    </div>
 
-    {% else %}
-        <div style="padding: 4rem; text-align: center; color: var(--text-muted);">
-            <i class="ph ph-calendar-blank" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-            <h2>Agenda vacía</h2>
-            <p>No hay citas futuras programadas por el momento.</p>
-        </div>
-    {% endif %}
-
-  </div>
+    <div class="agenda-body custom-scroll">
+        {% for dia in dias_semana %}
+            <div class="columna-dia">
+                {% for cita in citas_semana %}
+                    {% if cita.fecha_hora_inicio.date == dia %}
+                        <div class="cita-card {% if cita.estado == 'CONFIRMADA' or cita.estado == 'CONF_PACIENTE' %}confirmada{% elif cita.estado == 'PENDIENTE' %}pendiente{% endif %}">
+                            <div class="cita-card-hora">{{ cita.fecha_hora_inicio|time:"H:i" }}</div>
+                            <div class="cita-card-paciente">{{ cita.paciente.nombre }}</div>
+                            <div class="cita-card-servicio">{{ cita.servicio.nombre }}</div>
+                            <div class="cita-card-acciones">
+                                <a href="{% url 'dentista:vista_consulta' cita.id %}" title="Atender"><i class="ph-bold ph-eye"></i></a>
+                                <a href="#" title="Reprogramar"><i class="ph-bold ph-calendar-check"></i></a>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
