@@ -10,6 +10,11 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout"),
     path("register/", views.RegisterView.as_view(), name="register"),
 
+    # --- NUEVA RUTA: SEMÁFORO DE REDIRECCIÓN ---
+    # Esta ruta recibe al usuario después de login (Google o normal) y lo manda a su sitio
+    path("dashboard/", views.dashboard_redirect, name="dashboard_redirect"),
+    # -------------------------------------------
+
     # Vistas de Reseteo de Contraseña
     path(
         "password_reset/",

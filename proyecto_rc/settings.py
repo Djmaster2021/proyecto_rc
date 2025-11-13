@@ -27,6 +27,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    
+    # --- REQUERIDO POR ALLAUTH ---
+    "django.contrib.sites",  # Necesario
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google", # Proveedor de Google
+    # -----------------------------
 
     "rest_framework",
     "rest_framework_simplejwt",
@@ -49,6 +57,9 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    # --- MIDDLEWARE DE ALLAUTH (Recomendado para nuevas versiones) ---
+    "allauth.account.middleware.AccountMiddleware", 
+    # -----------------------------------------------------------------
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -65,8 +76,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                # Añadimos este para que las plantillas sepan el idioma actual
                 "django.template.context_processors.i18n",
+                # Requerido por allauth para acceder al request en templates
             ],
         },
     },
@@ -132,20 +143,56 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-# Leemos los valores secretos desde el archivo .env
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-# Usamos una f-string para combinar el nombre bonito con el correo real
 DEFAULT_FROM_EMAIL = f'Consultorio Dental RC <{EMAIL_HOST_USER}>'
-LOGIN_URL = "/accounts/login/"
 
+# --- CONFIGURACIÓN DE LOGIN Y ALLAUTH ---
 
-LOGIN_REDIRECT_URL = "/"
+# 1. ID del sitio (Requerido por django.contrib.sites)
+SITE_ID = 1
+
+# 2. Backends de autenticación
+AUTHENTICATION_BACKENDS = [
+    # Necesario para entrar al admin de Django con usuario/pass
+    'django.contrib.auth.backends.ModelBackend',
+    # Específico de Allauth (para entrar con Google/Email)
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# 3. Configuración de comportamiento
+LOGIN_URL = "/accounts/login/" 
+# ¡AQUÍ ESTÁ EL CAMBIO IMPORTANTE!
+# Redirigimos al 'dashboard' general para que el router decida a dónde vas
+LOGIN_REDIRECT_URL = "/accounts/dashboard/" 
 LOGOUT_REDIRECT_URL = "accounts:login"
+
+# Ajustes de Allauth
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+
+# 4. Configuración del Proveedor (Google)
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}
+
+# 5. TU ADAPTADOR PERSONALIZADO
+SOCIALACCOUNT_ADAPTER = 'accounts.adapters.MySocialAccountAdapter'
+
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # MERCADOPAGO CONFIG
-# Le decimos a Django que lea estas variables de tu archivo .env
 MERCADOPAGO_PUBLIC_KEY = os.getenv('MP_PUBLIC_KEY')
 MERCADOPAGO_ACCESS_TOKEN = os.getenv('MP_ACCESS_TOKEN')
 

@@ -17,21 +17,27 @@ urlpatterns = [
     # Ruta técnica necesaria para que funcione el cambio de idioma
     path("i18n/", include("django.conf.urls.i18n")),
 
+    # --- RUTAS DE SOCIAL AUTH (GOOGLE) ---
+    # Las ponemos FUERA de i18n_patterns para evitar problemas con los callbacks
+    # Ahora Google responderá en /social/google/... sin afectar tu diseño en /accounts/
+    path('social/', include('allauth.urls')),
+    # -------------------------------------
+
     # --- API MÓVIL (JWT Login) ---
-    # Endpoint para que la app móvil obtenga un token (Login)
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    # Endpoint para que la app móvil refresque un token expirado
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    
-    # (Eventualmente, aquí también conectarás las URLs de tu app 'api')
     # path('api/', include('api.urls')),
     # --- FIN API MÓVIL ---
 ]
 
+# --- RUTAS CON PREFIJO DE IDIOMA (Tu Web) ---
 urlpatterns += i18n_patterns(
     path("admin/", admin.site.urls),
     path("", TemplateView.as_view(template_name="landing/index.html"), name="home"),
+    
+    # AQUÍ MANTENEMOS TU APP ACCOUNTS CON TU DISEÑO
     path("accounts/", include("accounts.urls")),
+    
     path("paciente/", include("paciente.urls")),
     path("dentista/", include("dentista.urls")),
     
