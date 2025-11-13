@@ -57,7 +57,11 @@
             <div class="field">
               <label for="id_username" class="muted">Usuario</label>
               <input id="id_username" class="input" type="text" name="username"
-                     required maxlength="150" autocomplete="username"
+                     required 
+                     maxlength="25" 
+                     pattern="[a-zA-Z0-9]+"
+                     title="Solo letras y números, máximo 25 caracteres."
+                     autocomplete="username"
                      placeholder="ej. juanperez" value="{{ form.username.value|default:'' }}">
               {% for error in form.username.errors %}
                 <span class="error-text">{{ error }}</span>
@@ -67,7 +71,12 @@
             <div class="field">
               <label for="id_first_name" class="muted">Nombre</label>
               <input id="id_first_name" class="input" type="text" name="first_name"
-                     required placeholder="ej. Juan" value="{{ form.first_name.value|default:'' }}">
+                     required
+                     minlength="15"
+                     maxlength="25"
+                     pattern="[a-zA-Z\sñÑáéíóúÁÉÍÓÚüÜ]+"
+                     title="Solo letras (mínimo 15, máximo 25 caracteres)."
+                     placeholder="ej. Juan" value="{{ form.first_name.value|default:'' }}">
               {% for error in form.first_name.errors %}
                 <span class="error-text">{{ error }}</span>
               {% endfor %}
@@ -76,7 +85,12 @@
             <div class="field">
               <label for="id_last_name" class="muted">Apellido</label>
               <input id="id_last_name" class="input" type="text" name="last_name"
-                     required placeholder="ej. Pérez" value="{{ form.last_name.value|default:'' }}">
+                     required
+                     minlength="15"
+                     maxlength="25"
+                     pattern="[a-zA-Z\sñÑáéíóúÁÉÍÓÚüÜ]+"
+                     title="Solo letras (mínimo 15, máximo 25 caracteres)."
+                     placeholder="ej. Pérez" value="{{ form.last_name.value|default:'' }}">
               {% for error in form.last_name.errors %}
                 <span class="error-text">{{ error }}</span>
               {% endfor %}
@@ -85,7 +99,12 @@
             <div class="field">
               <label for="id_telefono" class="muted">Teléfono</label>
               <input id="id_telefono" class="input" type="tel" name="telefono"
-                     required placeholder="ej. 3221234567" value="{{ form.telefono.value|default:'' }}">
+                     required
+                     minlength="10"
+                     maxlength="10"
+                     pattern="[0-9]{10}"
+                     title="El teléfono debe tener exactamente 10 números."
+                     placeholder="ej. 3221234567" value="{{ form.telefono.value|default:'' }}">
               {% for error in form.telefono.errors %}
                 <span class="error-text">{{ error }}</span>
               {% endfor %}
@@ -101,10 +120,10 @@
             </div>
 
             <div class="field">
-              <label for="id_password1" class="muted">Contraseña</Gett>
+              <label for="id_password1" class="muted">Contraseña</label>
               <input id="id_password1" class="input" type="password" name="password1"
                      required autocomplete="new-password" placeholder="Mínimo 8 caracteres">
-              </div>
+            </div>
 
             <div class="field" style="margin-bottom:.75rem;">
               <label for="id_password2" class="muted">Repite contraseña</label>

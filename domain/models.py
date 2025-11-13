@@ -1,3 +1,4 @@
+# domain/models.py
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
@@ -177,7 +178,6 @@ class Pago(TimeStampedModel):
     def __str__(self):
         return f"Pago {self.id} - {self.get_estado_display()} (${self.monto})"
     
-    # ... (tus modelos anteriores) ...
 
 class EncuestaSatisfaccion(TimeStampedModel):
     """Guarda la calificación y el análisis de IA de cada cita."""
@@ -201,31 +201,6 @@ class EncuestaSatisfaccion(TimeStampedModel):
         verbose_name = "Encuesta de Satisfacción"
         verbose_name_plural = "Encuestas de Satisfacción"
 
-    class Meta:
-        verbose_name = "Encuesta de Satisfacción"
-        verbose_name_plural = "Encuestas de Satisfacción"
-
-class Penalizacion(TimeStampedModel):
-    """
-    Registro de penalizaciones por inasistencias o cancelaciones tardías.
-    """
-    # domain/models.py
-
-# ... (Todo tu código hasta el final de la clase EncuestaSatisfaccion) ...
-
-    class Meta:
-        verbose_name = "Encuesta de Satisfacción"
-        verbose_name_plural = "Encuestas de Satisfacción"
-
-#
-# ¡¡AQUÍ TERMINA LA CLASE EncuestaSatisfaccion!!
-#
-
-#
-# ¡¡AQUÍ EMPIEZA LA NUEVA CLASE Penalizacion!!
-#
-# Pega esto al final de tu archivo domain/models.py
-# Asegúrate de que reemplace la clase Penalizacion rota.
 
 class Penalizacion(TimeStampedModel):
     """
@@ -277,13 +252,7 @@ class Penalizacion(TimeStampedModel):
         verbose_name = "Penalización"
         verbose_name_plural = "Penalizaciones"
 
-#
-# <-- ¡¡AQUÍ TERMINA Penalizacion!!
-#
 
-#
-# <-- ¡¡AQUÍ EMPIEZA Notificacion!! (SIN INDENTACIÓN)
-#
 class Notificacion(TimeStampedModel):
     """
     Registro de comunicaciones enviadas a los usuarios (Email, Push, SMS).
