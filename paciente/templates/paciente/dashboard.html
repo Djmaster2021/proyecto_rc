@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 <style>
-    /* El calendario debe flotar encima de todo */
     .flatpickr-calendar {
         z-index: 99999 !important; 
         background: #0f172a !important;
@@ -17,7 +16,6 @@
         background: #2dd4bf !important;
         border-color: #2dd4bf !important;
     }
-    /* Ajuste para que los inputs disabled se vean mejor */
     input:disabled, select:disabled {
         background-color: rgba(255, 255, 255, 0.05);
         cursor: not-allowed;
@@ -37,7 +35,7 @@
             <i class="ph-bold ph-plus"></i> Agendar nueva cita
         </button>
       {% else %}
-        <button onclick="abrirModalReprogramar('{{ proxima_cita.id }}', '{{ proxima_cita.servicio.id }}')" class="cyber-btn">
+        <button onclick="verificarReprogramacion('{{ proxima_cita.id }}', '{{ proxima_cita.servicio.id }}', {{ proxima_cita.veces_reprogramada }})" class="cyber-btn">
             <i class="ph-bold ph-arrows-clockwise"></i> Reprogramar
         </button>
         
@@ -192,7 +190,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    // Referencias DOM
     const modal = document.getElementById('modal-cita');
     const formCita = document.getElementById('form-cita');
     const titleModal = document.getElementById('modal-title');
@@ -201,13 +198,12 @@
     const horaInput = document.getElementById('cita-hora');
     const btnSubmit = document.getElementById('btn-submit-cita');
 
-    // 1. CONFIGURACIÓN DEL CALENDARIO (FLATPICKR)
     const calendar = flatpickr(fechaInput, {
         locale: "es",
-        minDate: "today",                // No permite pasado
-        maxDate: new Date().fp_incr(30), // LÍMITE EXACTO DE 30 DÍAS
+        minDate: "today",
+        maxDate: new Date().fp_incr(30),
         dateFormat: "Y-m-d",
-        disable: [ function(date) { return (date.getDay() === 0); } ], // Bloquear Domingos
+        disable: [ function(date) { return (date.getDay() === 0); } ],
         onChange: function(selectedDates, dateStr) {
             consultarHorarios(dateStr);
         }
@@ -223,45 +219,86 @@
         servicioInput.disabled = false;
     }
 
-    // 2. ABRIR PARA AGENDAR
     window.abrirModalAgendar = function() {
         titleModal.innerHTML = '<i class="ph-duotone ph-plus"></i> Agendar Nueva Cita';
         formCita.action = "{% url 'paciente:agendar_crear' %}";
         modal.classList.add('is-visible');
     }
 
-    // 3. ABRIR PARA REPROGRAMAR
-    window.abrirModalReprogramar = function(citaId, servicioId) {
+    // --- LÓGICA DE REPROGRAMACIÓN ---
+    window.verificarReprogramacion = function(citaId, servicioId, vecesReprogramada) {
+        // 1. Bloqueo si ya reprogramó
+        if (vecesReprogramada >= 1) {
+            Swal.fire({
+                title: 'Límite alcanzado',
+                text: "Ya reprogramaste esta cita una vez. Para más cambios, contacta al consultorio.",
+                icon: 'info',
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#0D8ABC',
+                background: '#1e293b', color: '#fff'
+            });
+            return;
+        }
+
+        // 2. Advertencia si es la primera vez
+        Swal.fire({
+            title: '¿Deseas reprogramar?',
+            html: "<p>Solo tienes permitido <b>1 cambio de fecha</b> por cita.</p><p style='font-size:0.9em; opacity:0.8; margin-top:5px;'>⚠️ Si confirmas el cambio, no podrás volver a modificarla desde aquí.</p>",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#0D8ABC',
+            cancelButtonColor: '#334155',
+            confirmButtonText: 'Continuar y cambiar',
+            cancelButtonText: 'Mantener cita actual',
+            background: '#1e293b', color: '#fff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                abrirModalReprogramarReal(citaId, servicioId);
+            }
+        })
+    }
+
+    function abrirModalReprogramarReal(citaId, servicioId) {
         titleModal.innerHTML = '<i class="ph-duotone ph-arrows-clockwise"></i> Reprogramar Cita';
         formCita.action = `/paciente/reprogramar/${citaId}/`; 
-        
-        // Pre-cargar servicio y bloquearlo (para simplificar reprogramación)
         servicioInput.value = servicioId;
         servicioInput.disabled = true; 
-        fechaInput.disabled = false; // Habilitar fecha inmediatamente
-        
+        fechaInput.disabled = false; 
         modal.classList.add('is-visible');
     }
 
-    // 4. LÓGICA DE SELECCIÓN
+    // --- LÓGICA DE CANCELACIÓN ---
+    window.confirmarCancelacion = function(citaId) {
+        Swal.fire({
+            title: '¿Cancelar definitivamente?',
+            html: "<p>Recuerda que debes hacerlo con <b>24 horas de anticipación</b>.</p><p style='color:#ef4444; margin-top:10px;'>⚠️ Si cancelas, perderás tu lugar y deberás agendar desde cero.</p>",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#334155',
+            confirmButtonText: 'Sí, cancelar cita',
+            background: '#1e293b', color: '#fff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('form-cancelar');
+                form.action = `/paciente/cancelar/${citaId}/`;
+                form.submit();
+            }
+        })
+    }
+
     servicioInput.addEventListener('change', function() {
-        if(this.value) {
-            fechaInput.disabled = false;
-            calendar.clear();
-        }
+        if(this.value) { fechaInput.disabled = false; calendar.clear(); }
     });
 
     async function consultarHorarios(fechaStr) {
         const servicioId = servicioInput.value;
         if(!servicioId) return;
-
         horaInput.innerHTML = '<option>Cargando...</option>';
         horaInput.disabled = true;
-
         try {
             const res = await fetch(`/paciente/api/horarios/?fecha=${fechaStr}&servicio_id=${servicioId}`);
             const horarios = await res.json();
-            
             horaInput.innerHTML = '';
             if (horarios.length > 0) {
                 horarios.forEach(h => {
@@ -274,34 +311,9 @@
             } else {
                 horaInput.innerHTML = '<option>Sin disponibilidad</option>';
             }
-        } catch (e) {
-            console.error(e);
-            horaInput.innerHTML = '<option>Error de red</option>';
-        }
+        } catch (e) { console.error(e); }
     }
 
-    // 5. CONFIRMACIÓN CANCELAR (SWEETALERT)
-    window.confirmarCancelacion = function(citaId) {
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: "Esta acción liberará tu horario.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#334155',
-            confirmButtonText: 'Sí, cancelar cita',
-            background: '#1e293b',
-            color: '#fff'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const form = document.getElementById('form-cancelar');
-                form.action = `/paciente/cancelar/${citaId}/`;
-                form.submit();
-            }
-        })
-    }
-    
-    // Truco para enviar el select disabled al reprogramar
     formCita.addEventListener('submit', function() {
         servicioInput.disabled = false;
     });

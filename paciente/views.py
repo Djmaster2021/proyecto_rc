@@ -8,7 +8,6 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from textblob import TextBlob 
 
-# Importamos tus modelos y servicios
 from domain.models import Cita, Servicio, Dentista, Pago, EncuestaSatisfaccion
 from .services import obtener_horarios_disponibles
 from .mp_service import crear_preferencia_pago
@@ -79,7 +78,7 @@ def agendar_cita(request):
         if not fecha_str or not hora_str or not servicio_id:
              raise Exception("Faltan datos obligatorios.")
 
-        # --- VALIDACIÓN DE FECHAS (BACKEND) ---
+        # --- VALIDACIÓN DE FECHAS ---
         fecha_seleccionada = datetime.strptime(fecha_str, "%Y-%m-%d").date()
         hoy = timezone.now().date()
         limite = hoy + timedelta(days=30)
@@ -90,19 +89,18 @@ def agendar_cita(request):
         if fecha_seleccionada > limite:
             raise Exception("Solo se permite agendar con máximo 30 días de anticipación.")
         
-        if fecha_seleccionada.weekday() == 6: # 6 = Domingo
+        if fecha_seleccionada.weekday() == 6: 
             raise Exception("Los domingos no son días laborales.")
         # --------------------------------------
 
         servicio = Servicio.objects.get(id=servicio_id)
-        dentista = Dentista.objects.first() # Por ahora asignamos al primero
+        dentista = Dentista.objects.first() 
         if not dentista: raise Exception("No hay dentistas disponibles.")
 
         inicio_naive = datetime.strptime(f"{fecha_str} {hora_str}", "%Y-%m-%d %H:%M")
         fecha_inicio = make_aware(inicio_naive)
         fecha_fin = fecha_inicio + timedelta(minutes=servicio.duracion_estimada)
 
-        # Validación de colisión
         colision = Cita.objects.filter(
             dentista=dentista,
             fecha_hora_inicio__lt=fecha_fin,
@@ -127,7 +125,7 @@ def agendar_cita(request):
     return redirect('paciente:dashboard')
 
 # ==============================================================================
-# ACCIONES: CANCELAR Y REPROGRAMAR
+# ACCIONES: CANCELAR Y REPROGRAMAR (REGLAS ESTRICTAS)
 # ==============================================================================
 
 @login_required
@@ -135,15 +133,15 @@ def agendar_cita(request):
 def cancelar_cita(request, cita_id):
     cita = get_object_or_404(Cita, id=cita_id, paciente__user=request.user)
     
-    # Opcional: No cancelar si faltan menos de 2 horas
-    # horas_restantes = (cita.fecha_hora_inicio - timezone.now()).total_seconds() / 3600
-    # if horas_restantes < 2:
-    #     messages.error(request, "Muy tarde para cancelar.")
-    #     return redirect('paciente:dashboard')
+    # REGLA: 24 HORAS DE ANTICIPACIÓN
+    tiempo_restante = cita.fecha_hora_inicio - timezone.now()
+    if tiempo_restante < timedelta(hours=24):
+        messages.error(request, "⚠️ No puedes cancelar. Debes hacerlo con 24 horas de anticipación.")
+        return redirect('paciente:dashboard')
 
     cita.estado = Cita.EstadoCita.CANCELADA_PACIENTE
     cita.save()
-    messages.success(request, "Cita cancelada correctamente.")
+    messages.success(request, "Cita cancelada. Para agendar nuevamente deberás crear una nueva solicitud.")
     return redirect('paciente:dashboard')
 
 @login_required
@@ -151,11 +149,20 @@ def cancelar_cita(request, cita_id):
 def reprogramar_cita(request, cita_id):
     cita = get_object_or_404(Cita, id=cita_id, paciente__user=request.user)
     
+    # REGLA 1: LÍMITE DE 1 VEZ
+    if cita.veces_reprogramada >= 1:
+        messages.error(request, "⚠️ Límite alcanzado. Solo se permite 1 reprogramación por cita. Contacta al consultorio.")
+        return redirect('paciente:dashboard')
+
+    # REGLA 2: 24 HORAS DE ANTICIPACIÓN
+    if (cita.fecha_hora_inicio - timezone.now()) < timedelta(hours=24):
+        messages.error(request, "⚠️ Demasiado tarde. Se requieren 24 horas de antelación para reprogramar.")
+        return redirect('paciente:dashboard')
+    
     fecha_str = request.POST.get('fecha')
     hora_str = request.POST.get('hora')
     
     try:
-        # Validación de fecha (Igual que al agendar)
         fecha_sel = datetime.strptime(fecha_str, "%Y-%m-%d").date()
         if fecha_sel > timezone.now().date() + timedelta(days=30):
             raise Exception("Máximo 30 días de anticipación.")
@@ -166,7 +173,6 @@ def reprogramar_cita(request, cita_id):
         fecha_inicio = make_aware(inicio_naive)
         fecha_fin = fecha_inicio + timedelta(minutes=cita.servicio.duracion_estimada)
 
-        # Verificar colisión excluyendo la propia cita
         colision = Cita.objects.filter(
             dentista=cita.dentista,
             fecha_hora_inicio__lt=fecha_fin,
@@ -180,9 +186,11 @@ def reprogramar_cita(request, cita_id):
         cita.fecha_hora_inicio = fecha_inicio
         cita.fecha_hora_fin = fecha_fin
         cita.estado = Cita.EstadoCita.CONFIRMADA
+        # AUMENTAR CONTADOR
+        cita.veces_reprogramada += 1
         cita.save()
         
-        messages.success(request, "Cita reprogramada con éxito.")
+        messages.success(request, f"Cita reprogramada con éxito. (Te quedan 0 cambios disponibles)")
 
     except Exception as e:
         messages.error(request, f"No se pudo reprogramar: {e}")
@@ -262,7 +270,6 @@ def encuesta_satisfaccion(request, cita_id):
 
 @require_GET
 def confirmar_por_email(request, token):
-    # (Tu lógica de confirmación existente)
     return HttpResponse("Confirmación recibida.")
 
 # Placeholders

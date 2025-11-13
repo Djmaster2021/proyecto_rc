@@ -19,7 +19,6 @@ class TimeStampedModel(models.Model):
 # ==============================================================================
 
 class Paciente(TimeStampedModel):
-    """Perfil extendido para pacientes."""
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="perfil_paciente",
         verbose_name="Usuario de Login"
@@ -28,12 +27,9 @@ class Paciente(TimeStampedModel):
     telefono = models.CharField(max_length=30, verbose_name="Teléfono")
     direccion = models.CharField(max_length=255, blank=True, verbose_name="Dirección")
     fecha_nacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
-    
-    # Campos para futura IA
     score_riesgo = models.FloatField(default=0.0, verbose_name="Score de Riesgo (IA)", help_text="Probabilidad calculada de inasistencia")
 
-    def __str__(self):
-        return self.nombre
+    def __str__(self): return self.nombre
 
     class Meta:
         verbose_name = "Paciente"
@@ -41,7 +37,6 @@ class Paciente(TimeStampedModel):
 
 
 class Dentista(TimeStampedModel):
-    """Perfil para el dentista/administrador del consultorio."""
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="perfil_dentista",
         verbose_name="Usuario de Login"
@@ -51,38 +46,30 @@ class Dentista(TimeStampedModel):
     especialidad = models.CharField(max_length=120, blank=True, verbose_name="Especialidad")
     licencia = models.CharField(max_length=60, blank=True, verbose_name="Número de Licencia")
 
-    def __str__(self):
-        return f"Dr(a). {self.nombre}"
+    def __str__(self): return f"Dr(a). {self.nombre}"
 
     class Meta:
         verbose_name = "Dentista"
         verbose_name_plural = "Dentistas"
 
-# (Opcional: Si el administrador es distinto al Dentista, mantenlo. Si es el mismo, puedes borrar esto)
 class Administrador(TimeStampedModel):
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name="perfil_administrador"
-    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="perfil_administrador")
     nombre = models.CharField(max_length=150)
     telefono = models.CharField(max_length=30, blank=True)
-
-    def __str__(self):
-        return self.nombre
+    def __str__(self): return self.nombre
 
 # ==============================================================================
 # MODELOS DE NEGOCIO
 # ==============================================================================
 
 class Servicio(TimeStampedModel):
-    """Catálogo de servicios dentales."""
     nombre = models.CharField(max_length=150)
     descripcion = models.TextField(blank=True, verbose_name="Descripción")
     precio = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     duracion_estimada = models.PositiveIntegerField(default=60, help_text="Duración en minutos", verbose_name="Duración (min)")
     activo = models.BooleanField(default=True)
 
-    def __str__(self):
-        return f"{self.nombre} (${self.precio})"
+    def __str__(self): return f"{self.nombre} (${self.precio})"
 
     class Meta:
         verbose_name = "Servicio"
@@ -90,7 +77,6 @@ class Servicio(TimeStampedModel):
 
 
 class Disponibilidad(models.Model):
-    """Define los horarios laborales del dentista para la agenda online."""
     DIAS_SEMANA = [
         (0, 'Lunes'), (1, 'Martes'), (2, 'Miércoles'), (3, 'Jueves'),
         (4, 'Viernes'), (5, 'Sábado'), (6, 'Domingo'),
@@ -100,8 +86,7 @@ class Disponibilidad(models.Model):
     hora_inicio = models.TimeField(verbose_name="Hora inicio turno")
     hora_fin = models.TimeField(verbose_name="Hora fin turno")
 
-    def __str__(self):
-        return f"{self.get_dia_semana_display()}: {self.hora_inicio} - {self.hora_fin}"
+    def __str__(self): return f"{self.get_dia_semana_display()}: {self.hora_inicio} - {self.hora_fin}"
     
     class Meta:
         verbose_name = "Horario de Disponibilidad"
@@ -109,15 +94,11 @@ class Disponibilidad(models.Model):
 
 
 class Cita(TimeStampedModel):
-    """EL NÚCLEO: Registro de citas médicas."""
-    
     class EstadoCita(models.TextChoices):
         PENDIENTE = 'PENDIENTE', 'Pendiente de Confirmación'
-        # Estados de Confirmación
         CONFIRMADA = 'CONFIRMADA', 'Confirmada (General)' 
         CONFIRMADA_PACIENTE = 'CONF_PACIENTE', 'Confirmada por Paciente (Email)'
         CONFIRMADA_DENTISTA = 'CONF_DENTISTA', 'Confirmada por Dentista'
-        # Estados Finales
         COMPLETADA = 'COMPLETADA', 'Completada / Asistió'
         CANCELADA = 'CANCELADA', 'Cancelada General'
         CANCELADA_PACIENTE = 'CANCEL_PAC', 'Cancelada por Paciente'
@@ -132,21 +113,19 @@ class Cita(TimeStampedModel):
     fecha_hora_fin = models.DateTimeField(verbose_name="Fin de Cita")
     
     estado = models.CharField(
-        max_length=15,
-        choices=EstadoCita.choices,
-        default=EstadoCita.PENDIENTE,
-        verbose_name="Estado Actual"
+        max_length=15, choices=EstadoCita.choices, default=EstadoCita.PENDIENTE, verbose_name="Estado Actual"
     )
-    
     notas = models.TextField(blank=True, verbose_name="Notas internas/Diagnóstico")
+
+    # --- NUEVO CAMPO PARA TU REGLA DE NEGOCIO ---
+    veces_reprogramada = models.PositiveIntegerField(default=0, verbose_name="Veces modificada")
 
     def clean(self):
         if self.fecha_hora_inicio and self.fecha_hora_fin:
             if self.fecha_hora_inicio >= self.fecha_hora_fin:
                 raise ValidationError("La cita no puede terminar antes de empezar.")
 
-    def __str__(self):
-        return f"Cita: {self.paciente} - {self.fecha_hora_inicio.strftime('%d/%m/%Y %H:%M')}"
+    def __str__(self): return f"Cita: {self.paciente} - {self.fecha_hora_inicio.strftime('%d/%m/%Y %H:%M')}"
 
     class Meta:
         ordering = ['-fecha_hora_inicio']
@@ -155,7 +134,6 @@ class Cita(TimeStampedModel):
 
 
 class Pago(TimeStampedModel):
-    """Registro de pagos, preparado para integración con MercadoPago."""
     class MetodoPago(models.TextChoices):
         EFECTIVO = 'EFECTIVO', _('Efectivo en Consultorio')
         MERCADOPAGO = 'MERCADOPAGO', _('MercadoPago Online')
@@ -171,16 +149,12 @@ class Pago(TimeStampedModel):
     monto = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto Total")
     metodo = models.CharField(max_length=20, choices=MetodoPago.choices, default=MetodoPago.EFECTIVO)
     estado = models.CharField(max_length=20, choices=EstadoPago.choices, default=EstadoPago.PENDIENTE)
-    
-    # Campos específicos para MercadoPago (referencias externas)
     mercadopago_id = models.CharField(max_length=100, blank=True, null=True, unique=True, help_text="ID de transacción de MercadoPago")
 
-    def __str__(self):
-        return f"Pago {self.id} - {self.get_estado_display()} (${self.monto})"
+    def __str__(self): return f"Pago {self.id} - {self.get_estado_display()} (${self.monto})"
     
 
 class EncuestaSatisfaccion(TimeStampedModel):
-    """Guarda la calificación y el análisis de IA de cada cita."""
     class Sentimiento(models.TextChoices):
         POSITIVO = 'POS', 'Positivo 😊'
         NEUTRAL = 'NEU', 'Neutral 😐'
@@ -189,13 +163,10 @@ class EncuestaSatisfaccion(TimeStampedModel):
     cita = models.OneToOneField(Cita, on_delete=models.CASCADE, related_name="encuesta")
     calificacion = models.PositiveIntegerField(verbose_name="Estrellas (1-5)", choices=[(i, str(i)) for i in range(1, 6)])
     comentario = models.TextField(blank=True, verbose_name="Opinión del Paciente")
-    
-    # Campos para la IA y Moderación
     sentimiento_ia = models.CharField(max_length=3, choices=Sentimiento.choices, default=Sentimiento.NEUTRAL, verbose_name="Análisis IA")
     es_publico = models.BooleanField(default=False, verbose_name="Visible en Landing Page")
 
-    def __str__(self):
-        return f"Reseña de {self.cita.paciente} - {self.calificacion}⭐"
+    def __str__(self): return f"Reseña de {self.cita.paciente} - {self.calificacion}⭐"
 
     class Meta:
         verbose_name = "Encuesta de Satisfacción"
@@ -203,9 +174,6 @@ class EncuestaSatisfaccion(TimeStampedModel):
 
 
 class Penalizacion(TimeStampedModel):
-    """
-    Registro de penalizaciones por inasistencias o cancelaciones tardías.
-    """
     class TipoPenalizacion(models.TextChoices):
         NO_SHOW = 'NO_SHOW', _('Inasistencia (No-Show)')
         CANCELACION_TARDIA = 'CANCEL_TARDIA', _('Cancelación Tardia (<24h)')
@@ -215,38 +183,13 @@ class Penalizacion(TimeStampedModel):
         LIQUIDADA = 'LIQUIDADA', _('Liquidada')
         PERDONADA = 'PERDONADA', _('Perdonada (Admin)')
 
-    paciente = models.ForeignKey(
-        Paciente, 
-        on_delete=models.PROTECT, 
-        related_name="penalizaciones",
-        verbose_name="Paciente"
-    )
-    cita = models.ForeignKey(
-        Cita, 
-        on_delete=models.SET_NULL, 
-        related_name="penalizaciones",
-        null=True, blank=True,
-        verbose_name="Cita Incumplida"
-    )
-    tipo = models.CharField(
-        max_length=20, 
-        choices=TipoPenalizacion.choices, 
-        verbose_name="Motivo"
-    )
-    monto = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        verbose_name="Monto del Recargo"
-    )
-    estado = models.CharField(
-        max_length=20, 
-        choices=EstadoPenalizacion.choices, 
-        default=EstadoPenalizacion.PENDIENTE,
-        verbose_name="Estado de Pago"
-    )
+    paciente = models.ForeignKey(Paciente, on_delete=models.PROTECT, related_name="penalizaciones", verbose_name="Paciente")
+    cita = models.ForeignKey(Cita, on_delete=models.SET_NULL, related_name="penalizaciones", null=True, blank=True, verbose_name="Cita Incumplida")
+    tipo = models.CharField(max_length=20, choices=TipoPenalizacion.choices, verbose_name="Motivo")
+    monto = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto del Recargo")
+    estado = models.CharField(max_length=20, choices=EstadoPenalizacion.choices, default=EstadoPenalizacion.PENDIENTE, verbose_name="Estado de Pago")
     
-    def __str__(self):
-        return f"Penalización a {self.paciente.nombre} por {self.get_tipo_display()} (${self.monto})"
+    def __str__(self): return f"Penalización a {self.paciente.nombre} por {self.get_tipo_display()} (${self.monto})"
 
     class Meta:
         verbose_name = "Penalización"
@@ -254,9 +197,6 @@ class Penalizacion(TimeStampedModel):
 
 
 class Notificacion(TimeStampedModel):
-    """
-    Registro de comunicaciones enviadas a los usuarios (Email, Push, SMS).
-    """
     class Canal(models.TextChoices):
         EMAIL = 'EMAIL', _('Correo Electrónico')
         PUSH = 'PUSH', _('Notificación Push')
@@ -270,44 +210,15 @@ class Notificacion(TimeStampedModel):
         PENALIZACION = 'PENALIZACION', _('Aviso de Penalización')
         MARKETING = 'MARKETING', _('Promoción')
 
-    usuario = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE, 
-        related_name="notificaciones",
-        verbose_name="Usuario"
-    )
-    cita = models.ForeignKey(
-        Cita, 
-        on_delete=models.SET_NULL, 
-        null=True, blank=True, 
-        related_name="notificaciones",
-        verbose_name="Cita Relacionada"
-    )
-    canal = models.CharField(
-        max_length=10, 
-        choices=Canal.choices, 
-        verbose_name="Canal de Envío"
-    )
-    tipo = models.CharField(
-        max_length=20, 
-        choices=Tipo.choices, 
-        verbose_name="Tipo de Notificación"
-    )
-    enviada_el = models.DateTimeField(
-        auto_now_add=True, 
-        verbose_name="Fecha de Envío"
-    )
-    contenido = models.TextField(
-        blank=True, 
-        verbose_name="Contenido (o payload)"
-    )
-    leida = models.BooleanField(
-        default=False, 
-        verbose_name="Leída por el usuario"
-    )
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notificaciones", verbose_name="Usuario")
+    cita = models.ForeignKey(Cita, on_delete=models.SET_NULL, null=True, blank=True, related_name="notificaciones", verbose_name="Cita Relacionada")
+    canal = models.CharField(max_length=10, choices=Canal.choices, verbose_name="Canal de Envío")
+    tipo = models.CharField(max_length=20, choices=Tipo.choices, verbose_name="Tipo de Notificación")
+    enviada_el = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Envío")
+    contenido = models.TextField(blank=True, verbose_name="Contenido (o payload)")
+    leida = models.BooleanField(default=False, verbose_name="Leída por el usuario")
 
-    def __str__(self):
-        return f"Notificación ({self.get_canal_display()}) para {self.usuario.username} sobre {self.get_tipo_display()}"
+    def __str__(self): return f"Notificación ({self.get_canal_display()}) para {self.usuario.username} sobre {self.get_tipo_display()}"
 
     class Meta:
         ordering = ['-enviada_el']
