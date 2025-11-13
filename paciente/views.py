@@ -11,6 +11,7 @@ from textblob import TextBlob
 from domain.models import Cita, Servicio, Dentista, Pago, EncuestaSatisfaccion
 from .services import obtener_horarios_disponibles
 from .mp_service import crear_preferencia_pago
+from .forms import PacientePerfilForm # Asegúrate de tener este archivo forms.py creado
 
 # ==============================================================================
 # VISTAS PRINCIPALES
@@ -195,6 +196,24 @@ def reprogramar_cita(request, cita_id):
     except Exception as e:
         messages.error(request, f"No se pudo reprogramar: {e}")
 
+    return redirect('paciente:dashboard')
+
+# ==============================================================================
+# EDICIÓN DE PERFIL
+# ==============================================================================
+
+@login_required
+@require_POST
+def editar_perfil(request):
+    paciente = request.user.perfil_paciente
+    form = PacientePerfilForm(request.POST, request.FILES, instance=paciente, user=request.user)
+    
+    if form.is_valid():
+        form.save()
+        messages.success(request, "¡Perfil actualizado correctamente!")
+    else:
+        messages.error(request, "Error al actualizar. Revisa los datos.")
+    
     return redirect('paciente:dashboard')
 
 # ==============================================================================

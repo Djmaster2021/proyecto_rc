@@ -9,11 +9,14 @@ urlpatterns = [
     path("citas/", views.citas, name="citas"),
     path("pagos/", views.pagos, name="pagos"),
 
+    # --- EDICIÓN DE PERFIL (ESTA ES LA LÍNEA NUEVA QUE FALTABA) ---
+    path("perfil/editar/", views.editar_perfil, name="editar_perfil"),
+
     # --- MOTOR DE AGENDAMIENTO ---
     path("api/horarios/", views.api_horarios_disponibles, name="api_horarios"),
     path("agendar/crear/", views.agendar_cita, name="agendar_crear"),
 
-    # --- ACCIONES DE CITAS (NUEVAS FUNCIONES) ---
+    # --- ACCIONES DE CITAS ---
     path("reprogramar/<int:cita_id>/", views.reprogramar_cita, name="reprogramar"),
     path("cancelar/<int:cita_id>/", views.cancelar_cita, name="cancelar_cita"),
     

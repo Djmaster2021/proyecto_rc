@@ -28,6 +28,9 @@ class Paciente(TimeStampedModel):
     direccion = models.CharField(max_length=255, blank=True, verbose_name="Dirección")
     fecha_nacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
     score_riesgo = models.FloatField(default=0.0, verbose_name="Score de Riesgo (IA)", help_text="Probabilidad calculada de inasistencia")
+    
+    # Campo nuevo para foto de perfil
+    imagen = models.ImageField(upload_to='perfiles/', blank=True, null=True, verbose_name="Foto de Perfil")
 
     def __str__(self): return self.nombre
 
