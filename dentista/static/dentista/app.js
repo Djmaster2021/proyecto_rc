@@ -1,84 +1,126 @@
-/* === DENTIST DASHBOARD APP.JS (CONECTADO A BD) === */
+/* --- AGENDA.JS: Lógica del Calendario y Modal --- */
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Reloj en tiempo real
-    const clockElement = document.getElementById('live-datetime-dentist');
-    if (clockElement) {
-        const updateClock = () => {
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
-            const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-            const finalStr = `${dateStr.charAt(0).toUpperCase() + dateStr.slice(1)} | ${timeStr}`;
-            clockElement.textContent = finalStr;
-        };
-        updateClock();
-        setInterval(updateClock, 30000); // Actualiza cada 30 seg
+// Declaración de variables globales de forma simple (una sola vez)
+let fpFecha, fpHora;
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // 1. Obtener el elemento del calendario
+    var calendarEl = document.getElementById('calendar');
+    
+    // Ejecutamos la lógica del calendario solo si el elemento existe en el DOM
+    if (calendarEl) {
+        console.log("Inicializando Calendario...");
+
+        // 2. Inicializar Flatpickr (Calendarios de los inputs del modal)
+        fpFecha = flatpickr("#manual-fecha", {
+            locale: "es",
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            disableMobile: "true",
+            disable: [ function(date) { return (date.getDay() === 0); } ] // Bloquea domingos
+        });
+
+        fpHora = flatpickr("#manual-hora", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: false,
+            disableMobile: "true"
+        });
+
+        // 3. Obtener Citas de Django (JSON seguro)
+        var eventos = [];
+        try {
+            var jsonScript = document.getElementById('eventos-data');
+            if (jsonScript) {
+                eventos = JSON.parse(jsonScript.textContent);
+            }
+        } catch (e) {
+            console.error("Error cargando eventos:", e);
+        }
+
+        // 4. Configurar e Iniciar FullCalendar
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            locale: 'es',
+            firstDay: 1,
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            slotMinTime: '07:00:00', // Inicio 7 AM
+            slotMaxTime: '21:00:00', // Fin 9 PM
+            allDaySlot: false,
+            height: '100%', // Se adapta al contenedor CSS
+            expandRows: true,
+            nowIndicator: true,
+            selectable: true, // Permite clic en huecos
+            events: eventos,
+
+            // --- CLIC EN HUECO VACÍO (Abrir Modal y rellenar) ---
+            dateClick: function(info) {
+                abrirModalManual();
+                // Rellenar inputs automáticamente
+                let fechaClic = info.dateStr.split('T')[0];
+                let horaClic = info.date.toTimeString().split(' ')[0].substring(0,5);
+
+                fpFecha.setDate(fechaClic);
+                fpHora.setDate(horaClic);
+            },
+
+            // --- CLIC EN CITA EXISTENTE (Ver Detalles) ---
+            eventClick: function(info) {
+                var props = info.event.extendedProps;
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: info.event.title,
+                        html: `<div style="text-align:left">
+                               <p><strong>Tratamiento:</strong> ${props.servicio}</p>
+                               <p><strong>Teléfono:</strong> ${props.telefono}</p>
+                               <p><strong>Estado:</strong> ${props.estado_texto}</p>
+                               <p><strong>Notas:</strong> <i>${props.notas || '--'}</i></p></div>`,
+                        icon: 'info',
+                        confirmButtonText: 'Gestionar Consulta',
+                        confirmButtonColor: '#2dd4bf',
+                        showCancelButton: true,
+                        cancelButtonText: 'Cerrar',
+                        cancelButtonColor: '#334155',
+                        background: '#1e293b',
+                        color: '#fff'
+                    }).then((r) => {
+                        if(r.isConfirmed) window.location.href = "/dentista/citas/" + info.event.id + "/consulta/";
+                    });
+                }
+            }
+        });
+
+        calendar.render();
     }
-
-    // 2. Gráfica Financiera REAL (Conectada a la BD)
-    initRealFinanceChart();
 });
 
-function initRealFinanceChart() {
-    const canvas = document.getElementById('balanceChart');
-    if (!canvas || typeof Chart === 'undefined') return;
-    const ctx = canvas.getContext('2d');
-    
-    fetch('/dentista/api/grafica/ingresos/')
-        .then(response => {
-            if (!response.ok) throw new Error('Respuesta de red no fue OK');
-            return response.json();
-        })
-        .then(data => {
-            const labels = data.labels.length ? data.labels : ['Sin Ingresos'];
-            const ingresos = data.ingresos.length ? data.ingresos : [0];
+// --- FUNCIONES GLOBALES DEL MODAL (Llamadas desde el HTML) ---
 
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Ingresos',
-                        data: ingresos,
-                        borderColor: '#00ffc3',
-                        backgroundColor: 'rgba(0, 255, 195, 0.15)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#00ffc3',
-                        pointBorderColor: '#0b1220',
-                        pointBorderWidth: 2,
-                        pointRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: { label: (c) => ` $${c.raw.toLocaleString()}` }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            ticks: { color: '#9ca3af', callback: value => '$' + value }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#9ca3af' }
-                        }
-                    }
-                }
-            });
-        })
-        .catch(error => {
-            console.error("Error al cargar la gráfica:", error);
-            ctx.font = "16px Inter";
-            ctx.fillStyle = "#9ca3af";
-            ctx.textAlign = "center";
-            ctx.fillText("Error al cargar datos", canvas.width / 2, canvas.height / 2);
-        });
+window.abrirModalManual = function() {
+    const modal = document.getElementById('modal-manual');
+    if(modal) {
+        modal.style.display = 'flex'; // Primero lo hacemos visible
+        setTimeout(() => { modal.classList.add('is-visible'); }, 10);
+    }
+}
+
+window.cerrarModalManual = function() {
+    const modal = document.getElementById('modal-manual');
+    if(modal) {
+        modal.classList.remove('is-visible'); // Inicia animación de ocultar
+        setTimeout(() => {
+            modal.style.display = 'none'; // Oculta al finalizar la animación
+            // Limpiar formulario y Flatpickr
+            const form = document.querySelector('#form-manual');
+            if(form) form.reset();
+            if(fpFecha) fpFecha.clear();
+            if(fpHora) fpHora.clear();
+        }, 200);
+    }
 }

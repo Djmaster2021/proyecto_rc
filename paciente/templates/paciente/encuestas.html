@@ -1,0 +1,71 @@
+{% extends "paciente/base.html" %}
+{% load static %}
+
+{% block ptitle %}Califica tu Visita | RC{% endblock %}
+
+{% block pcontent %}
+<div class="page-container survey-page">
+    <div class="glow-card-wrapper">
+        <div class="cyber-card text-center">
+            <h1 class="cyber-title survey-title">Tu opinión nos importa</h1>
+            <p class="text-muted survey-subtitle">
+                ¿Cómo fue tu experiencia en la cita del
+                <strong>{{ cita.fecha_hora_inicio|date:"d \\d\\e F" }}</strong>?
+            </p>
+
+            <form method="POST" class="survey-form">
+                {% csrf_token %}
+                
+                <div class="form-group survey-rating-group">
+                    <label class="text-muted mb-1">Calificación General</label>
+                    
+                    <div class="rating">
+                        <input type="radio" name="calificacion" id="star5" value="5" required>
+                        <label for="star5" title="Excelente">★</label>
+
+                        <input type="radio" name="calificacion" id="star4" value="4">
+                        <label for="star4" title="Muy buena">★</label>
+
+                        <input type="radio" name="calificacion" id="star3" value="3">
+                        <label for="star3" title="Regular">★</label>
+
+                        <input type="radio" name="calificacion" id="star2" value="2">
+                        <label for="star2" title="Mala">★</label>
+
+                        <input type="radio" name="calificacion" id="star1" value="1">
+                        <label for="star1" title="Pésima">★</label>
+                    </div>
+                </div>
+
+                <div class="form-group mb-2">
+                    <label for="comentario">¿Quieres dejarnos algún comentario? (Opcional)</label>
+                    <textarea
+                        name="comentario"
+                        id="comentario"
+                        rows="4"
+                        class="cyber-input"
+                        placeholder="Lo que más te gustó o lo que podemos mejorar..."
+                    >{% if encuesta %}{{ encuesta.comentario }}{% endif %}</textarea>
+                </div>
+
+                <button type="submit" class="cyber-btn cyber-btn-glow w-100">
+                    {% if encuesta %}Actualizar comentario{% else %}Enviar calificación{% endif %}
+                </button>
+            </form>
+
+            {% if encuesta %}
+                <hr style="margin: 2rem 0; border-color: rgba(255,255,255,0.08);">
+                <h2 class="card-title" style="margin-bottom: 1rem;">Tu reseña actual</h2>
+                <p><strong>Calificación:</strong> {{ encuesta.calificacion }} / 5 ★</p>
+                {% if encuesta.comentario %}
+                    <p style="margin-top: 0.5rem;">“{{ encuesta.comentario }}”</p>
+                {% else %}
+                    <p class="text-muted" style="margin-top: 0.5rem;">
+                        No has dejado comentario, solo la calificación.
+                    </p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

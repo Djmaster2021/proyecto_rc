@@ -6,64 +6,6 @@
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
-<style>
-    /* CALENDARIO */
-    .flatpickr-calendar {
-        z-index: 99999 !important; 
-        background: #0f172a !important;
-        border: 1px solid #334155 !important;
-    }
-    .flatpickr-day.selected {
-        background: #2dd4bf !important;
-        border-color: #2dd4bf !important;
-    }
-    
-    /* ESTILOS DE TABLA (Corrección para que se vea "larga" y sin scroll) */
-    .table-responsive {
-        width: 100%;
-        overflow-x: auto; /* Solo scroll si es móvil muy pequeño */
-    }
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
-    }
-    .data-table th, .data-table td {
-        padding: 1rem;
-        text-align: left;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        white-space: normal; /* Permite que el texto baje de línea */
-        vertical-align: middle;
-    }
-    .data-table th {
-        color: var(--color-primary);
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        letter-spacing: 0.05em;
-    }
-    
-    /* Botón Editar Perfil */
-    .btn-edit-profile {
-        position: absolute; 
-        top: 20px; 
-        right: 20px; 
-        background: none; 
-        border: none; 
-        cursor: pointer; 
-        font-size: 1.4rem; 
-        z-index: 10; 
-        color: var(--color-primary);
-        transition: transform 0.2s;
-    }
-    .btn-edit-profile:hover { transform: scale(1.1); }
-
-    input:disabled, select:disabled {
-        background-color: rgba(255, 255, 255, 0.05);
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
-</style>
 {% endblock %}
 
 {% block pcontent %}
@@ -89,7 +31,7 @@
   </section>
 
   {% if messages %}
-  <div class="messages-container" style="margin-bottom: 1.5rem;">
+  <div class="messages-container messages-spaced">
       {% for message in messages %}
       <div class="cyber-alert {% if message.tags == 'error' %}cyber-alert-danger{% else %}cyber-alert-success{% endif %}">
           {{ message }}
@@ -101,76 +43,90 @@
   <div class="page-container">
     <div class="grid-cols-2">
       
+      <!-- Tarjeta Próxima Cita -->
       <div class="glow-card-wrapper">
-        <div class="cyber-card" style="min-height: 300px; display: flex; flex-direction: column; justify-content: center;">
+        <div class="cyber-card card-vertical-center">
           <h2 class="card-title"><i class="ph-duotone ph-calendar-check"></i> Tu Próxima Cita</h2>
           {% if proxima_cita %}
-              <div class="cita-destacada" style="margin-top: 1rem;">
-                <p style="margin-bottom: 0.5rem;"><i class="ph-fill ph-calendar-blank text-accent"></i> <strong>Fecha:</strong> {{ proxima_cita.fecha_hora_inicio|date:"l d F, Y" }}</p>
-                <p style="margin-bottom: 0.5rem;"><i class="ph-fill ph-clock text-accent"></i> <strong>Hora:</strong> {{ proxima_cita.fecha_hora_inicio|time:"h:i A" }}</p>
-                <p style="margin-bottom: 0.5rem;"><i class="ph-fill ph-tooth text-accent"></i> <strong>Tratamiento:</strong> {{ proxima_cita.servicio.nombre }}</p>
-                <p style="margin-bottom: 1.5rem;"><i class="ph-fill ph-user-circle text-accent"></i> <strong>Doctor:</strong> {{ proxima_cita.dentista.nombre }}</p>
+              <div class="cita-destacada">
+                <p class="mb-05">
+                  <i class="ph-fill ph-calendar-blank text-accent"></i>
+                  <strong>Fecha:</strong> {{ proxima_cita.fecha_hora_inicio|date:"l d F, Y" }}
+                </p>
+                <p class="mb-05">
+                  <i class="ph-fill ph-clock text-accent"></i>
+                  <strong>Hora:</strong> {{ proxima_cita.fecha_hora_inicio|time:"h:i A" }}
+                </p>
+                <p class="mb-05">
+                  <i class="ph-fill ph-tooth text-accent"></i>
+                  <strong>Tratamiento:</strong> {{ proxima_cita.servicio.nombre }}
+                </p>
+                <p class="mb-15">
+                  <i class="ph-fill ph-user-circle text-accent"></i>
+                  <strong>Doctor:</strong> {{ proxima_cita.dentista.nombre }}
+                </p>
                 
-                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div class="flex-row-wrap">
                   <span class="chip status-{{ proxima_cita.estado|lower }}">{{ proxima_cita.get_estado_display }}</span>
                   {% if proxima_cita.estado == 'CONFIRMADA' %}
-                      <a href="{% url 'paciente:iniciar_pago' proxima_cita.id %}" class="cyber-btn cyber-btn-glow cyber-btn-sm" style="text-decoration: none;">
+                      <a href="{% url 'paciente:iniciar_pago' proxima_cita.id %}" class="cyber-btn cyber-btn-glow cyber-btn-sm no-decoration">
                           Pagar (${{ proxima_cita.servicio.precio }})
                       </a>
                   {% endif %}
                 </div>
               </div>
           {% else %}
-              <div class="text-center py-4 opacity-50">
-                  <i class="ph-duotone ph-calendar-slash" style="font-size: 3rem;"></i>
+              <div class="text-center py-4 opacity-50 empty-state">
+                  <i class="ph-duotone ph-calendar-slash empty-state-icon"></i>
                   <p>No hay citas próximas.</p>
               </div>
           {% endif %}
         </div>
       </div>
 
+      <!-- Tarjeta Perfil -->
       <div class="glow-card-wrapper">
-        <div class="cyber-card" style="position: relative; min-height: 300px;">
+        <div class="cyber-card card-min-300">
           
           <button onclick="abrirModalPerfil()" class="btn-edit-profile" title="Editar Perfil">✏️</button>
 
-          <h2 class="card-title" style="margin-bottom: 1.5rem;"><i class="ph-duotone ph-user-circle"></i> Mi Perfil</h2>
+          <h2 class="card-title mb-15"><i class="ph-duotone ph-user-circle"></i> Mi Perfil</h2>
           
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
-            <div style="flex: 1; min-width: 0; padding-right: 10px;">
-                <div style="margin-bottom: 1.5rem;">
-                    <span class="chip" style="background: rgba(45, 212, 191, 0.1); color: #2dd4bf; padding: 2px 8px; font-size: 0.75rem; border-radius: 4px; margin-bottom: 0.5rem; display: inline-block;">
+          <div class="profile-layout">
+            <div class="profile-main">
+                <div class="profile-header">
+                    <span class="chip chip-paciente-id">
                         PAC-{{ paciente.id|stringformat:"04d" }}
                     </span>
-                    <h3 style="font-size: 1.3rem; margin-bottom: 0.2rem; line-height: 1.2; color: #fff;">
+                    <h3 class="profile-name">
                         {{ user.first_name }} {{ user.last_name }}
                     </h3>
-                    <p style="font-size: 0.9rem; color: var(--color-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <p class="profile-email">
                         {{ user.email }}
                     </p>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem; opacity: 0.9;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="ph-fill ph-phone text-accent" style="font-size: 1.1rem;"></i> 
+                <div class="profile-info-list">
+                    <div class="profile-info-item">
+                        <i class="ph-fill ph-phone text-accent icon-inline"></i> 
                         <span>{{ paciente.telefono }}</span>
                     </div>
-                    <div style="display: flex; align-items: flex-start; gap: 10px;">
-                        <i class="ph-fill ph-map-pin text-accent" style="font-size: 1.1rem; margin-top: 2px;"></i> 
-                        <span style="line-height: 1.3;">{{ paciente.direccion|default:"Sin dirección registrada" }}</span>
+                    <div class="profile-info-item">
+                        <i class="ph-fill ph-map-pin text-accent icon-inline"></i> 
+                        <span class="address-text">{{ paciente.direccion|default:"Sin dirección registrada" }}</span>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="ph-fill ph-cake text-accent" style="font-size: 1.1rem;"></i> 
+                    <div class="profile-info-item">
+                        <i class="ph-fill ph-cake text-accent icon-inline"></i> 
                         <span>{{ paciente.fecha_nacimiento|date:"d/m/Y"|default:"Sin fecha" }}</span>
                     </div>
                 </div>
             </div>
 
-            <div class="avatar-circle" style="flex-shrink: 0; width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 3px solid var(--color-primary); box-shadow: 0 0 15px rgba(45, 212, 191, 0.3);">
+            <div class="avatar-circle">
                 {% if paciente.imagen %}
-                    <img src="{{ paciente.imagen.url }}" alt="Foto" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="{{ paciente.imagen.url }}" alt="Foto">
                 {% else %}
-                    <div style="width: 100%; height: 100%; background: var(--color-surface); display: grid; place-items: center; font-weight: bold; font-size: 1.8rem; color: #fff;">
+                    <div class="avatar-fallback">
                         {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
                     </div>
                 {% endif %}
@@ -180,21 +136,24 @@
       </div>
     </div>
 
-    <section class="glow-card-wrapper" style="margin-top: 2rem;">
+    <!-- Historial de Citas -->
+    <section class="glow-card-wrapper mt-2">
       <div class="cyber-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h2 class="card-title" style="margin:0;"><i class="ph-duotone ph-clock-counter-clockwise"></i> Historial de Citas</h2>
+        <div class="history-header">
+            <h2 class="card-title history-title">
+              <i class="ph-duotone ph-clock-counter-clockwise"></i> Historial de Citas
+            </h2>
         </div>
         
         <div class="table-responsive">
           <table class="data-table">
             <thead>
               <tr>
-                <th style="width: 15%;">Fecha</th>
-                <th style="width: 30%;">Servicio</th>
-                <th style="width: 25%;">Doctor</th>
-                <th style="width: 15%;">Estado</th>
-                <th style="width: 15%;">Acción</th>
+                <th class="col-fecha">Fecha</th>
+                <th class="col-servicio">Servicio</th>
+                <th class="col-doctor">Doctor</th>
+                <th class="col-estado">Estado</th>
+                <th class="col-accion">Acción</th>
               </tr>
             </thead>
             <tbody>
@@ -204,18 +163,37 @@
                 <td>{{ cita.servicio.nombre }}</td>
                 <td>{{ cita.dentista.nombre }}</td>
                 <td>
-                    <span class="chip status-{{ cita.estado|lower }}" style="white-space: nowrap;">
+                    <span class="chip status-{{ cita.estado|lower }} status-chip-nowrap">
                         {{ cita.get_estado_display }}
                     </span>
                 </td>
+                
                 <td>
-                    {% if cita.estado == 'COMPLETADA' and not cita.encuesta %}
-                        <a href="{% url 'paciente:encuesta_satisfaccion' cita.id %}" class="cyber-btn cyber-btn-sm">⭐ Calificar</a>
-                    {% endif %}
-                </td>
+                  {% if cita.estado == 'COMPLETADA' %}
+                      {% if cita.encuesta and cita.encuesta.comentario %}
+                          <div class="text-muted" style="font-size: 0.8rem; margin-bottom: 0.4rem;">
+                              “{{ cita.encuesta.comentario|truncatechars:50 }}”
+                          </div>
+                      {% endif %}
+                      
+                      <a href="{% url 'paciente:encuesta_satisfaccion' cita.id %}"
+                         class="cyber-btn cyber-btn-sm">
+                          {% if cita.encuesta %}
+                              ✏️ Ver / actualizar reseña
+                          {% else %}
+                              ⭐ Calificar
+                          {% endif %}
+                      </a>
+                  {% endif %}
+              </td>
+              
               </tr>
               {% empty %}
-              <tr><td colspan="5" class="text-center text-muted" style="padding: 2rem;">Aún no tienes historial de citas.</td></tr>
+              <tr>
+                <td colspan="5" class="text-center text-muted empty-state">
+                  Aún no tienes historial de citas.
+                </td>
+              </tr>
               {% endfor %}
             </tbody>
           </table>
@@ -224,136 +202,136 @@
     </section>
   </div>
 
+  <!-- Modal Cita -->
   <div id="modal-cita" class="modal-overlay">
     <div class="modal-content glow-card">
       <div class="modal-header">
-        <h3 id="modal-title"><i class="ph-duotone ph-calendar-plus"></i> Agendar Cita</h3>
-        <button class="modal-close" onclick="cerrarModal()"><i class="ph-bold ph-x"></i></button>
+        <h3 id="modal-title">
+          <i class="ph-duotone ph-calendar-plus"></i> Agendar Cita
+        </h3>
+        <button class="modal-close" onclick="cerrarModal()">
+          <i class="ph-bold ph-x"></i>
+        </button>
       </div>
       <form id="form-cita" method="POST" action="{% url 'paciente:agendar_crear' %}">
         {% csrf_token %}
-        <div class="form-group"><label>Tratamiento</label><select id="cita-servicio" name="servicio" required class="cyber-input"><option value="" disabled selected>-- Selecciona --</option>{% for servicio in servicios %}<option value="{{ servicio.id }}">{{ servicio.nombre }} ({{ servicio.duracion_estimada }} min)</option>{% endfor %}</select></div>
-        <div class="form-group"><label>Fecha</label><input type="text" id="cita-fecha" name="fecha" required class="cyber-input" placeholder="Selecciona fecha..." disabled><small class="text-muted">* Máximo 30 días.</small></div>
-        <div class="form-group"><label>Horario</label><select id="cita-hora" name="hora" required class="cyber-input" disabled><option value="">-- Primero fecha --</option></select></div>
-        <div class="form-actions"><button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModal()">Cancelar</button><button type="submit" class="cyber-btn cyber-btn-glow" id="btn-submit-cita" disabled>Confirmar</button></div>
+        <div class="form-group">
+          <label>Tratamiento</label>
+          <select id="cita-servicio" name="servicio" required class="cyber-input">
+            <option value="" disabled selected>-- Selecciona --</option>
+            {% for servicio in servicios %}
+              <option value="{{ servicio.id }}">
+                {{ servicio.nombre }} ({{ servicio.duracion_estimada }} min)
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fecha</label>
+          <input
+            type="text"
+            id="cita-fecha"
+            name="fecha"
+            required
+            class="cyber-input"
+            placeholder="Selecciona fecha..."
+            disabled
+          >
+          <small class="text-muted">* Máximo 30 días.</small>
+        </div>
+        <div class="form-group">
+          <label>Horario</label>
+          <select id="cita-hora" name="hora" required class="cyber-input" disabled>
+            <option value="">-- Primero fecha --</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="cyber-btn cyber-btn-glow" id="btn-submit-cita" disabled>
+            Confirmar
+          </button>
+        </div>
       </form>
     </div>
   </div>
 
+  <!-- Modal Perfil -->
   <div id="modal-perfil" class="modal-overlay">
     <div class="modal-content glow-card">
       <div class="modal-header">
-        <h3><i class="ph-duotone ph-user-gear"></i> Editar Perfil</h3>
-        <button class="modal-close" onclick="cerrarModalPerfil()"><i class="ph-bold ph-x"></i></button>
+        <h3>
+          <i class="ph-duotone ph-user-gear"></i> Editar Perfil
+        </h3>
+        <button class="modal-close" onclick="cerrarModalPerfil()">
+          <i class="ph-bold ph-x"></i>
+        </button>
       </div>
       <form method="POST" action="{% url 'paciente:editar_perfil' %}" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="form-group"><label>Foto de Perfil</label><input type="file" name="imagen" class="cyber-input" accept="image/*"></div>
-        <div class="form-group"><label>Fecha de Nacimiento</label><input type="text" id="perfil-fecha" name="fecha_nacimiento" class="cyber-input" value="{{ paciente.fecha_nacimiento|date:'Y-m-d'|default:'' }}" placeholder="Selecciona tu fecha"></div>
-        <div class="form-group"><label>Dirección</label><input type="text" name="direccion" class="cyber-input" value="{{ paciente.direccion|default:'' }}" placeholder="Calle, Número, Colonia"></div>
-        <div class="form-group"><label class="muted">Teléfono (No editable)</label><input type="text" class="cyber-input" value="{{ paciente.telefono }}" disabled style="opacity: 0.6;"></div>
-        <div class="form-group"><label class="muted">Correo (No editable)</label><input type="text" class="cyber-input" value="{{ user.email }}" disabled style="opacity: 0.6;"></div>
-        <div class="form-actions"><button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModalPerfil()">Cancelar</button><button type="submit" class="cyber-btn cyber-btn-glow">Guardar Cambios</button></div>
+        <div class="form-group">
+          <label>Foto de Perfil</label>
+          <input type="file" name="imagen" class="cyber-input" accept="image/*">
+        </div>
+        <div class="form-group">
+          <label>Fecha de Nacimiento</label>
+          <input
+            type="text"
+            id="perfil-fecha"
+            name="fecha_nacimiento"
+            class="cyber-input"
+            value="{{ paciente.fecha_nacimiento|date:'Y-m-d'|default:'' }}"
+            placeholder="Selecciona tu fecha"
+          >
+        </div>
+        <div class="form-group">
+          <label>Dirección</label>
+          <input
+            type="text"
+            name="direccion"
+            class="cyber-input"
+            value="{{ paciente.direccion|default:'' }}"
+            placeholder="Calle, Número, Colonia"
+          >
+        </div>
+        <div class="form-group">
+          <label class="muted">Teléfono (No editable)</label>
+          <input
+            type="text"
+            class="cyber-input input-readonly-display"
+            value="{{ paciente.telefono }}"
+            disabled
+          >
+        </div>
+        <div class="form-group">
+          <label class="muted">Correo (No editable)</label>
+          <input
+            type="text"
+            class="cyber-input input-readonly-display"
+            value="{{ user.email }}"
+            disabled
+          >
+        </div>
+        <div class="form-actions">
+          <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModalPerfil()">
+            Cancelar
+          </button>
+          <button type="submit" class="cyber-btn cyber-btn-glow">
+            Guardar Cambios
+          </button>
+        </div>
       </form>
     </div>
   </div>
 
-  <form id="form-cancelar" method="POST" style="display: none;">{% csrf_token %}</form>
+  <form id="form-cancelar" method="POST" class="hidden-form">
+    {% csrf_token %}
+  </form>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-    // Referencias JS
-    const modal = document.getElementById('modal-cita');
-    const formCita = document.getElementById('form-cita');
-    const titleModal = document.getElementById('modal-title');
-    const servicioInput = document.getElementById('cita-servicio');
-    const fechaInput = document.getElementById('cita-fecha');
-    const horaInput = document.getElementById('cita-hora');
-    const btnSubmit = document.getElementById('btn-submit-cita');
-    const modalPerfil = document.getElementById('modal-perfil');
-
-    const calendar = flatpickr(fechaInput, {
-        locale: "es", minDate: "today", maxDate: new Date().fp_incr(30), dateFormat: "Y-m-d",
-        disable: [ function(date) { return (date.getDay() === 0); } ],
-        onChange: function(selectedDates, dateStr) { consultarHorarios(dateStr); }
-    });
-
-    function cerrarModal() {
-        modal.classList.remove('is-visible');
-        formCita.reset(); calendar.clear();
-        horaInput.innerHTML = '<option value="">-- Primero fecha --</option>';
-        horaInput.disabled = true; fechaInput.disabled = true; servicioInput.disabled = false;
-    }
-
-    window.abrirModalAgendar = function() {
-        titleModal.innerHTML = 'Agendar Nueva Cita';
-        formCita.action = "{% url 'paciente:agendar_crear' %}";
-        modal.classList.add('is-visible');
-    }
-
-    window.verificarReprogramacion = function(citaId, servicioId, vecesReprogramada) {
-        if (vecesReprogramada >= 1) {
-            Swal.fire({
-                title: 'Límite de reprogramación alcanzado',
-                text: "Ya reprogramaste esta cita una vez. Para volver a reprogramar, deberás avisarle al dentista directamente.",
-                icon: 'info', confirmButtonText: 'Entendido', confirmButtonColor: '#0D8ABC', background: '#1e293b', color: '#fff'
-            });
-            return;
-        }
-        Swal.fire({
-            title: '¿Deseas reprogramar?',
-            html: "<p>Solamente se puede reprogramar <b>1 sola vez</b>.</p><p>Para volver a cancelar o reprogramar en el futuro, deberás avisarle al dentista para que él lo haga.</p>",
-            icon: 'warning', showCancelButton: true, confirmButtonText: 'Continuar y reprogramar', confirmButtonColor: '#0D8ABC', cancelButtonColor: '#334155', background: '#1e293b', color: '#fff'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                titleModal.innerHTML = 'Reprogramar Cita';
-                formCita.action = `/paciente/reprogramar/${citaId}/`; 
-                servicioInput.value = servicioId; servicioInput.disabled = true; 
-                fechaInput.disabled = false; 
-                modal.classList.add('is-visible');
-            }
-        })
-    }
-
-    window.confirmarCancelacion = function(citaId) {
-        Swal.fire({
-            title: '¿Seguro que deseas cancelar?',
-            html: "<p>Solamente se puede cancelar <b>1 sola vez</b>.</p><p>Recuerda que debes hacerlo con <b>1 día de anticipación</b>.</p><p style='color:#ef4444; margin-top:10px;'>⚠️ Si cancelas ahora, perderás tu lugar.</p>",
-            icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, cancelar', confirmButtonColor: '#ef4444', background: '#1e293b', color: '#fff'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const form = document.getElementById('form-cancelar');
-                form.action = `/paciente/cancelar/${citaId}/`;
-                form.submit();
-            }
-        })
-    }
-
-    servicioInput.addEventListener('change', function() { if(this.value) { fechaInput.disabled = false; calendar.clear(); } });
-    async function consultarHorarios(fechaStr) {
-        const servicioId = servicioInput.value; if(!servicioId) return;
-        horaInput.innerHTML = '<option>Cargando...</option>'; horaInput.disabled = true;
-        try {
-            const res = await fetch(`/paciente/api/horarios/?fecha=${fechaStr}&servicio_id=${servicioId}`);
-            const horarios = await res.json();
-            horaInput.innerHTML = '';
-            if (horarios.length > 0) {
-                horarios.forEach(h => { let opt = document.createElement('option'); opt.value = h; opt.textContent = h; horaInput.appendChild(opt); });
-                horaInput.disabled = false; btnSubmit.disabled = false;
-            } else { horaInput.innerHTML = '<option>Sin disponibilidad</option>'; }
-        } catch (e) { horaInput.innerHTML = '<option>Error</option>'; }
-    }
-    formCita.addEventListener('submit', function() { servicioInput.disabled = false; });
-
-    function abrirModalPerfil() {
-        modalPerfil.classList.add('is-visible');
-        flatpickr("#perfil-fecha", { locale: "es", dateFormat: "Y-m-d", maxDate: "today" });
-    }
-    function cerrarModalPerfil() { modalPerfil.classList.remove('is-visible'); }
-</script>
 {% endblock %}

@@ -8,6 +8,7 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from textblob import TextBlob 
 
+
 from domain.models import Cita, Servicio, Dentista, Pago, EncuestaSatisfaccion
 from .services import obtener_horarios_disponibles
 from .mp_service import crear_preferencia_pago
@@ -267,26 +268,36 @@ def pago_pendiente(request):
 @login_required
 def encuesta_satisfaccion(request, cita_id):
     cita = get_object_or_404(Cita, id=cita_id, paciente__user=request.user)
-    if cita.estado != Cita.EstadoCita.COMPLETADA:
-        return redirect('paciente:dashboard')
-    
-    if request.method == 'POST':
-        calificacion = int(request.POST.get('calificacion'))
-        comentario = request.POST.get('comentario', '').strip()
-        sentimiento = EncuestaSatisfaccion.Sentimiento.NEUTRAL
-        if comentario:
-            try:
-                analisis = TextBlob(comentario)
-                if analisis.sentiment.polarity > 0.1: sentimiento = EncuestaSatisfaccion.Sentimiento.POSITIVO
-                elif analisis.sentiment.polarity < -0.1: sentimiento = EncuestaSatisfaccion.Sentimiento.NEGATIVO
-            except: pass
 
-        EncuestaSatisfaccion.objects.create(cita=cita, calificacion=calificacion, comentario=comentario, sentimiento_ia=sentimiento)
-        messages.success(request, "¡Gracias por tu opinión!")
+    # Solo citas completadas
+    if cita.estado != 'COMPLETADA':
         return redirect('paciente:dashboard')
 
-    return render(request, "paciente/encuesta.html", {'cita': cita})
+    # Traer encuesta existente si la hay
+    encuesta = getattr(cita, "encuesta", None)
 
+    if request.method == "POST":
+        calificacion = int(request.POST.get("calificacion", 0))
+        comentario = request.POST.get("comentario", "").strip()
+
+        if encuesta is None:
+            encuesta = EncuestaSatisfaccion.objects.create(
+                cita=cita,
+                calificacion=calificacion,
+                comentario=comentario
+            )
+        else:
+            encuesta.calificacion = calificacion
+            encuesta.comentario = comentario
+            encuesta.save()
+
+        # Aquí ya puede verlo el dentista leyendo cita.encuesta
+        return redirect('paciente:dashboard')
+
+    return render(request, "paciente/encuestas.html", {
+        "cita": cita,
+        "encuesta": encuesta,
+    })
 @require_GET
 def confirmar_por_email(request, token):
     return HttpResponse("Confirmación recibida.")

@@ -238,3 +238,43 @@
     .roles{ grid-template-columns:1fr; }
   }
   
+  /* Social login confirm */
+.login-card--center {
+  text-align: center;
+}
+
+.provider-wrapper {
+  margin: 1rem 0;
+}
+
+.provider-badge {
+  width: 60px;
+  height: 60px;
+  background: #ffffff;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.provider-name {
+  margin-top: 0.5rem;
+  font-size: 1.1rem;
+  color: var(--text-main);
+}
+
+.security-text {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.provider-footer {
+  margin-top: 1rem;
+}
+
+.link-muted {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}

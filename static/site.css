@@ -139,3 +139,18 @@ input:focus, textarea:focus { border-color: var(--brand) !important; box-shadow:
 .rc-mobile-panel a { font-size: 1.5rem; font-weight: 700; }
 @media (max-width: 1024px) { .rc-menu, .lang-simple { display: none !important; } .rc-burger { display: block !important; } }
 @media (max-width: 768px) { section { padding: 80px 0; } .grid-2, .stats-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 3.2rem; } }
+
+/* Navbar móvil */
+.rc-mobile-divider {
+  width: 50%;
+  opacity: 0.1;
+  margin: 1.5rem 0;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rc-mobile-btn {
+  width: 80%;
+  justify-content: center;
+  display: inline-flex;
+}

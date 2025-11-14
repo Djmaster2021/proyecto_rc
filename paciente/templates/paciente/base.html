@@ -10,59 +10,6 @@
   <link rel="stylesheet" href="{% static 'paciente/styles.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    .topbar {
-        position: sticky;
-        top: 0;
-        z-index: 40;
-        background: var(--topbar-bg);
-        border-bottom: 1px solid var(--topbar-border);
-        color: var(--topbar-text);
-        transition: background-color 0.3s, color 0.3s;
-    }
-    .topbar__inner {
-        max-width: 1120px;
-        margin: 0 auto;
-        padding: 12px 18px;
-        display: grid;
-        /* Ajustamos grid para dar espacio al botón nuevo */
-        grid-template-columns: auto 1fr auto; 
-        align-items: center;
-        gap: 12px;
-    }
-    .brand {
-        font-weight: 800;
-        color: var(--color-primary);
-        text-decoration: none; /* Por si acaso lo vuelves enlace */
-    }
-    .center-title {
-        text-align: center;
-        font-weight: 700;
-    }
-    .right-actions {
-        display: flex;
-        gap: 16px; /* Un poco más de espacio entre elementos */
-        justify-content: flex-end;
-        align-items: center;
-    }
-    /* Estilo simple para el botón de salir en la barra */
-    .btn-logout {
-        color: var(--topbar-text);
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 500;
-        padding: 6px 12px;
-        border-radius: 4px;
-        border: 1px solid var(--topbar-border);
-        transition: all 0.2s ease;
-    }
-    .btn-logout:hover {
-        background: rgba(255, 59, 48, 0.1); /* Un toque rojizo suave al pasar el mouse */
-        color: #ff3b30;
-        border-color: #ff3b30;
-    }
-  </style>
-
   {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -70,7 +17,9 @@
     <div class="topbar__inner">
       <div class="brand">RC</div>
       
-      <div class="center-title">{% block header_title %}Paciente{% endblock %}</div>
+      <div class="center-title">
+        {% block header_title %}Paciente{% endblock %}
+      </div>
       
       <div class="right-actions">
         <a href="{% url 'accounts:logout' %}" class="btn-logout">
@@ -92,16 +41,16 @@
   </main>
 
   <div id="modal" class="modal-backdrop" hidden>
-        <div class="modal-content">
-            <header class="modal-header">
-                <h3 id="modal-title" class="modal-title"></h3>
-                <button class="modal-close" id="modalCloseBtn" aria-label="Cerrar formulario">✕</button>
-            </header>
-            <div id="modal-body" class="modal-body">
-            </div>
-        </div>
+    <div class="modal-content">
+      <header class="modal-header">
+        <h3 id="modal-title" class="modal-title"></h3>
+        <button class="modal-close" id="modalCloseBtn" aria-label="Cerrar formulario">✕</button>
+      </header>
+      <div id="modal-body" class="modal-body"></div>
     </div>
+  </div>
     
+  <script src="{% static 'paciente/app.js' %}" defer></script>
   {% block extra_js %}{% endblock %}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/card/2.5.4/card.min.js"></script>
 </body>
