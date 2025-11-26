@@ -1,0 +1,157 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>{% block dtitle %}Dental RC | Suite Pro{% endblock %}</title>
+  
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-default/default.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}?v=7.0">
+</head>
+<body>
+  
+  <div class="dashboard-shell">
+    
+    <aside id="sidebar" class="sidebar">
+      
+      <div class="sidebar-header">
+        <div class="logo-container">
+            <div class="logo-glow"></div>
+            <i class="ph-fill ph-tooth logo-icon"></i>
+        </div>
+        <div class="brand-text-box">
+          <span class="brand-main">CONSULTORIO RC</span>
+          <span class="brand-sub">Dental Suite Pro</span>
+        </div>
+      </div>
+
+      <div class="sidebar-content">
+        
+        <div class="nav-group">
+            <span class="nav-caption">PRINCIPAL</span>
+            <nav class="nav-list">
+                <div class="nav-indicator"></div>
+
+                <a href="{% url 'dentista:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="ph-duotone ph-squares-four"></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="{% url 'dentista:agenda' %}" class="nav-item {% if 'agenda' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-calendar-check"></i>
+                    <span>Agenda</span>
+                </a>
+                <a href="{% url 'dentista:pacientes' %}" class="nav-item {% if 'pacientes' in request.path or 'detalle_paciente' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="ph-duotone ph-users-three"></i>
+                    <span>Pacientes</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="nav-group">
+            <span class="nav-caption">GESTIÓN</span>
+            <nav class="nav-list">
+                <a href="{% url 'dentista:pagos' %}" class="nav-item {% if 'pagos' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-wallet"></i>
+                    <span>Finanzas</span>
+                </a>
+                <a href="{% url 'dentista:reportes' %}" class="nav-item {% if 'reportes' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-chart-pie-slice"></i>
+                    <span>Reportes</span>
+                </a>
+                 <a href="{% url 'dentista:servicios' %}" class="nav-item {% if 'servicios' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-list-checks"></i>
+                    <span>Servicios</span>
+                </a>
+                 <a href="{% url 'dentista:penalizaciones' %}" class="nav-item {% if 'penalizaciones' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-warning-octagon"></i>
+                    <span>Riesgos</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="nav-group">
+            <span class="nav-caption">SISTEMA</span>
+            <nav class="nav-list">
+                <a href="{% url 'dentista:configuracion' %}" class="nav-item {% if 'configuracion' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-sliders-horizontal"></i>
+                    <span>Configuración</span>
+                </a>
+                <a href="{% url 'dentista:soporte' %}" class="nav-item {% if 'soporte' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-lifebuoy"></i>
+                    <span>Soporte</span>
+                </a>
+            </nav>
+        </div>
+
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-glass-card">
+            <div class="user-img-wrap">
+                 {% if user.dentista.foto_perfil %}
+                    <img src="{{ user.dentista.foto_perfil.url }}" alt="Dr.">
+                 {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=00adc1&color=fff&bold=true" alt="Doc">
+                 {% endif %}
+                 <span class="status-dot-online"></span>
+            </div>
+            <div class="user-data">
+                <span class="u-name">Dr. {{ user.last_name }}</span>
+                <span class="u-role">Dentista</span>
+            </div>
+            
+            <form action="{% url 'accounts:logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn-logout-glass" title="Cerrar Sesión">
+                    <i class="ph-bold ph-sign-out"></i>
+                </button>
+            </form>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      
+      <button class="sidebar-toggle-btn" id="mobile-toggle">
+        <i class="ph-bold ph-list"></i>
+      </button>
+
+      {% if messages %}
+        <div id="messages-area" class="toast-container">
+          {% for message in messages %}
+            <div class="toast-alert toast-{{ message.tags }}" style="background: #334155; color: #fff; padding: 1rem; border-radius: 8px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+              <i class="ph-fill {% if message.tags == 'success' %}ph-check-circle{% else %}ph-warning{% endif %}"></i>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block dcontent %}{% endblock %}
+      
+    </main>
+  </div>
+
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <script src="{% static 'dentista/app.js' %}?v=7.0" defer></script>
+  
+  {% block extra_js %}{% endblock %}
+
+</body>
+</html>

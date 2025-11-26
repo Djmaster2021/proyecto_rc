@@ -1,0 +1,43 @@
+{% extends "paciente/base.html" %}
+{% load static %}
+
+{% block ptitle %}Pagar penalización | Consultorio Dental{% endblock %}
+
+{% block pcontent %}
+<section class="penalty-page">
+  <div class="cyber-card">
+    <h1>Pago de penalización</h1>
+    <p class="mt-2">
+      Hola <strong>{{ paciente.nombre }}</strong>,
+    </p>
+    <p class="mt-2">
+      Tienes una penalización activa por inasistencias a tus citas.
+    </p>
+
+    <ul class="mt-3 penalty-page__list">
+      <li>Inasistencias acumuladas: <strong>{{ penalizacion.inasistencias }}</strong></li>
+      <li>Monto a pagar: <strong>${{ penalizacion.recargo }}</strong> MXN</li>
+      {% if penalizacion.dias_restantes > 0 %}
+        <li>Días restantes para pagar: <strong>{{ penalizacion.dias_restantes }}</strong></li>
+      {% endif %}
+    </ul>
+
+    <div class="mt-4">
+      <p class="penalty-page__text">
+        Por el momento, el pago de la penalización se realiza directamente en el consultorio.
+        Indica en recepción que vienes a <strong>pagar tu penalización por inasistencias</strong>
+        y se actualizará tu cuenta.
+      </p>
+      <p class="penalty-page__text mt-2">
+        Después de registrar el pago, tu acceso al sistema se reactivará de forma normal.
+      </p>
+    </div>
+
+    <div class="mt-5 flex gap-3">
+      <a href="{% url 'paciente:dashboard' %}" class="cyber-btn">
+        Volver al inicio
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

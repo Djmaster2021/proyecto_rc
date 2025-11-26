@@ -1,0 +1,38 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: proyecto_rc_db
+    restart: unless-stopped
+    ports:
+      - "3307:3306"       
+    env_file:
+      - .env
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DB_NAME:-consultorio_rc}
+      - MYSQL_USER=${MYSQL_DB_USER:-user}
+      - MYSQL_PASSWORD=${MYSQL_DB_PASSWORD:-password}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-rootpass}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: proyecto_rc_pma
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=${MYSQL_DB_USER:-user}
+      - PMA_PASSWORD=${MYSQL_DB_PASSWORD:-password}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

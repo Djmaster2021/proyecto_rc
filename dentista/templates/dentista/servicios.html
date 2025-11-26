@@ -1,0 +1,140 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Catálogo de Servicios | RC{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+    <div>
+        <h1 class="text-gradient">Catálogo de Servicios</h1>
+        <p class="welcome-subtitle">Gestiona tus tratamientos, precios y tiempos.</p>
+    </div>
+    <button onclick="abrirModalServicio()" class="cyber-btn cyber-btn-glow">
+        <i class="ph-bold ph-plus"></i> Nuevo Servicio
+    </button>
+</div>
+
+<div class="tools-bar">
+    <div class="search-container">
+        <i class="ph-bold ph-magnifying-glass search-icon-overlay"></i>
+        <input type="text" id="buscadorServicios" class="search-input-modern" placeholder="Buscar tratamiento...">
+    </div>
+    <div style="color: var(--text-muted); font-size: 0.9rem;">
+        Total: <strong>{{ servicios.count }}</strong> servicios registrados
+    </div>
+</div>
+
+<div class="services-table-wrapper table-responsive">
+    <table class="data-table" id="tablaServicios">
+        <thead>
+            <tr>
+                <th>Tratamiento</th>
+                <th>Precio (MXN)</th>
+                <th>Duración</th>
+                <th>Estado</th>
+                <th style="text-align: right;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in servicios %}
+            <tr>
+                <td style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">
+                    {{ s.nombre }}
+                </td>
+                
+                <td class="col-price">${{ s.precio|floatformat:2 }}</td>
+                
+                <td class="col-duration">
+                    <i class="ph-duotone ph-clock"></i> {{ s.duracion_estimada }} min
+                </td>
+                
+                <td>
+                    {% if s.activo %}
+                        <span class="status-badge status-active">Activo</span>
+                    {% else %}
+                        <span class="status-badge status-inactive">Inactivo</span>
+                    {% endif %}
+                </td>
+                
+                <td style="text-align: right;">
+                    <div style="display: flex; justify-content: flex-end; gap: 5px;">
+                        <button class="btn-mini-action" 
+                                onclick="editarServicio('{{ s.id }}', '{{ s.nombre }}', '{{ s.precio }}', '{{ s.duracion_estimada }}', '{{ s.activo|lower }}')"
+                                title="Editar">
+                            <i class="ph-bold ph-pencil-simple"></i>
+                        </button>
+
+                        <form method="POST" action="{% url 'dentista:eliminar_servicio' s.id %}" style="margin:0;">
+                            {% csrf_token %}
+                            <button type="button" class="btn-mini-action delete" title="Eliminar"
+                                    onclick="confirmarEliminarServicio(this, '{{ s.nombre }}')">
+                                <i class="ph-bold ph-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 4rem; color: var(--text-muted);">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--border-subtle);">
+                        <i class="ph-duotone ph-briefcase"></i>
+                    </div>
+                    <p>No tienes servicios registrados en el catálogo.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="modalServicio" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle" style="margin:0; color:var(--text-main);">Nuevo Servicio</h3>
+            <button class="btn-icon" onclick="cerrarModalServicio()" style="background:transparent; color:var(--text-muted);">
+                <i class="ph-bold ph-x"></i>
+            </button>
+        </div>
+        
+        <form method="post" action="{% url 'dentista:servicios' %}">
+            {% csrf_token %}
+            <input type="hidden" name="servicio_id" id="servicio_id">
+
+            <div class="form-group">
+                <label for="nombre">Nombre del Tratamiento</label>
+                <input type="text" name="nombre" id="nombre" class="cyber-input" placeholder="Ej. Limpieza profunda" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="precio">Precio ($)</label>
+                    <input type="number" step="0.01" name="precio" id="precio" class="cyber-input" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="duracion">Duración (min)</label>
+                    <input type="number" name="duracion" id="duracion" class="cyber-input" placeholder="Ej. 45" required>
+                </div>
+            </div>
+
+            <div class="form-group-switch">
+                <div>
+                    <label style="margin:0; display:block; font-weight:700; font-size:0.9rem; color:var(--text-main);">Disponible</label>
+                    <small style="display:block; color:var(--text-muted); font-size:0.8rem;">Visible en la agenda</small>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" name="activo" id="activo" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModalServicio()">Cancelar</button>
+                <button type="submit" class="cyber-btn cyber-btn-glow">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Consulta | RC{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+    <div>
+        <h1 class="text-gradient">Consulta en Curso</h1>
+        <p class="welcome-subtitle">Registro clínico y cierre administrativo.</p>
+    </div>
+    <div class="header-actions">
+        <a href="{% url 'dentista:detalle_paciente' cita.paciente.id %}" class="cyber-btn cyber-btn-secondary">
+            <i class="ph-bold ph-clock-counter-clockwise"></i> Ver Historial
+        </a>
+    </div>
+</div>
+
+<div class="patient-hero-grid">
+    <div class="hero-info-card">
+        <div class="hero-icon-box hi-blue"><i class="ph-duotone ph-user"></i></div>
+        <div class="hero-data"><h5>Paciente</h5><p>{{ cita.paciente.nombre }}</p></div>
+    </div>
+    
+    <div class="hero-info-card">
+        <div class="hero-icon-box hi-purple"><i class="ph-duotone ph-tooth"></i></div>
+        <div class="hero-data"><h5>Tratamiento</h5><p>{{ cita.servicio.nombre }}</p></div>
+    </div>
+    
+    <div class="hero-info-card">
+        <div class="hero-icon-box hi-orange"><i class="ph-duotone ph-calendar-check"></i></div>
+        <div class="hero-data"><h5>Fecha</h5><p>{{ cita.fecha_hora_inicio|date:"d M" }} • {{ cita.fecha_hora_inicio|time:"h:i a" }}</p></div>
+    </div>
+    
+    <div class="hero-info-card">
+        <div class="hero-icon-box hi-brand"><i class="ph-duotone ph-tag"></i></div>
+        <div class="hero-data"><h5>Estado</h5><p>{{ cita.get_estado_display }}</p></div>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div class="clinical-layout">
+        
+        <div class="notes-panel">
+            <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--bg-input); padding-bottom: 1rem;">
+                <h3 style="font-size: 1.1rem; display: flex; align-items: center; gap: 10px; margin: 0; color: var(--text-main);">
+                    <i class="ph-fill ph-clipboard-text" style="color: var(--brand);"></i> Evolución Clínica
+                </h3>
+            </div>
+            
+            <textarea name="notas_clinicas" class="notes-textarea" placeholder="Escribe aquí los detalles del procedimiento, observaciones y evolución del paciente...">{{ cita.notas|default:'' }}</textarea>
+
+            <div class="form-group">
+                <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-bottom: 8px; display: block;">ADJUNTAR ARCHIVO (RX / FOTO)</label>
+                <input type="file" name="archivo_adjunto" class="cyber-input" style="background: #f8fafc;">
+            </div>
+        </div>
+
+        <div class="admin-panel">
+            <h3 style="font-size: 1.1rem; margin-bottom: 1.5rem; font-weight: 700; color: var(--text-main);">
+                Cierre de Consulta
+            </h3>
+            
+            <div class="form-group">
+                <label style="display:block; color:var(--text-muted); margin-bottom:0.5rem; font-size:0.8rem; font-weight: 700; text-transform: uppercase;">Total a Cobrar</label>
+                <input type="number" step="0.01" name="monto" class="cyber-input big-price-input" value="{{ monto_default|stringformat:'.2f' }}" required>
+            </div>
+
+            <div class="payment-toggle-row">
+                <div>
+                    <span style="font-weight:700; color:var(--text-main); display: block; font-size: 0.9rem;">Pago Recibido</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">¿Liquidó hoy?</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" name="pagado" {% if pagado_default %}checked{% endif %}>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <button type="submit" class="cyber-btn cyber-btn-glow w-100" style="justify-content: center; padding: 1rem; font-size: 1rem;">
+                    <i class="ph-bold ph-check-circle"></i> FINALIZAR CONSULTA
+                </button>
+                
+                <a href="{% url 'dentista:dashboard' %}" class="cyber-btn cyber-btn-sm cyber-btn-secondary w-100" style="justify-content: center; border: none;">
+                    Guardar y Salir (Sin terminar)
+                </a>
+
+                <button type="button" class="cyber-btn cyber-btn-sm w-100" style="justify-content: center; color: var(--danger); background: #fff; border: 1px solid #fecaca;" onclick="cancelarCitaDesdeConsulta()">
+                    <i class="ph-bold ph-trash"></i> Cancelar Cita
+                </button>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<form id="formCancelar" method="post" action="{% url 'dentista:eliminar_cita' cita.id %}" style="display: none;">
+    {% csrf_token %}
+</form>
+
+{% endblock %}

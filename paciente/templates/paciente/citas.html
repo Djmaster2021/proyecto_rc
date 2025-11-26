@@ -1,0 +1,52 @@
+{% extends "paciente/base.html" %}
+
+{% block ptitle %}Citas{% endblock %}
+
+{% block pcontent %}
+<div class="page-container">
+    <div class="glow-card-wrapper">
+        <div class="cyber-card">
+            <h2 class="card-title">Mis Citas</h2>
+            <p>El listado detallado y el historial de tus citas aparecerán aquí próximamente.</p>
+            <p>
+                Desde el 
+                <a href="{% url 'paciente:dashboard' %}" class="link-dashboard">
+                    Dashboard Principal
+                </a> 
+                puedes gestionar tu próxima cita.
+            </p>
+        </div>
+    </div>
+</div>
+
+<button id="aiFab" class="ai-fab" aria-label="Abrir asistente IA">IA</button>
+
+<aside
+    id="aiDock"
+    class="ai-dock"
+    aria-hidden="true"
+    data-pagos-url="{% url 'paciente:pagos' %}"
+>
+    <header class="ai-head">
+      <strong>Asistente IA</strong>
+      <button id="aiClose" class="ai-icon" aria-label="Cerrar">✕</button>
+    </header>
+
+    <div id="aiBody" class="ai-body" role="log" aria-live="polite">
+      <div class="ai-tip">🗓️ Te ayudo con tus citas.</div>
+      <div class="ai-suggests">
+        <button class="ai-chip" data-q="¿Cuántas citas tengo?">¿Cuántas tengo?</button>
+        <button class="ai-chip" data-q="Llévame a Pagos">Ir a pagos</button>
+      </div>
+    </div>
+
+    <form id="aiForm" class="ai-form" autocomplete="off">
+      <input
+        id="aiInput"
+        class="ai-input"
+        placeholder="Escribe tu consulta… (Enter para enviar)"
+      />
+      <button class="ai-send" aria-label="Enviar">➤</button>
+    </form>
+</aside>
+{% endblock %}

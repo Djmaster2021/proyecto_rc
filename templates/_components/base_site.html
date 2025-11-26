@@ -1,0 +1,74 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE|default:'es' }}">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Consultorio RC{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}{% trans 'Sistema Integral De Gestión Dental' %}{% endblock %}">
+  <link rel="icon" href="{% static 'img/favicon.png' %}">
+
+  <!-- Iconos -->
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+
+  <!-- Fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="{% static 'site.css' %}?v=FINAL_FUTURISTA">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  {% include "_components/navbar.html" %}
+  
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+  
+  {% include "_components/footer.html" %}
+
+  <!-- Widget del chatbot -->
+  <div id="rc-chatbot" class="chat-hidden">
+      <div class="chat-header">
+          <div class="chat-brand">
+              <i class="ph-duotone ph-robot brand-logo"></i>
+              <span>Asistente RC</span>
+          </div>
+          <button id="chat-close" aria-label="Cerrar">
+              <i class="ph-bold ph-x"></i>
+          </button>
+      </div>
+
+      <div class="chat-body" id="chat-messages">
+          <div class="chat-msg bot">
+              ¡Hola! 👋 Soy tu asistente virtual. ¿En qué puedo ayudarte hoy?
+          </div>
+      </div>
+
+      <div class="chat-quick-replies">
+          <button class="quick-btn" data-msg="horarios">🕒 Horarios</button>
+          <button class="quick-btn" data-msg="ubicacion">📍 Ubicación</button>
+          <button class="quick-btn" data-msg="precios">💲 Precios</button>
+      </div>
+
+      <form class="chat-footer" id="chat-form">
+          <input type="text" id="chat-input" placeholder="Escribe aquí..." autocomplete="off">
+          <button type="submit" id="chat-send">
+              <i class="ph-fill ph-paper-plane-right"></i>
+          </button>
+      </form>
+  </div>
+
+  <!-- Botón flotante que abre el chat -->
+  <button id="chat-trigger" aria-label="Abrir asistente">
+      <i class="ph-fill ph-chat-teardrop-text"></i>
+  </button>
+
+  <!-- JS general del sitio (incluye el chatbot) -->
+  <script src="{% static 'site.js' %}?v=FINAL_FUTURISTA" defer></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

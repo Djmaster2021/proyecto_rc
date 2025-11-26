@@ -1,0 +1,27 @@
+<!--Contenedor principal de la ventana modal.
+  - El "id" se puede personalizar al incluir el componente, o será "modal" por defecto.
+  - "hidden" oculta el modal por defecto. Se necesita JavaScript para mostrarlo.-->
+<div class="modal" id="{{ id|default:'modal' }}" hidden>
+  <div class="modal-dialog">
+
+    <!-- Encabezado del modal.-->
+    <header class="modal-header">
+
+      <!--Título del modal. Puedes pasar una variable "title". Si no, dice "Título".-->
+      <h3>{{ title|default:"Título" }}</h3>
+
+      <!--Botón para cerrar la ventana modal.-->
+      <button type="button" class="modal-close" aria-label="Cerrar">&times;</button>
+    </header>
+
+    <!--Cuerpo o contenido principal del modal.-->
+    <div class="modal-body">
+      {{ body|default:"Contenido del modal..." }}
+    </div>
+
+    <!--Pie del modal. Generalmente contiene botones como "Aceptar" o "Cancelar".-->
+    <footer class="modal-footer">
+      {{ footer|default:"" }}
+    </footer>
+  </div>
+</div>

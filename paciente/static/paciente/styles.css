@@ -1,0 +1,1120 @@
+/* --- Paleta de Colores y Estilos Base (Futurista) --- */
+:root {
+  /* Colores principales */
+  --color-primary-cyber: #00e0ff;
+  --color-secondary-cyber: #764ba2;
+  --color-bg-dark: #121212;
+
+  /* FONDO CLARO base (para compatibilidad con modo claro) */
+  --color-bg-light: #f5f5f5;
+
+  --color-surface-card: rgba(30, 30, 30, 0.7);
+  --color-border-subtle: rgba(255, 255, 255, 0.1);
+  --color-text-light: #e0e0e0;
+  --color-text-muted: #888888;
+  --color-danger: #ff4d4d;
+  --color-accent: #39ff14;
+
+  /* Superficie sólida (la usas en avatar-fallback) */
+  --color-surface: #1e293b;
+
+  /* Color “primario” genérico */
+  --color-primary: #0ea5e9;
+
+  /* Amarillo para estrellas de encuesta */
+  --color-warning-cyber: #facc15;
+
+  /* Fuentes y espaciado */
+  --font-family-base: 'Poppins', sans-serif;
+  --border-radius-base: 0.75rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* Tema claro (compatibilidad) */
+  --body-bg: var(--color-bg-light);
+  --text-color: #343a40;
+  --card-bg: var(--color-surface-card);
+  --card-border: var(--color-border-subtle);
+  --table-header-bg: var(--color-bg-light);
+  --table-border: var(--color-border-subtle);
+  --topbar-bg: #fff;
+  --topbar-border: rgba(0,0,0,.08);
+  --topbar-text: #111827;
+
+  /* Duración flip tarjeta (pagos) */
+  --card-flip-duration: 0.6s;
+}
+
+/* --- Tema Oscuro --- */
+body.dark-mode {
+  --body-bg: var(--color-bg-dark);
+  --text-color: var(--color-text-light);
+  --card-bg: var(--color-surface-card);
+  --card-border: var(--color-border-subtle);
+  --table-header-bg: rgba(255, 255, 255, 0.03);
+  --table-border: rgba(255, 255, 255, 0.1);
+  --color-primary: var(--color-primary-cyber);
+  --color-secondary: var(--color-secondary-cyber);
+  --topbar-bg: var(--color-surface-card);
+  --topbar-border: rgba(255, 255, 255, 0.1);
+  --topbar-text: var(--color-text-light);
+}
+
+/* --- Estilos Generales del Body --- */
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-light);
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.5s, color 0.5s;
+}
+
+/* --- Layout Principal --- */
+.page-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+/* --- Banner de Bienvenida Futurista --- */
+.cyber-banner {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: #ffffff;
+  padding: 4rem var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-bottom: 3px solid var(--color-primary-cyber);
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-banner::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-image: radial-gradient(circle, rgba(0, 224, 255, 0.15) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.2;
+}
+
+.cyber-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 10px var(--color-primary-cyber);
+}
+
+.cyber-subtitle {
+  font-size: 1.2rem;
+  font-weight: 300;
+  margin-bottom: var(--spacing-lg);
+}
+
+.cyber-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+@media (max-width: 768px) {
+  .cyber-banner { padding: 2.5rem var(--spacing-md); }
+  .cyber-title { font-size: 2rem; }
+  .cyber-subtitle { font-size: 1rem; }
+}
+
+/* --- Contenedores y Tarjetas --- */
+@keyframes glowing {
+  0% { box-shadow: 0 0 5px var(--color-primary-cyber); }
+  50% { box-shadow: 0 0 20px var(--color-primary-cyber), 0 0 30px var(--color-primary-cyber); }
+  100% { box-shadow: 0 0 5px var(--color-primary-cyber); }
+}
+
+.glow-card-wrapper {
+  position: relative;
+  padding: 2px;
+  border-radius: var(--border-radius-base);
+  overflow: hidden;
+  transition: transform 0.3s;
+}
+
+.glow-card-wrapper:hover {
+  transform: translateY(-5px);
+}
+
+.glow-card-wrapper::before {
+  content: '';
+  position: absolute;
+  top: -5px; left: -5px; right: -5px; bottom: -5px;
+  background: linear-gradient(45deg, var(--color-primary-cyber), var(--color-secondary-cyber));
+  background-size: 400% 400%;
+  z-index: -1;
+  border-radius: var(--border-radius-base);
+  animation: glowing-border 8s linear infinite;
+}
+
+@keyframes glowing-border {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.cyber-card {
+  background-color: var(--color-surface-card);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--border-radius-base);
+  padding: var(--spacing-lg);
+  position: relative;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--color-primary-cyber);
+  display: inline-block;
+  padding-bottom: 0.25rem;
+  text-shadow: 0 0 5px var(--color-primary-cyber);
+}
+
+/* Grid 2 columnas */
+.grid-cols-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 768px) {
+  .grid-cols-2 { grid-template-columns: 1fr; }
+}
+
+/* --- Botones Futuristas --- */
+.btn {
+  display: none;
+}
+
+.cyber-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid var(--color-primary-cyber);
+  background: transparent;
+  color: var(--color-primary-cyber);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.cyber-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: var(--color-primary-cyber);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease-out;
+  z-index: -1;
+}
+
+.cyber-btn:hover {
+  color: var(--color-bg-dark);
+}
+
+.cyber-btn:hover::before {
+  transform: scaleX(1);
+}
+
+.cyber-btn.cyber-btn-glow {
+  background: linear-gradient(90deg, var(--color-primary-cyber), var(--color-secondary-cyber));
+  border: none;
+  color: #fff;
+  animation: glowing 2s infinite;
+  box-shadow: 0 0 10px var(--color-primary-cyber);
+}
+
+.cyber-btn.cyber-btn-danger {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.cyber-btn.cyber-btn-danger:hover {
+  background-color: var(--color-danger);
+  color: #fff;
+  border: 1px solid var(--color-danger);
+}
+
+/* Tamaño pequeño (dos clases posibles por si usas cualquiera) */
+.cyber-btn.cyber-btn--sm,
+.cyber-btn.cyber-btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+/* --- Tablas (historial, etc.) --- */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--border-radius-base);
+  border: 1px solid var(--table-border);
+  transition: border-color 0.3s;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  white-space: normal;
+  vertical-align: middle;
+}
+
+.data-table th {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Columnas de ancho relativo */
+.col-fecha { width: 15%; }
+.col-servicio { width: 30%; }
+.col-doctor { width: 25%; }
+.col-estado { width: 15%; }
+.col-accion { width: 15%; }
+
+/* --- Chips --- */
+.chip {
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  background-color: var(--color-surface-card);
+  border: 1px solid;
+}
+
+.chip.status-agendada {
+  color: #00e0ff;
+  border-color: #00e0ff;
+  box-shadow: 0 0 5px #00e0ff;
+}
+.chip.status-reprogramada {
+  color: #ffc107;
+  border-color: #ffc107;
+  box-shadow: 0 0 5px #ffc107;
+}
+.chip.status-atendida {
+  color: #39ff14;
+  border-color: #39ff14;
+  box-shadow: 0 0 5px #39ff14;
+}
+.chip.status-cancelada {
+  color: #ff4d4d;
+  border-color: #ff4d4d;
+  box-shadow: 0 0 5px #ff4d4d;
+}
+
+/* --- Modales --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s, visibility 0.3s;
+  z-index: 1000;
+}
+
+.modal-overlay.is-visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.modal-content {
+  background: var(--card-bg);
+  backdrop-filter: blur(15px);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-base);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 5px 25px rgba(0, 224, 255, 0.2);
+  max-width: 500px;
+  width: 90%;
+  transform: translateY(-20px);
+  transition: transform 0.3s, background-color 0.3s, border-color 0.3s;
+}
+
+.modal-overlay.is-visible .modal-content {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 10px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: var(--color-text-light);
+}
+
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-text-light);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--card-border);
+  background-color: transparent;
+  color: var(--color-text-light);
+  border-radius: var(--border-radius-base);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--color-primary-cyber);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 224, 255, 0.15);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+/* --- Selector de Tema --- */
+.theme-switcher { }
+
+.theme-switch {
+  display: inline-block;
+  height: 28px;
+  position: relative;
+  width: 55px;
+}
+
+.theme-switch input { display: none; }
+
+.slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0; right: 0; top: 0;
+  position: absolute;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  background-color: #fff;
+  bottom: 4px;
+  content: "";
+  height: 20px;
+  left: 4px;
+  position: absolute;
+  transition: 0.4s;
+  width: 20px;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--color-primary-cyber);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+/* Opciones de select */
+select option {
+  color: #0f172a;
+  background-color: #ffffff;
+}
+
+body.dark-mode select option {
+  color: #e8eef7;
+  background-color: #1e293b;
+}
+
+/* --- Calendario Flatpickr --- */
+.flatpickr-calendar {
+  z-index: 99999 !important;
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+.flatpickr-day.selected {
+  background: #2dd4bf !important;
+  border-color: #2dd4bf !important;
+}
+
+/* --- Utilidades --- */
+.messages-spaced { margin-bottom: 1.5rem; }
+.mb-05 { margin-bottom: 0.5rem; }
+.mb-15 { margin-bottom: 1.5rem; }
+.mt-2 { margin-top: 2rem; }
+
+.flex-row-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.no-decoration { text-decoration: none; }
+
+.empty-state { padding: 2rem; }
+
+.empty-state-icon { font-size: 3rem; }
+
+.card-vertical-center {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-min-300 {
+  position: relative;
+  min-height: 300px;
+}
+
+/* Botón Editar Perfil */
+.btn-edit-profile {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.4rem;
+  z-index: 10;
+  color: var(--color-primary);
+  transition: transform 0.2s;
+}
+
+.btn-edit-profile:hover {
+  transform: scale(1.1);
+}
+
+/* Perfil paciente */
+.profile-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.profile-main {
+  flex: 1;
+  min-width: 0;
+  padding-right: 10px;
+}
+
+.chip-paciente-id {
+  background: rgba(45, 212, 191, 0.1);
+  color: #2dd4bf;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.profile-name {
+  font-size: 1.3rem;
+  margin-bottom: 0.2rem;
+  line-height: 1.2;
+  color: #fff;
+}
+
+.profile-email {
+  font-size: 0.9rem;
+  color: var(--color-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.profile-info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-inline { font-size: 1.1rem; }
+
+.address-text { line-height: 1.3; }
+
+/* Avatar */
+.avatar-circle {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--color-primary);
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3);
+}
+
+.avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-fallback {
+  width: 100%;
+  height: 100%;
+  background: var(--color-surface);
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+  font-size: 1.8rem;
+  color: #fff;
+}
+
+/* Historial */
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.history-title { margin: 0; }
+
+.status-chip-nowrap { white-space: nowrap; }
+
+/* Inputs deshabilitados */
+.input-readonly-display { opacity: 0.6; }
+
+/* Form oculto */
+.hidden-form { display: none; }
+
+/* ========== TOPBAR PACIENTE ========== */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--topbar-bg);
+  border-bottom: 1px solid var(--topbar-border);
+  color: var(--topbar-text);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.topbar__inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand {
+  font-weight: 800;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+
+.center-title {
+  flex: 1;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.right-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.btn-logout {
+  color: var(--topbar-text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--topbar-border);
+  transition: all 0.2s ease;
+}
+
+.btn-logout:hover {
+  background: rgba(255, 59, 48, 0.1);
+  color: #ff3b30;
+  border-color: #ff3b30;
+}
+
+/* Responsive topbar */
+@media (max-width: 720px) {
+  .topbar__inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .center-title {
+    text-align: left;
+  }
+
+  .right-actions {
+    justify-content: space-between;
+  }
+}
+
+/* Enlace al Dashboard desde Citas */
+.link-dashboard {
+  color: var(--color-primary-cyber);
+  text-decoration: none;
+}
+
+.link-dashboard:hover {
+  text-decoration: underline;
+}
+
+/* ========== IA DOCK – PACIENTE/CITAS ========== */
+.ai-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  background: transparent;
+  color: inherit;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 60;
+}
+
+.ai-dock {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  top: 18px;
+  width: min(420px, 92vw);
+  background: transparent;
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(calc(100% + 18px));
+  transition: transform 0.25s ease;
+  z-index: 61;
+  backdrop-filter: blur(6px);
+}
+
+.ai-dock[aria-hidden="false"] {
+  transform: translateY(0);
+}
+
+.ai-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.25);
+}
+
+.ai-icon {
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  background: transparent;
+  border-radius: 0.6rem;
+  padding: 0.35rem 0.55rem;
+}
+
+.ai-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  overflow: auto;
+  max-height: 65vh;
+}
+
+.ai-tip {
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+.ai-suggests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ai-chip {
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  background: transparent;
+  border-radius: 999px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.ai-msg {
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  border-radius: 0.7rem;
+  padding: 0.55rem 0.7rem;
+  white-space: pre-wrap;
+}
+
+.ai-msg.user {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.ai-msg.bot {
+  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.ai-form {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.8rem 1rem;
+  border-top: 1px solid rgba(127, 127, 127, 0.25);
+}
+
+.ai-input {
+  flex: 1;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  border-radius: 0.6rem;
+  background: transparent;
+  color: inherit;
+  padding: 0.5rem 0.6rem;
+}
+
+.ai-send {
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  background: transparent;
+  border-radius: 0.6rem;
+  padding: 0.5rem 0.7rem;
+}
+
+@media (max-width: 720px) {
+  .ai-dock {
+    top: auto;
+    height: 72vh;
+  }
+}
+
+/* ========== ENCUESTA PACIENTE ========== */
+.survey-page {
+  max-width: 600px;
+  margin: 4rem auto;
+}
+
+.survey-title {
+  font-size: 1.8rem;
+}
+
+.survey-subtitle {
+  margin-top: 0.5rem;
+}
+
+.survey-form {
+  margin-top: 2rem;
+  text-align: left;
+}
+
+.survey-rating-group {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Sistema de estrellas */
+.rating {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.rating input {
+  display: none;
+}
+
+.rating label {
+  cursor: pointer;
+  font-size: 2.5rem;
+  color: var(--color-text-muted);
+  transition: color 0.2s;
+}
+
+.rating label:hover,
+.rating label:hover ~ label,
+.rating input:checked ~ label {
+  color: var(--color-warning-cyber);
+}
+
+/* ========== PAGOS PACIENTE ========== */
+.payment-experience-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: calc(100vh - 80px);
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.payment-flow-card {
+  max-width: 500px;
+  width: 100%;
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--border-radius-base);
+  padding: 2.5rem;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 0 40px rgba(0, 224, 255, 0.1);
+}
+
+.payment-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.secure-title {
+  margin-bottom: 0.5rem;
+  color: var(--color-text-light);
+}
+
+.payment-summary {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.card-flipper {
+  perspective: 1000px;
+  margin-bottom: 2rem;
+}
+
+.card-flipper.flipped .card-wrapper {
+  transform: rotateY(180deg);
+}
+
+.card-wrapper {
+  transition: transform var(--card-flip-duration);
+  transform-style: preserve-3d;
+  height: 250px;
+}
+
+.jp-card-front,
+.jp-card-back {
+  backface-visibility: hidden;
+}
+
+.jp-card-back {
+  transform: rotateY(180deg);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.form-group.span-2 {
+  grid-column: span 2;
+}
+
+/* En pagos, ajustamos labels a estilo "muted" */
+.form-grid .form-group label {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.form-grid input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.5rem;
+  padding: 0.8rem;
+  color: var(--color-text-light);
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.form-grid input:focus {
+  border-color: var(--color-primary-cyber);
+  box-shadow: 0 0 0 3px rgba(0, 224, 255, 0.15);
+  outline: none;
+}
+
+.validation-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%) scale(0);
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease;
+}
+
+.validation-icon.visible {
+  transform: translateY(-50%) scale(1);
+}
+
+.form-grid input.valid {
+  border-color: var(--color-accent);
+}
+
+.form-grid input.invalid {
+  border-color: var(--color-danger);
+}
+
+.submit-payment-btn {
+  width: 100%;
+  margin-top: 2rem;
+  padding: 1rem;
+  font-size: 1.1rem;
+  justify-content: center;
+}
+
+/* Factura */
+.invoice-body {
+  font-family: monospace;
+  color: var(--color-text-light);
+}
+
+/* Botones en alerta de pago */
+.invoice-actions {
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+/* ==========================================
+   Banner de penalización – lado PACIENTE
+   ========================================== */
+
+   .penalty-banner {
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    margin-bottom: 1rem;
+    background: radial-gradient(circle at left, rgba(248, 113, 113, 0.16), transparent 55%);
+    border-bottom: 1px solid rgba(248, 113, 113, 0.45);
+  }
+  
+  .penalty-banner__content {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  
+  .penalty-banner__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+    color: #fecaca;
+  }
+  
+  .penalty-banner__text {
+    margin: 0.15rem 0;
+    font-size: 0.9rem;
+    color: rgba(241, 245, 249, 0.9);
+  }
+  
+  .penalty-banner__actions .cyber-btn {
+    font-size: 0.9rem;
+    padding-inline: 1.2rem;
+  }
+  
+  /* Página de detalles de penalización */
+  .penalty-page {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  
+  .penalty-page__list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+  
+  .penalty-page__list li {
+    font-size: 0.9rem;
+    margin-bottom: 0.35rem;
+  }
+  
+  .penalty-page__text {
+    font-size: 0.9rem;
+    color: rgba(226, 232, 240, 0.95);
+  }
+  

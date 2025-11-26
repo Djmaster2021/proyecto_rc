@@ -1,0 +1,134 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Editar Paciente | {{ paciente.nombre }}{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+    <div>
+        <h1 class="text-gradient">Editar Paciente</h1>
+        <p class="welcome-subtitle">Actualizando expediente de <strong>{{ paciente.nombre }}</strong></p>
+    </div>
+    <a href="{% url 'dentista:detalle_paciente' paciente.id %}" class="cyber-btn cyber-btn-secondary">
+        <i class="ph-bold ph-arrow-u-up-left"></i> Volver al Expediente
+    </a>
+</div>
+
+<div class="edit-container-centered">
+    <div class="cyber-card">
+        
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-section-heading">
+                <i class="ph-bold ph-user"></i> Información Personal
+            </div>
+
+            <div class="form-group">
+                <label for="id_nombre">Nombre Completo</label>
+                <input 
+                    type="text" 
+                    id="id_nombre" 
+                    name="nombre" 
+                    class="cyber-input" 
+                    value="{{ paciente.nombre }}" 
+                    placeholder="Nombre y Apellidos"
+                    required
+                >
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label for="id_fecha_nacimiento">Fecha de Nacimiento</label>
+                    <input 
+                        type="date" 
+                        id="id_fecha_nacimiento" 
+                        name="fecha_nacimiento" 
+                        class="cyber-input" 
+                        value="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_genero">Género</label>
+                    <select name="genero" id="id_genero" class="cyber-input">
+                        <option value="M" {% if paciente.genero == 'M' %}selected{% endif %}>Masculino</option>
+                        <option value="F" {% if paciente.genero == 'F' %}selected{% endif %}>Femenino</option>
+                        <option value="O" {% if paciente.genero == 'O' %}selected{% endif %}>Otro</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-section-heading">
+                <i class="ph-bold ph-address-book"></i> Contacto y Ubicación
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label for="id_email">Correo Electrónico</label>
+                    <input 
+                        type="email" 
+                        id="id_email" 
+                        name="email" 
+                        class="cyber-input" 
+                        value="{{ paciente.user.email|default_if_none:'' }}"
+                        placeholder="ejemplo@correo.com"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="id_telefono">Teléfono / WhatsApp</label>
+                    <input 
+                        type="text" 
+                        id="id_telefono" 
+                        name="telefono" 
+                        class="cyber-input" 
+                        value="{{ paciente.telefono }}"
+                        placeholder="(000) 000-0000"
+                    >
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_direccion">Dirección de Residencia</label>
+                <textarea 
+                    id="id_direccion" 
+                    name="direccion" 
+                    class="cyber-input" 
+                    rows="3" 
+                    placeholder="Calle, Número, Colonia..."
+                    style="resize: vertical;"
+                >{{ paciente.direccion }}</textarea>
+            </div>
+
+            <div class="form-section-heading">
+                <i class="ph-bold ph-first-aid-kit"></i> Antecedentes
+            </div>
+
+            <div class="form-group">
+                <label for="id_antecedentes">Alergias o Enfermedades Crónicas</label>
+                <textarea 
+                    id="id_antecedentes" 
+                    name="antecedentes" 
+                    class="cyber-input" 
+                    rows="3" 
+                    placeholder="Ej: Alérgico a la penicilina, diabetes controlada..."
+                    style="resize: vertical;"
+                >{{ paciente.antecedentes }}</textarea>
+            </div>
+
+            <div class="form-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                <a href="{% url 'dentista:detalle_paciente' paciente.id %}" class="cyber-btn cyber-btn-secondary">
+                    Cancelar
+                </a>
+                <button type="submit" class="cyber-btn cyber-btn-glow">
+                    <i class="ph-bold ph-floppy-disk"></i> Guardar Cambios
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

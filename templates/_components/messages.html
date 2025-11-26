@@ -1,0 +1,15 @@
+<!--Comprueba si hay algún mensaje en la cola de Django para mostrar.-->
+{% if messages %}
+
+<!--Recorre cada mensaje (m) que haya en la cola.-->
+  <div class="messages">
+
+    <!--Crea un div para cada mensaje.
+        - {{ m.tags }} inserta las etiquetas del mensaje como clases CSS (ej: "success", "error", "info").
+          Esto permite darle un color diferente a cada tipo de mensaje (verde para éxito, rojo para error).
+        - {{ m }} imprime el texto del mensaje.-->
+    {% for m in messages %}
+      <div class="msg {{ m.tags }}">{{ m }}</div>
+    {% endfor %}
+  </div>
+{% endif %}

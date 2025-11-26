@@ -1,0 +1,168 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Centro de Ayuda | RC{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header" style="margin-bottom: 1.5rem;">
+    <div>
+        <h1 class="text-gradient">Centro de Ayuda</h1>
+        <p class="welcome-subtitle">Documentación oficial y soporte técnico.</p>
+    </div>
+    
+    <div class="search-hero-box">
+        <i class="ph-bold ph-magnifying-glass search-icon-overlay" style="position:absolute; left:15px; top:12px; color:var(--text-muted);"></i>
+        <input type="text" id="faqSearch" class="search-hero-input" placeholder="Buscar en la documentación...">
+    </div>
+</div>
+
+<div class="system-status-bar">
+    <div class="status-pulse-green"></div>
+    <span>Todos los sistemas operativos &bull; v6.2.0 (Stable)</span>
+    <span style="margin-left: auto; color: var(--text-muted); font-weight: 400;">Actualizado: {% now "H:i" %}</span>
+</div>
+
+<div class="support-grid">
+    
+    <div class="faq-container">
+        
+        <div class="support-category-card">
+            <div class="cat-header">
+                <div class="cat-icon cat-agenda"><i class="ph-fill ph-calendar-check"></i></div>
+                <div>
+                    <h3 class="cat-title">Agenda y Citas</h3>
+                    <p class="cat-desc">Gestión de pacientes, horarios y reglas operativas.</p>
+                </div>
+            </div>
+            
+            <div class="faq-list">
+                <details class="faq-item">
+                    <summary>¿Cómo funciona la regla de los 28 días? <i class="ph-bold ph-caret-down faq-icon"></i></summary>
+                    <div class="faq-answer">El sistema bloquea citas consecutivas para evitar sobretratamiento si no han pasado 28 días. Contacta a administración para excepciones.</div>
+                </details>
+                <details class="faq-item">
+                    <summary>Gestionar cancelaciones y No-Shows <i class="ph-bold ph-caret-down faq-icon"></i></summary>
+                    <div class="faq-answer">Usa el botón "Eliminar" en la cita. El sistema registra automáticamente el incidente en el historial del paciente.</div>
+                </details>
+                <details class="faq-item">
+                    <summary>Agendar fuera de horario laboral <i class="ph-bold ph-caret-down faq-icon"></i></summary>
+                    <div class="faq-answer">Es posible, pero generará una alerta visual amarilla en la agenda indicando que es una excepción operativa.</div>
+                </details>
+            </div>
+        </div>
+
+        <div class="support-category-card">
+            <div class="cat-header">
+                <div class="cat-icon cat-money"><i class="ph-fill ph-coins"></i></div>
+                <div>
+                    <h3 class="cat-title">Pagos y Caja</h3>
+                    <p class="cat-desc">Registro de ingresos, reportes y cortes.</p>
+                </div>
+            </div>
+            
+            <div class="faq-list">
+                <details class="faq-item">
+                    <summary>¿Cómo registro un pago en efectivo? <i class="ph-bold ph-caret-down faq-icon"></i></summary>
+                    <div class="faq-answer">Ve a la sección <strong>Finanzas > Nuevo Cobro</strong>. Selecciona la cita pendiente y confirma el monto recibido.</div>
+                </details>
+                <details class="faq-item">
+                    <summary>Descargar reportes fiscales <i class="ph-bold ph-caret-down faq-icon"></i></summary>
+                    <div class="faq-answer">En la sección <strong>Reportes</strong>, usa los botones de exportación (PDF/CSV) situados en la esquina superior derecha.</div>
+                </details>
+            </div>
+        </div>
+
+        <div class="support-category-card">
+            <div class="cat-header">
+                <div class="cat-icon cat-user"><i class="ph-fill ph-user-gear"></i></div>
+                <div>
+                    <h3 class="cat-title">Mi Cuenta</h3>
+                    <p class="cat-desc">Seguridad, perfil y horarios de atención.</p>
+                </div>
+            </div>
+            
+            <div class="faq-list">
+                <details class="faq-item">
+                    <summary>Modificar mi disponibilidad <i class="ph-bold ph-caret-down faq-icon"></i></summary>
+                    <div class="faq-answer">Ve a <strong>Configuración</strong>. Puedes eliminar bloques de horario antiguos y crear nuevos turnos semanales.</div>
+                </details>
+            </div>
+        </div>
+
+    </div>
+
+    <div>
+        <div class="ticket-card">
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-msg alert-{{ message.tags }}">
+                        <i class="ph-bold {% if message.tags == 'success' %}ph-check-circle{% else %}ph-warning-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="width: 60px; height: 60px; background: var(--bg-input); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: var(--brand);">
+                    <i class="ph-duotone ph-life-buoy" style="font-size: 2rem;"></i>
+                </div>
+                <h3 style="margin:0; color: var(--text-main); font-size: 1.2rem; font-weight: 700;">Soporte Técnico</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">
+                    Respuesta estimada: <span style="color: var(--success); font-weight: 700;">&lt; 24h</span>
+                </p>
+            </div>
+          
+            <form method="post" action="{% url 'dentista:soporte' %}">
+              {% csrf_token %}
+              
+              <div class="form-group">
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Categoría</label>
+                <div style="position: relative;">
+                    <select name="asunto" class="cyber-input" required style="appearance: none; background: #f8fafc;">
+                      <option value="" disabled selected>Selecciona el problema...</option>
+                      <option value="Error Crítico">🔴 Sistema Detenido</option>
+                      <option value="Problema Pagos">🟡 Finanzas / Caja</option>
+                      <option value="Agenda/Citas">🔵 Agenda / Citas</option>
+                      <option value="Sugerencia">✨ Sugerencia</option>
+                    </select>
+                    <i class="ph-bold ph-caret-down" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-muted);"></i>
+                </div>
+              </div>
+          
+              <div class="form-group">
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Detalle</label>
+                <textarea 
+                  name="mensaje" 
+                  rows="4" 
+                  class="cyber-input" 
+                  placeholder="Describe lo que sucedió..." 
+                  style="resize: none; background: #f8fafc;"
+                  required></textarea>
+              </div>
+          
+              <button type="submit" class="cyber-btn cyber-btn-glow w-100" style="justify-content:center;">
+                Enviar Ticket <i class="ph-bold ph-paper-plane-right"></i>
+              </button>
+            </form>
+
+            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-subtle);">
+                <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">O contáctanos directo:</p>
+                <div class="contact-grid">
+                    <a href="https://wa.me/523220000000" target="_blank" class="method-item">
+                        <i class="ph-fill ph-whatsapp-logo" style="font-size:1.5rem; color:#25D366;"></i>
+                        <span style="font-weight: 700; font-size: 0.8rem; margin-top: 5px;">WhatsApp</span>
+                    </a>
+                    <a href="mailto:soporte@dentistarc.com" class="method-item">
+                        <i class="ph-fill ph-envelope-simple" style="font-size:1.5rem; color:var(--brand);"></i>
+                        <span style="font-weight: 700; font-size: 0.8rem; margin-top: 5px;">Email</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

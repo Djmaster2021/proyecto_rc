@@ -1,0 +1,289 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-08 13:50-0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: domain/models.py:113
+msgid "Pendiente de Confirmación"
+msgstr "Pending Confirmation"
+
+#: domain/models.py:114
+msgid "Confirmada"
+msgstr "Confirmed"
+
+#: domain/models.py:115
+msgid "Completada / Asistió"
+msgstr "Completed / Attended"
+
+#: domain/models.py:116
+msgid "Cancelada por Paciente"
+msgstr "Cancelled by Patient"
+
+#: domain/models.py:117
+msgid "Cancelada por Dentista"
+msgstr "Cancelled by Dentist"
+
+#: domain/models.py:118
+msgid "No Asistió (Inasistencia)"
+msgstr "No Show (Missed)"
+
+#: domain/models.py:153
+msgid "Efectivo en Consultorio"
+msgstr "Cash at Office"
+
+#: domain/models.py:154
+msgid "MercadoPago Online"
+msgstr "MercadoPago Online"
+
+#: domain/models.py:155
+msgid "Transferencia Bancaria"
+msgstr "Bank Transfer"
+
+#: domain/models.py:158
+msgid "Pendiente"
+msgstr "Pending"
+
+#: domain/models.py:159
+msgid "Pagado"
+msgstr "Paid"
+
+#: domain/models.py:160
+msgid "Fallido/Rechazado"
+msgstr "Failed/Rejected"
+
+#: domain/models.py:161
+msgid "Reembolsado"
+msgstr "Refunded"
+
+#: proyecto_rc/settings.py:108
+msgid "Español"
+msgstr "Spanish"
+
+#: proyecto_rc/settings.py:109
+msgid "English"
+msgstr "English"
+
+#: templates/landing/index.html:5
+msgid "Consultorio Dental Rodolfo Castellón | Sistema integral"
+msgstr "Rodolfo Castellón Dental Office | Integral System"
+
+#: templates/landing/index.html:6
+msgid ""
+"Atención dental profesional en Puerto Vallarta. Citas en línea, pagos "
+"seguros."
+msgstr ""
+"Professional dental care in Puerto Vallarta. Online appointments, secure "
+"payments."
+
+#: templates/landing/index.html:17
+msgid "SISTEMA INTEGRAL • PUERTO VALLARTA"
+msgstr "INTEGRAL SYSTEM • PUERTO VALLARTA"
+
+#: templates/landing/index.html:18
+msgid "Consultorio Dental Rodolfo Castellón"
+msgstr "Rodolfo Castellón Dental Office"
+
+#: templates/landing/index.html:20
+msgid ""
+"<strong>Sistema integral</strong> para la <strong>gestión de pacientes, "
+"citas y pagos</strong>. Tecnología moderna, trato humano y precios "
+"accesibles."
+msgstr ""
+"<strong>Integral system</strong> for <strong>patient, appointment, and "
+"payment management</strong>. Modern technology, human touch, and affordable "
+"prices."
+
+#: templates/landing/index.html:25
+msgid "Iniciar sesión"
+msgstr "Login"
+
+#: templates/landing/index.html:26
+msgid "Agenda tu cita"
+msgstr "Book your appointment"
+
+#: templates/landing/index.html:30
+msgid "Procedimientos"
+msgstr "Procedures"
+
+#: templates/landing/index.html:31
+msgid "Satisfacción"
+msgstr "Satisfaction"
+
+#: templates/landing/index.html:32
+msgid "años"
+msgstr "years"
+
+#: templates/landing/index.html:32
+msgid "Experiencia"
+msgstr "Experience"
+
+#: templates/landing/index.html:41
+msgid "Servicios principales"
+msgstr "Main Services"
+
+#: templates/landing/index.html:42
+msgid "Tratamientos personalizados para cada sonrisa."
+msgstr "Personalized treatments for every smile."
+
+#: templates/landing/index.html:46
+msgid "Odontología General"
+msgstr "General Dentistry"
+
+#: templates/landing/index.html:48
+msgid "Limpieza profunda"
+msgstr "Deep cleaning"
+
+#: templates/landing/index.html:49
+msgid "Resinas"
+msgstr "Resin fillings"
+
+#: templates/landing/index.html:50
+msgid "Extracciones"
+msgstr "Extractions"
+
+#: templates/landing/index.html:55
+msgid "Ortodoncia"
+msgstr "Orthodontics"
+
+#: templates/landing/index.html:57
+msgid "Brackets estéticos"
+msgstr "Aesthetic brackets"
+
+#: templates/landing/index.html:58
+msgid "Alineadores"
+msgstr "Aligners"
+
+#: templates/landing/index.html:63
+msgid "Estética"
+msgstr "Aesthetics"
+
+#: templates/landing/index.html:65
+msgid "Blanqueamiento"
+msgstr "Whitening"
+
+#: templates/landing/index.html:66
+msgid "Carillas"
+msgstr "Veneers"
+
+#: templates/landing/index.html:71
+msgid "Restaurativa"
+msgstr "Restorative"
+
+#: templates/landing/index.html:73
+msgid "Coronas"
+msgstr "Crowns"
+
+#: templates/landing/index.html:74
+msgid "Incrustaciones"
+msgstr "Inlays/Onlays"
+
+#: templates/landing/index.html:79
+msgid "Prótesis e Implantes"
+msgstr "Prosthetics and Implants"
+
+#: templates/landing/index.html:81
+msgid "Implantes dentales"
+msgstr "Dental implants"
+
+#: templates/landing/index.html:82
+msgid "Puentes"
+msgstr "Bridges"
+
+#: templates/landing/index.html:87
+msgid "Agenda Digital"
+msgstr "Digital Agenda"
+
+#: templates/landing/index.html:88
+msgid "Recordatorios automáticos por correo y WhatsApp."
+msgstr "Automatic reminders via email and WhatsApp."
+
+#: templates/landing/index.html:98
+msgid "Acerca del consultorio"
+msgstr "About the office"
+
+#: templates/landing/index.html:99
+msgid ""
+"Ubicados en <strong>El Pitillal, Puerto Vallarta</strong>, ofrecemos "
+"tratamientos de última generación con un trato humano."
+msgstr ""
+"Located in <strong>El Pitillal, Puerto Vallarta</strong>, we offer state-of-"
+"the-art treatments with a human touch."
+
+#: templates/landing/index.html:100
+msgid "Horario: Lunes a Sábado, 2:00pm - 8:00pm."
+msgstr "Hours: Monday to Saturday, 2:00pm - 8:00pm."
+
+#: templates/landing/index.html:101
+msgid "Quiero una valoración"
+msgstr "I want an assessment"
+
+#: templates/landing/index.html:110
+msgid "Formas de pago"
+msgstr "Payment methods"
+
+#: templates/landing/index.html:112
+msgid "Efectivo"
+msgstr "Cash"
+
+#: templates/landing/index.html:113
+msgid "Pagos en línea (MercadoPago)"
+msgstr "Online payments (MercadoPago)"
+
+#: templates/landing/index.html:114
+msgid "Transferencias"
+msgstr "Bank transfers"
+
+#: templates/landing/index.html:119
+msgid "Lo que dicen nuestros pacientes"
+msgstr "What our patients say"
+
+#: templates/landing/index.html:127
+msgid "Contáctanos"
+msgstr "Contact us"
+
+#: templates/landing/index.html:131
+msgid "Calle Guatemala #125, El Pitillal, Puerto Vallarta."
+msgstr "Guatemala Street #125, El Pitillal, Puerto Vallarta."
+
+#: templates/landing/index.html:133
+msgid "Mensaje enviado (Demo)"
+msgstr "Message sent (Demo)"
+
+#: templates/landing/index.html:136
+msgid "Nombre"
+msgstr "Name"
+
+#: templates/landing/index.html:137
+msgid "Teléfono"
+msgstr "Phone"
+
+#: templates/landing/index.html:139
+msgid "¿En qué podemos ayudarte?"
+msgstr "How can we help you?"
+
+#: templates/landing/index.html:140
+msgid "Enviar mensaje"
+msgstr "Send message"
+
+#: templates/landing/index.html:144
+msgid "Ubicación"
+msgstr "Location"
+
+#: templates/landing/index.html:153
+msgid "Agendar cita"
+msgstr "Book appointment"

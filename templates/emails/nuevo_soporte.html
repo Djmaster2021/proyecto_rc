@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket de Soporte RC</title>
+    <style>
+        /* ==========================================
+           RC DENTAL | EMAIL THEME (DARK PREMIUM)
+           ========================================== */
+
+        /* 1. RESET Y BASE */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #030712; /* Fondo General Oscuro */
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            color: #e2e8f0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        table {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        /* 2. LAYOUT PRINCIPAL */
+        .email-wrapper {
+            width: 100%;
+            background-color: #030712;
+            padding: 40px 0;
+        }
+
+        .email-card {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #111a2c; /* Fondo Tarjeta Navy */
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            border: 1px solid #1e293b;
+        }
+
+        /* 3. ENCABEZADO */
+        .email-header {
+            background-color: #0f172a;
+            padding: 35px 40px;
+            text-align: center;
+            border-bottom: 3px solid #00ffc3; /* Acento Neón */
+        }
+
+        .brand-text {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        .brand-accent {
+            color: #00ffc3;
+        }
+
+        /* 4. CUERPO DEL MENSAJE */
+        .email-body {
+            padding: 40px 40px 30px 40px;
+        }
+
+        .h1-title {
+            color: #ffffff;
+            font-size: 22px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .intro-text {
+            color: #94a3b8;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* 5. TABLA DE DETALLES (INFO BOX) */
+        .info-box {
+            background-color: #162032;
+            border-radius: 8px;
+            padding: 25px;
+            border-left: 4px solid #3b82f6; /* Borde Azul */
+            margin-bottom: 30px;
+        }
+
+        .info-table {
+            width: 100%;
+        }
+
+        .info-table td {
+            padding: 6px 0;
+            vertical-align: top;
+        }
+
+        .label {
+            color: #64748b;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            width: 140px; /* Ancho fijo para etiquetas */
+        }
+
+        .value {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .highlight {
+            color: #f59e0b; /* Amarillo para asuntos importantes */
+            font-weight: 700;
+        }
+
+        .link-clean {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        /* 6. CAJA DEL MENSAJE USUARIO */
+        .message-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .message-container {
+            background-color: #0f172a;
+            border: 1px dashed #334155;
+            border-radius: 8px;
+            padding: 20px;
+            color: #cbd5e1;
+            font-style: italic;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* 7. BOTÓN DE ACCIÓN */
+        .btn-container {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background-color: #00ffc3;
+            color: #030712;
+            text-decoration: none;
+            padding: 14px 35px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 14px;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(0, 255, 195, 0.3);
+        }
+
+        /* 8. FOOTER */
+        .email-footer {
+            background-color: #0b101a;
+            padding: 25px;
+            text-align: center;
+            border-top: 1px solid #1e293b;
+        }
+
+        .footer-text {
+            color: #475569;
+            font-size: 11px;
+            margin: 5px 0;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="email-wrapper">
+        <table role="presentation" align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+                <td align="center">
+                    
+                    <div class="email-card">
+                        
+                        <div class="email-header">
+                            <h1 class="brand-text">RC <span class="brand-accent">DENTAL</span></h1>
+                        </div>
+
+                        <div class="email-body">
+                            
+                            <h2 class="h1-title">Nuevo Reporte de Incidencia</h2>
+                            <p class="intro-text">
+                                El sistema ha registrado un ticket de soporte generado desde el panel de dentista. A continuación los detalles completos del usuario y la solicitud.
+                            </p>
+
+                            <div class="info-box">
+                                <table class="info-table">
+                                    <tr>
+                                        <td class="label">Usuario:</td>
+                                        <td class="value">{{ nombre }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">ID Sistema:</td>
+                                        <td class="value">#{{ id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Rol / Cargo:</td>
+                                        <td class="value">{{ rol }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Teléfono:</td>
+                                        <td class="value">{{ telefono }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Correo:</td>
+                                        <td class="value">
+                                            <a href="mailto:{{ email }}" class="link-clean">{{ email }}</a>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr><td colspan="2" style="height: 15px;"></td></tr>
+
+                                    <tr>
+                                        <td class="label">Fecha Reporte:</td>
+                                        <td class="value">{{ fecha }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Asunto:</td>
+                                        <td class="value highlight">{{ asunto }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <span class="message-label">Descripción del Problema:</span>
+                            <div class="message-container">
+                                "{{ mensaje }}"
+                            </div>
+
+                            <div class="btn-container">
+                                <a href="mailto:{{ email }}?subject=Re: Soporte RC - {{ asunto }}" class="btn-primary">
+                                    Responder vía Correo
+                                </a>
+                            </div>
+
+                        </div>
+
+                        <div class="email-footer">
+                            <p class="footer-text">
+                                Este mensaje fue generado automáticamente por el <strong>Sistema Integral RC Dental</strong>.<br>
+                                Por favor, atienda esta solicitud a la brevedad posible.
+                            </p>
+                            <p class="footer-text">© 2025 RC Dental Project. Información Confidencial.</p>
+                        </div>
+
+                    </div>
+                    </td>
+            </tr>
+        </table>
+    </div>
+
+</body>
+</html>

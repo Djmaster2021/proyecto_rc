@@ -1,0 +1,129 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Directorio de Pacientes | RC{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+    <div>
+        <h1 class="text-gradient">Directorio de Pacientes</h1>
+        <p class="welcome-subtitle">Gestión centralizada de expedientes clínicos.</p>
+    </div>
+    <a href="#" class="cyber-btn cyber-btn-glow">
+        <i class="ph-bold ph-user-plus"></i> Nuevo Paciente
+    </a>
+    </a>
+</div>
+
+<div class="search-toolbar-container">
+    <form method="get" class="search-main-form">
+        <div class="search-icon-box">
+            <i class="ph-bold ph-magnifying-glass"></i>
+        </div>
+        <input 
+            type="text" 
+            name="q" 
+            value="{{ query }}" 
+            class="search-input-lg" 
+            placeholder="Buscar por nombre, correo o teléfono..." 
+            autocomplete="off"
+        >
+        {% if query %}
+            <a href="{% url 'dentista:pacientes' %}" class="btn-clear-search" title="Limpiar búsqueda">
+                <i class="ph-bold ph-x-circle"></i>
+            </a>
+        {% endif %}
+        <button type="submit" class="cyber-btn cyber-btn-sm" style="border-radius: 8px;">
+            Buscar
+        </button>
+    </form>
+</div>
+
+<div class="patients-grid">
+    {% for paciente in pacientes %}
+    <div class="patient-card">
+        
+        <div class="pc-head">
+            <div class="pc-avatar-wrapper">
+                <div class="pc-avatar-circle">
+                    {{ paciente.nombre|slice:":2"|upper }}
+                </div>
+            </div>
+            <div class="pc-info">
+                <h3 class="pc-name" title="{{ paciente.nombre }}">{{ paciente.nombre }}</h3>
+                <span class="pc-id">ID: PAC-{{ paciente.id|stringformat:"04d" }}</span>
+            </div>
+            
+            <div class="pc-menu-trigger">
+                <a href="{% url 'dentista:detalle_paciente' paciente.id %}" style="color: var(--text-muted);">
+                    <i class="ph-bold ph-caret-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="pc-body-content">
+            <div class="pc-data-row">
+                <i class="ph-duotone ph-envelope-simple"></i>
+                <span class="text-truncate" title="{{ paciente.user.email }}">
+                    {{ paciente.user.email|default:"Sin correo registrado" }}
+                </span>
+            </div>
+            <div class="pc-data-row">
+                <i class="ph-duotone ph-phone"></i>
+                <span>{{ paciente.telefono|default:"Sin teléfono" }}</span>
+            </div>
+            <div class="pc-data-row">
+                <i class="ph-duotone ph-calendar-blank"></i>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">
+                    Registro: {{ paciente.created_at|date:"d M, Y"|default:"--" }}
+                </span>
+            </div>
+        </div>
+
+        <div class="pc-footer">
+            <a href="{% url 'dentista:detalle_paciente' paciente.id %}" class="cyber-btn cyber-btn-sm w-100" style="justify-content: center;">
+                Ver Expediente
+            </a>
+            
+            <div class="quick-actions">
+                <a href="{% url 'dentista:crear_cita_manual' %}?paciente={{ paciente.id }}" class="btn-mini-action" title="Agendar Cita">
+                    <i class="ph-bold ph-calendar-plus"></i>
+                </a>
+                
+                <a href="{% url 'dentista:editar_paciente' paciente.id %}" class="btn-mini-action" title="Editar Datos">
+                    <i class="ph-bold ph-pencil-simple"></i>
+                </a>
+
+                <form method="post" action="{% url 'dentista:eliminar_paciente' paciente.id %}" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="button" class="btn-mini-action delete" title="Eliminar Paciente"
+                            onclick="confirmarEliminarPaciente(this, '{{ paciente.nombre }}')">
+                        <i class="ph-bold ph-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; background: #fff; border-radius: 16px; border: 1px dashed var(--border-subtle);">
+        <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--border-subtle);">
+            <i class="ph-duotone ph-users-three"></i>
+        </div>
+        <h3 style="color: var(--text-main);">No se encontraron pacientes</h3>
+        <p style="color: var(--text-muted);">Intenta con otro término de búsqueda o registra uno nuevo.</p>
+        {% if query %}
+            <a href="{% url 'dentista:pacientes' %}" class="cyber-btn cyber-btn-sm cyber-btn-secondary mt-3">
+                Limpiar Filtros
+            </a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<div class="results-count text-muted text-center mt-4" style="font-size: 0.8rem; margin-top: 1.5rem; text-align: center; color: var(--text-muted);">
+    Mostrando <strong>{{ pacientes|length }}</strong> expedientes activos
+</div>
+
+{% endblock %}

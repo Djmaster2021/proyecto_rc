@@ -1,0 +1,228 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Agenda Pro | RC{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header" style="margin-bottom: 1.5rem;">
+    <div>
+        <h1 class="text-gradient">Agenda Clínica</h1>
+        <p class="welcome-subtitle">Vista operativa de alta densidad.</p>
+    </div>
+    
+    <div style="display: flex; gap: 1rem; align-items: center;">
+        <div class="calendar-toolbar" style="margin: 0;">
+            <div class="toolbar-group">
+                <button id="btn-list" class="tool-btn active" onclick="filterAgenda('list')">Todo</button>
+                <button id="btn-week" class="tool-btn" onclick="filterAgenda('week')">Semana</button>
+                <button id="btn-month" class="tool-btn" onclick="filterAgenda('month')">Mes</button>
+            </div>
+        </div>
+        
+        <a href="{% url 'dentista:crear_cita_manual' %}" class="cyber-btn cyber-btn-glow">
+            <i class="ph-bold ph-plus"></i> Nueva Cita
+        </a>
+    </div>
+</div>
+
+<div class="agenda-layout">
+
+    <aside class="agenda-sidebar">
+        
+        <div class="hero-patient-card" style="margin-bottom: 1.5rem; border-color: var(--brand);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+                <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">En Curso / Siguiente</span>
+                {% if proxima_cita %}
+                    <span class="status-badge status-active">● En Espera</span>
+                {% else %}
+                    <span class="status-badge status-inactive">● Libre</span>
+                {% endif %}
+            </div>
+
+            {% if proxima_cita %}
+                <div class="hp-content">
+                    <div class="hp-avatar" style="margin: 0 auto 1rem; width: 60px; height: 60px; font-size: 1.5rem;">
+                        {{ proxima_cita.paciente.nombre|slice:":2"|upper }}
+                    </div>
+                    
+                    <h2 style="font-size:1.1rem; font-weight: 800; color:var(--text-main); margin-bottom:5px; line-height: 1.2;">
+                        {{ proxima_cita.paciente.nombre }}
+                    </h2>
+                    <div style="color:var(--brand); font-weight:700; margin-bottom:15px; font-size: 0.85rem;">
+                        {{ proxima_cita.servicio.nombre }}
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:1.5rem;">
+                        <div style="background: var(--bg-input); padding: 8px; border-radius: 8px; text-align: center;">
+                            <i class="ph-bold ph-clock" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+                            <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">{{ proxima_cita.fecha_hora_inicio|time:"H:i" }}</div>
+                        </div>
+                        <div style="background: var(--bg-input); padding: 8px; border-radius: 8px; text-align: center;">
+                            <i class="ph-bold ph-hourglass" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+                            <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">{{ proxima_cita.servicio.duracion_estimada }}m</div>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'dentista:vista_consulta' proxima_cita.id %}" class="cyber-btn cyber-btn-glow w-100">
+                        Abrir Expediente
+                    </a>
+                </div>
+            {% else %}
+                 <div class="hp-empty" style="padding: 1rem 0; text-align: center;">
+                    <i class="ph-duotone ph-coffee" style="font-size:2rem; margin-bottom:10px; color:var(--border-subtle);"></i>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0;">Agenda libre por ahora.</p>
+                 </div>
+            {% endif %}
+        </div>
+
+        <div class="cyber-card no-padding" style="display:flex; flex-direction:column; max-height: 250px; margin-bottom: 1.5rem;">
+            <div style="padding:1rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
+                <h4 style="margin:0; font-size:0.85rem; font-weight: 700; color:var(--text-main);">Vistos Hoy</h4>
+                <span class="status-badge status-active" style="padding: 2px 8px;">{{ pacientes_vistos.count|default:"0" }}</span>
+            </div>
+            
+            <div style="overflow-y:auto; padding:0.5rem; flex:1;">
+                {% for cita in pacientes_vistos %}
+                    <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; margin-bottom:4px; border-bottom: 1px solid var(--bg-input);">
+                        <div style="width:24px; height:24px; background:#dcfce7; color:#166534; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink: 0;">
+                            <i class="ph-bold ph-check" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <div style="flex:1; overflow: hidden;">
+                            <span style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {{ cita.paciente.nombre }}
+                            </span>
+                            <span style="display:block; font-size:0.7rem; color:var(--text-muted);">
+                                {{ cita.servicio.nombre }}
+                            </span>
+                        </div>
+                        <span style="font-size:0.7rem; font-weight: 600; color:var(--text-muted);">
+                            {{ cita.fecha_hora_fin|time:"H:i" }}
+                        </span>
+                    </div>
+                {% empty %}
+                    <div style="text-align:center; padding:1.5rem; color:var(--text-muted); font-size:0.75rem;">
+                        Sin pacientes finalizados.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="cyber-card mini-cal-card" style="text-align: center; padding: 1.5rem; margin-bottom: 1.5rem;">
+            <div style="margin-bottom: 0.5rem; font-weight: 800; font-size: 1.1rem; color: var(--text-main);">
+                {{ fecha_actual|date:"F Y"|upper }}
+            </div>
+            <div class="today-circle" style="
+                width: 60px; height: 60px; border-radius: 50%; 
+                background: var(--bg-sidebar); color: #fff; 
+                display: flex; flex-direction: column; align-items: center; justify-content: center; 
+                margin: 0 auto 0.8rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <span style="font-size: 1.5rem; font-weight: 800; line-height: 1;">{{ fecha_actual|date:"d" }}</span>
+                <span style="font-size: 0.6rem; font-weight: 700; text-transform: uppercase;">{{ fecha_actual|date:"D" }}</span>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); display:flex; justify-content:center; gap:5px;">
+                <i class="ph-bold ph-clock"></i> <span id="sidebar-clock">{% now "H:i" %}</span>
+            </div>
+        </div>
+
+        <div class="cyber-card" style="padding: 1.5rem;">
+            <h4 style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 10px;">Estados</h4>
+            <ul style="list-style:none; padding:0; font-size:0.8rem; display:flex; flex-direction:column; gap:8px;">
+                <li style="display:flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:var(--success);"></span> Confirmada</li>
+                <li style="display:flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:var(--warning);"></span> Pendiente</li>
+                <li style="display:flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:#94a3b8;"></span> Finalizada</li>
+                <li style="display:flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:var(--danger);"></span> Festivo</li>
+            </ul>
+        </div>
+    </aside>
+
+    <div class="agenda-main-view">
+        <div class="agenda-kanban-grid" id="agendaGrid">
+            {% for semana in semanas %}
+                {% for dia in semana %}
+                
+                <div class="day-column day-card {% if dia.fecha == fecha_actual %}is-today{% endif %} day-item" data-date="{{ dia.fecha|date:'Y-m-d' }}">
+                    
+                    <div class="day-header-sticky">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">{{ dia.fecha|date:"l" }}</span>
+                            <span style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); line-height: 1;">{{ dia.fecha|date:"d" }}</span>
+                        </div>
+                        
+                        {% if dia.citas %}
+                            <span class="status-badge status-active" style="padding: 2px 8px;">{{ dia.citas|length }}</span>
+                        {% else %}
+                            <a href="{% url 'dentista:crear_cita_manual' %}?fecha={{ dia.fecha|date:'Y-m-d' }}" style="color: var(--brand); font-size: 1.2rem;">
+                                <i class="ph-bold ph-plus-circle"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="day-scroll-area">
+                        {% if dia.citas %}
+                            {% for item in dia.citas %}
+                                {% with c=item.obj %}
+                                
+                                <div class="appt-ticket {{ c.estado|lower }}">
+                                    <div class="ticket-header">
+                                        <span><i class="ph-bold ph-clock"></i> {{ c.fecha_hora_inicio|time:"H:i" }}</span>
+                                        
+                                        <div class="ticket-actions-hover">
+                                            <a href="{% url 'dentista:crear_cita_manual' %}?paciente={{ c.paciente.id }}" 
+                                               title="Editar" style="color: var(--text-muted);">
+                                               <i class="ph-bold ph-pencil-simple"></i>
+                                            </a>
+                                            
+                                            <form method="post" action="{% url 'dentista:eliminar_cita' c.id %}" style="display:inline; margin:0;">
+                                                {% csrf_token %}
+                                                <button type="button" 
+                                                        onclick="confirmarEliminacion(this, '{{ c.paciente.nombre }}')" 
+                                                        style="border:none; background:none; padding:0; color: var(--danger); cursor:pointer;">
+                                                    <i class="ph-bold ph-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    
+                                    <a href="{% url 'dentista:vista_consulta' c.id %}" style="text-decoration: none; display: block; margin-top: 4px;">
+                                        <div class="ticket-patient">{{ c.paciente.nombre }}</div>
+                                        <div class="ticket-service">{{ c.servicio.nombre|truncatechars:20 }}</div>
+                                    </a>
+                                </div>
+                                
+                                {% endwith %}
+                            {% endfor %}
+                            
+                            <div style="text-align: center; margin-top: 10px; opacity: 0.6;">
+                                <a href="{% url 'dentista:crear_cita_manual' %}?fecha={{ dia.fecha|date:'Y-m-d' }}" style="font-size: 0.75rem; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                                    <i class="ph-bold ph-plus"></i> Agendar otro
+                                </a>
+                            </div>
+
+                        {% else %}
+                            {% if dia.tipo_dia == 'laboral' %}
+                                <div class="add-btn-overlay">
+                                    <a href="{% url 'dentista:crear_cita_manual' %}?fecha={{ dia.fecha|date:'Y-m-d' }}" class="cyber-btn cyber-btn-sm" style="background: var(--bg-input); color: var(--text-muted); border:none; box-shadow:none;">
+                                        Agendar
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div style="text-align: center; padding-top: 2rem; color: var(--text-muted); font-size: 0.8rem;">
+                                    <i class="ph-fill ph-coffee" style="font-size: 1.5rem; display: block; margin-bottom: 5px; opacity: 0.4;"></i>
+                                    {{ dia.festivo_label|default:"Descanso" }}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Aseguramos que el style tag cierre bien esta vez */
+    .day-column:hover .add-btn-overlay { opacity: 1 !important; }
+</style>
+{% endblock %}

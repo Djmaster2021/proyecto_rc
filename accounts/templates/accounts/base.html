@@ -1,0 +1,60 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>
+        {% block title %}Acceso | Consultorio Dental RC{% endblock %}
+    </title>
+
+    <!-- Favicon (manual técnico: siempre icono del sistema) -->
+    <link rel="icon" href="{% static 'img/favicon.png' %}" />
+
+    <!-- Hoja de estilos del módulo de cuentas -->
+    <link rel="stylesheet" href="{% static 'accounts/styles.css' %}" />
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="auth-layout">
+
+    <!-- Barra superior: logotipo + toggle de tema (cumpliendo accesibilidad) -->
+    <header class="auth-header">
+        <div class="auth-header__brand">
+            <div class="auth-header__logo">RC</div>
+            <div class="auth-header__text">
+                <span class="auth-header__title">Consultorio Dental RC</span>
+                <span class="auth-header__subtitle">Sistema integral de pacientes</span>
+            </div>
+        </div>
+
+        <button
+            type="button"
+            class="auth-header__theme-toggle"
+            id="theme-toggle"
+            aria-label="Cambiar entre tema claro y oscuro"
+        >
+            <span class="theme-toggle__icon" aria-hidden="true">🌙</span>
+            <span class="theme-toggle__label">Oscuro</span>
+        </button>
+    </header>
+
+    <!-- Contenido principal: aquí se inyectan login, registro, reset, etc. -->
+    <main class="auth-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Pie de página simple, para cumplir manual de identidad -->
+    <footer class="auth-footer">
+        <p class="auth-footer__text">
+            © Consultorio Rodolfo Castellón · Sistema Web Dental RC
+        </p>
+    </footer>
+
+    <!-- JS general del módulo de cuentas -->
+    <script src="{% static 'accounts/app.js' %}" defer></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

@@ -1,0 +1,127 @@
+{% extends "_components/base_site.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Consultorio Dental Rodolfo Castellón | Sistema integral" %}{% endblock %}
+{% block meta_description %}{% trans "Atención dental profesional en Puerto Vallarta. Citas en línea, pagos seguros." %}{% endblock %}
+
+{% block extra_head %}
+<link rel="preload" href="{% static 'img/fondodentista1.jpg' %}" as="image">
+<link rel="stylesheet" href="{% static 'site.css' %}?v=FINAL_SEPARADO">
+{% endblock %}
+
+{% block content %}
+<header class="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-inner wrap">
+    <div class="kicker">{% trans "SISTEMA INTEGRAL • PUERTO VALLARTA" %}</div>
+    <h1 class="hero-title reveal">{% trans "Consultorio Dental Rodolfo Castellón" %}</h1>
+    <p class="lead reveal">
+        {% blocktrans %}<strong>Sistema integral</strong> para la <strong>gestión de pacientes, citas y pagos</strong>. Tecnología moderna, trato humano y precios accesibles.{% endblocktrans %}
+    </p>
+    <div class="cta reveal">
+      <a class="rc-btn whatsapp-btn" href="https://wa.me/523228892558" target="_blank">
+          <i class="ph-fill ph-whatsapp-logo"></i> WhatsApp
+      </a>
+      <a href="{% url 'accounts:login' %}" class="rc-btn">{% trans "Iniciar sesión" %}</a>
+      <a href="{% url 'accounts:register' %}" class="rc-btn rc-btn--primary">{% trans "Agenda tu cita" %}</a>
+    </div>
+    <div class="stats-grid reveal">
+        <div class="stat-card"><h3>500+</h3><p>{% trans "Procedimientos" %}</p></div>
+        <div class="stat-card"><h3>4.7/5 ✨</h3><p>{% trans "Satisfacción" %}</p></div>
+        <div class="stat-card"><h3>6+ {% trans "años" %}</h3><p>{% trans "Experiencia" %}</p></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="servicios" class="bg-dark">
+    <div class="wrap">
+        <h2 class="section-title reveal">{% trans "Servicios principales" %}</h2>
+        <p class="section-lead reveal">{% trans "Tratamientos personalizados para cada sonrisa." %}</p>
+        
+        <div class="grid-3 mt-3">
+          <article class="svc-card reveal">
+            <div class="svc-card-ico"><img src="{% static 'img/odontologia general.png' %}" alt="General"></div>
+            <h3>{% trans "Odontología General" %}</h3>
+            <ul><li>{% trans "Limpieza profunda" %}</li><li>{% trans "Resinas" %}</li><li>{% trans "Extracciones" %}</li></ul>
+          </article>
+          <article class="svc-card reveal">
+            <div class="svc-card-ico"><img src="{% static 'img/Ortodoncia.png' %}" alt="Ortodoncia"></div>
+            <h3>{% trans "Ortodoncia" %}</h3>
+            <ul><li>{% trans "Brackets estéticos" %}</li><li>{% trans "Alineadores" %}</li></ul>
+          </article>
+          <article class="svc-card reveal">
+            <div class="svc-card-ico"><img src="{% static 'img/Odontología estética.png' %}" alt="Estética"></div>
+            <h3>{% trans "Estética" %}</h3>
+            <ul><li>{% trans "Blanqueamiento" %}</li><li>{% trans "Carillas" %}</li></ul>
+          </article>
+          <article class="svc-card reveal">
+            <div class="svc-card-ico"><img src="{% static 'img/odontologia Restaurativa.png' %}" alt="Restaurativa"></div>
+            <h3>{% trans "Restaurativa" %}</h3>
+            <ul><li>{% trans "Coronas" %}</li><li>{% trans "Incrustaciones" %}</li></ul>
+          </article>
+          <article class="svc-card reveal">
+            <div class="svc-card-ico"><img src="{% static 'img/protesis e implantes.png' %}" alt="Implantes"></div>
+            <h3>{% trans "Prótesis" %}</h3>
+            <ul><li>{% trans "Implantes dentales" %}</li><li>{% trans "Puentes" %}</li></ul>
+          </article>
+          <article class="svc-card reveal">
+            <div class="svc-card-ico"><img src="{% static 'img/recordatorio.png' %}" alt="Agenda"></div>
+            <h3>{% trans "Agenda Digital" %}</h3>
+            <p>{% trans "Recordatorios automáticos." %}</p>
+          </article>
+        </div>
+    </div>
+  </section>
+
+  <section id="acerca" class="bg-panel">
+    <div class="wrap">
+        <div class="grid-2 align-center">
+          <div class="reveal">
+            <h2 class="section-title">{% trans "Acerca del consultorio" %}</h2>
+            <p class="lead">{% trans "Ubicados en El Pitillal, Puerto Vallarta, ofrecemos tratamientos de última generación con un trato humano." %}</p>
+            <ul class="feature-list">
+                <li>{% trans "Horario flexible: Lunes a Sábado, 2pm - 8pm" %}</li>
+                <li>{% trans "Tecnología moderna y ambiente seguro" %}</li>
+                <li>{% trans "Atención personalizada por el Dr. Castellón" %}</li>
+            </ul>
+            <a href="{% url 'accounts:register' %}" class="rc-btn rc-btn--primary mt-2">{% trans "Quiero una valoración" %}</a>
+          </div>
+          <div class="reveal">
+            <img src="{% static 'img/dentista.jpg' %}" alt="Consultorio" class="feature-img">
+          </div>
+        </div>
+    </div>
+  </section>
+
+  <section id="pagos" class="bg-dark text-center">
+    <div class="wrap">
+        <h2 class="section-title reveal">{% trans "Formas de pago" %}</h2>
+        <p class="section-lead reveal">{% trans "Flexibilidad para tu comodidad." %}</p>
+        <div class="badges reveal justify-center">
+          <span class="badge"><i class="ph-fill ph-money"></i> {% trans "Efectivo" %}</span>
+          <span class="badge active"><i class="ph-fill ph-credit-card"></i> {% trans "MercadoPago" %}</span>
+          <span class="badge"><i class="ph-fill ph-bank"></i> {% trans "Transferencia" %}</span>
+        </div>
+    </div>
+  </section>
+  
+  <section id="contacto" class="bg-panel">
+    <div class="wrap">
+        <div class="grid-2">
+          <div class="cyber-card reveal">
+            <h3>{% trans "Contáctanos" %}</h3>
+            <ul class="contact-list">
+              <li><i class="ph-fill ph-phone text-brand"></i> <a href="tel:+523228892558">+52 322 889 2558</a></li>
+              <li><i class="ph-fill ph-envelope text-brand"></i> dentista.choyo@gmail.com</li>
+              <li><i class="ph-fill ph-map-pin text-brand"></i> {% trans "Calle Guatemala #125, El Pitillal" %}</li>
+            </ul>
+          </div>
+          <div class="reveal map-container">
+            <iframe title="{% trans 'Ubicación' %}" loading="lazy" src="https://www.google.com/maps?q=Calle%20Guatemala%20125%20El%20Pitillal%20Puerto%20Vallarta&output=embed"></iframe>
+          </div>
+        </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Gestión de Riesgos | RC{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+    <div>
+        <h1 class="text-gradient">Asistencia y Riesgos</h1>
+        <p class="welcome-subtitle">Control de inasistencias y recuperación de deuda.</p>
+    </div>
+</div>
+
+<div class="risk-kpi-grid">
+    <div class="kpi-card" style="border-left: 4px solid var(--danger);">
+        <div class="kpi-icon" style="background: #fee2e2; color: var(--danger);">
+            <i class="ph-fill ph-warning-circle"></i>
+        </div>
+        <div class="kpi-content">
+            <h3 class="kpi-value" style="color: var(--danger);">{{ casos_criticos|default:"0" }}</h3>
+            <span class="kpi-label">Casos Críticos</span>
+        </div>
+    </div>
+
+    <div class="kpi-card" style="border-left: 4px solid var(--warning);">
+        <div class="kpi-icon" style="background: #ffedd5; color: var(--warning);">
+            <i class="ph-fill ph-money"></i>
+        </div>
+        <div class="kpi-content">
+            <h3 class="kpi-value">${{ deuda_total|floatformat:0|default:"0" }}</h3>
+            <span class="kpi-label">Deuda por Inasistencia</span>
+        </div>
+    </div>
+
+    <div class="kpi-card kpi-green">
+        <div class="kpi-icon"><i class="ph-fill ph-check-circle"></i></div>
+        <div class="kpi-content">
+            <h3 class="kpi-value">98%</h3>
+            <span class="kpi-label">Cumplimiento Global</span>
+        </div>
+    </div>
+</div>
+
+<div class="search-toolbar-container">
+    <div class="search-main-form">
+        <div class="search-icon-box">
+            <i class="ph-bold ph-magnifying-glass"></i>
+        </div>
+        <input 
+            type="text" 
+            id="searchRisk" 
+            class="search-input-lg" 
+            placeholder="Buscar paciente por nombre..." 
+            autocomplete="off"
+        >
+    </div>
+    <div style="margin-left: auto; display: flex; gap: 10px;">
+        <button class="cyber-btn cyber-btn-sm cyber-btn-secondary">
+            <i class="ph-bold ph-funnel"></i> Filtrar Riesgos
+        </button>
+    </div>
+</div>
+
+<div class="cyber-card no-padding table-responsive">
+    <table class="data-table" id="riskTable">
+        <thead>
+            <tr>
+                <th style="padding-left: 2rem;">Paciente</th>
+                <th>Nivel de Riesgo</th>
+                <th>Historial</th>
+                <th>Último Incidente</th>
+                <th style="text-align: center;">Perfil</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pacientes_riesgo %}
+            <tr>
+                <td style="padding-left: 2rem;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="pc-avatar-circle" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                            {{ p.nombre|slice:":2"|upper }}
+                        </div>
+                        <span style="font-weight: 700; color: var(--text-main);">{{ p.nombre }}</span>
+                    </div>
+                </td>
+
+                <td>
+                    {% if p.inasistencias > 2 %}
+                        <span class="risk-badge risk-high">
+                            <i class="ph-bold ph-warning"></i> Crítico
+                        </span>
+                    {% elif p.inasistencias > 0 %}
+                        <span class="risk-badge risk-medium">
+                            <i class="ph-bold ph-info"></i> Medio
+                        </span>
+                    {% else %}
+                        <span class="risk-badge risk-low">
+                            <i class="ph-bold ph-shield-check"></i> Excelente
+                        </span>
+                    {% endif %}
+                </td>
+
+                <td class="history-text">
+                    {% if p.inasistencias > 0 %}
+                        <span class="history-highlight">{{ p.inasistencias }}</span> inasistencias
+                    {% else %}
+                        <span style="color: var(--success);">0 inasistencias</span>
+                    {% endif %}
+                </td>
+
+                <td style="color: var(--text-muted); font-size: 0.9rem;">
+                    {{ p.ultimo_incidente|date:"d M, Y"|default:"--" }}
+                </td>
+
+                <td style="text-align: center;">
+                    <a href="{% url 'dentista:detalle_paciente' p.id %}" class="btn-mini-action" title="Ver Expediente" style="margin: 0 auto;">
+                        <i class="ph-bold ph-eye"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 4rem; color: var(--text-muted);">
+                    <i class="ph-duotone ph-shield-check" style="font-size: 3rem; margin-bottom: 10px; color: var(--success);"></i>
+                    <p>Todo bajo control. No hay pacientes registrados.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="results-count text-muted text-center mt-4" style="font-size: 0.8rem;">
+    Monitorizando <strong>{{ pacientes_riesgo|length }}</strong> pacientes
+</div>
+
+{% endblock %}

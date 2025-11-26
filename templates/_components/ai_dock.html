@@ -1,0 +1,30 @@
+<!-- Botón Flotante de Acción (FAB) para abrir el asistente de IA.
+  Es el círculo con "IA" que el usuario ve inicialmente.-->
+<button id="aiFab" class="ai-fab" aria-label="Abrir asistente IA">IA</button>
+
+<!--Panel o "dock" del asistente. Está oculto por defecto ("aria-hidden"="true").
+  Aparecerá cuando el usuario haga clic en el botón de arriba.-->
+<aside id="aiDock" class="ai-dock" aria-hidden="true">
+
+  <!--Encabezado del panel del asistente.-->
+  <header class="ai-head">
+    <strong>Asistente IA</strong>
+    <button id="aiClose" class="ai-icon" aria-label="Cerrar">✕</button>
+  </header>
+
+  <!--Cuerpo del asistente. Aquí es donde se mostrará la conversación (el log del chat).
+    - "role"="log" y "aria-live"="polite" son atributos de accesibilidad que ayudan
+      a los lectores de pantalla a anunciar nuevos mensajes a medida que aparecen.-->
+  <div id="aiBody" class="ai-body" role="log" aria-live="polite"></div>
+
+
+  <!-- Formulario para que el usuario escriba y envíe sus consultas.-->
+  <form id="aiForm" class="ai-form" autocomplete="off">
+
+    <!--Campo de texto para escribir la consulta.-->
+    <input id="aiInput" class="ai-input" placeholder="Escribe tu consulta… (Enter para enviar)" />
+
+    <!--Botón para enviar el mensaje.-->
+    <button class="ai-send" aria-label="Enviar">➤</button>
+  </form>
+</aside>

@@ -1,0 +1,341 @@
+{% extends "paciente/base.html" %}
+{% load static %}
+
+{% block ptitle %}Dashboard | Paciente{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+{% endblock %}
+
+{% block pcontent %}
+  <section class="cyber-banner">
+    <h1 class="cyber-title">Bienvenido, {{ user.first_name|default:user.username }}</h1>
+    <p class="cyber-subtitle">Tu salud dental en tus manos.</p>
+    
+    <div class="cyber-actions">
+      {% if not proxima_cita %}
+        <button onclick="abrirModalAgendar()" class="cyber-btn cyber-btn-glow">
+            <i class="ph-bold ph-plus"></i> Agendar nueva cita
+        </button>
+      {% else %}
+        <button onclick="verificarReprogramacion('{{ proxima_cita.id }}', '{{ proxima_cita.servicio.id }}', {{ proxima_cita.veces_reprogramada }})" class="cyber-btn">
+            <i class="ph-bold ph-arrows-clockwise"></i> Reprogramar
+        </button>
+        
+        <button onclick="confirmarCancelacion('{{ proxima_cita.id }}')" class="cyber-btn cyber-btn-danger">
+            <i class="ph-bold ph-x"></i> Cancelar
+        </button>
+      {% endif %}
+    </div>
+  </section>
+
+  {% if messages %}
+  <div class="messages-container messages-spaced">
+      {% for message in messages %}
+      <div class="cyber-alert {% if message.tags == 'error' %}cyber-alert-danger{% else %}cyber-alert-success{% endif %}">
+          {{ message }}
+      </div>
+      {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="page-container">
+    <div class="grid-cols-2">
+      
+      <!-- Tarjeta Próxima Cita -->
+      <div class="cyber-card card-vertical-center card-min-300">
+        <h2 class="card-title">Tu Próxima Cita</h2>
+        
+        {% if proxima_cita %}
+          <div class="cita-detalle">
+            <p><strong>Fecha:</strong> {{ proxima_cita.fecha_hora_inicio|date:"l d F, Y" }}</p>
+            <p><strong>Hora:</strong> {{ proxima_cita.fecha_hora_inicio|time:"h:i A" }}</p>
+            <p><strong>Tratamiento:</strong> {{ proxima_cita.servicio.nombre }}</p>
+            <p><strong>Doctor:</strong> {{ proxima_cita.dentista.nombre }}</p>
+            
+            <div style="margin-top: 1rem; display: flex; align-items: center; gap: 10px;">
+              <span class="chip status-{{ proxima_cita.estado|lower }}">
+                  {{ proxima_cita.get_estado_display }}
+              </span>
+      
+              {% if proxima_cita.estado == 'PENDIENTE' or proxima_cita.estado == 'CONFIRMADA' %}
+                  {% if not proxima_cita.pago_relacionado or proxima_cita.pago_relacionado.estado != 'COMPLETADO' %}
+                      <a href="{% url 'paciente:iniciar_pago' proxima_cita.id %}" 
+                         class="cyber-btn cyber-btn-glow cyber-btn-sm" 
+                         style="text-decoration: none; border-color: #009ee3; color: #009ee3;">
+                         <i class="ph-bold ph-credit-card"></i> Pagar ahora
+                      </a>
+                  {% else %}
+                      <span class="chip" style="border-color: #22c55e; color: #22c55e;">
+                          <i class="ph-bold ph-check-circle"></i> Pagada
+                      </span>
+                  {% endif %}
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="mt-4 flex gap-3">
+              </div>
+      
+        {% else %}
+          <div class="empty-state">
+            <i class="ph-duotone ph-calendar-x empty-state-icon"></i>
+            <p>No tienes citas próximas.</p>
+            <a href="{% url 'paciente:agendar_cita' %}" class="cyber-btn cyber-btn-glow mt-2">
+              Agendar Cita
+            </a>
+          </div>
+        {% endif %}
+      </div>
+      <!-- Tarjeta Perfil -->
+      <div class="glow-card-wrapper">
+        <div class="cyber-card card-min-300">
+          
+          <button onclick="abrirModalPerfil()" class="btn-edit-profile" title="Editar Perfil">✏️</button>
+
+          <h2 class="card-title mb-15"><i class="ph-duotone ph-user-circle"></i> Mi Perfil</h2>
+          
+          <div class="profile-layout">
+            <div class="profile-main">
+                <div class="profile-header">
+                    <span class="chip chip-paciente-id">
+                        PAC-{{ paciente.id|stringformat:"04d" }}
+                    </span>
+                    <h3 class="profile-name">
+                        {{ user.first_name }} {{ user.last_name }}
+                    </h3>
+                    <p class="profile-email">
+                        {{ user.email }}
+                    </p>
+                </div>
+
+                <div class="profile-info-list">
+                    <div class="profile-info-item">
+                        <i class="ph-fill ph-phone text-accent icon-inline"></i> 
+                        <span>{{ paciente.telefono }}</span>
+                    </div>
+                    <div class="profile-info-item">
+                        <i class="ph-fill ph-map-pin text-accent icon-inline"></i> 
+                        <span class="address-text">{{ paciente.direccion|default:"Sin dirección registrada" }}</span>
+                    </div>
+                    <div class="profile-info-item">
+                        <i class="ph-fill ph-cake text-accent icon-inline"></i> 
+                        <span>{{ paciente.fecha_nacimiento|date:"d/m/Y"|default:"Sin fecha" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="avatar-circle">
+                {% if paciente.imagen %}
+                    <img src="{{ paciente.imagen.url }}" alt="Foto">
+                {% else %}
+                    <div class="avatar-fallback">
+                        {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+                    </div>
+                {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historial de Citas -->
+    <section class="glow-card-wrapper mt-2">
+      <div class="cyber-card">
+        <div class="history-header">
+            <h2 class="card-title history-title">
+              <i class="ph-duotone ph-clock-counter-clockwise"></i> Historial de Citas
+            </h2>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="col-fecha">Fecha</th>
+                <th class="col-servicio">Servicio</th>
+                <th class="col-doctor">Doctor</th>
+                <th class="col-estado">Estado</th>
+                <th class="col-accion">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cita in historial %}
+              <tr>
+                <td>{{ cita.fecha_hora_inicio|date:"d/m/Y" }}</td>
+                <td>{{ cita.servicio.nombre }}</td>
+                <td>{{ cita.dentista.nombre }}</td>
+                <td>
+                    <span class="chip status-{{ cita.estado|lower }} status-chip-nowrap">
+                        {{ cita.get_estado_display }}
+                    </span>
+                </td>
+                
+                <td>
+                  {% if cita.estado == 'COMPLETADA' %}
+                      {% if cita.encuesta and cita.encuesta.comentario %}
+                          <div class="text-muted" style="font-size: 0.8rem; margin-bottom: 0.4rem;">
+                              “{{ cita.encuesta.comentario|truncatechars:50 }}”
+                          </div>
+                      {% endif %}
+                      
+                      <a href="{% url 'paciente:encuesta_satisfaccion' cita.id %}"
+                         class="cyber-btn cyber-btn-sm">
+                          {% if cita.encuesta %}
+                              ✏️ Ver / actualizar reseña
+                          {% else %}
+                              ⭐ Calificar
+                          {% endif %}
+                      </a>
+                  {% endif %}
+              </td>
+              
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-muted empty-state">
+                  Aún no tienes historial de citas.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal Cita -->
+  <div id="modal-cita" class="modal-overlay">
+    <div class="modal-content glow-card">
+      <div class="modal-header">
+        <h3 id="modal-title">
+          <i class="ph-duotone ph-calendar-plus"></i> Agendar Cita
+        </h3>
+        <button class="modal-close" onclick="cerrarModal()">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+      <form id="form-cita" method="POST" action="{% url 'paciente:agendar_cita' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Tratamiento</label>
+          <select id="cita-servicio" name="servicio" required class="cyber-input">
+            <option value="" disabled selected>-- Selecciona --</option>
+            {% for servicio in servicios %}
+              <option value="{{ servicio.id }}">
+                {{ servicio.nombre }} ({{ servicio.duracion_estimada }} min)
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fecha</label>
+          <input
+            type="text"
+            id="cita-fecha"
+            name="fecha"
+            required
+            class="cyber-input"
+            placeholder="Selecciona fecha..."
+            disabled
+          >
+          <small class="text-muted">* Máximo 30 días.</small>
+        </div>
+        <div class="form-group">
+          <label>Horario</label>
+          <select id="cita-hora" name="hora" required class="cyber-input" disabled>
+            <option value="">-- Primero fecha --</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="cyber-btn cyber-btn-glow" id="btn-submit-cita" disabled>
+            Confirmar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Perfil -->
+  <div id="modal-perfil" class="modal-overlay">
+    <div class="modal-content glow-card">
+      <div class="modal-header">
+        <h3>
+          <i class="ph-duotone ph-user-gear"></i> Editar Perfil
+        </h3>
+        <button class="modal-close" onclick="cerrarModalPerfil()">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+      <form method="POST" action="{% url 'paciente:editar_perfil' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Foto de Perfil</label>
+          <input type="file" name="imagen" class="cyber-input" accept="image/*">
+        </div>
+        <div class="form-group">
+          <label>Fecha de Nacimiento</label>
+          <input
+            type="text"
+            id="perfil-fecha"
+            name="fecha_nacimiento"
+            class="cyber-input"
+            value="{{ paciente.fecha_nacimiento|date:'Y-m-d'|default:'' }}"
+            placeholder="Selecciona tu fecha"
+          >
+        </div>
+        <div class="form-group">
+          <label>Dirección</label>
+          <input
+            type="text"
+            name="direccion"
+            class="cyber-input"
+            value="{{ paciente.direccion|default:'' }}"
+            placeholder="Calle, Número, Colonia"
+          >
+        </div>
+        <div class="form-group">
+          <label class="muted">Teléfono (No editable)</label>
+          <input
+            type="text"
+            class="cyber-input input-readonly-display"
+            value="{{ paciente.telefono }}"
+            disabled
+          >
+        </div>
+        <div class="form-group">
+          <label class="muted">Correo (No editable)</label>
+          <input
+            type="text"
+            class="cyber-input input-readonly-display"
+            value="{{ user.email }}"
+            disabled
+          >
+        </div>
+        <div class="form-actions">
+          <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModalPerfil()">
+            Cancelar
+          </button>
+          <button type="submit" class="cyber-btn cyber-btn-glow">
+            Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <form id="form-cancelar" method="POST" class="hidden-form">
+    {% csrf_token %}
+  </form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% endblock %}

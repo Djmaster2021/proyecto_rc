@@ -1,0 +1,94 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Agendar Cita | RC Pro{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+    <div>
+        <a href="{% url 'dentista:agenda' %}" class="cyber-btn cyber-btn-secondary">
+            <i class="ph-bold ph-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="booking-wrapper">
+    <div class="booking-card">
+        <div class="booking-header">
+            <div style="font-size:2rem; margin-bottom:1rem;"><i class="ph-fill ph-calendar-plus"></i></div>
+            <h2 class="booking-title">Nueva Cita</h2>
+            <p class="booking-subtitle">Registra una sesión validada en tiempo real.</p>
+        </div>
+
+        <div class="booking-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label style="font-weight:700; color:var(--text-main); margin-bottom:8px; display:block;">
+                        PACIENTE
+                        <a href="#" style="float:right; color:var(--brand); font-size:0.8rem;">+ Registrar Nuevo</a>
+                    </label>
+                    
+                    <select name="paciente" class="select2-patient" required>
+                        <option value=""></option>
+                        {% for item in pacientes_visual %}
+                            <option value="{{ item.paciente.id }}" {% if item.disabled %}disabled{% endif %}>
+                                {{ item.paciente.nombre }} {{ item.razon }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <small style="color:var(--text-muted); font-size:0.75rem;">* Los pacientes con cita activa aparecen deshabilitados.</small>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label>Tratamiento</label>
+                        <select name="servicio" id="selectServicio" class="cyber-input input-time-big" required>
+                            <option value="" disabled selected>Selecciona...</option>
+                            {% for s in servicios %}
+                                <option value="{{ s.id }}" data-duration="{{ s.duracion_estimada }}">
+                                    {{ s.nombre }} ({{ s.duracion_estimada }} min)
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha (Próx. 30 días)</label>
+                        <input type="date" name="fecha" id="inputFecha" 
+                               class="cyber-input input-time-big"
+                               min="{{ fecha_minima }}" 
+                               max="{{ fecha_maxima }}"
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label>Horario Disponible</label>
+                    <select name="hora_inicio" id="selectHora" class="cyber-input input-time-big" disabled required>
+                        <option value="">Primero selecciona una fecha</option>
+                    </select>
+                    <input type="hidden" name="hora_fin" id="inputHoraFin">
+                </div>
+
+                <div class="form-actions" style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+                    <a href="{% url 'dentista:agenda' %}" class="cyber-btn cyber-btn-secondary" style="justify-content: center;">Cancelar</a>
+                    <button type="submit" class="cyber-btn cyber-btn-glow" style="justify-content: center;">
+                        <i class="ph-bold ph-check"></i> Confirmar Cita
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script id="horarios-data" type="application/json">{{ horarios_json|safe }}</script>
+<script id="ocupadas-data" type="application/json">{{ ocupadas_json|safe }}</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+{% endblock %}
