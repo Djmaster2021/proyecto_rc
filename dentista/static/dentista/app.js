@@ -804,3 +804,186 @@ document.addEventListener("DOMContentLoaded", function() {
         return slots;
     }
 });
+// ==========================================
+// Lógica del Menú Móvil (Reparada)
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+    const mobileBtn = document.getElementById("mobile-menu-btn");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebar-overlay");
+
+    // Función para abrir/cerrar
+    function toggleMenu() {
+        console.log("Click en menú detectado"); // Para depurar
+        sidebar.classList.toggle("active"); // Asegúrate de que tu CSS tenga la clase .active para el sidebar
+        
+        if (overlay) {
+            overlay.classList.toggle("active");
+        }
+    }
+
+    // Event Listener
+    if (mobileBtn) {
+        mobileBtn.addEventListener("click", (e) => {
+            e.stopPropagation(); // Evita clics fantasmas
+            toggleMenu();
+        });
+    }
+
+    // Cerrar al tocar el fondo oscuro (overlay)
+    if (overlay) {
+        overlay.addEventListener("click", () => {
+            sidebar.classList.remove("active");
+            overlay.classList.remove("active");
+        });
+    }
+});
+
+/* ==========================================
+   RC Dental - Lógica Principal v7.3
+   ========================================== */
+
+   document.addEventListener("DOMContentLoaded", () => {
+    console.log("Sistema RC Dental iniciado.");
+
+    // --- 1. REFERENCIAS A ELEMENTOS ---
+    const mobileBtn = document.getElementById("mobile-menu-btn");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebar-overlay");
+
+    // --- 2. FUNCIÓN PARA ABRIR/CERRAR ---
+    function toggleSidebar(e) {
+        if(e) e.stopPropagation(); // Evita clics dobles
+        
+        // Alternar clase 'active' en el menú y el fondo oscuro
+        if(sidebar) sidebar.classList.toggle("active");
+        if(overlay) overlay.classList.toggle("active");
+        
+        console.log("Botón menú presionado. Sidebar activo:", sidebar.classList.contains("active"));
+    }
+
+    // --- 3. EVENT LISTENERS (ESCUCHADORES) ---
+    
+    // A) Clic en el botón hamburguesa
+    if (mobileBtn) {
+        mobileBtn.addEventListener("click", toggleSidebar);
+        console.log("Botón móvil detectado y listo.");
+    } else {
+        console.error("ERROR: No se encontró el botón con ID 'mobile-menu-btn'");
+    }
+
+    // B) Clic en el fondo oscuro (para cerrar al tocar afuera)
+    if (overlay) {
+        overlay.addEventListener("click", () => {
+            sidebar.classList.remove("active");
+            overlay.classList.remove("active");
+        });
+    }
+
+    // C) Cerrar menú al hacer clic en un enlace (Mejora de UX)
+    const navLinks = document.querySelectorAll('.nav-item');
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            // Solo cerrar si estamos en modo móvil (pantalla pequeña)
+            if (window.innerWidth < 1024) { 
+                sidebar.classList.remove("active");
+                if(overlay) overlay.classList.remove("active");
+            }
+        });
+    });
+});
+
+/* =========================================
+   LÓGICA DE SERVICIOS (Modal y Menús)
+   ========================================= */
+
+// Abrir/Cerrar menú de opciones de cada tarjeta
+function toggleServiceMenu(id) {
+    const menu = document.getElementById(id);
+    
+    // Cierra cualquier otro menú abierto primero
+    document.querySelectorAll('.mini-menu').forEach(el => {
+        if (el.id !== id) el.classList.remove('show');
+    });
+    
+    // Alternar el actual
+    if (menu) menu.classList.toggle('show');
+}
+
+// Abrir Modal para CREAR nuevo
+function abrirModalServicio() {
+    const modal = document.getElementById('serviceModal');
+    if (!modal) return;
+
+    modal.style.display = 'flex';
+    document.getElementById('modalTitle').textContent = 'Nuevo Servicio';
+    
+    // Limpiar formulario
+    document.getElementById('formId').value = '';
+    document.getElementById('formNombre').value = '';
+    document.getElementById('formPrecio').value = '';
+    document.getElementById('formDuracion').value = '30';
+    document.getElementById('formActivo').checked = true;
+}
+
+// Abrir Modal para EDITAR existente
+function editarServicio(id, nombre, precio, duracion, activo) {
+    const modal = document.getElementById('serviceModal');
+    if (!modal) return;
+
+    modal.style.display = 'flex';
+    document.getElementById('modalTitle').textContent = 'Editar Servicio';
+    
+    // Llenar formulario con datos
+    document.getElementById('formId').value = id;
+    document.getElementById('formNombre').value = nombre;
+    // Limpiar precio (quitar comas si las hay)
+    document.getElementById('formPrecio').value = parseFloat(precio.replace(',',''));
+    document.getElementById('formDuracion').value = duracion;
+    
+    // Convertir string 'True'/'False' a booleano para el checkbox
+    const esActivo = (activo === 'True' || activo === 'true' || activo === true);
+    document.getElementById('formActivo').checked = esActivo;
+    
+    // Cerrar el menú flotante
+    toggleServiceMenu('menu-' + id);
+}
+
+// Cerrar Modal
+function cerrarModalServicio() {
+    const modal = document.getElementById('serviceModal');
+    if (modal) modal.style.display = 'none';
+}
+
+// Cerrar menús si hago click fuera
+window.addEventListener('click', function(event) {
+    if (!event.target.matches('.icon-btn-ghost') && !event.target.closest('.icon-btn-ghost')) {
+        document.querySelectorAll('.mini-menu').forEach(el => el.classList.remove('show'));
+    }
+    if (event.target == document.getElementById('serviceModal')) {
+        cerrarModalServicio();
+    }
+});
+
+// Tabs del expediente del paciente
+document.addEventListener("DOMContentLoaded", function () {
+    const tabButtons = document.querySelectorAll(".patient-tabs-nav .tab-btn");
+    const panels = document.querySelectorAll(".patient-tabs-panels .tab-panel");
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            if (btn.disabled) return;
+
+            const target = btn.dataset.tab;
+
+            // botones
+            tabButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            // panels
+            panels.forEach(p => {
+                p.classList.toggle("active", p.id === "tab-" + target);
+            });
+        });
+    });
+});

@@ -1,11 +1,14 @@
-// ===== Tema claro/oscuro con persistencia ==================================
+// ======================================================================
+// 1) Tema claro/oscuro del LOGIN (radios #t-light / #t-dark)
+// ======================================================================
 (() => {
-  const LIGHT = 'light', DARK = 'dark';
-  const $light = document.getElementById('t-light');
-  const $dark  = document.getElementById('t-dark');
+  const LIGHT = "light";
+  const DARK = "dark";
+  const $light = document.getElementById("t-light");
+  const $dark = document.getElementById("t-dark");
 
-  const saved = localStorage.getItem('rc:theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const saved = localStorage.getItem("rc:theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const initial = saved || (prefersDark ? DARK : LIGHT);
 
   if (initial === DARK && $dark) $dark.checked = true;
@@ -13,47 +16,80 @@
 
   function applyTheme() {
     const theme = $dark?.checked ? DARK : LIGHT;
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('rc:theme', theme);
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("rc:theme", theme);
   }
-  $light?.addEventListener('change', applyTheme);
-  $dark?.addEventListener('change', applyTheme);
+
+  $light?.addEventListener("change", applyTheme);
+  $dark?.addEventListener("change", applyTheme);
   applyTheme();
 })();
 
-// ===== Accesibilidad: Enter en botones de rol =================================
-(() => {
-  // Actualizado para que coincida con la clase .role-toggle
-  document.querySelectorAll('.role-toggle label').forEach(label => {
-    label.setAttribute('tabindex', '0'); // Permite enfocar con Tab
-    label.addEventListener('keydown', e => {
-      // Activa el 'radio' al presionar Enter o Espacio
-      if (e.key === 'Enter' || e.key === ' ') {
+// ======================================================================
+// 2) Accesibilidad: Enter/Espacio en selector de rol (.role-toggle)
+// ======================================================================
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".role-toggle label").forEach((label) => {
+    label.setAttribute("tabindex", "0");
+    label.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        const id = label.getAttribute('for');
+        const id = label.getAttribute("for");
         const input = document.getElementById(id);
         if (input) {
           input.checked = true;
-          // Dispara el evento change por si otro script depende de él
-          input.dispatchEvent(new Event('change', { bubbles:true }));
+          input.dispatchEvent(new Event("change", { bubbles: true }));
         }
       }
     });
   });
-})();
+});
 
-// =========================================================
-// RC · Tema claro/oscuro para pantallas de recuperación
-// =========================================================
+// ======================================================================
+// 3) Ojo para mostrar/ocultar contraseña en el LOGIN
+// ======================================================================
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleBtn = document.getElementById("togglePassword");
+  const passwordInput = document.getElementById("id_password");
+  const eyeOpen = document.getElementById("eye-open");
+  const eyeClosed = document.getElementById("eye-closed");
 
+  if (!toggleBtn || !passwordInput) return;
+
+  function setState(isVisible) {
+    passwordInput.type = isVisible ? "text" : "password";
+    if (eyeOpen && eyeClosed) {
+      eyeOpen.style.display = isVisible ? "none" : "block";
+      eyeClosed.style.display = isVisible ? "block" : "none";
+    }
+    toggleBtn.setAttribute(
+      "aria-label",
+      isVisible ? "Ocultar contraseña" : "Mostrar contraseña"
+    );
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    const isHidden = passwordInput.type === "password";
+    setState(isHidden);
+  });
+});
+
+// ======================================================================
+// 4) Pantallas de RECUPERACIÓN (rc-auth-body)
+//    - Tema Oscuro/Claro con botón #authThemeToggle
+//    - Botón "Enviando..." al mandar el formulario
+// ======================================================================
 document.addEventListener("DOMContentLoaded", () => {
   const body = document.body;
-  const toggle = document.getElementById("authThemeToggle");
-  if (!toggle || !body.classList.contains("rc-auth-body")) return;
+  if (!body.classList.contains("rc-auth-body")) return; // solo en reset / flows auth nuevos
 
   const STORAGE_KEY = "rc-auth-theme";
+  const toggle = document.getElementById("authThemeToggle");
+  const form = document.querySelector(".rc-auth-form");
+  const submitBtn = document.getElementById("rc-submit-btn");
 
-  function applyTheme(theme) {
+  // ---- Tema claro/oscuro para reset ----
+  function applyAuthTheme(theme) {
     if (theme === "light") {
       body.classList.add("rc-theme--light");
     } else {
@@ -61,75 +97,51 @@ document.addEventListener("DOMContentLoaded", () => {
       theme = "dark";
     }
 
-    const label = toggle.querySelector("span");
-    if (label) {
+    if (toggle) {
+      const label = toggle.querySelector("span") || toggle;
       label.textContent = theme === "light" ? "Claro" : "Oscuro";
     }
   }
 
-  let current = localStorage.getItem(STORAGE_KEY) || "dark";
-  applyTheme(current);
+  let currentTheme = localStorage.getItem(STORAGE_KEY) || "dark";
+  applyAuthTheme(currentTheme);
 
-  toggle.addEventListener("click", () => {
-    current = current === "dark" ? "light" : "dark";
-    localStorage.setItem(STORAGE_KEY, current);
-    applyTheme(current);
-  });
-});
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      currentTheme = currentTheme === "dark" ? "light" : "dark";
+      localStorage.setItem(STORAGE_KEY, currentTheme);
+      applyAuthTheme(currentTheme);
+    });
+  }
 
-// Script para alternar visibilidad de contraseña
-document.addEventListener('DOMContentLoaded', function() {
-  const toggleBtn = document.getElementById('togglePassword');
-  const passwordInput = document.getElementById('id_password');
-  const eyeOpen = document.getElementById('eye-open');
-  const eyeClosed = document.getElementById('eye-closed');
-
-  if (toggleBtn && passwordInput) {
-    toggleBtn.addEventListener('click', function() {
-      // Verificar el tipo actual
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-      
-      // Alternar iconos
-      if (type === 'text') {
-        eyeOpen.style.display = 'none';
-        eyeClosed.style.display = 'block';
-        toggleBtn.setAttribute('aria-label', 'Ocultar contraseña');
-      } else {
-        eyeOpen.style.display = 'block';
-        eyeClosed.style.display = 'none';
-        toggleBtn.setAttribute('aria-label', 'Mostrar contraseña');
-      }
+  // ---- Estado "Enviando..." en el botón ----
+  if (form && submitBtn) {
+    form.addEventListener("submit", () => {
+      submitBtn.classList.add("is-loading");
+      submitBtn.textContent = "Enviando...";
     });
   }
 });
+
+// ===============================
+// RC Auth / Password Reset helpers
+// ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
-  const pwdInput = document.getElementById("id_password");
-  const toggle = document.getElementById("togglePassword");
-  const eyeOpen = document.getElementById("eye-open");
-  const eyeClosed = document.getElementById("eye-closed");
+  const page = document.querySelector(".rc-auth-page");
 
-  if (pwdInput && toggle) {
-    toggle.addEventListener("click", () => {
-      const isHidden = pwdInput.type === "password";
-      pwdInput.type = isHidden ? "text" : "password";
-      eyeOpen.style.display = isHidden ? "none" : "block";
-      eyeClosed.style.display = isHidden ? "block" : "none";
-    });
+  if (!page) return;
+
+  // Log simple para debug
+  console.log("RC Auth page:", page.className);
+
+  // Autofocus en el primer input si existe
+  const firstInput = page.querySelector("input[type='email'], input[type='password']");
+  if (firstInput) {
+      try {
+          firstInput.focus();
+      } catch (e) {
+          console.warn("No se pudo hacer focus en el input:", e);
+      }
   }
-
-  // Tema claro/oscuro
-  const tLight = document.getElementById("t-light");
-  const tDark = document.getElementById("t-dark");
-  const html = document.documentElement;
-
-  function setTheme(theme) {
-    html.setAttribute("data-theme", theme);
-  }
-
-  tLight?.addEventListener("change", () => setTheme("light"));
-  tDark?.addEventListener("change", () => setTheme("dark"));
 });
-
-  

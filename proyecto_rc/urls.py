@@ -31,7 +31,6 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]
 
-
 # ===============================
 #  RUTAS NORMALES (MULTI-IDIOMA)
 # ===============================
@@ -66,7 +65,6 @@ urlpatterns += i18n_patterns(
 
     prefix_default_language=False,
 )
-
 
 # STATIC & MEDIA
 if settings.DEBUG:

@@ -1,14 +1,22 @@
 from pathlib import Path
 import os
+
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
 from django.utils.translation import gettext_lazy as _
 
+# ====================================
 # BASE
+# ====================================
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+# Intentamos cargar el .env, pero si falla, tenemos respaldos abajo
 load_dotenv(BASE_DIR / ".env")
 
+# ====================================
 # DEBUG / SECRET_KEY
+# ====================================
+
 DEBUG = True
 
 SECRET_KEY = (
@@ -27,7 +35,10 @@ CSRF_TRUSTED_ORIGINS = os.getenv(
     "http://127.0.0.1:8000,http://localhost:8000,https://*.pythonanywhere.com",
 ).split(",")
 
+# ====================================
 # APPS
+# ====================================
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -36,19 +47,19 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # --- REQUERIDO POR ALLAUTH ---
+    # Requerido por allauth
     "django.contrib.sites",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
-    # -----------------------------
 
+    # DRF / JWT
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
 
-    # Mis apps
+    # Apps del proyecto
     "accounts",
     "api",
     "dentista",
@@ -56,7 +67,12 @@ INSTALLED_APPS = [
     "paciente",
 ]
 
+SITE_ID = 1
+
+# ====================================
 # MIDDLEWARE
+# ====================================
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -71,7 +87,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "proyecto_rc.urls"
 
+# ====================================
 # TEMPLATES
+# ====================================
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -92,20 +111,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "proyecto_rc.wsgi.application"
 
+# ====================================
 # BASE DE DATOS (MySQL vía PyMySQL)
+# ====================================
+
 try:
-    import pymysql
+    import pymysql  # type: ignore
     pymysql.install_as_MySQLdb()
 except Exception:
     pass
-
-from pathlib import Path
-import os
-from dotenv import load_dotenv
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-load_dotenv(BASE_DIR / ".env")
 
 DATABASES = {
     "default": {
@@ -122,8 +136,10 @@ DATABASES = {
     }
 }
 
+# ====================================
+# PASSWORD VALIDATORS
+# ====================================
 
-# VALIDADORES DE PASSWORD
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -131,7 +147,10 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# INTERNACIONALIZACIÓN
+# ====================================
+# INTERNATIONALIZATION
+# ====================================
+
 LANGUAGE_CODE = "es"
 
 LANGUAGES = [
@@ -147,7 +166,10 @@ TIME_ZONE = "America/Mexico_City"
 USE_I18N = True
 USE_TZ = True
 
+# ====================================
 # STATIC / MEDIA
+# ====================================
+
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
@@ -155,24 +177,19 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# ============================
-# CONFIGURACIÓN DE CORREO (CORREGIDA)
-# ============================
-# Usaremos la cuenta que ya tiene contraseña de aplicación válida
+# ====================================
+# EMAIL (SMTP / CONSOLE) 
+# ====================================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-
-# Cuenta que ENVÍA los correos (Sistema)
-EMAIL_HOST_USER = 'dentista.choyo@gmail.com' 
-# Contraseña de Aplicación de esa cuenta
-EMAIL_HOST_PASSWORD = 'dgsscdvsvwhtjfcz'
-
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-# LOGIN / ALLAUTH
-SITE_ID = 1
+EMAIL_HOST_USER = "dentista.choyo@gmail.com"
+EMAIL_HOST_PASSWORD = "dgsscdvsvwhtjfcz" 
+DEFAULT_FROM_EMAIL = "Consultorio RC <dentista.choyo@gmail.com>"
+# ====================================
+# AUTH / LOGIN / ALLAUTH
+# ====================================
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
@@ -180,17 +197,13 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGIN_URL = "/accounts/login/"
-LOGIN_REDIRECT_URL = "/accounts/post-login/"   # <- NUEVA RUTA
+LOGIN_REDIRECT_URL = "/accounts/post-login/"  # Vista central que redirige por rol
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
-
-
-# --- Configuración moderna de django-allauth ---
+# allauth (config nueva)
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "optional"
-ACCOUNT_USERNAME_REQUIRED = False # Importante si usas solo email
-ACCOUNT_EMAIL_REQUIRED = True
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
@@ -202,22 +215,33 @@ SOCIALACCOUNT_PROVIDERS = {
 ACCOUNT_ADAPTER = "accounts.adapters.MyAccountAdapter"
 SOCIALACCOUNT_ADAPTER = "accounts.adapters.MySocialAccountAdapter"
 
-
+# ====================================
+# DEFAULT AUTO FIELD
+# ====================================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# ====================================
 # DRF / JWT
+# ====================================
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     )
 }
 
+# ====================================
 # MERCADOPAGO
+# ====================================
+
 MERCADOPAGO_PUBLIC_KEY = "APP_USR-106817ba-8964-493f-ac1e-378be13ca6e6"
 MERCADOPAGO_ACCESS_TOKEN = "APP_USR-326579153327013-110820-c53486ce36e9b4b0db2cae68b143dc3e-2974333049"
 
+# ====================================
 # GOOGLE CALENDAR
+# ====================================
+
 GOOGLE_CALENDAR_SCOPES = [
     "https://www.googleapis.com/auth/calendar",
 ]

@@ -1,46 +1,149 @@
+# domain/admin.py
+
 from django.contrib import admin
-from .models import Paciente, Dentista, Servicio, Cita, Pago, Disponibilidad
+from .models import (
+    Dentista,
+    Paciente,
+    Servicio,
+    Disponibilidad,
+    Cita,
+    Pago,
+    Notificacion,
+    EncuestaSatisfaccion,
+)
 
-@admin.register(Paciente)
-class PacienteAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'get_email', 'telefono', 'score_riesgo', 'created_at')
-    search_fields = ('nombre', 'user__email', 'telefono')
-    list_filter = ('score_riesgo',)
 
-    # Función auxiliar para mostrar el email desde el modelo User relacionado
-    @admin.display(description='Email (Usuario)')
-    def get_email(self, obj):
-        return obj.user.email if obj.user else '---'
+# ============================================================
+# DENTISTA
+# ============================================================
 
 @admin.register(Dentista)
 class DentistaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'especialidad', 'licencia', 'get_email')
-    search_fields = ('nombre', 'especialidad')
+    list_display = ("id", "nombre", "telefono", "especialidad", "created_at")
+    search_fields = ("nombre", "telefono", "especialidad", "user__email", "user__username")
+    list_filter = ("especialidad", "created_at")
+    readonly_fields = ("created_at", "updated_at")
 
-    @admin.display(description='Email')
-    def get_email(self, obj):
-        return obj.user.email if obj.user else '---'
+
+# ============================================================
+# PACIENTE
+# ============================================================
+
+@admin.register(Paciente)
+class PacienteAdmin(admin.ModelAdmin):
+    list_display = ("id", "nombre", "telefono", "dentista", "fecha_nacimiento", "created_at")
+    search_fields = (
+        "nombre",
+        "telefono",
+        "direccion",
+        "dentista__nombre",
+        "user__email",
+        "user__username",
+    )
+    list_filter = ("dentista", "created_at")
+    readonly_fields = ("created_at", "updated_at")
+
+
+# ============================================================
+# SERVICIO
+# ============================================================
 
 @admin.register(Servicio)
 class ServicioAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'precio', 'duracion_estimada', 'activo')
-    list_filter = ('activo',)
-    search_fields = ('nombre',)
+    list_display = (
+        "id",
+        "nombre",
+        "dentista",
+        "precio",
+        "activo",
+        "duracion_minutos",
+        "duracion_estimada",
+    )
+    search_fields = ("nombre", "descripcion", "dentista__nombre")
+    list_filter = ("activo", "dentista")
+    readonly_fields = ("created_at", "updated_at")
 
-@admin.register(Cita)
-class CitaAdmin(admin.ModelAdmin):
-    list_display = ('paciente', 'fecha_hora_inicio', 'estado', 'dentista', 'servicio')
-    list_filter = ('estado', 'fecha_hora_inicio', 'dentista')
-    search_fields = ('paciente__nombre', 'paciente__user__email', 'notas')
-    date_hierarchy = 'fecha_hora_inicio'
 
-@admin.register(Pago)
-class PagoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'cita', 'monto', 'metodo', 'estado', 'updated_at')
-    list_filter = ('estado', 'metodo', 'created_at')
-    search_fields = ('cita__paciente__nombre', 'mercadopago_id')
+# ============================================================
+# DISPONIBILIDAD (HORARIO DEL DENTISTA)
+# ============================================================
 
 @admin.register(Disponibilidad)
 class DisponibilidadAdmin(admin.ModelAdmin):
-    list_display = ('dentista', 'get_dia_semana_display', 'hora_inicio', 'hora_fin')
-    list_filter = ('dentista', 'dia_semana')
+    list_display = ("id", "dentista", "dia_semana", "hora_inicio", "hora_fin")
+    list_filter = ("dentista", "dia_semana")
+    search_fields = ("dentista__nombre",)
+    readonly_fields = ("created_at", "updated_at")
+
+
+# ============================================================
+# CITA
+# ============================================================
+
+@admin.register(Cita)
+class CitaAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "dentista",
+        "paciente",
+        "servicio",
+        "fecha_hora_inicio",
+        "fecha_hora_fin",
+        "estado",
+    )
+    list_filter = ("estado", "dentista", "fecha_hora_inicio")
+    search_fields = (
+        "paciente__nombre",
+        "dentista__nombre",
+        "servicio__nombre",
+        "notas",
+    )
+    readonly_fields = ("created_at", "updated_at")
+
+
+# ============================================================
+# PAGO
+# ============================================================
+
+@admin.register(Pago)
+class PagoAdmin(admin.ModelAdmin):
+    list_display = ("id", "cita", "monto", "metodo", "estado", "created_at")
+    list_filter = ("metodo", "estado", "created_at")
+    search_fields = ("cita__paciente__nombre", "cita__dentista__nombre")
+    readonly_fields = ("created_at", "updated_at")
+
+
+# ============================================================
+# NOTIFICACIONES
+# ============================================================
+
+@admin.register(Notificacion)
+class NotificacionAdmin(admin.ModelAdmin):
+    list_display = ("id", "usuario", "titulo", "tipo", "leida", "enviada_el")
+    list_filter = ("tipo", "leida", "enviada_el")
+    search_fields = ("titulo", "mensaje", "usuario__username", "usuario__email")
+    readonly_fields = ("created_at", "updated_at")
+
+
+# ============================================================
+# ENCUESTA DE SATISFACCIÓN
+# ============================================================
+
+@admin.register(EncuestaSatisfaccion)
+class EncuestaSatisfaccionAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "paciente",
+        "dentista",
+        "puntuacion",
+        "sentimiento_ia",
+        "recomendaria",
+        "created_at",
+    )
+    list_filter = ("puntuacion", "sentimiento_ia", "recomendaria", "dentista")
+    search_fields = (
+        "paciente__nombre",
+        "dentista__nombre",
+        "comentario",
+    )
+    readonly_fields = ("created_at", "updated_at")

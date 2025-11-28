@@ -1819,3 +1819,613 @@ html {
   }
   
   html { font-size: 19px; }   /* o 20px si lo quiere súper grande */
+
+  /* =========================================
+   Sidebar Header Premium (Logo + Marca)
+   ========================================= */
+
+.sidebar-header-premium {
+    padding: 24px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* El cuadro del logo con degradado */
+.logo-box-premium {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #22d3ee, #0ea5e9); /* Degradado Cian/Azul */
+    display: grid;
+    place-items: center;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3); /* Resplandor suave */
+}
+
+.logo-box-premium i {
+    font-size: 24px;
+    color: #ffffff;
+}
+
+/* Contenedor de textos */
+.brand-box-premium {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Título Principal (CONSULTORIO RC) */
+.brand-title-premium {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: #ffffff;
+    line-height: 1.1;
+    letter-spacing: -0.3px;
+}
+
+/* Color de acento para "RC" */
+.brand-highlight {
+    color: #67e8f9; 
+}
+
+/* Eslogan pequeño y elegante */
+.brand-tagline-premium {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.6); /* Blanco semitransparente */
+    text-transform: uppercase;
+    letter-spacing: 1.5px; /* Espaciado amplio para elegancia */
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* =========================================
+   APP BAR MÓVIL (Diseño Premium)
+   ========================================= */
+
+/* Por defecto, oculto en PC */
+.mobile-app-bar {
+    display: none;
+}
+
+/* Solo visible en Celular/Tablet (menos de 1024px) */
+@media (max-width: 1023px) {
+    .mobile-app-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.9); /* Efecto vidrio */
+        backdrop-filter: blur(10px);
+        padding: 12px 20px;
+        border-radius: 16px;
+        margin-bottom: 24px; /* Empuja el contenido suavemente */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        position: sticky; /* Se queda pegado arriba al bajar */
+        top: 10px;
+        z-index: 40;
+    }
+
+    /* Botón Menú Limpio (Sin bordes feos) */
+    .icon-btn-ghost {
+        background: transparent;
+        border: none;
+        font-size: 26px;
+        color: #0f172a;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+    
+    .icon-btn-ghost:active {
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    /* Marca Central */
+    .mobile-brand {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 800;
+        font-size: 18px;
+        color: #0f172a;
+    }
+
+    /* Avatar Pequeño */
+    .mobile-avatar img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        object-fit: cover;
+    }
+}
+
+/* =========================================
+   MÓDULO DE SERVICIOS
+   ========================================= */
+
+/* Grid responsivo para las tarjetas de servicios */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding-bottom: 40px;
+}
+
+/* Tarjeta de servicio específica */
+.service-card {
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+}
+
+/* Indicador visual de estado (borde izquierdo) */
+.border-active {
+    border-left: 4px solid var(--brand);
+}
+
+.border-inactive {
+    border-left: 4px solid var(--border-subtle);
+    opacity: 0.8;
+}
+
+/* Animación de entrada del Modal */
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-animate {
+    animation: slideUp 0.3s ease-out forwards;
+}
+
+/* Menú flotante de opciones (Editar/Eliminar) */
+.mini-menu {
+    display: none; /* Oculto por defecto */
+    position: absolute;
+    right: 10px;
+    top: 40px;
+    background: white;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 10;
+    min-width: 120px;
+    overflow: hidden;
+}
+
+.mini-menu.show {
+    display: block;
+}
+
+.mini-menu a, 
+.mini-menu button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.mini-menu a:hover, 
+.mini-menu button:hover {
+    background-color: var(--bg-input);
+}
+
+.mini-menu button.text-danger {
+    color: var(--danger);
+}
+
+/* =========================================
+   MODAL FLOTANTE PROFESIONAL
+   ========================================= */
+
+/* Fondo oscuro que cubre toda la pantalla */
+.modal-overlay {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.6); /* Azul oscuro transparente */
+    backdrop-filter: blur(4px); /* Efecto vidrio borroso */
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Cuando se activa */
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+/* La tarjeta blanca del formulario */
+.modal-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transform: translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-overlay.active .modal-card {
+    transform: translateY(0);
+}
+
+/* Estilos limpios para el formulario */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background: #f8fafc;
+}
+
+.form-input:focus {
+    background: #fff;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.15);
+    outline: none;
+}
+
+/* Botones del modal */
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.btn-cancel {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--border-subtle);
+    background: #fff;
+    color: var(--text-muted);
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-save {
+    flex: 2;
+    padding: 12px;
+    background: var(--brand); /* Cian */
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(34, 211, 238, 0.4);
+}
+
+/* ====== LAYOUT GENERAL DEL EXPEDIENTE ====== */
+.patient-detail-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Header */
+.patient-header-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+.patient-banner {
+    height: 90px;
+    background: linear-gradient(135deg, #0f9bf7, #00c4cc);
+}
+
+.patient-header-body {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 20px;
+    padding: 20px 24px 22px;
+    align-items: center;
+}
+
+.patient-avatar {
+    margin-top: -40px;
+}
+
+.patient-avatar-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 999px;
+    background: #0f172a;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.6rem;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .35);
+}
+
+.patient-name {
+    margin: 0 0 6px;
+    font-size: 1.4rem;
+}
+
+.patient-contact-row,
+.patient-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    font-size: .85rem;
+}
+
+.patient-contact-item,
+.patient-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+}
+
+.patient-header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.status-pill {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .5px;
+}
+
+.status-ok {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-off {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.patient-header-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.ghost-btn {
+    border-radius: 999px;
+    border: 1px solid var(--border-subtle);
+    padding: 8px 14px;
+    font-size: .85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+}
+
+/* ====== TABS ====== */
+.patient-tabs-card {
+    padding: 0;
+}
+
+.patient-tabs-nav {
+    display: flex;
+    gap: 4px;
+    padding: 12px 16px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    overflow-x: auto;
+}
+
+.patient-tabs-nav .tab-btn {
+    border: none;
+    background: transparent;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: .85rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.patient-tabs-nav .tab-btn.active {
+    background: rgba(14, 165, 233, .1);
+    color: var(--brand);
+    font-weight: 600;
+}
+
+.patient-tabs-nav .tab-btn:disabled {
+    opacity: .4;
+    cursor: default;
+}
+
+.patient-tabs-panels {
+    padding: 16px 18px 18px;
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* ====== SECCIONES / TABLAS ====== */
+.panel-section {
+    margin-bottom: 22px;
+}
+
+.panel-header h3 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+}
+
+.panel-subtitle {
+    margin: 0 0 12px;
+    font-size: .8rem;
+    color: var(--text-muted);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px 20px;
+}
+
+.info-label {
+    display: block;
+    font-size: .75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 2px;
+}
+
+.info-value {
+    font-size: .9rem;
+    font-weight: 500;
+}
+
+.alert-soft {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(34, 197, 94, .08);
+    font-size: .9rem;
+}
+
+.alert-empty {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(248, 113, 113, .05);
+    border: 1px dashed rgba(248, 113, 113, .5);
+    font-size: .85rem;
+    color: #b91c1c;
+}
+
+/* Tabla historial */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.rc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .85rem;
+}
+
+.rc-table th,
+.rc-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    text-align: left;
+}
+
+.rc-table th {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+}
+
+.rc-table tbody tr:hover {
+    background: var(--bg-soft);
+}
+
+.col-notas {
+    max-width: 260px;
+}
+
+/* Tags de estado */
+.tag {
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: .7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.tag-estado-confirmada {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.tag-estado-pendiente {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.tag-estado-completada {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.tag-estado-inasistencia,
+.tag-estado-cancelada {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* Empty states */
+.empty-state {
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 2.4rem;
+    opacity: .6;
+    margin-bottom: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .patient-header-body {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+    }
+    .patient-header-actions {
+        align-items: flex-start;
+    }
+}

@@ -1,6 +1,13 @@
 # dentista/forms.py
 from django import forms
 from .models import Pago
+from django import forms
+from domain.models import Paciente
+
+class PacienteForm(forms.ModelForm):
+    class Meta:
+        model = Paciente
+        fields = "__all__"
 
 class FinalizarConsultaForm(forms.Form):
     monto = forms.DecimalField(

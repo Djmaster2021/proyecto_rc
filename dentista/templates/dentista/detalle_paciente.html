@@ -1,190 +1,135 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-{% block dtitle %}{{ paciente.nombre }} | Expediente{% endblock %}
+{% block dtitle %}Expediente del Paciente | RC Pro{% endblock %}
 
 {% block dcontent %}
 
-<div class="profile-header-card">
-    <div class="profile-cover"></div> <div class="profile-content">
-        <div class="profile-avatar-xl">
-            {{ paciente.nombre|slice:":2"|upper }}
-        </div>
-        
-        <div class="profile-info">
-            <h1 class="profile-name">{{ paciente.nombre }}</h1>
-            <div class="profile-meta">
-                <span><i class="ph-bold ph-envelope-simple"></i> {{ paciente.user.email|default:"Sin correo" }}</span>
-                <span><i class="ph-bold ph-phone"></i> {{ paciente.telefono|default:"Sin teléfono" }}</span>
-                <span><i class="ph-bold ph-cake"></i> {{ paciente.edad }} años</span>
-            </div>
-        </div>
+<div class="page-header">
+    <div>
+        <h1 class="text-gradient">Expediente del Paciente</h1>
+        <p class="welcome-subtitle">{{ paciente.nombre }}</p>
+    </div>
 
-        <div style="display: flex; gap: 10px;">
-            <a href="{% url 'dentista:crear_cita_manual' %}?paciente={{ paciente.id }}" class="cyber-btn cyber-btn-glow">
-                <i class="ph-bold ph-calendar-plus"></i> Nueva Cita
-            </a>
-            <a href="{% url 'dentista:editar_paciente' paciente.id %}" class="cyber-btn cyber-btn-secondary" style="background: #fff;">
-                <i class="ph-bold ph-pencil-simple"></i> Editar
-            </a>
-        </div>
+    <div>
+        <a href="{% url 'dentista:crear_cita_manual' %}" class="cyber-btn">
+            <i class="ph-bold ph-calendar-plus"></i> Nueva Cita
+        </a>
     </div>
 </div>
 
-<div class="profile-tabs">
-    <button class="tab-btn active" data-tab="tab-general">Datos Generales</button>
-    <button class="tab-btn" data-tab="tab-historial">Historial Clínico</button>
-    <button class="tab-btn" data-tab="tab-odontograma">Odontograma</button>
-    <button class="tab-btn" data-tab="tab-pagos">Pagos y Saldos</button>
-</div>
+<div class="patient-detail-layout">
 
-<div id="tab-general" class="tab-pane active">
-    <div class="dashboard-split-grid">
-        
-        <div class="left-column-wrapper">
-            <div class="cyber-card">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
-                    <h3 style="font-size: 1.1rem; font-weight: 700;">Información Personal</h3>
-                    <span class="status-badge status-active">Activo</span>
+    <section class="cyber-card patient-header-card">
+
+        <div class="patient-banner"></div>
+
+        <div class="patient-header-body">
+
+            <div class="patient-avatar">
+                <div class="patient-avatar-circle">
+                    {{ paciente.nombre|slice:":2"|upper }}
                 </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                    <div>
-                        <label class="text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Fecha de Nacimiento</label>
-                        <p style="font-weight: 600; color: var(--text-main); margin-top: 5px;">{{ paciente.fecha_nacimiento|date:"d F, Y" }}</p>
-                    </div>
-                    <div>
-                        <label class="text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Género</label>
-                        <p style="font-weight: 600; color: var(--text-main); margin-top: 5px;">{{ paciente.genero|default:"No especificado" }}</p>
-                    </div>
-                    <div style="grid-column: 1 / -1;">
-                        <label class="text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Dirección</label>
-                        <p style="font-weight: 600; color: var(--text-main); margin-top: 5px;">{{ paciente.direccion|default:"Dirección no registrada" }}</p>
-                    </div>
+            </div>
+
+            <div class="patient-header-main">
+                <h2 class="patient-name">{{ paciente.nombre }}</h2>
+
+                <div class="patient-contact-row">
+                    {% if paciente.email %}
+                    <span class="patient-contact-item">
+                        <i class="ph-bold ph-envelope-simple"></i>
+                        {{ paciente.email }}
+                    </span>
+                    {% endif %}
+                    {% if paciente.telefono %}
+                    <span class="patient-contact-item">
+                        <i class="ph-bold ph-phone"></i>
+                        {{ paciente.telefono }}
+                    </span>
+                    {% endif %}
                 </div>
 
-                <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-subtle);">
-                    <label class="text-muted" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--danger);">Antecedentes Médicos / Alergias</label>
-                    <div style="background: #fff1f2; border: 1px solid #fecaca; padding: 1rem; border-radius: 8px; margin-top: 10px; color: #be123c; font-size: 0.9rem;">
-                        {{ paciente.antecedentes|default:"No presenta antecedentes médicos relevantes registrados." }}
-                    </div>
+                <div class="patient-meta-row">
+                    <span class="patient-meta-item">
+                        <i class="ph-bold ph-cake"></i>
+                        {% if paciente.fecha_nacimiento %}
+                            {{ paciente.fecha_nacimiento|date:"d/m/Y" }}
+                        {% else %}
+                            No registrada
+                        {% endif %}
+                    </span>
+
+                    <span class="patient-meta-item">
+                        <i class="ph-bold ph-gender-intersex"></i>
+                        {{ paciente.get_genero_display|default:"No especificado" }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="patient-header-actions">
+
+                <div class="patient-header-buttons">
+                    <a href="{% url 'dentista:editar_paciente' paciente.id %}" class="ghost-btn">
+                        <i class="ph-bold ph-pencil-simple"></i> Editar
+                    </a>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="side-stack">
-            <div class="kpi-card kpi-blue">
-                <div class="kpi-icon"><i class="ph-fill ph-calendar-check"></i></div>
-                <div class="kpi-content">
-                    <h3 class="kpi-value">{{ total_citas }}</h3>
-                    <span class="kpi-label">Visitas Totales</span>
-                </div>
-            </div>
-            
-            <div class="kpi-card kpi-green">
-                <div class="kpi-icon"><i class="ph-fill ph-currency-dollar"></i></div>
-                <div class="kpi-content">
-                    <h3 class="kpi-value">${{ total_pagado|floatformat:0 }}</h3>
-                    <span class="kpi-label">Inversión Total</span>
-                </div>
-            </div>
-        </div>
+    <section class="cyber-card">
+        <h3>Historial Clínico</h3>
+        <p class="panel-subtitle">Citas atendidas, pendientes y confirmadas.</p>
 
-    </div>
-</div>
-
-<div id="tab-historial" class="tab-pane">
-    <div class="cyber-card no-padding" style="background: transparent; border: none; box-shadow: none;">
-        <div class="timeline-container">
-            {% for cita in historial %}
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-card">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <div>
-                            <h4 style="margin: 0; font-size: 1.1rem; color: var(--brand);">{{ cita.servicio.nombre }}</h4>
-                            <span style="font-size: 0.85rem; color: var(--text-muted);">
-                                <i class="ph-bold ph-calendar-blank"></i> {{ cita.fecha_hora_inicio|date:"l d F, Y" }} 
-                                &bull; {{ cita.fecha_hora_inicio|time:"H:i" }}
-                            </span>
-                        </div>
-                        <span class="status-badge status-active">Completada</span>
-                    </div>
-                    
-                    <p style="color: var(--text-main); font-size: 0.95rem; line-height: 1.6;">
-                        {{ cita.notas|default:"<em>Sin notas clínicas registradas por el doctor.</em>" }}
-                    </p>
-                    
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
-                        <button onclick="openEditModal('{{ cita.id }}', '{{ cita.notas|escapejs }}')" 
-                                class="cyber-btn cyber-btn-sm cyber-btn-secondary" style="font-size: 0.8rem;">
-                            <i class="ph-bold ph-pencil-simple"></i> Editar Nota Clínica
-                        </button>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div style="text-align: center; padding: 4rem; color: var(--text-muted);">
-                <i class="ph-duotone ph-clipboard-text" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                <p>No hay historial clínico registrado.</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
-<div id="tab-odontograma" class="tab-pane">
-    <div class="cyber-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h3 style="font-size: 1.1rem; font-weight: 700;">Odontograma Visual</h3>
-            <span class="status-badge status-inactive">Modo Lectura</span>
-        </div>
-        
-        <div class="odonto-grid">
-            {% for i in "12345678901234567890123456789012"|make_list %}
-                <div class="tooth" title="Diente {{ forloop.counter }}">
-                    {{ forloop.counter }}
-                </div>
-            {% endfor %}
-        </div>
-        
-        <div style="text-align: center; margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem;">
-            <p>Selecciona un diente para ver tratamientos previos (Próximamente).</p>
-        </div>
-    </div>
-</div>
-
-<div id="tab-pagos" class="tab-pane">
-    <div class="cyber-card no-padding table-responsive">
-        <table class="data-table">
-            <thead>
+        {% if historial %}
+        <div class="table-wrapper">
+            <table class="rc-table">
+                <thead>
                 <tr>
                     <th>Fecha</th>
-                    <th>Concepto</th>
-                    <th>Método</th>
-                    <th style="text-align: right;">Monto</th>
-                    <th style="text-align: center;">Estado</th>
+                    <th>Hora</th>
+                    <th>Servicio</th>
+                    <th>Estado</th>
+                    <th>Notas</th>
                 </tr>
-            </thead>
-            <tbody>
-                {% for pago in pagos %}
-                <tr>
-                    <td style="font-weight: 600; color: var(--text-main);">{{ pago.created_at|date:"d M, Y" }}</td>
-                    <td style="color: var(--text-muted);">{{ pago.cita.servicio.nombre }}</td>
-                    <td><span class="pay-badge pb-other">{{ pago.metodo }}</span></td>
-                    <td class="amount-cell" style="text-align: right;">${{ pago.monto }}</td>
-                    <td style="text-align: center;"><span class="status-badge status-active">Pagado</span></td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-muted);">
-                        No hay pagos registrados.
-                    </td>
-                </tr>
+                </thead>
+
+                <tbody>
+                {% for cita in historial %}
+                    <tr>
+                        <td>{{ cita.fecha_hora_inicio|date:"d/m/Y" }}</td>
+                        <td>{{ cita.fecha_hora_inicio|date:"H:i" }}</td>
+                        <td>
+                            {% if cita.servicio %}
+                                {{ cita.servicio.nombre }}
+                            {% else %}
+                                Sin servicio
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="tag tag-estado-{{ cita.estado|lower }}">
+                                {{ cita.get_estado_display }}
+                            </span>
+                        </td>
+                        <td>{{ cita.notas|default:"Sin notas" }}</td>
+                    </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                </tbody>
+
+            </table>
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+            <i class="ph-duotone ph-calendar-x"></i>
+            <p>No hay historial de citas registrado.</p>
+        </div>
+
+        {% endif %}
+    </section>
+
 </div>
 
 {% endblock %}

@@ -7,134 +7,172 @@
 
 <div class="page-header">
     <div>
-        <h1 class="text-gradient">Catálogo de Servicios</h1>
-        <p class="welcome-subtitle">Gestiona tus tratamientos, precios y tiempos.</p>
+        <h1 class="text-gradient">Mis Servicios</h1>
+        <p class="welcome-subtitle">Administra tu catálogo y precios.</p>
     </div>
-    <button onclick="abrirModalServicio()" class="cyber-btn cyber-btn-glow">
+    
+    <button onclick="abrirModal()" class="cyber-btn cyber-btn-glow">
         <i class="ph-bold ph-plus"></i> Nuevo Servicio
     </button>
 </div>
 
-<div class="tools-bar">
-    <div class="search-container">
-        <i class="ph-bold ph-magnifying-glass search-icon-overlay"></i>
-        <input type="text" id="buscadorServicios" class="search-input-modern" placeholder="Buscar tratamiento...">
-    </div>
-    <div style="color: var(--text-muted); font-size: 0.9rem;">
-        Total: <strong>{{ servicios.count }}</strong> servicios registrados
-    </div>
-</div>
-
-<div class="services-table-wrapper table-responsive">
-    <table class="data-table" id="tablaServicios">
-        <thead>
-            <tr>
-                <th>Tratamiento</th>
-                <th>Precio (MXN)</th>
-                <th>Duración</th>
-                <th>Estado</th>
-                <th style="text-align: right;">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for s in servicios %}
-            <tr>
-                <td style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">
-                    {{ s.nombre }}
-                </td>
-                
-                <td class="col-price">${{ s.precio|floatformat:2 }}</td>
-                
-                <td class="col-duration">
-                    <i class="ph-duotone ph-clock"></i> {{ s.duracion_estimada }} min
-                </td>
-                
-                <td>
-                    {% if s.activo %}
-                        <span class="status-badge status-active">Activo</span>
-                    {% else %}
-                        <span class="status-badge status-inactive">Inactivo</span>
-                    {% endif %}
-                </td>
-                
-                <td style="text-align: right;">
-                    <div style="display: flex; justify-content: flex-end; gap: 5px;">
-                        <button class="btn-mini-action" 
-                                onclick="editarServicio('{{ s.id }}', '{{ s.nombre }}', '{{ s.precio }}', '{{ s.duracion_estimada }}', '{{ s.activo|lower }}')"
-                                title="Editar">
-                            <i class="ph-bold ph-pencil-simple"></i>
-                        </button>
-
-                        <form method="POST" action="{% url 'dentista:eliminar_servicio' s.id %}" style="margin:0;">
-                            {% csrf_token %}
-                            <button type="button" class="btn-mini-action delete" title="Eliminar"
-                                    onclick="confirmarEliminarServicio(this, '{{ s.nombre }}')">
-                                <i class="ph-bold ph-trash"></i>
-                            </button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" style="text-align: center; padding: 4rem; color: var(--text-muted);">
-                    <div style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--border-subtle);">
-                        <i class="ph-duotone ph-briefcase"></i>
-                    </div>
-                    <p>No tienes servicios registrados en el catálogo.</p>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<div id="modalServicio" class="modal-overlay">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="modalTitle" style="margin:0; color:var(--text-main);">Nuevo Servicio</h3>
-            <button class="btn-icon" onclick="cerrarModalServicio()" style="background:transparent; color:var(--text-muted);">
-                <i class="ph-bold ph-x"></i>
-            </button>
-        </div>
+<div class="services-grid">
+    {% for s in servicios %}
+    <div class="cyber-card service-card {% if s.activo %}border-active{% else %}border-inactive{% endif %}">
         
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+            <div style="width: 40px; height: 40px; background: var(--bg-input); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--brand);">
+                <i class="ph-duotone ph-tooth" style="font-size: 1.5rem;"></i>
+            </div>
+            
+            <div class="dropdown" style="position: relative;">
+                <button class="icon-btn-ghost" onclick="toggleServiceMenu('menu-{{ s.id }}')">
+                    <i class="ph-bold ph-dots-three-vertical"></i>
+                </button>
+                
+                <div id="menu-{{ s.id }}" class="mini-menu">
+                    <a href="#" onclick="editarServicio('{{ s.id }}', '{{ s.nombre }}', '{{ s.precio }}', '{{ s.duracion_estimada }}', '{{ s.activo }}')">
+                        Editar detalles
+                    </a>
+                    
+                    <a href="{% url 'dentista:cambiar_estado_servicio' s.id %}">
+                        {% if s.activo %}
+                            <span style="color: #f59e0b;">Pausar servicio</span>
+                        {% else %}
+                            <span style="color: var(--success);">Reactivar</span>
+                        {% endif %}
+                    </a>
+                    
+                    <form action="{% url 'dentista:eliminar_servicio' s.id %}" method="post" style="margin: 0; border-top: 1px solid #f1f5f9;">
+                        {% csrf_token %}
+                        <button type="submit" class="text-danger">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="margin: 0 0 5px 0; font-size: 1.1rem; font-weight: 700; color: var(--text-main);">{{ s.nombre }}</h3>
+        
+        <div style="display: flex; align-items: baseline; gap: 5px; margin-bottom: 15px;">
+            <span style="font-size: 1.4rem; font-weight: 800; color: var(--brand);">${{ s.precio|floatformat:0 }}</span>
+            <span style="font-size: 0.9rem; color: var(--text-muted);">MXN</span>
+        </div>
+
+        <div style="display: flex; gap: 15px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+            <span style="display: flex; align-items: center; gap: 5px;">
+                <i class="ph-bold ph-clock"></i> {{ s.duracion_estimada }} min
+            </span>
+            <span style="display: flex; align-items: center; gap: 5px;">
+                {% if s.activo %}
+                    <i class="ph-fill ph-check-circle" style="color: var(--success);"></i> Activo
+                {% else %}
+                    <i class="ph-fill ph-x-circle" style="color: var(--text-muted);"></i> Inactivo
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; color: var(--text-muted);">
+        <i class="ph-duotone ph-package" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+        <p>No tienes servicios registrados.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<div id="serviceModal" class="modal-overlay">
+    <div class="modal-card">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2 id="modalTitle" style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--text-main);">Nuevo Servicio</h2>
+            <button onclick="cerrarModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+        </div>
+
         <form method="post" action="{% url 'dentista:servicios' %}">
             {% csrf_token %}
-            <input type="hidden" name="servicio_id" id="servicio_id">
+            <input type="hidden" name="servicio_id" id="formId">
 
             <div class="form-group">
-                <label for="nombre">Nombre del Tratamiento</label>
-                <input type="text" name="nombre" id="nombre" class="cyber-input" placeholder="Ej. Limpieza profunda" required>
+                <label class="form-label">Nombre del Servicio</label>
+                <input type="text" name="nombre" id="formNombre" required class="form-input" placeholder="Ej. Limpieza General">
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="form-group">
-                    <label for="precio">Precio ($)</label>
-                    <input type="number" step="0.01" name="precio" id="precio" class="cyber-input" placeholder="0.00" required>
+                    <label class="form-label">Precio ($)</label>
+                    <input type="number" step="0.01" name="precio" id="formPrecio" required class="form-input" placeholder="0.00">
                 </div>
                 <div class="form-group">
-                    <label for="duracion">Duración (min)</label>
-                    <input type="number" name="duracion" id="duracion" class="cyber-input" placeholder="Ej. 45" required>
+                    <label class="form-label">Duración (min)</label>
+                    <input type="number" name="duracion" id="formDuracion" required class="form-input" value="30">
                 </div>
             </div>
 
-            <div class="form-group-switch">
-                <div>
-                    <label style="margin:0; display:block; font-weight:700; font-size:0.9rem; color:var(--text-main);">Disponible</label>
-                    <small style="display:block; color:var(--text-muted); font-size:0.8rem;">Visible en la agenda</small>
-                </div>
-                <label class="switch">
-                    <input type="checkbox" name="activo" id="activo" checked>
-                    <span class="slider"></span>
-                </label>
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" name="activo" id="formActivo" checked style="width: 20px; height: 20px; accent-color: var(--brand);">
+                <label for="formActivo" style="cursor: pointer; user-select: none;">Disponible para agendar</label>
             </div>
 
-            <div class="form-actions">
-                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModalServicio()">Cancelar</button>
-                <button type="submit" class="cyber-btn cyber-btn-glow">Guardar</button>
+            <div class="modal-actions">
+                <button type="button" onclick="cerrarModal()" class="btn-cancel">Cancelar</button>
+                <button type="submit" class="btn-save">Guardar Servicio</button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    const modal = document.getElementById('serviceModal');
+
+    function abrirModal() {
+        modal.classList.add('active');
+        document.getElementById('modalTitle').textContent = 'Nuevo Servicio';
+        // Limpiar campos
+        document.getElementById('formId').value = '';
+        document.getElementById('formNombre').value = '';
+        document.getElementById('formPrecio').value = '';
+        document.getElementById('formDuracion').value = '30';
+        document.getElementById('formActivo').checked = true;
+    }
+
+    function editarServicio(id, nombre, precio, duracion, activo) {
+        modal.classList.add('active');
+        document.getElementById('modalTitle').textContent = 'Editar Servicio';
+        
+        // Llenar campos
+        document.getElementById('formId').value = id;
+        document.getElementById('formNombre').value = nombre;
+        document.getElementById('formPrecio').value = parseFloat(precio.replace(',',''));
+        document.getElementById('formDuracion').value = duracion;
+        document.getElementById('formActivo').checked = (activo === 'True' || activo === 'true' || activo === true);
+        
+        // Cerrar el menú de los 3 puntitos
+        toggleServiceMenu('menu-' + id);
+    }
+
+    function cerrarModal() {
+        modal.classList.remove('active');
+    }
+
+    function toggleServiceMenu(id) {
+        const menu = document.getElementById(id);
+        // Cierra otros menús
+        document.querySelectorAll('.mini-menu').forEach(el => {
+            if (el.id !== id) el.classList.remove('show');
+        });
+        // Alternar este
+        if (menu) menu.classList.toggle('show');
+    }
+
+    // Cerrar al hacer clic fuera del modal
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            cerrarModal();
+        }
+        // Cerrar menú de 3 puntos si clicas fuera
+        if (!event.target.closest('.dropdown')) {
+            document.querySelectorAll('.mini-menu').forEach(el => el.classList.remove('show'));
+        }
+    }
+</script>
 
 {% endblock %}
