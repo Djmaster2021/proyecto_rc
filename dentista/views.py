@@ -556,3 +556,16 @@ def penalizaciones(request):
 def exportar_citas_csv(request): return HttpResponse("CSV OK")
 @login_required
 def exportar_citas_pdf(request): return HttpResponse("PDF OK")
+# En dentista/views.py (Al final, o junto a las otras vistas de servicios)
+
+@login_required
+def cambiar_estado_servicio(request, servicio_id):
+    # Busca el servicio y le invierte el estado (Activo <-> Inactivo)
+    servicio = get_object_or_404(Servicio, id=servicio_id)
+    servicio.activo = not servicio.activo
+    servicio.save()
+    
+    estado = "activado" if servicio.activo else "desactivado"
+    messages.success(request, f"Servicio {servicio.nombre} {estado}.")
+    
+    return redirect('dentista:servicios')

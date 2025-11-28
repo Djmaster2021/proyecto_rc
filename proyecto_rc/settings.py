@@ -10,14 +10,13 @@ from django.utils.translation import gettext_lazy as _
 # ====================================
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-# Intentamos cargar el .env, pero si falla, tenemos respaldos abajo
 load_dotenv(BASE_DIR / ".env")
 
 # ====================================
 # DEBUG / SECRET_KEY
 # ====================================
 
-DEBUG = True
+DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() == "true"
 
 SECRET_KEY = (
     os.getenv("DJANGO_SECRET_KEY")
@@ -47,7 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Requerido por allauth
+    # allauth
     "django.contrib.sites",
     "allauth",
     "allauth.account",
@@ -158,9 +157,7 @@ LANGUAGES = [
     ("en", _("English")),
 ]
 
-LOCALE_PATHS = [
-    BASE_DIR / "locale",
-]
+LOCALE_PATHS = [BASE_DIR / "locale"]
 
 TIME_ZONE = "America/Mexico_City"
 USE_I18N = True
@@ -178,15 +175,21 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # ====================================
-# EMAIL (SMTP / CONSOLE) 
+# EMAIL (SMTP)
 # ====================================
+
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "dentista.choyo@gmail.com"
-EMAIL_HOST_PASSWORD = "dgsscdvsvwhtjfcz" 
-DEFAULT_FROM_EMAIL = "Consultorio RC <dentista.choyo@gmail.com>"
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
+
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL",
+    "Consultorio RC <no-reply@consultoriorc.com>",
+)
+
 # ====================================
 # AUTH / LOGIN / ALLAUTH
 # ====================================
@@ -197,10 +200,9 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGIN_URL = "/accounts/login/"
-LOGIN_REDIRECT_URL = "/accounts/post-login/"  # Vista central que redirige por rol
+LOGIN_REDIRECT_URL = "/accounts/post-login/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
-# allauth (config nueva)
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "optional"
@@ -235,8 +237,8 @@ REST_FRAMEWORK = {
 # MERCADOPAGO
 # ====================================
 
-MERCADOPAGO_PUBLIC_KEY = "APP_USR-106817ba-8964-493f-ac1e-378be13ca6e6"
-MERCADOPAGO_ACCESS_TOKEN = "APP_USR-326579153327013-110820-c53486ce36e9b4b0db2cae68b143dc3e-2974333049"
+MERCADOPAGO_PUBLIC_KEY = os.getenv("MERCADOPAGO_PUBLIC_KEY", "")
+MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN", "")
 
 # ====================================
 # GOOGLE CALENDAR
@@ -246,6 +248,8 @@ GOOGLE_CALENDAR_SCOPES = [
     "https://www.googleapis.com/auth/calendar",
 ]
 
-GOOGLE_CALENDAR_CLIENT_CONFIG_FILE = BASE_DIR / "google_credentials" / "credentials.json"
+GOOGLE_CALENDAR_CLIENT_CONFIG_FILE = (
+    BASE_DIR / "google_credentials" / "credentials.json"
+)
 GOOGLE_CALENDAR_TOKEN_FILE = BASE_DIR / "google_credentials" / "token.json"
-GOOGLE_CALENDAR_ID = "dentista.choyo@gmail.com"
+GOOGLE_CALENDAR_ID = os.getenv("GOOGLE_CALENDAR_ID", "dentista.choyo@gmail.com")

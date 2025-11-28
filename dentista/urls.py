@@ -43,4 +43,5 @@ urlpatterns = [
     path('configuracion/horario/<int:horario_id>/eliminar/', views.eliminar_horario, name='eliminar_horario'),
     path('soporte/', views.soporte, name='soporte'),
     path('penalizaciones/', views.penalizaciones, name='penalizaciones'),
+    path('servicios/estado/<int:servicio_id>/', views.cambiar_estado_servicio, name='cambiar_estado_servicio'),
 ]
