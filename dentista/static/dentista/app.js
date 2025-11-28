@@ -987,3 +987,40 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
+// =========================================================
+// SISTEMA DE PESTAÑAS (TABS) - PERFIL PACIENTE
+// =========================================================
+
+document.addEventListener("DOMContentLoaded", function () {
+    
+    // 1. Seleccionamos todos los botones y todos los paneles de contenido
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panes = document.querySelectorAll('.tab-pane');
+
+    // Solo ejecutamos si encontramos pestañas en la página
+    if (tabs.length > 0) {
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                
+                // A. Quitar la clase 'active' de TODAS las pestañas y paneles
+                // (Esto "apaga" o esconde todo lo anterior)
+                tabs.forEach(t => t.classList.remove('active'));
+                panes.forEach(p => p.classList.remove('active'));
+
+                // B. Agregar la clase 'active' solo al botón que clickeaste
+                tab.classList.add('active');
+                
+                // C. Buscar el panel de contenido que corresponde a este botón
+                // El botón dice: data-tab="tab-odonto" -> Buscamos el div con id="tab-odonto"
+                const targetId = tab.getAttribute('data-tab');
+                const targetPane = document.getElementById(targetId);
+                
+                // D. Mostrar ese panel específico
+                if (targetPane) {
+                    targetPane.classList.add('active');
+                }
+            });
+        });
+    }
+});

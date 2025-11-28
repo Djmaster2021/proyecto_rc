@@ -2429,3 +2429,206 @@ html {
         align-items: flex-start;
     }
 }
+
+/* =========================================================
+      26. MÓDULO PACIENTES PRO (CARDS & EXPEDIENTE)
+      ========================================================= */
+
+   /* --- GRID DE TARJETAS --- */
+   .patients-grid-pro {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.patient-card-pro {
+    background: #fff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: var(--shadow-card);
+}
+.patient-card-pro:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+    border-color: var(--brand);
+}
+
+/* Cabecera de la Tarjeta */
+.pc-header-pro {
+    padding: 1.5rem;
+    background: linear-gradient(to bottom, #f8fafc, #fff);
+    display: flex; align-items: center; gap: 15px;
+    border-bottom: 1px solid var(--bg-input);
+}
+
+.pc-avatar-pro {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: var(--bg-sidebar);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 700;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.pc-info-pro h3 { margin: 0; font-size: 1.1rem; color: var(--text-main); font-weight: 700; }
+.pc-info-pro span { font-size: 0.8rem; color: var(--text-muted); }
+
+/* Cuerpo de la Tarjeta */
+.pc-body-pro { padding: 1.2rem 1.5rem; }
+
+.pc-stat-row {
+    display: flex; justify-content: space-between;
+    font-size: 0.85rem; color: var(--text-muted);
+    margin-bottom: 8px;
+}
+.pc-stat-val { font-weight: 600; color: var(--text-main); }
+
+/* Footer de Acciones */
+.pc-actions-pro {
+    padding: 1rem 1.5rem;
+    background: #fff;
+    border-top: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-between; align-items: center;
+}
+
+/* --- ODONTOGRAMA VISUAL (CSS) --- */
+.odontogram-container {
+    background: #f8fafc;
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+}
+
+.mouth-quadrant {
+    display: flex; gap: 8px; justify-content: center; margin-bottom: 15px;
+}
+
+.tooth-item {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    cursor: pointer; transition: 0.2s;
+}
+.tooth-shape {
+    width: 40px; height: 50px;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px 8px 12px 12px;
+    position: relative;
+    overflow: hidden;
+}
+.tooth-item:hover .tooth-shape { border-color: var(--brand); transform: scale(1.1); }
+
+/* Estados del diente */
+.tooth-shape.caries { background: #fee2e2; border-color: #ef4444; }
+.tooth-shape.bracket { border: 2px solid #3b82f6; }
+.tooth-shape.bracket::after {
+    content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: #3b82f6;
+}
+.tooth-number { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
+
+/* --- GALERÍA DE RAYOS X --- */
+.xray-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem; margin-top: 1.5rem;
+}
+.xray-item {
+    aspect-ratio: 1; background: #000; border-radius: 8px; overflow: hidden;
+    position: relative; cursor: zoom-in; border: 2px solid #334155;
+}
+.xray-item img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.3s; }
+.xray-item:hover img { opacity: 1; transform: scale(1.05); }
+.xray-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.7); color: #fff; font-size: 0.7rem;
+    padding: 5px; text-align: center;
+}
+
+/* =========================================================
+   FIX: HEADER PACIENTES & BÚSQUEDA
+   ========================================================= */
+
+/* Contenedor de herramientas (Buscador + Botón) */
+.header-tools-wrapper {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Formulario de Búsqueda Estilizado */
+.search-bar-pro {
+    position: relative;
+    width: 320px; /* Ancho fijo para que no se aplaste */
+    height: 45px;
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    transition: all 0.2s ease;
+}
+
+.search-bar-pro:focus-within {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(0, 173, 193, 0.1);
+}
+
+.search-bar-pro i {
+    color: #94a3b8;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.search-input-clean {
+    border: none;
+    background: transparent;
+    width: 100%;
+    height: 100%;
+    padding: 0 10px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    outline: none;
+    font-family: 'Inter', sans-serif;
+}
+
+.search-input-clean::placeholder {
+    color: #cbd5e1;
+}
+
+/* Ajuste para móviles */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .header-tools-wrapper {
+        width: 100%;
+        flex-direction: column;
+    }
+    .search-bar-pro {
+        width: 100%;
+    }
+    .cyber-btn-glow {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+.badge-opt {
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: normal;
+    margin-left: 5px;
+    text-transform: uppercase;
+}

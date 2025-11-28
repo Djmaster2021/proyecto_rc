@@ -1,135 +1,187 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-{% block dtitle %}Expediente del Paciente | RC Pro{% endblock %}
+{% block dtitle %}{{ paciente.nombre }} | Expediente{% endblock %}
 
 {% block dcontent %}
 
-<div class="page-header">
-    <div>
-        <h1 class="text-gradient">Expediente del Paciente</h1>
-        <p class="welcome-subtitle">{{ paciente.nombre }}</p>
-    </div>
-
-    <div>
-        <a href="{% url 'dentista:crear_cita_manual' %}" class="cyber-btn">
-            <i class="ph-bold ph-calendar-plus"></i> Nueva Cita
-        </a>
+<div class="profile-header-card">
+    <div class="profile-cover"></div>
+    <div class="profile-content">
+        <div class="profile-avatar-xl">
+            {{ paciente.nombre|slice:":2"|upper }}
+        </div>
+        <div class="profile-info">
+            <h1 class="profile-name">{{ paciente.nombre }}</h1>
+            <div class="profile-meta">
+                <span><i class="ph-bold ph-phone"></i> {{ paciente.telefono|default:"Sin teléfono" }}</span>
+                <span><i class="ph-bold ph-map-pin"></i> {{ paciente.direccion|default:"Sin dirección" }}</span>
+                <span><i class="ph-bold ph-cake"></i> {{ paciente.edad }} años</span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'dentista:crear_cita_manual' %}?paciente={{ paciente.id }}" class="cyber-btn cyber-btn-glow">
+                <i class="ph-bold ph-calendar-plus"></i> Nueva Cita
+            </a>
+            <a href="{% url 'dentista:editar_paciente' paciente.id %}" class="cyber-btn cyber-btn-secondary">
+                <i class="ph-bold ph-pencil-simple"></i> Editar
+            </a>
+        </div>
     </div>
 </div>
 
-<div class="patient-detail-layout">
+<div class="profile-tabs">
+    <button class="tab-btn active" data-tab="tab-historial">Historial Clínico</button>
+    <button class="tab-btn" data-tab="tab-odonto">Odontograma</button>
+    <button class="tab-btn" data-tab="tab-rayos">Radiografías</button>
+    <button class="tab-btn" data-tab="tab-info">Información General</button>
+</div>
 
-    <section class="cyber-card patient-header-card">
-
-        <div class="patient-banner"></div>
-
-        <div class="patient-header-body">
-
-            <div class="patient-avatar">
-                <div class="patient-avatar-circle">
-                    {{ paciente.nombre|slice:":2"|upper }}
-                </div>
-            </div>
-
-            <div class="patient-header-main">
-                <h2 class="patient-name">{{ paciente.nombre }}</h2>
-
-                <div class="patient-contact-row">
-                    {% if paciente.email %}
-                    <span class="patient-contact-item">
-                        <i class="ph-bold ph-envelope-simple"></i>
-                        {{ paciente.email }}
-                    </span>
-                    {% endif %}
-                    {% if paciente.telefono %}
-                    <span class="patient-contact-item">
-                        <i class="ph-bold ph-phone"></i>
-                        {{ paciente.telefono }}
-                    </span>
-                    {% endif %}
-                </div>
-
-                <div class="patient-meta-row">
-                    <span class="patient-meta-item">
-                        <i class="ph-bold ph-cake"></i>
-                        {% if paciente.fecha_nacimiento %}
-                            {{ paciente.fecha_nacimiento|date:"d/m/Y" }}
-                        {% else %}
-                            No registrada
-                        {% endif %}
-                    </span>
-
-                    <span class="patient-meta-item">
-                        <i class="ph-bold ph-gender-intersex"></i>
-                        {{ paciente.get_genero_display|default:"No especificado" }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="patient-header-actions">
-
-                <div class="patient-header-buttons">
-                    <a href="{% url 'dentista:editar_paciente' paciente.id %}" class="ghost-btn">
-                        <i class="ph-bold ph-pencil-simple"></i> Editar
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="cyber-card">
-        <h3>Historial Clínico</h3>
-        <p class="panel-subtitle">Citas atendidas, pendientes y confirmadas.</p>
-
-        {% if historial %}
-        <div class="table-wrapper">
-            <table class="rc-table">
-                <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Servicio</th>
-                    <th>Estado</th>
-                    <th>Notas</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                {% for cita in historial %}
-                    <tr>
-                        <td>{{ cita.fecha_hora_inicio|date:"d/m/Y" }}</td>
-                        <td>{{ cita.fecha_hora_inicio|date:"H:i" }}</td>
-                        <td>
-                            {% if cita.servicio %}
-                                {{ cita.servicio.nombre }}
-                            {% else %}
-                                Sin servicio
+<div id="tab-historial" class="tab-pane active">
+    <div class="dashboard-split-grid">
+        <div class="left-column-wrapper">
+            <div class="cyber-card no-padding" style="border:none; box-shadow:none; background:transparent;">
+                <div class="timeline-container">
+                    {% for cita in historial %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-card">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                                <strong>{{ cita.servicio.nombre }}</strong>
+                                <span style="font-size:0.8rem; color:var(--text-muted);">{{ cita.fecha_hora_inicio|date:"d M, Y" }}</span>
+                            </div>
+                            <p style="font-size:0.9rem; color:var(--text-main);">{{ cita.notas|default:"Sin notas." }}</p>
+                            
+                            {% if cita.archivo_adjunto %}
+                                <div style="margin-top:10px; padding:10px; background:#f0f9ff; border-radius:8px; display:inline-flex; align-items:center; gap:5px; font-size:0.8rem;">
+                                    <i class="ph-bold ph-file-image" style="color:var(--brand);"></i> 
+                                    <a href="{{ cita.archivo_adjunto.url }}" target="_blank" style="text-decoration:underline;">Ver Archivo Adjunto</a>
+                                </div>
                             {% endif %}
-                        </td>
-                        <td>
-                            <span class="tag tag-estado-{{ cita.estado|lower }}">
-                                {{ cita.get_estado_display }}
-                            </span>
-                        </td>
-                        <td>{{ cita.notas|default:"Sin notas" }}</td>
-                    </tr>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <div style="text-align:center; padding:3rem; color:var(--text-muted);">Sin historial clínico.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="side-stack">
+            <div class="kpi-card kpi-blue">
+                <div class="kpi-icon"><i class="ph-fill ph-files"></i></div>
+                <div><h3 class="kpi-value">{{ total_citas }}</h3><span class="kpi-label">Consultas</span></div>
+            </div>
+            <div class="kpi-card kpi-green">
+                <div class="kpi-icon"><i class="ph-fill ph-wallet"></i></div>
+                <div><h3 class="kpi-value">${{ total_pagado|floatformat:0 }}</h3><span class="kpi-label">Inversión</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="tab-odonto" class="tab-pane">
+    <div class="cyber-card">
+        <div style="display:flex; justify-content:space-between; margin-bottom:2rem;">
+            <h3 class="panel-title">Odontograma</h3>
+            <div style="display:flex; gap:15px; font-size:0.8rem;">
+                <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#fff; border:1px solid #ccc;"></span> Sano</span>
+                <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:#fee2e2; border:1px solid red;"></span> Caries</span>
+                <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border:2px solid blue;"></span> Bracket</span>
+            </div>
+        </div>
+
+        <div class="odontogram-container">
+            <div class="mouth-quadrant">
+                {% for i in "87654321"|make_list %}
+                    <div class="tooth-item">
+                        <div class="tooth-shape {% if forloop.counter == 2 %}caries{% endif %} {% if forloop.counter > 4 %}bracket{% endif %}"></div>
+                        <span class="tooth-number">1{{ i }}</span>
+                    </div>
                 {% endfor %}
-                </tbody>
+                <div style="width:20px;"></div>
+                {% for i in "12345678"|make_list %}
+                    <div class="tooth-item">
+                        <div class="tooth-shape {% if forloop.counter > 4 %}bracket{% endif %}"></div>
+                        <span class="tooth-number">2{{ i }}</span>
+                    </div>
+                {% endfor %}
+            </div>
 
-            </table>
+            <div class="mouth-quadrant">
+                {% for i in "87654321"|make_list %}
+                    <div class="tooth-item">
+                        <span class="tooth-number">4{{ i }}</span>
+                        <div class="tooth-shape" style="border-radius: 12px 12px 8px 8px;"></div>
+                    </div>
+                {% endfor %}
+                <div style="width:20px;"></div>
+                {% for i in "12345678"|make_list %}
+                    <div class="tooth-item">
+                        <span class="tooth-number">3{{ i }}</span>
+                        <div class="tooth-shape" style="border-radius: 12px 12px 8px 8px;"></div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
+        
+        <p style="text-align:center; margin-top:2rem; font-size:0.85rem; color:var(--text-muted);">
+            * Representación visual basada en el último tratamiento.
+        </p>
+    </div>
+</div>
 
-        {% else %}
-
-        <div class="empty-state">
-            <i class="ph-duotone ph-calendar-x"></i>
-            <p>No hay historial de citas registrado.</p>
+<div id="tab-rayos" class="tab-pane">
+    <div class="cyber-card">
+        <h3 class="panel-title">Estudios y Radiografías</h3>
+        
+        <div class="xray-grid">
+            {% for cita in historial %}
+                {% if cita.archivo_adjunto %}
+                    <a href="{{ cita.archivo_adjunto.url }}" target="_blank" class="xray-item" title="{{ cita.notas }}">
+                        {% if ".pdf" in cita.archivo_adjunto.url %}
+                             <div style="height:100%; display:flex; align-items:center; justify-content:center; background:#f1f5f9; color:#ef4444; flex-direction:column;">
+                                <i class="ph-file-pdf" style="font-size:3rem;"></i>
+                                <span style="font-size:0.8rem; margin-top:5px;">Ver PDF</span>
+                             </div>
+                        {% else %}
+                             <img src="{{ cita.archivo_adjunto.url }}" alt="RX">
+                        {% endif %}
+                        <div class="xray-label">{{ cita.fecha_hora_inicio|date:"d/m/Y" }}</div>
+                    </a>
+                {% endif %}
+            {% endfor %}
+            
+            <div class="xray-item">
+                <img src="https://prod-images-static.radiopaedia.org/images/28773724/cb889753c0780277320b92477520e7_gallery.jpeg" alt="Panorámica">
+                <div class="xray-label">Ejemplo Panorámica</div>
+            </div>
         </div>
-
+        
+        {% if not historial %}
+            <div style="text-align:center; padding:2rem; color:var(--text-muted);">
+                No hay imágenes cargadas en las notas de evolución.
+            </div>
         {% endif %}
-    </section>
+    </div>
+</div>
 
+<div id="tab-info" class="tab-pane">
+    <div class="cyber-card">
+        <h3 class="panel-title">Ficha de Identificación</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:1rem;">
+            <div><label class="lbl">Nombre</label><p class="val">{{ paciente.nombre }}</p></div>
+            <div><label class="lbl">Fecha Nac.</label><p class="val">{{ paciente.fecha_nacimiento|date:"d F Y" }}</p></div>
+            <div><label class="lbl">Género</label><p class="val">{{ paciente.genero|default:"No especificado" }}</p></div>
+            <div><label class="lbl">Registro</label><p class="val">{{ paciente.created_at|date:"d M Y" }}</p></div>
+            <div style="grid-column: 1/-1;">
+                <label class="lbl">Antecedentes Médicos</label>
+                <p class="val" style="background:#fff1f2; padding:10px; border:1px solid #fecaca; color:#9f1239; border-radius:8px;">
+                    {{ paciente.antecedentes|default:"Niega antecedentes patológicos." }}
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

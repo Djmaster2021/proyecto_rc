@@ -13,9 +13,14 @@ urlpatterns = [
     path('cita/<int:cita_id>/consulta/', views.vista_consulta, name='vista_consulta'),
     path('cita/<int:cita_id>/confirmar/', views.confirmar_cita, name='confirmar_cita'),
     path('cita/<int:cita_id>/eliminar/', views.eliminar_cita, name='eliminar_cita'),
-    path("pacientes/<int:paciente_id>/editar/", views.editar_paciente, name="editar_paciente"),
+    
     # PACIENTES
     path('pacientes/', views.pacientes, name='pacientes'),
+    
+    # --- ESTA ES LA LÍNEA QUE FALTABA ---
+    path('pacientes/nuevo/', views.registrar_paciente, name='registrar_paciente'),
+    # ------------------------------------
+
     path('pacientes/<int:paciente_id>/', views.detalle_paciente, name='detalle_paciente'),
     path('pacientes/<int:paciente_id>/editar/', views.editar_paciente, name='editar_paciente'),
     path('pacientes/<int:paciente_id>/eliminar/', views.eliminar_paciente, name='eliminar_paciente'),
@@ -23,7 +28,6 @@ urlpatterns = [
     # SERVICIOS
     path('servicios/', views.gestionar_servicios, name='servicios'),
     path('servicios/eliminar/<int:servicio_id>/', views.eliminar_servicio, name='eliminar_servicio'),
-    # ESTA ES LA LÍNEA QUE FALTABA:
 
     # FINANZAS
     path('pagos/', views.pagos, name='pagos'),

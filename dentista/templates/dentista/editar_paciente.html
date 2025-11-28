@@ -1,18 +1,38 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-{% block dtitle %}Editar Paciente | {{ paciente.nombre }}{% endblock %}
+{% block dtitle %}
+    {% if paciente %}
+        Editar | {{ paciente.nombre }}
+    {% else %}
+        Nuevo Paciente
+    {% endif %}
+{% endblock %}
 
 {% block dcontent %}
 
 <div class="page-header">
     <div>
-        <h1 class="text-gradient">Editar Paciente</h1>
-        <p class="welcome-subtitle">Actualizando expediente de <strong>{{ paciente.nombre }}</strong></p>
+        {% if paciente %}
+            <h1 class="text-gradient">Editar Paciente</h1>
+            <p class="welcome-subtitle">Actualizando expediente de <strong>{{ paciente.nombre }}</strong></p>
+        {% else %}
+            <h1 class="text-gradient">Nuevo Paciente</h1>
+            <p class="welcome-subtitle">Registrar un nuevo expediente clínico.</p>
+        {% endif %}
     </div>
-    <a href="{% url 'dentista:detalle_paciente' paciente.id %}" class="cyber-btn cyber-btn-secondary">
-        <i class="ph-bold ph-arrow-u-up-left"></i> Volver al Expediente
-    </a>
+    
+    <div style="margin-left: auto;">
+        {% if paciente %}
+            <a href="{% url 'dentista:detalle_paciente' paciente.id %}" class="cyber-btn cyber-btn-secondary">
+                <i class="ph-bold ph-arrow-u-up-left"></i> Cancelar
+            </a>
+        {% else %}
+            <a href="{% url 'dentista:pacientes' %}" class="cyber-btn cyber-btn-secondary">
+                <i class="ph-bold ph-x"></i> Cancelar
+            </a>
+        {% endif %}
+    </div>
 </div>
 
 <div class="edit-container-centered">
@@ -26,109 +46,122 @@
             </div>
 
             <div class="form-group">
-                <label for="id_nombre">Nombre Completo</label>
+                <label>Nombre Completo <span style="color:red">*</span></label>
                 <input 
                     type="text" 
-                    id="id_nombre" 
                     name="nombre" 
                     class="cyber-input" 
-                    value="{{ paciente.nombre }}" 
-                    placeholder="Nombre y Apellidos"
+                    value="{% if paciente %}{{ paciente.nombre }}{% elif data_prev %}{{ data_prev.nombre }}{% endif %}"
+                    placeholder="Ej. Juan Pérez"
+                    pattern="[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]+"
+                    title="Solo letras y espacios"
                     required
                 >
+                <small style="color:var(--text-muted); font-size:0.75rem;">Solo letras, sin números.</small>
             </div>
 
             <div class="form-grid-2">
                 <div class="form-group">
-                    <label for="id_fecha_nacimiento">Fecha de Nacimiento</label>
+                    <label>Fecha de Nacimiento <span class="badge-opt">(Opcional)</span></label>
                     <input 
                         type="date" 
-                        id="id_fecha_nacimiento" 
                         name="fecha_nacimiento" 
                         class="cyber-input" 
-                        value="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}"
+                        value="{% if paciente %}{{ paciente.fecha_nacimiento|date:'Y-m-d' }}{% elif data_prev %}{{ data_prev.fecha_nacimiento }}{% endif %}"
                     >
                 </div>
                 
                 <div class="form-group">
-                    <label for="id_genero">Género</label>
-                    <select name="genero" id="id_genero" class="cyber-input">
-                        <option value="M" {% if paciente.genero == 'M' %}selected{% endif %}>Masculino</option>
-                        <option value="F" {% if paciente.genero == 'F' %}selected{% endif %}>Femenino</option>
-                        <option value="O" {% if paciente.genero == 'O' %}selected{% endif %}>Otro</option>
+                    <label>Género <span class="badge-opt">(Opcional)</span></label>
+                    <select name="genero" class="cyber-input">
+                        <option value="" selected>No especificado</option>
+                        <option value="M" 
+                            {% if paciente and paciente.genero == 'M' %}selected
+                            {% elif data_prev and data_prev.genero == 'M' %}selected{% endif %}>
+                            Masculino
+                        </option>
+                        <option value="F" 
+                            {% if paciente and paciente.genero == 'F' %}selected
+                            {% elif data_prev and data_prev.genero == 'F' %}selected{% endif %}>
+                            Femenino
+                        </option>
                     </select>
                 </div>
             </div>
 
             <div class="form-section-heading">
-                <i class="ph-bold ph-address-book"></i> Contacto y Ubicación
+                <i class="ph-bold ph-lock-key"></i> Contacto y Acceso
             </div>
 
             <div class="form-grid-2">
                 <div class="form-group">
-                    <label for="id_email">Correo Electrónico</label>
+                    <label>Correo Electrónico <span style="color:red">*</span></label>
                     <input 
                         type="email" 
-                        id="id_email" 
                         name="email" 
                         class="cyber-input" 
-                        value="{{ paciente.user.email|default_if_none:'' }}"
-                        placeholder="ejemplo@correo.com"
+                        value="{% if paciente %}{{ paciente.user.email }}{% elif data_prev %}{{ data_prev.email }}{% endif %}"
+                        placeholder="paciente@email.com"
+                        required
                     >
+                    <small style="color:var(--brand); font-size:0.75rem;">* Será su usuario para iniciar sesión.</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="id_telefono">Teléfono / WhatsApp</label>
+                    <label>Teléfono Móvil <span style="color:red">*</span></label>
                     <input 
                         type="text" 
-                        id="id_telefono" 
                         name="telefono" 
                         class="cyber-input" 
-                        value="{{ paciente.telefono }}"
-                        placeholder="(000) 000-0000"
+                        value="{% if paciente %}{{ paciente.telefono }}{% elif data_prev %}{{ data_prev.telefono }}{% endif %}"
+                        placeholder="10 dígitos exactos"
+                        maxlength="10"
+                        minlength="10"
+                        pattern="\d{10}"
+                        title="Debe ser un número de 10 dígitos"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                        required
                     >
+                    <small style="color:var(--brand); font-size:0.75rem;">* Será su contraseña temporal.</small>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="id_direccion">Dirección de Residencia</label>
-                <textarea 
-                    id="id_direccion" 
-                    name="direccion" 
-                    class="cyber-input" 
-                    rows="3" 
-                    placeholder="Calle, Número, Colonia..."
-                    style="resize: vertical;"
-                >{{ paciente.direccion }}</textarea>
+                <label>Dirección <span class="badge-opt">(Opcional)</span></label>
+                <textarea name="direccion" class="cyber-input" rows="2" placeholder="Calle, Número, Colonia...">{% if paciente %}{{ paciente.direccion }}{% elif data_prev %}{{ data_prev.direccion }}{% endif %}</textarea>
             </div>
 
             <div class="form-section-heading">
-                <i class="ph-bold ph-first-aid-kit"></i> Antecedentes
+                <i class="ph-bold ph-first-aid-kit"></i> Antecedentes Médicos
             </div>
 
             <div class="form-group">
-                <label for="id_antecedentes">Alergias o Enfermedades Crónicas</label>
-                <textarea 
-                    id="id_antecedentes" 
-                    name="antecedentes" 
-                    class="cyber-input" 
-                    rows="3" 
-                    placeholder="Ej: Alérgico a la penicilina, diabetes controlada..."
-                    style="resize: vertical;"
-                >{{ paciente.antecedentes }}</textarea>
+                <label>Alergias o Enfermedades <span class="badge-opt">(Opcional)</span></label>
+                <textarea name="antecedentes" class="cyber-input" rows="3" placeholder="Ej: Alérgico a la penicilina, diabetes controlada...">{% if paciente %}{{ paciente.antecedentes }}{% elif data_prev %}{{ data_prev.antecedentes }}{% endif %}</textarea>
             </div>
 
             <div class="form-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
-                <a href="{% url 'dentista:detalle_paciente' paciente.id %}" class="cyber-btn cyber-btn-secondary">
-                    Cancelar
-                </a>
+                {% if paciente %}
+                    <a href="{% url 'dentista:detalle_paciente' paciente.id %}" class="cyber-btn cyber-btn-secondary">Cancelar</a>
+                {% else %}
+                    <a href="{% url 'dentista:pacientes' %}" class="cyber-btn cyber-btn-secondary">Cancelar</a>
+                {% endif %}
+                
                 <button type="submit" class="cyber-btn cyber-btn-glow">
-                    <i class="ph-bold ph-floppy-disk"></i> Guardar Cambios
+                    <i class="ph-bold ph-floppy-disk"></i> Guardar Expediente
                 </button>
             </div>
 
         </form>
     </div>
 </div>
+
+<style>
+    .badge-opt {
+        background: #f1f5f9; color: #64748b; font-size: 0.65rem;
+        padding: 2px 6px; border-radius: 4px; font-weight: normal;
+        margin-left: 5px; text-transform: uppercase; display: inline-block;
+    }
+</style>
 
 {% endblock %}

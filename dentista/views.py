@@ -4,7 +4,8 @@ import qrcode
 from io import BytesIO
 from collections import defaultdict
 from datetime import datetime, time, timedelta
-
+import re
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -14,7 +15,7 @@ from django.db.models import Sum, Q
 from django.db.models.functions import TruncMonth, TruncDay
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import get_template
-
+from django.db import transaction
 from .models import Cita, Paciente, Servicio, Horario, Dentista, Pago
 
 # --- HELPER: Obtener ID Dentista Seguro ---
@@ -353,10 +354,22 @@ def pacientes(request):
 @login_required
 def detalle_paciente(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
-    historial = Cita.objects.filter(paciente=paciente).exclude(estado='CANCELADA').order_by("-fecha_hora_inicio")
+    
+    # CORRECCIÓN: Ordenar por fecha y hora por separado
+    historial = Cita.objects.filter(paciente=paciente).exclude(estado='CANCELADA').order_by("-fecha", "-hora_inicio")
+    
+    # Añadimos la propiedad combinada al vuelo para que el template ({{ cita.fecha_hora_inicio }}) no falle
+    for c in historial:
+        c.fecha_hora_inicio = datetime.combine(c.fecha, c.hora_inicio)
+    
+    pagos_pendientes = Pago.objects.filter(cita__paciente=paciente, estado='PENDIENTE').aggregate(Sum('monto'))['monto__sum'] or 0
+    
     return render(request, "dentista/detalle_paciente.html", {
-        "paciente": paciente, "historial": historial,
-        "total_citas": historial.count()
+        "paciente": paciente,
+        "historial": historial,
+        "total_citas": historial.count(),
+        "total_pagado": Pago.objects.filter(cita__paciente=paciente, estado='COMPLETADO').aggregate(Sum('monto'))['monto__sum'] or 0,
+        "deuda_total": pagos_pendientes
     })
 
 @login_required
@@ -372,14 +385,79 @@ def editar_paciente(request, paciente_id):
 
 @login_required
 def registrar_paciente(request):
+    dentista_id = get_dentista_id(request.user)
+    if not dentista_id:
+        messages.error(request, "No se encontró perfil de dentista.")
+        return redirect("dentista:dashboard")
+
     if request.method == "POST":
-        Paciente.objects.create(
-            nombre=request.POST.get("nombre"),
-            telefono=request.POST.get("telefono"),
-            direccion=request.POST.get("direccion", "")
-        )
-        return redirect("dentista:pacientes")
-    return render(request, "dentista/editar_paciente.html", {"paciente": None})
+        # 1. Obtener datos limpios
+        nombre = request.POST.get("nombre", "").strip()
+        telefono = request.POST.get("telefono", "").strip()
+        email = request.POST.get("email", "").strip()
+        direccion = request.POST.get("direccion", "").strip()
+        fecha_nac = request.POST.get("fecha_nacimiento") or None
+        
+        errores = []
+
+        # --- 2. VALIDACIONES (Lo que pediste) ---
+        
+        # A. Nombre (Solo letras y espacios, incluyendo acentos/ñ)
+        if not re.match(r'^[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]+$', nombre):
+            errores.append("El nombre solo puede contener letras.")
+
+        # B. Teléfono (Exactamente 10 dígitos numéricos)
+        if not re.match(r'^\d{10}$', telefono):
+            errores.append("El teléfono debe ser de 10 dígitos numéricos exactos.")
+        
+        # C. Email (Obligatorio y Único)
+        if not email:
+            errores.append("El correo es obligatorio para el acceso del paciente.")
+        elif User.objects.filter(email=email).exists():
+            errores.append("Ese correo ya está registrado en el sistema.")
+
+        # Si hay errores, detenemos todo y mostramos alerta
+        if errores:
+            for err in errores:
+                messages.error(request, err)
+            # Devolvemos el formulario con los datos previos para no borrar todo
+            return render(request, "dentista/editar_paciente.html", {
+                "paciente": None, 
+                "data_prev": request.POST # Para no perder lo escrito
+            })
+
+        # --- 3. CREACIÓN DE USUARIO Y PACIENTE ---
+        try:
+            with transaction.atomic():
+                # Paso A: Crear el Usuario de Login
+                # Usamos el email como username y el teléfono como password temporal
+                nuevo_usuario = User.objects.create_user(
+                    username=email, 
+                    email=email, 
+                    password=telefono, 
+                    first_name=nombre
+                )
+
+                # Paso B: Crear la Ficha Médica vinculada
+                Paciente.objects.create(
+                    dentista_id=dentista_id,
+                    user=nuevo_usuario, # Vinculamos el login
+                    nombre=nombre,
+                    telefono=telefono,
+                    fecha_nacimiento=fecha_nac,
+                    direccion=direccion
+                )
+
+            messages.success(request, f"Paciente registrado. Su contraseña temporal es: {telefono}")
+            return redirect("dentista:pacientes")
+
+        except Exception as e:
+            messages.error(request, f"Error del sistema: {e}")
+
+    return render(request, "dentista/editar_paciente.html", {
+        "paciente": None,
+        "data_prev": {}  
+    })
 
 @login_required
 def eliminar_paciente(request, paciente_id):
