@@ -1,0 +1,55 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Servicios | RC Dental{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+  <div>
+    <h1 class="text-gradient">Servicios Odontológicos</h1>
+    <p class="welcome-subtitle">
+      Catálogo de servicios ofrecidos por el Dr. {{ dentista.nombre }}.
+    </p>
+  </div>
+</div>
+
+<div class="cyber-card" style="padding: 1.5rem;">
+  {% if servicios %}
+    <div class="table-wrapper">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Servicio</th>
+            <th>Duración</th>
+            <th>Precio</th>
+            <th>Estatus</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in servicios %}
+          <tr>
+            <td>{{ s.nombre }}</td>
+            <td>{{ s.duracion_estimada }} min</td>
+            <td>${{ s.precio }}</td>
+            <td>
+              {% if s.activo %}
+                <span class="status-badge status-active">Activo</span>
+              {% else %}
+                <span class="status-badge status-muted">Inactivo</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p style="color: var(--text-muted); margin: 0;">
+      No hay servicios registrados. Puedes crearlos desde el panel de administración
+      o más adelante agregar aquí un formulario de alta rápida.
+    </p>
+  {% endif %}
+</div>
+
+{% endblock %}

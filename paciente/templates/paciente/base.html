@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <!-- ================================
+         META & CONFIGURACIÓN BÁSICA
+    ================================= -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{% block ptitle %}Consultorio RC{% endblock %}</title>
+
+    <!-- Fuente principal -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Estilos globales del módulo Paciente -->
+    <link rel="stylesheet" href="{% static 'paciente/styles.css' %}" />
+
+    <!-- Espacio para CSS adicional por página -->
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="dark-mode">
+    <!-- =====================================================================
+         TOPBAR / BARRA SUPERIOR
+         Esta barra es fija y aparece en todas las vistas del módulo paciente.
+    ====================================================================== -->
+    <header class="topbar">
+        <div class="topbar__inner">
+            <!-- Nombre del consultorio -->
+            <a href="/" class="brand">
+              Consultorio Dental RC
+            </a>
+
+            <!-- Texto central, cambia según la vista -->
+            <div class="center-title">
+                {% block header_title %}Paciente{% endblock %}
+            </div>
+
+            <!-- Acción de cerrar sesión -->
+            <div class="right-actions">
+                <form
+                    action="{% url 'accounts:logout' %}"
+                    method="post"
+                    style="display:inline;"
+                >
+                    {% csrf_token %}
+                    <button type="submit" class="btn-logout">
+                        Cerrar sesión
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================================================
+         BANNER DE PENALIZACIÓN (si aplica)
+         Se muestra automáticamente si la vista manda penalizacion_info.
+    ========================================================= -->
+    {% if penalizacion_info and penalizacion_info.estado != "sin_penalizacion" %}
+        <section class="penalty-banner">
+            <div class="penalty-banner__content">
+                <div>
+                    {% if penalizacion_info.estado == "pending" %}
+                        <h2 class="penalty-banner__title">
+                            Tienes una penalización pendiente
+                        </h2>
+                        <p class="penalty-banner__text">
+                            Has acumulado <strong>{{ penalizacion_info.inasistencias }}</strong> inasistencias.
+                            Debes cubrir una cuota de <strong>${{ penalizacion_info.recargo }}</strong> MXN.
+                        </p>
+                        {% if penalizacion_info.dias_restantes > 0 %}
+                            <p class="penalty-banner__text">
+                                Tienes <strong>{{ penalizacion_info.dias_restantes }}</strong> día(s) restantes
+                                para realizar el pago.
+                            </p>
+                        {% else %}
+                            <p class="penalty-banner__text">
+                                El plazo de pago está por vencer. Regulariza cuanto antes.
+                            </p>
+                        {% endif %}
+                    {% elif penalizacion_info.estado == "disabled" %}
+                        <h2 class="penalty-banner__title">
+                            Tu cuenta está desactivada por penalización
+                        </h2>
+                        <p class="penalty-banner__text">
+                            Excediste el tiempo de pago. Contacta directamente al consultorio.
+                        </p>
+                    {% endif %}
+                </div>
+
+                {% if penalizacion_info.estado == "pending" %}
+                    <div class="penalty-banner__actions">
+                        <a
+                          href="{% url 'paciente:pagar_penalizacion' %}"
+                          class="cyber-btn cyber-btn-glow"
+                        >
+                          <i class="ph-bold ph-banknote"></i>
+                          Pagar penalización
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- ========================================================
+         SISTEMA GLOBAL DE ALERTAS - TARJETAS TIPO TOAST
+         (mensajes de éxito/error con auto-desvanecimiento)
+    ========================================================= -->
+    <div id="toast-container">
+        <!-- Las tarjetas se insertarán dinámicamente desde JS -->
+    </div>
+
+    <!-- ========================================================
+         CONTENIDO PRINCIPAL DE CADA PÁGINA
+    ========================================================= -->
+    <main class="main-container">
+        {% block pcontent %}{% endblock %}
+    </main>
+
+    <!-- ========================================================
+         MODAL GLOBAL (genérico)
+         Puede ser utilizado por distintas vistas.
+    ========================================================= -->
+    <div id="modal" class="modal-backdrop" hidden>
+        <div class="modal-content">
+            <header class="modal-header">
+                <h3 id="modal-title" class="modal-title"></h3>
+                <button class="modal-close" id="modalCloseBtn">✕</button>
+            </header>
+            <div id="modal-body" class="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- ========================================================
+         SCRIPTS GENERALES
+    ========================================================= -->
+    <script src="{% static 'paciente/app.js' %}" defer></script>
+
+    <!-- Scripts extra por vista -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

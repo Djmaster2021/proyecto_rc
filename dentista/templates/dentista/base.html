@@ -1,0 +1,307 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <!-- Título general del módulo Dentista -->
+  <title>{% block dtitle %}Dental RC | Suite Pro{% endblock %}</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+
+  <!-- Fuentes e iconos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-default/default.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <!-- Estilos principales del módulo Dentista -->
+  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}?v=7.3">
+
+  <!-- Espacio para CSS adicional por vista (si alguna plantilla hija lo necesita) -->
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  
+  <div class="dashboard-shell">
+    
+    <!-- ===============================
+         SIDEBAR PRINCIPAL (Dentista)
+         =============================== -->
+    <aside id="sidebar" class="sidebar">
+      
+      <!-- Header del sidebar: logo + marca -->
+      <div class="sidebar-header-premium">
+        
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div class="logo-box-premium">
+                <i class="ph-fill ph-tooth"></i>
+            </div>
+            <div class="brand-box-premium">
+              <span class="brand-title-premium">
+                  CONSULTORIO <span class="brand-highlight">RC</span>
+              </span>
+              <span class="brand-tagline-premium" style="color: #e2e8f0;">
+                  Tu sonrisa es lo primero
+              </span>
+            </div>
+        </div>
+
+        <!-- Botón X para cerrar menú en móvil -->
+        <button id="sidebar-close-btn" class="sidebar-close-btn">
+            <i class="ph-bold ph-x"></i>
+        </button>
+
+      </div>
+
+      <!-- Navegación lateral -->
+      <div class="sidebar-content">
+        <!-- Grupo: principal -->
+        <div class="nav-group">
+            <span class="nav-caption">PRINCIPAL</span>
+            <nav class="nav-list">
+                <div class="nav-indicator"></div>
+
+                <!-- Inicio / Dashboard -->
+                <a href="{% url 'dentista:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="ph-duotone ph-squares-four"></i>
+                    <span>Inicio</span>
+                </a>
+
+                <!-- Agenda -->
+                <a href="{% url 'dentista:agenda' %}" class="nav-item {% if 'agenda' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-calendar-check"></i>
+                    <span>Agenda</span>
+                </a>
+
+                <!-- Pacientes -->
+                <a href="{% url 'dentista:pacientes' %}" class="nav-item {% if 'pacientes' in request.path or 'detalle_paciente' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="ph-duotone ph-users-three"></i>
+                    <span>Pacientes</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Grupo: gestión -->
+        <div class="nav-group">
+            <span class="nav-caption">GESTIÓN</span>
+            <nav class="nav-list">
+                <a href="{% url 'dentista:pagos' %}" class="nav-item {% if 'pagos' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-wallet"></i>
+                    <span>Finanzas</span>
+                </a>
+                <a href="{% url 'dentista:reportes' %}" class="nav-item {% if 'reportes' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-chart-pie-slice"></i>
+                    <span>Reportes</span>
+                </a>
+                 <a href="{% url 'dentista:servicios' %}" class="nav-item {% if 'servicios' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-list-checks"></i>
+                    <span>Servicios</span>
+                </a>
+                 <a href="{% url 'dentista:penalizaciones' %}" class="nav-item {% if 'penalizaciones' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-warning-octagon"></i>
+                    <span>Riesgos</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Grupo: sistema -->
+        <div class="nav-group">
+            <span class="nav-caption">SISTEMA</span>
+            <nav class="nav-list">
+                <a href="{% url 'dentista:configuracion' %}" class="nav-item {% if 'configuracion' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-sliders-horizontal"></i>
+                    <span>Configuración</span>
+                </a>
+                <a href="{% url 'dentista:soporte' %}" class="nav-item {% if 'soporte' in request.path %}active{% endif %}">
+                    <i class="ph-duotone ph-lifebuoy"></i>
+                    <span>Soporte</span>
+                </a>
+            </nav>
+        </div>
+      </div>
+
+      <!-- Footer del sidebar: tarjeta del usuario + logout -->
+      <div class="sidebar-footer">
+        <div class="user-glass-card">
+            <div class="user-img-wrap">
+                 {% if user.dentista.foto_perfil %}
+                    <img src="{{ user.dentista.foto_perfil.url }}" alt="Dr.">
+                 {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=00adc1&color=fff&bold=true" alt="Doc">
+                 {% endif %}
+                 <span class="status-dot-online"></span>
+            </div>
+            <div class="user-data">
+                <span class="u-name">Dr. {{ user.last_name }}</span>
+                <span class="u-role">Dentista</span>
+            </div>
+            <form action="{% url 'accounts:logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn-logout-glass" title="Cerrar Sesión">
+                    <i class="ph-bold ph-sign-out"></i>
+                </button>
+            </form>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===============================
+         CONTENIDO PRINCIPAL
+         =============================== -->
+    <main class="main-content">
+      
+      <!-- App bar móvil (solo se ve en pantallas pequeñas) -->
+      <div class="mobile-app-bar">
+          <button id="mobile-menu-btn" class="icon-btn-ghost">
+            <i class="ph-bold ph-list"></i>
+          </button>
+          
+          <div class="mobile-brand">
+             <i class="ph-fill ph-tooth" style="color: #22d3ee;"></i>
+             <span>RC</span>
+          </div>
+
+          <div class="mobile-avatar">
+             {% if user.dentista.foto_perfil %}
+                <img src="{{ user.dentista.foto_perfil.url }}" alt="Doc">
+             {% else %}
+                <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=00adc1&color=fff" alt="Doc">
+             {% endif %}
+          </div>
+      </div>
+
+      <!-- Mensajes flash del sistema (Django messages) -->
+      {% if messages %}
+        <div id="messages-area" class="toast-container">
+          {% for message in messages %}
+            <div class="toast-alert toast-{{ message.tags }}" style="background: #334155; color: #fff; padding: 1rem; border-radius: 8px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+              <i class="ph-fill {% if message.tags == 'success' %}ph-check-circle{% else %}ph-warning{% endif %}"></i>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Bloque principal que cada vista hija sobreescribe -->
+      {% block dcontent %}{% endblock %}
+      
+    </main>
+  </div>
+
+  <!-- Overlay oscuro para el menú lateral en móvil -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <!-- ===============================
+       Estilos rápidos para botón X móvil
+       (idealmente mover a styles.css en el futuro)
+       =============================== -->
+  <style>
+    .sidebar-close-btn {
+        display: none; /* Oculto en PC */
+        background: rgba(255,255,255,0.1);
+        border: none;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        margin-left: auto;
+    }
+
+    @media (max-width: 1023px) {
+        /* Sidebar flotante en móvil */
+        #sidebar.sidebar {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-out;
+            z-index: 9999 !important;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar.sidebar.active {
+            transform: translateX(0) !important;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.2);
+        }
+
+        /* Mostrar botón X en móvil */
+        .sidebar-close-btn {
+            display: flex;
+        }
+
+        .sidebar-overlay {
+            z-index: 9990 !important;
+        }
+        
+        #mobile-menu-btn {
+            cursor: pointer;
+            z-index: 50;
+            pointer-events: auto;
+        }
+    }
+  </style>
+
+  <!-- ===============================
+       JS mínimo para abrir/cerrar sidebar en móvil
+       (el JS más avanzado vive en static/dentista/app.js)
+       =============================== -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        console.log(">>> Script de menú actualizado.");
+
+        var openBtn = document.getElementById("mobile-menu-btn");
+        var closeBtn = document.getElementById("sidebar-close-btn");
+        var sidebar = document.getElementById("sidebar");
+        var overlay = document.getElementById("sidebar-overlay");
+
+        function closeMenu() {
+            sidebar.classList.remove('active');
+            if(overlay) overlay.classList.remove('active');
+        }
+
+        function openMenu() {
+            sidebar.classList.add('active');
+            if(overlay) overlay.classList.add('active');
+        }
+
+        if (openBtn) {
+            openBtn.onclick = function(e) {
+                e.stopPropagation();
+                openMenu();
+            };
+        }
+
+        if (closeBtn) {
+            closeBtn.onclick = function(e) {
+                e.stopPropagation();
+                closeMenu();
+            };
+        }
+
+        if (overlay) {
+            overlay.onclick = function() {
+                closeMenu();
+            };
+        }
+    });
+  </script>
+
+  <!-- Espacio para JS adicional de cada vista (Dashboard, Agenda, etc.) -->
+  {% block extra_js %}{% endblock %}
+
+</body>
+</html>

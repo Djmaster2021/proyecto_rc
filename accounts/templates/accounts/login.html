@@ -1,0 +1,138 @@
+{% load static %}
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Iniciar sesión — Consultorio RC</title>
+  <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
+  <link rel="stylesheet" href="{% static 'accounts/styles.css' %}">
+</head>
+<body>
+  <header class="site-topbar">
+    <a class="brand-pill" href="{% url 'home' %}">
+      <span class="brand-pill-logo">RC</span>
+      <span class="brand-pill-text">Consultorio RC</span>
+    </a>
+
+    <div class="theme-toggle" id="themeToggle">
+      <input type="radio" name="t" id="t-light" value="light" checked>
+      <label class="toggle-chip" for="t-light">Claro</label>
+      <input type="radio" name="t" id="t-dark" value="dark">
+      <label class="toggle-chip" for="t-dark">Oscuro</label>
+    </div>
+  </header>
+
+  <main class="site-main login-forest">
+    <!-- Capa de fondo cinematográfica -->
+    <div class="login-backdrop" aria-hidden="true"></div>
+
+    <!-- Contenido real del login -->
+    <section class="auth-hero">
+      <div class="glow-card">
+        <div class="login-card">
+          <div class="card-head">
+            <div class="logo logo-xl">RC</div>
+            <!-- AHORA ES H6, PERO SE VE GRANDE POR CSS -->
+            <h6 class="title-xl">Bienvenido</h6>
+            <p class="subtitle-md">
+              Accede con tu cuenta para gestionar<br>
+              pacientes, citas y pagos.
+            </p>
+          </div>
+
+          <form method="post" class="auth-form" action="{% url 'accounts:login' %}">
+            {% csrf_token %}
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+            <div class="field">
+              <label for="id_username" class="label-lg">Correo electrónico</label>
+              <input id="id_username" class="input input-xl" type="text" name="username"
+                     value="{{ username|default_if_none:'' }}" autocomplete="username" required
+                     placeholder="ej. nombre@correo.com">
+            </div>
+
+            <div class="field">
+              <label for="id_password" class="label-lg">Contraseña</label>
+              <div class="password-wrapper">
+                <input id="id_password" class="input input-xl" type="password" name="password"
+                       autocomplete="current-password" required 
+                       placeholder="••••••••••">
+                <button type="button" id="togglePassword" class="btn-eye" aria-label="Mostrar u ocultar contraseña">
+                  <svg id="eye-open" viewBox="0 0 24 24" class="icon-eye">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12Z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg id="eye-closed" viewBox="0 0 24 24" class="icon-eye" style="display:none;">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12a18.45 18.45 0 0 1 5.06-5.94"></path>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex-between links-row">
+              <div class="links-left">
+                <a class="link" href="{% url 'accounts:password_reset' %}">¿Olvidaste tu contraseña?</a>
+                <span class="muted">·</span>
+                <a class="link" href="{% url 'accounts:register' %}">Crear cuenta</a>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-xl" type="submit">
+              Iniciar sesión
+            </button>
+
+            <div class="divider-label">
+              <span>o continuar con</span>
+            </div>
+
+            <a href="{% provider_login_url 'google' %}" class="btn-google">
+              <span class="google-icon-wrap">
+                <svg viewBox="0 0 18 18">
+                  <path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.1 4.1 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62Z" fill="#4285F4"/>
+                  <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33A9 9 0 0 0 9 18Z" fill="#34A853"/>
+                  <path d="M3.96 10.71A5.41 5.41 0 0 1 3.68 9c0-.59.1-1.17.28-1.71V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3-2.33Z" fill="#FBBC05"/>
+                  <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A8.96 8.96 0 0 0 9 0 9 9 0 0 0 .96 4.96l3.01 2.33C4.67 5.14 6.66 3.58 9 3.58Z" fill="#EA4335"/>
+                </svg>
+              </span>
+              <span>Acceder con Google</span>
+            </a>
+
+            {% if form.errors %}
+              <ul class="form-errors">
+                {% for field, error_list in form.errors.items %}
+                  {% if field == '__all__' or field == 'username' or field == 'password' %}
+                    {% for error in error_list %}
+                      <li>{{ error }}</li>
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            {% endif %}
+
+            {% if messages %}
+            <div class="messages">
+              {% for message in messages %}
+                {% if 'error' in message.tags %}
+                   <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+          
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    © Consultorio Dental Rodolfo Castellón
+  </footer>
+
+  <script src="{% static 'accounts/app.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+{% extends "paciente/base.html" %}
+{% load static %}
+
+{% block ptitle %}Mis Citas | Paciente{% endblock %}
+
+{% block header_title %}
+    Mis Citas
+{% endblock %}
+
+{% block pcontent %}
+
+<section class="section-wrapper">
+    <div class="section-title">
+        <i class="ph-duotone ph-calendar"></i>
+        Resumen de citas
+    </div>
+
+    <div class="card-modern">
+        <p class="text-muted">
+            Aquí puedes ver todas tus citas, pagar, cancelar las próximas
+            y consultar el historial de las que ya han sido atendidas.
+        </p>
+        <div style="margin-top:1rem;">
+            <a href="{% url 'paciente:dashboard' %}" class="cyber-btn">
+                ⬅ Volver al panel
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     Citas Próximas
+=============================================================== -->
+<section class="section-wrapper">
+    <div class="section-title">
+        <i class="ph-duotone ph-calendar-check"></i>
+        Citas próximas
+    </div>
+
+    <div class="card-modern table-card">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Servicio</th>
+                        <th>Doctor</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in citas_proximas %}
+                        <tr>
+                            <td>{{ cita.fecha_hora_inicio|date:"d/m/Y" }}</td>
+                            <td>{{ cita.fecha_hora_inicio|time:"H:i" }}</td>
+                            <td>
+                                {% if cita.servicio %}
+                                    {{ cita.servicio.nombre }}
+                                {% else %}
+                                    (Sin servicio)
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if cita.dentista %}
+                                    {{ cita.dentista.nombre }}
+                                {% else %}
+                                    (Sin asignar)
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="chip status-{{ cita.estado|lower }}">
+                                    {{ cita.get_estado_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <td>
+                                    <td>
+                                        <div class="action-buttons" style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                                          {% if not cita.pago_relacionado or cita.pago_relacionado.estado != "COMPLETADO" %}
+                                            {# AHORA: checkout interno de tarjeta #}
+                                            <a href="{% url 'paciente:pago_tarjeta' cita.id %}"
+                                               class="cyber-btn cyber-btn-sm">
+                                              💳 Pagar cita
+                                            </a>
+                                          {% else %}
+                                            <span class="chip" style="background:#064e3b; color:#bbf7d0;">
+                                              Pagado
+                                            </span>
+                                          {% endif %}
+                                      
+                                          <form method="post"
+                                                action="{% url 'paciente:cancelar_cita' cita.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit"
+                                                    class="cyber-btn cyber-btn-sm cyber-btn-danger">
+                                              ✖ Cancelar
+                                            </button>
+                                          </form>
+                                        </div>
+                                      </td>
+                                      
+                                </td>
+                                
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center empty-state">
+                                No tienes citas próximas.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     Historial de Citas
+=============================================================== -->
+<section class="section-wrapper">
+    <div class="section-title">
+        <i class="ph-duotone ph-clock-counter-clockwise"></i>
+        Historial de citas
+    </div>
+
+    <div class="card-modern table-card">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Servicio</th>
+                        <th>Doctor</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in citas_pasadas %}
+                        <tr>
+                            <td>{{ cita.fecha_hora_inicio|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if cita.servicio %}
+                                    {{ cita.servicio.nombre }}
+                                {% else %}
+                                    (Sin servicio)
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if cita.dentista %}
+                                    {{ cita.dentista.nombre }}
+                                {% else %}
+                                    (Sin asignar)
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="chip status-{{ cita.estado|lower }}">
+                                    {{ cita.get_estado_display }}
+                                </span>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center empty-state">
+                                Aún no tienes historial de citas.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+{# Si después quieres reactivar SweetAlert o lógica de reprogramar,
+   aquí podemos meter el JS, pero por ahora lo dejamos limpio para evitar errores. #}
+{% endblock %}

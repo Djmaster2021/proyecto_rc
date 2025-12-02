@@ -1,0 +1,286 @@
+{% extends "paciente/base.html" %}
+{% load static %}
+
+{% block ptitle %}Dashboard | Paciente{% endblock %}
+
+{% block header_title %}
+    Panel del Paciente
+{% endblock %}
+
+{% block pcontent %}
+
+<section class="welcome-banner">
+    <h1 class="welcome-title">
+        Bienvenido, {{ user.first_name|default:user.username }}
+    </h1>
+    <p class="welcome-subtitle">
+        Tu sonrisa dental en tus manos.
+    </p>
+</section>
+
+<div class="dashboard-grid">
+
+    <section class="section-wrapper dash-item">
+        <div class="section-title">
+            <i class="ph-duotone ph-calendar-check"></i> Tu Próxima Cita
+        </div>
+        <div class="card-modern">
+            {% if proxima_cita %}
+                <div class="appointment-info">
+                    <p><strong>Fecha:</strong> {{ proxima_cita.fecha_hora_inicio|date:"l d F, Y" }}</p>
+                    <p><strong>Hora:</strong> {{ proxima_cita.fecha_hora_inicio|time:"h:i A" }}</p>
+                    <p><strong>Tratamiento:</strong> {{ proxima_cita.servicio.nombre }}</p>
+                    <p><strong>Doctor:</strong> {{ proxima_cita.dentista.nombre }}</p>
+                    <p>
+                        <strong>Estado:</strong>
+                        <span class="chip status-{{ proxima_cita.estado|lower }}">
+                            {{ proxima_cita.get_estado_display }}
+                        </span>
+                    </p>
+                </div>
+                <div class="appointment-actions">
+                    <button class="cyber-btn" type="button" onclick="alert('Función de reprogramar pendiente')">Reprogramar</button>
+                    <form action="{% url 'paciente:cancelar_registro' %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button class="cyber-btn cyber-btn-danger" type="submit">Cancelar</button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="ph-duotone ph-calendar-x empty-icon"></i>
+                    <p>No tienes citas próximas.</p>
+                    <button onclick="abrirModalAgendar()" class="cyber-btn cyber-btn-glow">
+                        Agendar una cita
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="section-wrapper dash-item">
+        <div class="section-title">
+            <i class="ph-duotone ph-user"></i> Mi Perfil
+        </div>
+        <div class="card-modern profile-card">
+            <button class="btn-edit-profile" type="button" onclick="abrirModalPerfil()">✏️</button>
+            <div class="profile-container">
+                <div class="profile-details">
+                    <span class="chip patient-id">PAC-{{ paciente.id|stringformat:"04d" }}</span>
+                    <h3 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h3>
+                    <p class="profile-email">{{ user.email }}</p>
+                    <div class="profile-info">
+                        <div>📞 {{ paciente.telefono }}</div>
+                        <div>📍 {{ paciente.direccion|default:"Sin dirección" }}</div>
+                    </div>
+                </div>
+                <div class="profile-avatar">
+                    {% if paciente.imagen %}
+                        <img src="{{ paciente.imagen.url }}" alt="Foto">
+                    {% else %}
+                        <div class="avatar-fallback">
+                            {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-wrapper dash-item">
+        <div class="section-title">
+            <i class="ph-duotone ph-credit-card"></i> Pagos en línea
+        </div>
+        <div class="card-modern">
+            {% if deuda_pendiente %}
+                <p class="payment-text">Tienes pagos pendientes.</p>
+                <div class="payment-actions">
+                    <a href="{% url 'paciente:mis_pagos' %}" class="cyber-btn cyber-btn-glow">Ir a Pagar</a>
+                </div>
+            {% else %}
+                <div class="empty-state"><p>Estás al día con tus pagos.</p></div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="section-wrapper dash-item">
+        <div class="section-title">
+            <i class="ph-duotone ph-first-aid-kit"></i> Mi Especialista
+        </div>
+        <div class="card-modern" style="padding: 2rem;">
+            <div>
+                <p style="color: var(--muted); font-size: 0.9rem; text-transform: uppercase;">Médico de Cabecera</p>
+                <h3 style="font-size: 1.8rem; margin-bottom: 5px; color: #fff;">{{ paciente.dentista.nombre }}</h3>
+                <p style="color: var(--brand); font-weight: 600; margin-bottom: 15px;">{{ paciente.dentista.especialidad }}</p>
+                <a href="#" class="rc-btn" style="padding: 10px 25px; font-size: 1rem;">
+                    <i class="ph-bold ph-whatsapp-logo"></i> Contactar
+                </a>
+            </div>
+        </div>
+    </section>
+
+</div> 
+
+<!-- MODAL AGENDAR CITA -->
+<div id="modal-cita" class="modal-overlay">
+    <div class="modal-content glow-card">
+        <div class="modal-header">
+            <h3 id="modal-title"><i class="ph-duotone ph-calendar-plus"></i> Agendar Cita</h3>
+            <button class="modal-close" type="button" onclick="cerrarModal()">
+                <i class="ph-bold ph-x"></i>
+            </button>
+        </div>
+
+        <form id="form-cita" method="POST" action="{% url 'paciente:agendar_cita' %}">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="servicio_modal">Tratamiento</label>
+                <select name="servicio" id="servicio_modal" class="cyber-input" required>
+                    <option value="" disabled selected>-- Selecciona --</option>
+                    {% for s in servicios %}
+                        <option value="{{ s.id }}">🦷 {{ s.nombre }} (Dr. {{ s.dentista.nombre }})</option>
+                    {% empty %}
+                        <option disabled>No hay servicios activos</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cita-fecha">Fecha Deseada</label>
+                <input type="date" id="cita-fecha" name="fecha" class="cyber-input" required style="color-scheme: dark;">
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+                <label for="cita-hora">Horario Disponible</label>
+                <select name="hora" id="cita-hora" class="cyber-input" disabled required>
+                    <option value="" selected>-- Primero selecciona fecha --</option>
+                </select>
+                <small id="hora-help" class="text-muted" style="display:none; color:#00ffc3; font-weight:bold;">Buscando horarios...</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button type="submit" class="cyber-btn cyber-btn-glow" id="btn-submit-cita" disabled>Confirmar Cita</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL EDITAR PERFIL -->
+<div id="modal-perfil" class="modal-overlay">
+    <div class="modal-content glow-card">
+        <div class="modal-header">
+            <h3><i class="ph-duotone ph-user-gear"></i> Editar Perfil</h3>
+            <button class="modal-close" type="button" onclick="cerrarModalPerfil()">
+                <i class="ph-bold ph-x"></i>
+            </button>
+        </div>
+        <form method="POST" action="{% url 'paciente:editar_perfil' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" name="nombre" class="cyber-input" value="{{ paciente.nombre }}">
+            </div>
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="text" name="telefono" class="cyber-input" value="{{ paciente.telefono }}">
+            </div>
+            <div class="form-group">
+                <label>Dirección</label>
+                <input type="text" name="direccion" class="cyber-input" value="{{ paciente.direccion }}">
+            </div>
+            <div class="form-group">
+                <label>Nacimiento</label>
+                <input type="date" name="fecha_nacimiento" class="cyber-input" value="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}" style="color-scheme: dark;">
+            </div>
+            <div class="form-actions">
+                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModalPerfil()">Cancelar</button>
+                <button type="submit" class="cyber-btn cyber-btn-glow">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        const servicioSelect = document.getElementById('servicio_modal');
+        const fechaInput = document.getElementById('cita-fecha');
+        const horaSelect = document.getElementById('cita-hora');
+        const horaHelp = document.getElementById('hora-help');
+        const btnSubmit = document.getElementById('btn-submit-cita');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (fechaInput) {
+                const today = new Date().toISOString().split('T')[0];
+                fechaInput.setAttribute('min', today);
+
+                fechaInput.addEventListener('change', function() {
+                    if (this.value && servicioSelect.value) {
+                        cargarHorarios(this.value, servicioSelect.value);
+                    }
+                });
+            }
+
+            if (servicioSelect) {
+                servicioSelect.addEventListener('change', function() {
+                    if (fechaInput.value) {
+                        cargarHorarios(fechaInput.value, this.value);
+                    }
+                });
+            }
+        });
+
+        async function cargarHorarios(fecha, servicioId) {
+            horaSelect.innerHTML = '<option>Cargando...</option>';
+            horaSelect.disabled = true;
+            horaHelp.style.display = 'block';
+            btnSubmit.disabled = true;
+
+            try {
+                const url = `/api/slots/?fecha=${fecha}&servicio_id=${servicioId}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                horaSelect.innerHTML = '';
+                if (data.slots && data.slots.length > 0) {
+                    horaSelect.innerHTML = '<option value="" selected disabled>-- Elige hora --</option>';
+                    data.slots.forEach(hora => {
+                        let opt = document.createElement('option');
+                        opt.value = hora;
+                        opt.textContent = hora;
+                        horaSelect.appendChild(opt);
+                    });
+                    horaSelect.disabled = false;
+                    horaHelp.style.display = 'none';
+                    btnSubmit.disabled = false;
+                } else {
+                    horaSelect.innerHTML = '<option>Lleno / No disponible</option>';
+                    horaHelp.innerText = 'Intenta otro día.';
+                }
+            } catch (error) {
+                horaSelect.innerHTML = '<option>Error</option>';
+                horaHelp.innerText = 'Error de conexión.';
+            }
+        }
+
+        function abrirModalAgendar() {
+            document.getElementById('modal-cita').classList.add('active');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-cita').classList.remove('active');
+        }
+
+        function abrirModalPerfil() {
+            document.getElementById('modal-perfil').classList.add('active');
+        }
+
+        function cerrarModalPerfil() {
+            document.getElementById('modal-perfil').classList.remove('active');
+        }
+    </script>
+{% endblock %}

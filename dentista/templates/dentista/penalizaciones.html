@@ -1,0 +1,57 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Penalizaciones | RC Dental{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+  <div>
+    <h1 class="text-gradient">Penalizaciones y Pagos Pendientes</h1>
+    <p class="welcome-subtitle">
+      Control de cargos pendientes por inasistencia, reprogramaciones tardías
+      o citas sin liquidar.
+    </p>
+  </div>
+</div>
+
+<div class="cyber-card" style="padding: 1.5rem;">
+  {% if pendientes %}
+    <div class="table-wrapper">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Paciente</th>
+            <th>Servicio</th>
+            <th>Monto</th>
+            <th>Método</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in pendientes %}
+          <tr>
+            <td>{{ p.created_at|date:"d/m/Y H:i" }}</td>
+            <td>{{ p.cita.paciente.nombre }}</td>
+            <td>{{ p.cita.servicio.nombre }}</td>
+            <td>${{ p.monto }}</td>
+            <td>{{ p.get_metodo_display }}</td>
+            <td>
+              <span class="status-badge status-warning">
+                {{ p.get_estado_display }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p style="color: var(--text-muted); margin: 0;">
+      No tienes penalizaciones ni pagos pendientes actualmente.
+    </p>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "paciente/base.html" %}
+{% load static %}
+
+{% block ptitle %}Encuesta de satisfacción | Paciente{% endblock %}
+
+{% block header_title %}
+    Encuesta de satisfacción
+{% endblock %}
+
+{% block pcontent %}
+
+{#
+  ESPERA EN EL CONTEXT:
+  - cita: la cita que se está calificando
+  - encuesta: (opcional) objeto encuesta existente con:
+        - calificacion (1–5)
+        - comentarios
+#}
+
+<section class="section-wrapper">
+    <div class="section-title">
+        <i class="ph-duotone ph-star"></i>
+        Califica tu experiencia
+    </div>
+
+    <div class="card-modern">
+        <p class="text-muted">
+            Ayúdanos a mejorar calificando tu última atención.
+        </p>
+
+        <div style="margin-top:1rem; margin-bottom:1.5rem;">
+            <p><strong>Servicio:</strong> {{ cita.servicio.nombre }}</p>
+            <p><strong>Doctor:</strong> {{ cita.dentista.nombre }}</p>
+            <p><strong>Fecha:</strong> {{ cita.fecha_hora_inicio|date:"d/m/Y H:i" }}</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Calificación con estrellas -->
+            <div class="survey-stars-wrapper">
+                <p class="text-muted mb-1">¿Cómo calificarías la atención recibida?</p>
+                <div class="rating">
+                    {% for value in "5,4,3,2,1".split(",") %}
+                        {% with val=value|add:"" %}
+                        <input
+                            type="radio"
+                            name="calificacion"
+                            id="star{{ val }}"
+                            value="{{ val }}"
+                            {% if encuesta and encuesta.calificacion == val|add:""|int %}checked{% endif %}
+                        >
+                        <label for="star{{ val }}">★</label>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Comentarios -->
+            <div class="form-group" style="margin-top:1.5rem;">
+                <label>Comentarios adicionales</label>
+                <textarea
+                    name="comentarios"
+                    class="cyber-input"
+                    rows="4"
+                    placeholder="Cuéntanos qué te gustó o qué podemos mejorar...">{% if encuesta %}{{ encuesta.comentarios }}{% endif %}</textarea>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'paciente:dashboard' %}" class="cyber-btn">
+                    Cancelar
+                </a>
+                <button type="submit" class="cyber-btn cyber-btn-glow">
+                    Guardar respuesta
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,46 @@
+# ======================================
+# ENTORNO / SECRETOS
+# ======================================
+.env
+*.env
+.venv/
+venv/
+
+# ======================================
+# PYTHON
+# ======================================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ======================================
+# DJANGO
+# ======================================
+*.sqlite3
+db.sqlite3
+/media/
+staticfiles/
+*.log
+
+# Ignorar migraciones autogeneradas (opcional):
+# **/migrations/*.py
+# !**/migrations/__init__.py
+
+# ======================================
+# EDITORES
+# ======================================
+.vscode/
+.idea/
+
+# ======================================
+# NODE / FRONTEND (si tienes React/Vite)
+# ======================================
+node_modules/
+dist/
+build/
+
+# ======================================
+# GOOGLE CREDENTIALS
+# ======================================
+google_credentials/token.json
+google_credentials/credentials.json

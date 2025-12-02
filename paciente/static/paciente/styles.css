@@ -1,0 +1,921 @@
+/* ============================================================
+   STYLES.CSS — PACIENTE
+   Estilo Futurista-Premium
+=============================================================== */
+
+/* 1. VARIABLES GLOBALES */
+:root {
+  --font-main: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --c-bg-dark: #050814;
+  --c-bg-section: #111827;
+  --c-bg-card: rgba(15,23,42,0.9);
+
+  --c-border: rgba(148,163,184,0.3);
+  --c-border-soft: rgba(148,163,184,0.18);
+
+  --c-text: #e5ecff;
+  --c-text-muted: #9ca3af;
+
+  --c-primary: #22d3ee;
+  --c-primary-glow: #67e8f9;
+
+  --c-success: #22c55e;
+  --c-danger: #f97373;
+  --c-warning: #facc15;
+
+  --sp-1: .5rem;
+  --sp-2: 1rem;
+  --sp-3: 1.5rem;
+  --sp-4: 2rem;
+
+  --radius-base: .9rem;
+  --radius-full: 999px;
+
+  --transition-fast: 0.18s ease;
+  --transition-medium: 0.3s ease;
+
+  --shadow-soft: 0 18px 35px rgba(0,0,0,0.45);
+  --shadow-glow: 0 0 16px rgba(34,211,238,0.55);
+}
+
+/* 2. RESET / BASE */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+.section-title {
+  font-size: 1.85rem;   /* << más grande */
+  font-weight: 600;
+  color: var(--c-primary);
+  letter-spacing: .5px;
+}
+
+body.dark-mode {
+  background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%);
+  color: var(--c-text);
+  font-family: var(--font-main);
+  font-size: 19px;   /* << Aumentado (antes 17px) */
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 3. TOPBAR */
+
+.topbar {
+  background: #020617;
+  border-bottom: 1px solid var(--c-border-soft);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar__inner {
+  max-width: 1200px;
+  margin: auto;
+  padding: .75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--c-primary);
+}
+
+.center-title {
+  flex: 1;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.btn-logout {
+  padding: .4rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--c-border-soft);
+  background: transparent;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  font-size: .85rem;
+  transition: var(--transition-fast);
+}
+
+.btn-logout:hover {
+  border-color: var(--c-danger);
+  color: var(--c-danger);
+}
+
+/* 4. CONTENEDOR PRINCIPAL */
+
+.main-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 1.8rem 1.5rem 2.5rem;
+  min-height: calc(100vh - 70px); /* llena pantalla en escritorio */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* 5. BANNER DE BIENVENIDA */
+
+.welcome-banner {
+  background: radial-gradient(circle at top, #0f172a, #020617 70%);
+  padding: 2.2rem 2rem;
+  border-radius: var(--radius-base);
+  border: 1px solid rgba(148,163,184,0.35);
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+}
+
+.welcome-title {
+  font-size: 3.3rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--c-primary-glow);
+  text-shadow: 0 0 14px rgba(45,212,191,0.3);
+}
+
+.welcome-subtitle {
+  margin-top: .7rem;
+  font-size: 1.45rem;
+  color: var(--c-text-muted);
+}
+
+/* 6. SECCIONES Y GRID DEL DASHBOARD */
+
+.section-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+  height: 100%;
+}
+
+.section-title {
+  font-size: 1.85rem;  
+  font-weight: 600;
+  color: var(--c-primary);
+  letter-spacing: .5px;
+}
+
+/* GRID 2×2 */
+.dashboard-grid {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.8rem;
+  flex: 1;
+}
+
+.dash-item {
+  min-height: 260px;
+}
+
+/* Escritorio: 2 columnas */
+@media (min-width: 1024px) {
+  .dashboard-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: minmax(260px, 1fr);
+  }
+}
+
+/* 7. CARDS MODERNAS */
+
+.card-modern {
+  flex: 1;
+  background: var(--c-bg-card);
+  padding: 1.6rem 1.7rem;
+  border-radius: var(--radius-base);
+  border: 1px solid var(--c-border-soft);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Para que el contenido de tabla llene bien la card */
+.table-fill-card {
+  height: 100%;
+}
+
+/* 8. BOTONES FUTURISTAS */
+
+.cyber-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  padding: .7rem 1.5rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--c-primary);
+  font-size: .96rem;
+  font-weight: 500;
+  background: transparent;
+  color: var(--c-primary);
+  cursor: pointer;
+  transition: var(--transition-medium);
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top, rgba(34,211,238,0.22), transparent 60%);
+  opacity: 0;
+  transition: var(--transition-medium);
+}
+
+.cyber-btn:hover::before {
+  opacity: 1;
+}
+
+.cyber-btn:hover {
+  background: var(--c-primary);
+  color: #020617;
+}
+
+.cyber-btn-glow {
+  background: radial-gradient(circle at 10% 0, #67e8f9, #22d3ee);
+  border-color: transparent;
+  color: #020617;
+  box-shadow: var(--shadow-glow);
+}
+
+.cyber-btn-glow:hover {
+  transform: translateY(-1px);
+}
+
+.cyber-btn-danger {
+  border-color: var(--c-danger);
+  color: var(--c-danger);
+}
+
+.cyber-btn-danger:hover {
+  background: var(--c-danger);
+  color: #020617;
+}
+
+.cyber-btn-sm {
+  padding: .45rem 1rem;
+  font-size: .83rem;
+}
+
+/* 9. EMPTY STATE */
+
+.empty-state {
+  text-align: center;
+  padding: 1.4rem 1rem;
+  color: var(--c-text-muted);
+}
+
+.empty-icon {
+  font-size: 2.6rem;
+  margin-bottom: .7rem;
+}
+
+/* 10. PRÓXIMA CITA */
+
+.appointment-info p {
+  margin-bottom: .35rem;
+  font-size: 1.02rem;
+}
+
+.appointment-actions,
+.payment-actions {
+  margin-top: 1.4rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* 11. CHIPS / ESTADOS */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .25rem .9rem;
+  border-radius: var(--radius-full);
+  font-size: .78rem;
+  border: 1px solid var(--c-border-soft);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.status-pendiente,
+.status-agendada {
+  color: var(--c-warning);
+  border-color: var(--c-warning);
+}
+
+.status-confirmada {
+  color: var(--c-success);
+  border-color: var(--c-success);
+}
+
+.status-reprogramada {
+  color: var(--c-primary);
+  border-color: var(--c-primary);
+}
+
+.status-cancelada {
+  color: var(--c-danger);
+  border-color: var(--c-danger);
+}
+
+/* 12. PERFIL */
+
+.profile-card {
+  position: relative;
+}
+
+.btn-edit-profile {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--c-primary);
+  transition: var(--transition-fast);
+}
+
+.btn-edit-profile:hover {
+  transform: scale(1.1);
+}
+
+.profile-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.profile-details {
+  flex: 1;
+}
+
+.profile-name {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-top: .7rem;
+}
+
+.profile-email {
+  color: var(--c-primary);
+  margin-bottom: .9rem;
+}
+
+.profile-info div {
+  margin-bottom: .3rem;
+  font-size: .95rem;
+  color: var(--c-text-muted);
+}
+
+.patient-id {
+  background: rgba(34,211,238,0.09);
+  border-color: rgba(34,211,238,0.4);
+  color: var(--c-primary);
+}
+
+.profile-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 3px solid var(--c-primary);
+  overflow: hidden;
+  box-shadow: var(--shadow-glow);
+  flex-shrink: 0;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-fallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: #020617;
+  font-weight: 600;
+  font-size: 1.7rem;
+}
+
+/* 13. TABLAS (HISTORIAL) */
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-base);
+  border: 1px solid var(--c-border-soft);
+  height: 100%;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 100%;
+}
+
+.data-table th,
+.data-table td {
+  padding: .85rem 1rem;
+}
+
+.data-table th {
+  font-size: .9rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--c-primary);
+  background: rgba(15,23,42,0.9);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.data-table td {
+  font-size: .95rem;
+  border-bottom: 1px solid rgba(148,163,184,0.2);
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(15,23,42,0.85);
+}
+
+/* 14. MODALES */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.78); /* un poco menos oscuro */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: .25s ease;
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+}
+
+/* Se muestra cuando el JS agrega .active (o si usas .is-visible) */
+.modal-overlay.is-visible,
+.modal-overlay.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.modal-content {
+  background: #020617;
+  border-radius: var(--radius-base);
+  padding: 1.7rem 1.6rem;
+  width: min(480px, 92%);
+  border: 1px solid var(--c-border-soft);
+  box-shadow: var(--shadow-soft);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: .75rem;
+  border-bottom: 1px solid var(--c-border-soft);
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  font-size: 1.3rem;
+  transition: var(--transition-fast);
+}
+
+.modal-close:hover {
+  color: var(--c-primary);
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: .4rem;
+  font-weight: 500;
+}
+
+.cyber-input {
+  width: 100%;
+  padding: .75rem .9rem;
+  border-radius: .7rem;
+  border: 1px solid var(--c-border-soft);
+  background: rgba(15,23,42,0.9);
+  color: var(--c-text);
+  transition: .18s ease;
+}
+
+.cyber-input:focus {
+  outline: none;
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 1px rgba(34,211,238,0.3);
+}
+
+.cyber-input option,
+select option {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .8rem;
+  margin-top: 1.1rem;
+}
+
+/* 15. TOASTS */
+
+#toast-container {
+  position: fixed;
+  top: 1.2rem;
+  right: 1.2rem;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+}
+
+.toast-card {
+  background: #020617;
+  border-radius: .7rem;
+  padding: .9rem 1.1rem;
+  border-left: 4px solid var(--c-primary);
+  border: 1px solid var(--c-border-soft);
+  box-shadow: var(--shadow-soft);
+  min-width: 260px;
+  max-width: 320px;
+}
+
+/* 16. PENALIZACIÓN (banner superior ya existente) */
+
+.penalty-banner {
+  width: 100%;
+  padding: .7rem 0;
+  background: rgba(248,113,113,0.12);
+  border-bottom: 1px solid rgba(248,113,113,0.3);
+}
+
+/* 17. ENCUESTA — ESTRELLAS */
+
+.survey-stars-wrapper {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.rating {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  gap: .4rem;
+  font-size: 2.3rem;
+  margin-top: .5rem;
+}
+
+.rating input {
+  display: none;
+}
+
+.rating label {
+  cursor: pointer;
+  color: #374151;
+  transition: color .2s ease, transform .1s ease;
+}
+
+.rating label:hover,
+.rating label:hover ~ label,
+.rating input:checked ~ label {
+  color: #facc15;
+  transform: translateY(-2px);
+}
+
+/* 18. RESPONSIVE */
+
+@media (max-width: 900px) {
+  .welcome-title {
+      font-size: 2.2rem;
+  }
+  .profile-container {
+      flex-direction: column-reverse;
+      align-items: center;
+      text-align: center;
+  }
+  .profile-avatar {
+      width: 100px;
+      height: 100px;
+  }
+  .appointment-actions,
+  .payment-actions {
+      flex-direction: column;
+      align-items: stretch;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-container {
+      padding-inline: 1rem;
+  }
+  .welcome-banner {
+      padding-inline: 1.3rem;
+  }
+}
+
+/* 19. UTILIDADES */
+
+.text-center { text-align: center; }
+.text-muted { color: var(--c-text-muted); }
+.hidden-form { display: none; }
+
+/* ============================================================
+   ENCUESTA DE SATISFACCIÓN – ESTRELLAS (repetida, pero ok)
+=============================================================== */
+.survey-stars-wrapper {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.rating {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  gap: .4rem;
+  font-size: 2.3rem;
+  margin-top: .5rem;
+}
+
+.rating input {
+  display: none;
+}
+
+.rating label {
+  cursor: pointer;
+  color: #374151;
+  transition: color .2s ease, transform .1s ease;
+}
+
+.rating label:hover,
+.rating label:hover ~ label,
+.rating input:checked ~ label {
+  color: #facc15;
+  transform: translateY(-2px);
+}
+
+/* Ajustes de tamaños generales para mejor legibilidad */
+
+.card-modern p,
+.appointment-info p,
+.payment-text,
+.profile-info div {
+  font-size: 1.15rem !important;   /* antes ~1rem */
+}
+
+.card-modern strong {
+  font-size: 1.18rem;
+}
+
+.cyber-btn {
+  font-size: 1.08rem;
+  padding: .9rem 1.8rem;  /* más altura y más ancho */
+}
+
+.cyber-btn-sm {
+  font-size: 0.95rem;
+  padding: .55rem 1.2rem;
+}
+
+.data-table th {
+  font-size: 1.05rem;
+}
+
+.data-table td {
+  font-size: 1.1rem;
+}
+
+/* =============================
+   MODAL XL — Súper grande y legible
+   ============================= */
+
+.modal-content {
+  width: 750px !important;        /* Mucho más ancho */
+  max-width: 95%;
+  padding: 2.5rem !important;
+  border-radius: 22px !important;
+  background: #0f172a !important; /* azul oscuro elegante */
+  color: #e2e8f0 !important;
+  font-size: 1.2rem !important;   /* tamaño base grande */
+  line-height: 1.6;
+  box-shadow: 0 0 45px rgba(14, 165, 233, 0.3);
+}
+
+/* Título del modal estilo H4 */
+.modal-content h2,
+.modal-title {
+  font-size: 1.8rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 1.8rem !important;
+  color: #38bdf8 !important;
+}
+
+/* Etiquetas estilo H6 */
+.modal-content label {
+  font-size: 1.15rem !important;   /* como h6 */
+  font-weight: 600 !important;
+  color: #cbd5e1 !important;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+/* Inputs grandes */
+.modal-content input[type="text"],
+.modal-content input[type="email"],
+.modal-content input[type="date"],
+.modal-content input[type="file"],
+.modal-content input {
+  width: 100%;
+  padding: 1rem 1.2rem !important;
+  margin-top: 0.4rem !important;
+  margin-bottom: 1rem !important;
+  border-radius: 14px !important;
+  background: #020617 !important;
+  border: 1px solid #334155 !important;
+  font-size: 1.15rem !important;   /* Más grande */
+  color: #e2e8f0 !important;
+}
+
+/* Botones enormes */
+.modal-content .modal-buttons,
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.2rem;
+  margin-top: 2rem !important;
+}
+
+.modal-content button,
+.modal-content .cyber-btn {
+  font-size: 1.25rem !important;   /* botones grandes */
+  padding: 1rem 2.2rem !important;
+  border-radius: 18px !important;
+}
+
+/* Botón principal (Guardar Cambios) */
+.modal-content .cyber-btn {
+  background: linear-gradient(to right, #0ea5e9, #38bdf8) !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.modal-content .cyber-btn:hover {
+  box-shadow: 0 0 22px rgba(14, 165, 233, 0.6) !important;
+}
+
+/* Botón cancelar */
+.modal-content .cyber-btn-ghost {
+  background: transparent !important;
+  border: 1px solid #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+.modal-content .cyber-btn-ghost:hover {
+  background: rgba(51, 65, 85, 0.35) !important;
+}
+
+/* =====================================
+   MODAL XXL — MASTER VERSION (Super Grande)
+   ===================================== */
+
+.modal-content,
+#modal-agendar-cita .modal-content,
+.agendar-cita-modal .modal-content {
+  width: 900px !important;         /* Aún más ancho */
+  max-width: 98%;
+  padding: 3rem !important;        /* Más espacio interno */
+  border-radius: 24px !important;
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+  font-size: 1.3rem !important;    /* Tamaño general más grande */
+  line-height: 1.7;
+  box-shadow: 0 0 55px rgba(14, 165, 233, 0.4);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+}
+
+/* Título tipo H3 */
+.modal-content h2,
+#modal-agendar-cita h2,
+.agendar-cita-modal h2 {
+  font-size: 2.2rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 2.2rem !important;
+  color: #38bdf8 !important;
+  text-align: left;
+}
+
+/* Etiquetas gigantes estilo H5 */
+.modal-content label,
+#modal-agendar-cita label,
+.agendar-cita-modal label {
+  font-size: 1.35rem !important;
+  font-weight: 600 !important;
+  color: #cbd5e1 !important;
+  margin-bottom: 0.4rem !important;
+  display: block;
+}
+
+/* Inputs XL Extra */
+.modal-content input,
+#modal-agendar-cita input,
+.agendar-cita-modal input,
+.modal-content select,
+#modal-agendar-cita select,
+.agendar-cita-modal select {
+  width: 100%;
+  padding: 1.2rem 1.4rem !important;
+  margin-top: 0.4rem !important;
+  margin-bottom: 1.4rem !important;
+  border-radius: 16px !important;
+  background: #020617 !important;
+  border: 1px solid #334155 !important;
+  font-size: 1.35rem !important;
+  color: #e2e8f0 !important;
+}
+
+/* Botones aún más grandes */
+.modal-buttons,
+#modal-agendar-cita .modal-buttons,
+.agendar-cita-modal .modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.4rem;
+  margin-top: 2.4rem !important;
+}
+
+.modal-content button,
+.modal-content .cyber-btn,
+#modal-agendar-cita .cyber-btn,
+.agendar-cita-modal .cyber-btn {
+  font-size: 1.45rem !important;
+  padding: 1.1rem 2.6rem !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+}
+
+/* Botón Confirmar */
+.cyber-btn-confirmar {
+  background: linear-gradient(to right, #0ea5e9, #38bdf8) !important;
+  color: white !important;
+}
+
+.cyber-btn-confirmar:hover {
+  box-shadow: 0 0 26px rgba(14, 165, 233, 0.65) !important;
+}
+
+/* Botón Cancelar */
+.cyber-btn-ghost {
+  background: transparent !important;
+  border: 2px solid #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+.cyber-btn-ghost:hover {
+  background: rgba(51, 65, 85, 0.35) !important;
+}
+
+/* =========================================
+   FIX CALENDARIO (Z-INDEX)
+   Esto obliga al calendario a salir ENCIMA del modal
+   ========================================= */
+.flatpickr-calendar {
+  z-index: 99999 !important;
+}

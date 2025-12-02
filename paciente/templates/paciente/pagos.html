@@ -1,0 +1,104 @@
+{% extends "paciente/base.html" %}
+{% load static %}
+
+{% block ptitle %}Mis pagos{% endblock %}
+{% block header_title %}Pagos del paciente{% endblock %}
+
+{% block extra_css %}
+  {# Si tienes un CSS específico para pagos, lo puedes linkear aquí #}
+{% endblock %}
+
+{% block content %}
+<div class="paciente-page">
+  <div class="page-header">
+    <h2 class="page-title">Pagos</h2>
+    <p class="page-subtitle">
+      Aquí puedes ver tus pagos pendientes y los pagos completados de tus citas.
+    </p>
+  </div>
+
+  <div class="pagos-grid">
+    <!-- Pagos pendientes -->
+    <section class="card-block">
+      <h3 class="card-title">Pagos pendientes</h3>
+
+      {% if pagos_pendientes %}
+        <div class="table-wrapper">
+          <table class="rc-table">
+            <thead>
+              <tr>
+                <th>Cita</th>
+                <th>Servicio</th>
+                <th>Fecha</th>
+                <th>Monto</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pago in pagos_pendientes %}
+                <tr>
+                  <td>#{{ pago.cita.id }}</td>
+                  <td>{{ pago.cita.servicio.nombre }}</td>
+                  <td>
+                    {{ pago.cita.fecha_hora_inicio|date:"d/m/Y" }}
+                    {{ pago.cita.fecha_hora_inicio|time:"H:i" }}
+                  </td>
+                  <td>${{ pago.monto }} MXN</td>
+                  <td>
+                    <a href="{% url 'paciente:iniciar_pago' pago.cita.id %}" class="btn btn-primary">
+                      Pagar ahora
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="empty-text">No tienes pagos pendientes 🎉</p>
+      {% endif %}
+    </section>
+
+    <!-- Pagos completados -->
+    <section class="card-block">
+      <h3 class="card-title">Pagos completados</h3>
+
+      {% if pagos_completados %}
+        <div class="table-wrapper">
+          <table class="rc-table">
+            <thead>
+              <tr>
+                <th>Cita</th>
+                <th>Servicio</th>
+                <th>Fecha</th>
+                <th>Monto</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pago in pagos_completados %}
+                <tr>
+                  <td>#{{ pago.cita.id }}</td>
+                  <td>{{ pago.cita.servicio.nombre }}</td>
+                  <td>
+                    {{ pago.cita.fecha_hora_inicio|date:"d/m/Y" }}
+                    {{ pago.cita.fecha_hora_inicio|time:"H:i" }}
+                  </td>
+                  <td>${{ pago.monto }} MXN</td>
+                  <td><span class="badge badge-success">Completado</span></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="empty-text">Aún no tienes pagos completados.</p>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  {# JS específico si quieres, o lo dejamos vacío #}
+{% endblock %}

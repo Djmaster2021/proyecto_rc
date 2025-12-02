@@ -1,0 +1,162 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Nueva Cita | RC{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+    <h1 class="text-gradient">Agendar Cita</h1>
+    <p class="welcome-subtitle">El sistema calculará la disponibilidad exacta.</p>
+</div>
+
+<div class="cyber-card" style="max-width: 800px; margin: 0 auto; padding: 2rem;">
+    
+    <form method="post" id="citaForm">
+        {% csrf_token %}
+
+        <div class="form-group mb-4">
+            <label class="form-label"><i class="ph-bold ph-user"></i> Paciente</label>
+            <select name="paciente" class="form-control" required>
+                <option value="">Selecciona un paciente...</option>
+                {% for p in pacientes %}
+                <option value="{{ p.id }}">{{ p.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="row-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            
+            <div class="form-group">
+                <label class="form-label"><i class="ph-bold ph-tooth"></i> Servicio</label>
+                <select name="servicio" id="servicioSelect" class="form-control" required onchange="cargarSlots()">
+                    <option value="">Selecciona servicio...</option>
+                    {% for s in servicios %}
+                    <option value="{{ s.id }}">{{ s.nombre }} ({{ s.duracion_estimada }} min)</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label"><i class="ph-bold ph-calendar"></i> Fecha</label>
+                <input type="date" name="fecha" id="fechaInput" class="form-control" 
+                       min="{{ fecha_min }}" max="{{ fecha_max }}" required onchange="cargarSlots()">
+            </div>
+        </div>
+
+        <hr style="border-color: #eee; margin: 2rem 0;">
+
+        <div class="form-group">
+            <label class="form-label" style="display: flex; justify-content: space-between;">
+                <span><i class="ph-bold ph-clock"></i> Horarios Disponibles</span>
+                <span id="loading-badge" style="display: none; font-size: 0.8rem; color: #0083B0;">
+                    <i class="ph-duotone ph-spinner ph-spin"></i> Buscando...
+                </span>
+            </label>
+            
+            <div id="slots-container" class="slots-grid">
+                <div class="empty-slot-msg">
+                    <i class="ph-duotone ph-hand-pointing"></i>
+                    Selecciona servicio y fecha para cargar horarios.
+                </div>
+            </div>
+            <input type="hidden" name="hora" id="horaSelected" required>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: right;">
+            <a href="{% url 'dentista:agenda' %}" class="cyber-btn cyber-btn-secondary">Cancelar</a>
+            <button type="submit" class="cyber-btn cyber-btn-glow" id="btnSubmit" disabled>Confirmar Cita</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .slots-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px;
+        margin-top: 10px; max-height: 300px; overflow-y: auto; padding: 5px;
+    }
+    .time-slot-btn {
+        background: white; border: 1px solid #ddd; border-radius: 8px; padding: 10px;
+        text-align: center; cursor: pointer; font-weight: 600; color: #555; position: relative;
+    }
+    .time-slot-btn:hover { border-color: #0083B0; color: #0083B0; background: #f0f9ff; }
+    .time-slot-btn.selected { background: #0083B0; color: white; border-color: #0083B0; }
+    .slot-badge-ia {
+        position: absolute; top: -8px; right: -5px; background: #00C9A7; color: white;
+        font-size: 0.6rem; padding: 2px 6px; border-radius: 10px;
+    }
+    .empty-slot-msg {
+        grid-column: 1 / -1; text-align: center; padding: 2rem; color: #999;
+        background: #f9f9f9; border: 1px dashed #ddd; border-radius: 8px;
+    }
+</style>
+
+<script>
+    async function cargarSlots() {
+        const servicioId = document.getElementById('servicioSelect').value;
+        const fecha = document.getElementById('fechaInput').value;
+        const container = document.getElementById('slots-container');
+        const loader = document.getElementById('loading-badge');
+        
+        // Limpiar previo
+        document.getElementById('horaSelected').value = "";
+        document.getElementById('btnSubmit').disabled = true;
+
+        if (!servicioId || !fecha) return;
+
+        loader.style.display = 'inline-block';
+        container.innerHTML = ''; 
+
+        try {
+            // Petición a la API
+            const response = await fetch(`/dentista/api/get-slots/?fecha=${fecha}&servicio_id=${servicioId}`);
+            
+            if (!response.ok) throw new Error("Error en la red o URL no encontrada");
+            
+            const data = await response.json();
+            loader.style.display = 'none';
+
+            // VALIDACIONES DE ERRORES DEL BACKEND
+            if (data.mensaje) {
+                // Caso: Día no laboral
+                container.innerHTML = `<div class="empty-slot-msg" style="color: #e67e22;">
+                    <i class="ph-bold ph-warning"></i> ${data.mensaje}
+                </div>`;
+                return;
+            }
+
+            if (!data.slots || data.slots.length === 0) {
+                // Caso: Sin huecos
+                container.innerHTML = `<div class="empty-slot-msg">
+                    <i class="ph-bold ph-prohibit"></i> Agenda llena para hoy.
+                </div>`;
+                return;
+            }
+
+            // Renderizar botones
+            data.slots.forEach(slot => {
+                const btn = document.createElement('div');
+                btn.className = 'time-slot-btn';
+                btn.innerHTML = slot.hora;
+                if (slot.recomendado) btn.innerHTML += `<span class="slot-badge-ia">⚡</span>`;
+                
+                btn.onclick = () => {
+                    document.querySelectorAll('.time-slot-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    document.getElementById('horaSelected').value = slot.hora;
+                    document.getElementById('btnSubmit').disabled = false;
+                };
+                container.appendChild(btn);
+            });
+
+        } catch (error) {
+            console.error(error);
+            loader.style.display = 'none';
+            container.innerHTML = `<div class="empty-slot-msg" style="color: red;">
+                Error al cargar. Verifica que el servidor esté corriendo y la URL exista.
+            </div>`;
+        }
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,20 @@
+<!--Contenedor principal de la tarjeta.-->
+<article class="card">
+
+  <!--Encabezado de la tarjeta.
+    Se mostrará únicamente si se le pasa una variable "title" al incluir el componente.-->
+  {% if title %}<header class="card-head"><h3>{{ title }}</h3></header>{% endif %}
+
+  <!--Cuerpo de la tarjeta.
+      - Si se le pasa una variable "body", la mostrará directamente.
+      - Si no, crea un bloque llamado "card_body" para que otra plantilla
+        pueda insertar contenido más complejo (como un formulario o una lista).-->
+  <div class="card-body">
+    {% if body %}{{ body }}{% else %}{% block card_body %}{% endblock %}{% endif %}
+  </div>
+
+  <!--Pie de página de la tarjeta.
+      Se mostrará solo si se le pasa una variable "footer".
+      Útil para poner botones de acción o información secundaria.-->
+  {% if footer %}<footer class="card-foot">{{ footer }}</footer>{% endif %}
+</article>

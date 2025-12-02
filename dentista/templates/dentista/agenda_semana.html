@@ -1,0 +1,37 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Agenda – Semana{% endblock %}
+{% block dcontent %}
+
+<div class="page-header">
+    <h1 class="text-gradient">Agenda Semanal</h1>
+
+    <div class="header-actions">
+        <a href="{% url 'dentista:agenda_modo' 'dia' %}" class="cyber-btn">Hoy</a>
+        <a href="{% url 'dentista:agenda_modo' 'mes' %}" class="cyber-btn">Mes</a>
+    </div>
+</div>
+
+<div class="agenda-week-grid">
+    {% for dia in dias %}
+    <div class="week-col">
+
+        <h3 class="week-day">{{ dia.fecha|date:"D d" }}</h3>
+
+        {% if dia.citas %}
+            {% for c in dia.citas %}
+            <div class="week-cita">
+                <strong>{{ c.hora_inicio|time:"H:i" }}</strong>
+                <p>{{ c.paciente.nombre }}</p>
+                <small>{{ c.servicio.nombre }}</small>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="empty-state">Sin citas</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,1456 @@
+/* ==========================================================================
+   LOGIN RC — Azul/Menta/Plateado + Glow borders + Dark/Light
+   ========================================================================== */
+
+   :root{
+    --bg:#f7fafc; --bg-soft:#eef2f7; --panel:#ffffff;
+    --text:#0f172a; --text-dim:#235499; --border:#e5e7eb;
+    --blue:#3d68ce; --mint:#205851; --ring-rgb:37,99,235;
+    --shadow:0 10px 24px rgba(2,6,23,.08);
+    --r-xl:22px; --r:12px; --space:20px;
+  }
+  :root:has(#t-dark:checked){
+    --bg:#0e1116; --bg-soft:#141925; --panel:#0f1420;
+    --text:#e6e8ee; --text-dim:#a9b0be; --border:rgba(255,255,255,.12);
+    --blue:#22d3ee; --mint:#5eead4; --ring-rgb:34,211,238;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  
+  /* Reset/base */
+  *{ box-sizing:border-box }
+  html,body{ height:100% }
+  body{
+    margin:0; color:var(--text);
+    font:400 16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial;
+    background:
+      radial-gradient(1100px 700px at 10% -10%, color-mix(in oklab, var(--mint) 22%, transparent) 0, transparent 55%),
+      radial-gradient(900px 600px at 110% 0%, rgba(var(--ring-rgb), .10) 0, transparent 50%),
+      var(--bg);
+  }
+  
+  /* Topbar + toggle */
+  .site-topbar{
+    position:sticky; top:0; z-index:5;
+    display:flex; align-items:center; gap:12px; justify-content:space-between;
+    padding:14px var(--space);
+    background: color-mix(in oklab, var(--panel) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .brand{
+    display:inline-grid; place-items:center;
+    width:28px;height:28px;border-radius:12px;
+    background:linear-gradient(135deg,var(--blue),var(--mint));
+    color:#fff; font-weight:900; letter-spacing:.5px; text-decoration:none;
+  }
+  .theme-toggle{ display:flex; gap:10px; align-items:center; }
+  .theme-toggle input{
+    position:absolute; width:1px; height:1px; overflow:hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border:0; padding:0;
+  }
+  .toggle-chip{
+    border:1px solid var(--border);
+    border-radius:10px; padding:6px 10px; cursor:pointer;
+    color:var(--text-dim);
+    background: color-mix(in oklab, var(--panel) 92%, transparent);
+    font-size:13px; font-weight:600; transition:filter .2s ease, transform .05s ease;
+  }
+  .toggle-chip:hover{ filter:brightness(1.03) }
+  .toggle-chip:active{ transform:translateY(1px) }
+  #t-light:checked ~ .toggle-chip[for="t-light"]{
+    color:#000; font-weight:700; border-color:transparent;
+    background:linear-gradient(135deg,var(--mint),var(--blue));
+  }
+  #t-dark:checked ~ .toggle-chip[for="t-dark"]{
+    color:#fff; font-weight:700; border-color:transparent;
+    background:linear-gradient(135deg,var(--blue),var(--mint));
+  }
+  
+  /* Layout login */
+  .site-main{ min-height:calc(100vh - 120px); display:grid; place-items:center; padding:42px 20px }
+  .auth-hero{ width:100%; max-width:960px; margin:auto }
+  
+  /* Glow card */
+  .glow-card{ position:relative; border-radius:28px; padding:2px; isolation:isolate; }
+  .glow-card::before{
+    content:""; position:absolute; inset:-2px; z-index:-1; border-radius:inherit;
+    background: conic-gradient(from 0deg,
+      color-mix(in oklab, var(--blue) 70%, transparent) 0deg,
+      color-mix(in oklab, var(--mint) 70%, transparent) 120deg,
+      rgba(var(--ring-rgb), .85) 240deg,
+      color-mix(in oklab, var(--blue) 70%, transparent) 360deg
+    );
+    filter: blur(14px) saturate(120%);
+    animation: spin 12s linear infinite;
+    opacity:.9;
+  }
+  @keyframes spin{ to{ transform: rotate(1turn) } }
+  
+  /* Card */
+  .login-card{
+    width:100%; max-width:520px; margin:auto;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    border-radius:24px; padding:28px;
+  }
+  
+  /* Encabezado */
+  .card-head{ text-align:center; margin-bottom:18px }
+  .logo{
+    width:64px;height:64px;margin:0 auto 12px;border-radius:16px;
+    background:linear-gradient(135deg,var(--blue),var(--mint));
+    display:grid; place-items:center; color:#fff; font-weight:900;
+    box-shadow:0 10px 22px rgba(var(--ring-rgb), .25);
+  }
+  .title{ margin:6px 0 2px; font-size:24px; font-weight:800; letter-spacing:.2px }
+  .subtitle{ margin:0; color:var(--text-dim); font-size:14.5px }
+  
+  /* Form */
+  .auth-form{ display:grid; gap:16px; margin-top:12px }
+  .field{ display:grid; gap:6px }
+  .label-row{ display:flex; justify-content:space-between; align-items:center }
+  .field label{ font-size:14px; color:var(--text-dim) }
+  .field input{
+    background:#fff; color:#0f172a;
+    border:1px solid var(--border); border-radius:12px;
+    padding:12px 14px; outline:none; transition:border .2s, box-shadow .2s, background .2s;
+  }
+  :root:has(#t-dark:checked) .field input{ background:#0b111a; color:var(--text) }
+  .field input:hover{ border-color: color-mix(in oklab, var(--border) 60%, var(--blue) 40%); }
+  .field input:focus{
+    border-color: rgba(var(--ring-rgb), .75);
+    box-shadow: 0 0 0 4px rgba(var(--ring-rgb), .18);
+  }
+  
+  /* Password */
+  .password-box{ position:relative; display:grid }
+  .password-box .eye{
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    border:0; background:transparent; padding:6px; cursor:pointer; color:var(--text-dim);
+  }
+  .password-box svg{ width:20px; height:20px; display:block }
+  .eye-off{ display:none }
+  .password-box.show .eye-open{ display:none }
+  .password-box.show .eye-off{ display:block }
+  
+  /* ============ SELECTOR DE ROL ============ */
+  /* Contenedor principal del selector de roles */
+  .role-toggle {
+    display: inline-flex;
+    border-radius: var(--r); 
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 0.75rem; 
+    justify-self: center; /* centra el grupo dentro del grid */
+  }
+  
+  /* Ocultamos los input[type="radio"] reales */
+  .role-toggle input[type="radio"] {
+    display: none;
+  }
+  
+  /* Estilo para las etiquetas que ahora son nuestros botones */
+  .role-toggle label {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: var(--panel);
+    color: var(--text-dim);
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s;
+    border-left: 1px solid var(--border);
+  }
+  
+  /* El primer botón no necesita borde a la izquierda */
+  .role-toggle label:first-of-type {
+    border-left: none;
+  }
+  
+  /* Hover */
+  .role-toggle label:hover {
+    background-color: var(--bg-soft);
+  }
+  
+  /* Estado activo */
+  .role-toggle input[type="radio"]:checked + label {
+    background: linear-gradient(135deg, var(--blue), var(--mint));
+    color: #fff;
+    font-weight: 700;
+    border-color: transparent;
+  }
+  
+  /* Botones/links */
+  .w-100{ width:100% }
+  .btn{
+    border:1px solid var(--border);
+    padding:12px 14px; border-radius:12px;
+    color: var(--text);
+    background: color-mix(in oklab, var(--panel) 92%, transparent);
+    cursor:pointer; transition: filter .2s ease, transform .05s ease;
+  }
+  .btn:hover{ filter: brightness(1.03) }
+  .btn:active{ transform: translateY(1px) }
+  .btn-primary{
+    border:none;
+    background: linear-gradient(135deg, var(--blue), var(--mint));
+    color:#fff; font-weight:700;
+  }
+  .btn-primary:hover{ filter: brightness(1.05) }
+  
+  .form-meta{ text-align:center; margin-top:6px }
+  .link{ color: var(--blue); text-decoration:none; font-size:14px }
+  .link.small{ font-size:12.5px }
+  .link:hover{ text-decoration:underline }
+  
+  /* Mensajes */
+  .messages{ list-style:none; padding:0; margin:8px 0 0; display:grid; gap:6px }
+  .msg{ padding:8px 10px; border-radius:10px; font-size:13px }
+  .msg.success{ background:rgba(16,185,129,.12); color:#059669 }
+  .msg.error{ background:rgba(239,68,68,.14); color:#b91c1c }
+  .msg.warning{ background:rgba(234,179,8,.14); color:#92400e }
+  
+  /* Footer */
+  .site-footer{
+    text-align:center; color: var(--text-dim);
+    padding:16px var(--space); border-top:1px solid var(--border);
+    background: var(--bg-soft);
+  }
+  
+  /* Responsive */
+  @media (max-width:560px){
+    .login-card{ padding:22px; border-radius:18px }
+    .roles{ grid-template-columns:1fr; }
+  }
+  
+  /* Social login confirm */
+  .login-card--center {
+    text-align: center;
+  }
+  
+  .provider-wrapper {
+    margin: 1rem 0;
+  }
+  
+  .provider-badge {
+    width: 60px;
+    height: 60px;
+    background: #ffffff;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  .provider-name {
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+    color: var(--text-main);
+  }
+  
+  .security-text {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .provider-footer {
+    margin-top: 1rem;
+  }
+  
+  .link-muted {
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+  
+  /* Panel robótico lateral (para recovery ancho) */
+  
+  .auth-card--wide {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
+    gap: 2rem;
+    align-items: stretch;
+  }
+  
+  .auth-side-panel {
+    border-radius: 24px;
+    padding: 2rem;
+    background: radial-gradient(circle at top, #27e0ff 0%, #0b1a2b 50%, #050b14 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .robot-head {
+    width: 96px;
+    height: 64px;
+    border-radius: 24px;
+    background: linear-gradient(120deg, #0ff, #00bcd4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    margin-bottom: 1rem;
+  }
+  
+  .robot-eye {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #020617;
+    box-shadow: 0 0 8px rgba(15, 255, 255, 0.8);
+  }
+  
+  .robot-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #e5f6ff;
+    margin-bottom: 0.5rem;
+  }
+  
+  .robot-text {
+    font-size: 0.95rem;
+    color: #c7e5ff;
+    max-width: 260px;
+  }
+  
+  /* Responsivo móvil robot */
+  @media (max-width: 768px) {
+    .auth-card--wide {
+        grid-template-columns: 1fr;
+    }
+  
+    .auth-side-panel {
+        order: -1;
+        margin-bottom: 1rem;
+    }
+  }
+  
+  /* Estilos para el toggle de contraseña (versión genérica) */
+  .password-wrapper {
+    position: relative;
+    width: 100%;
+  }
+  
+  /* Aseguramos que el texto no se encime al icono */
+  .password-wrapper input {
+    padding-right: 45px; 
+  }
+  
+  .btn-eye {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s;
+  }
+  
+  .btn-eye:hover {
+    color: #333;
+  }
+  
+  /* Ajuste para modo oscuro */
+  body[data-theme="dark"] .btn-eye {
+    color: #aaa;
+  }
+  body[data-theme="dark"] .btn-eye:hover {
+    color: #fff;
+  }
+  
+  /* =======================================================
+     DISEÑO LOGIN "FOREST" (fondo que se mueve + card central)
+     ======================================================= */
+  
+  :root {
+    --bg: #e6f0fb;
+    --bg-soft: #dde8f7;
+    --panel: #ffffff;
+    --text: #051019;
+    --text-dim: #607089;
+    --accent: #0f88ff;
+    --accent-dark: #0061d9;
+    --glow: 0 24px 60px rgba(6, 31, 61, 0.35);
+    --radius-xl: 28px;
+  }
+  
+  /* Dark mode */
+  :root:has(#t-dark:checked) {
+    --bg: #020818;
+    --bg-soft: #050c20;
+    --panel: #050b16;
+    --text: #f4f6ff;
+    --text-dim: #a5b4cf;
+    --accent: #38bdf8;
+    --accent-dark: #0ea5e9;
+    --glow: 0 24px 80px rgba(15, 23, 42, 0.9);
+  }
+  
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    background: radial-gradient(circle at 20% 0%, var(--bg-soft), var(--bg));
+    color: var(--text);
+  }
+  
+  /* Contenedor principal */
+  .site-main.login-forest {
+    position: relative;
+    min-height: calc(100vh - 64px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px 64px;
+    overflow: hidden;
+  }
+  
+  /* Capa de fondo con la ilustración + velos */
+  .login-backdrop {
+    position: absolute;
+    inset: -40px;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(56,189,248,.36), transparent 55%),
+      radial-gradient(circle at 90% 100%, rgba(59,130,246,.35), transparent 52%),
+      linear-gradient(to bottom, rgba(15,23,42,0.85), rgba(15,23,42,0.96)),
+      url("../img/login_forest.jpg") center/cover no-repeat;
+    opacity: 0.92;
+    filter: blur(0.5px);
+    transform: scale(1.02);
+    z-index: 0;
+  }
+  
+  :root:has(#t-light:checked) .login-backdrop {
+    background:
+      radial-gradient(circle at 10% 0%, rgba(56,189,248,.22), transparent 55%),
+      radial-gradient(circle at 90% 100%, rgba(59,130,246,.22), transparent 52%),
+      linear-gradient(to bottom, rgba(241,245,249,0.9), rgba(226,232,240,0.96)),
+      url("../img/login_forest.jpg") center/cover no-repeat;
+    opacity: 1;
+  }
+  
+  .auth-hero {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+    width: 100%;
+  }
+  
+  .glow-card {
+    padding: 4px;
+    border-radius: calc(var(--radius-xl) + 2px);
+    background: radial-gradient(circle at 0 0, rgba(56,189,248,0.9), transparent 55%),
+                radial-gradient(circle at 100% 100%, rgba(59,130,246,0.9), transparent 55%);
+    box-shadow: var(--glow);
+  }
+  
+  .login-card {
+    border-radius: var(--radius-xl);
+    background: var(--panel);
+    padding: 32px 32px 28px;
+    box-shadow: 0 18px 40px rgba(15,23,42,0.45);
+  }
+  
+  /* Títulos grandes */
+  .logo-xl {
+    width: 68px;
+    height: 68px;
+    border-radius: 21px;
+    font-size: 26px;
+    display: grid;
+    place-items: center;
+    margin-inline: auto;
+    margin-bottom: 18px;
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #fff;
+    font-weight: 700;
+  }
+  
+  .title-xl {
+    font-size: 32px;
+    line-height: 1.1;
+    text-align: center;
+    margin: 0 0 8px;
+  }
+  
+  .subtitle-md {
+    font-size: 15px;
+    line-height: 1.5;
+    text-align: center;
+    color: var(--text-dim);
+    margin: 0 0 28px;
+  }
+  
+  /* Labels e inputs grandes */
+  .field {
+    margin-bottom: 18px;
+  }
+  
+  .label-lg {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  
+  .input {
+    width: 100%;
+    border-radius: 999px;
+    border: 1px solid rgba(148,163,184,0.7);
+    background: rgba(15,23,42,0.02);
+    color: var(--text);
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+  }
+  
+  .input-xl {
+    padding: 13px 18px;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  
+  .password-wrapper {
+    position: relative;
+  }
+  
+  .password-wrapper .input-xl {
+    padding-right: 46px; /* espacio para el ojo */
+  }
+  
+  /* Botón ojo específico login */
+  .btn-eye {
+    position: absolute;
+    inset-inline-end: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    color: #94a3b8;
+  }
+  
+  .btn-eye:hover {
+    background: rgba(148,163,184,0.12);
+    color: #e5e7eb;
+  }
+  
+  .icon-eye {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    fill: none;
+  }
+  
+  .btn {
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  
+  .btn-xl {
+    width: 100%;
+    padding: 13px 18px;
+    margin-top: 4px;
+  }
+  
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 12px 30px rgba(37,99,235,0.45);
+  }
+  
+  .btn-primary:hover {
+    background: var(--accent-dark);
+  }
+  
+  /* Divider */
+  .divider-label {
+    position: relative;
+    margin: 22px 0 18px;
+    text-align: center;
+  }
+  
+  .divider-label::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    right: 8px;
+    height: 1px;
+    background: rgba(148,163,184,0.4);
+  }
+  
+  .divider-label span {
+    position: relative;
+    padding: 0 10px;
+    font-size: 13px;
+    color: var(--text-dim);
+    background: var(--panel);
+  }
+  
+  /* Botón Google */
+  .btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.7);
+    background: #ffffff;
+    color: #111827;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+  }
+  
+  :root:has(#t-dark:checked) .btn-google {
+    background: #020617;
+    color: #f9fafb;
+    border-color: rgba(148, 163, 184, 0.7);
+  }
+  
+  .google-icon-wrap {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    display: grid;
+    place-items: center;
+  }
+  
+  .btn-google svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ==========================================
+   Diseño de OLVIDAR CONTRASEÑA · RC avanzado
+   ========================================== */
+
+:root{
+  --bg:#020617;
+  --bg-soft:#02081f;
+  --panel:#020617;
+  --panel-soft:#02081f;
+  --text:#e5f0ff;
+  --text-dim:#93a5d5;
+  --accent:#22d3ee;
+  --accent-strong:#34d399;
+  --danger:#fb7185;
+  --border-subtle:rgba(148,163,184,.18);
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+  background:radial-gradient(circle at top left,#0ea5e9 0,transparent 55%),
+             radial-gradient(circle at top right,#22c55e 0,transparent 55%),
+             radial-gradient(circle at bottom,#020617 0,#020617 55%);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+}
+
+a{
+  color:var(--accent);
+  text-decoration:none;
+}
+a:hover{
+  text-decoration:underline;
+}
+
+/* Shell general */
+.rc-auth-shell{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* Header */
+.rc-auth-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:16px 40px;
+  backdrop-filter:blur(18px);
+  background:linear-gradient(to right,rgba(15,23,42,.9),rgba(15,23,42,.35));
+  border-bottom:1px solid rgba(148,163,184,.35);
+}
+
+.rc-brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.rc-brand-icon{
+  width:32px;
+  height:32px;
+  border-radius:999px;
+  background:radial-gradient(circle at 30% 0,#22d3ee,#0f172a);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:16px;
+  color:white;
+  box-shadow:0 0 18px rgba(56,189,248,.55);
+}
+.rc-brand-text{
+  display:flex;
+  flex-direction:column;
+}
+.rc-brand-title{
+  font-size:15px;
+  font-weight:600;
+}
+.rc-brand-sub{
+  font-size:11px;
+  color:var(--text-dim);
+}
+
+.rc-auth-links{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  font-size:14px;
+}
+
+.rc-auth-links a{
+  color:var(--text-dim);
+}
+.rc-auth-links a.primary-link{
+  color:var(--accent);
+  font-weight:500;
+}
+
+.rc-theme-toggle{
+  font-size:12px;
+  padding:6px 12px;
+  border-radius:999px;
+  border:1px solid rgba(148,163,184,.4);
+  background:rgba(15,23,42,.85);
+  color:var(--text-dim);
+  cursor:pointer;
+}
+
+/* Main */
+
+.rc-auth-main{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px 16px 40px;
+}
+
+/* Card */
+
+.rc-auth-card{
+  width:100%;
+  max-width:880px;
+  display:grid;
+  grid-template-columns:minmax(0,260px) minmax(0,1fr);
+  gap:32px;
+  padding:32px 36px;
+  border-radius:32px;
+  background:radial-gradient(circle at top left,rgba(45,212,191,.18),transparent 55%),
+             radial-gradient(circle at top right,rgba(56,189,248,.15),transparent 55%),
+             linear-gradient(to bottom right,rgba(15,23,42,.96),rgba(15,23,42,.98));
+  box-shadow:0 32px 80px rgba(15,23,42,.9);
+  border:1px solid rgba(148,163,184,.45);
+  position:relative;
+  overflow:hidden;
+}
+
+/* Ilustración */
+
+.rc-auth-illustration{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.rc-bot-card{
+  width:220px;
+  height:220px;
+  border-radius:40px;
+  background:radial-gradient(circle at 30% 0,#22d3ee,#020617);
+  border:1px solid rgba(148,163,184,.45);
+  box-shadow:0 0 40px rgba(56,189,248,.65);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+
+.rc-bot-face{
+  width:120px;
+  height:120px;
+  border-radius:32px;
+  background:rgba(15,23,42,.96);
+  border:1px solid rgba(148,163,184,.45);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+}
+
+.rc-bot-eyes{
+  display:flex;
+  gap:14px;
+}
+.rc-bot-eye{
+  width:18px;
+  height:18px;
+  border-radius:999px;
+  background:radial-gradient(circle at 30% 0,#e0f2fe,#38bdf8);
+  box-shadow:0 0 12px rgba(56,189,248,.95);
+}
+.rc-bot-mouth{
+  width:44px;
+  height:6px;
+  border-radius:999px;
+  background:linear-gradient(to right,#38bdf8,#22c55e);
+  opacity:.9;
+}
+
+.rc-bot-antenna{
+  position:absolute;
+  top:12px;
+  left:50%;
+  transform:translateX(-50%);
+  width:3px;
+  height:28px;
+  border-radius:999px;
+  background:linear-gradient(to bottom,#22d3ee,transparent);
+}
+.rc-bot-antenna::after{
+  content:"";
+  position:absolute;
+  top:-6px;
+  left:50%;
+  transform:translateX(-50%);
+  width:10px;
+  height:10px;
+  border-radius:999px;
+  background:#22d3ee;
+  box-shadow:0 0 16px rgba(56,189,248,.9);
+}
+
+.rc-auth-badge{
+  position:absolute;
+  bottom:18px;
+  left:20px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(15,23,42,.85);
+  border:1px solid rgba(148,163,184,.5);
+  font-size:11px;
+  color:var(--text-dim);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.rc-auth-badge-dot{
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  background:radial-gradient(circle at 30% 0,#4ade80,#16a34a);
+  box-shadow:0 0 10px rgba(74,222,128,.8);
+}
+
+/* Contenido / formulario */
+
+.rc-auth-content{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:18px;
+}
+
+.rc-auth-kicker{
+  font-size:13px;
+  font-weight:500;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--accent-strong);
+}
+
+.rc-auth-title{
+  font-size:30px;
+  font-weight:650;
+  letter-spacing:.01em;
+}
+
+.rc-auth-subtitle{
+  font-size:14px;
+  color:var(--text-dim);
+  max-width:440px;
+}
+
+.rc-auth-form{
+  margin-top:8px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.rc-field-label{
+  font-size:13px;
+  color:var(--text-dim);
+  margin-bottom:4px;
+}
+
+.rc-field-wrapper{
+  position:relative;
+}
+
+/* Estilamos el input de Django */
+.rc-auth-form input[type="email"],
+.rc-auth-form input[type="text"],
+.rc-auth-form input{
+  width:100%;
+  padding:11px 14px;
+  border-radius:999px;
+  border:1px solid var(--border-subtle);
+  background:radial-gradient(circle at top left,rgba(15,23,42,.9),rgba(15,23,42,.98));
+  color:var(--text);
+  font-size:14px;
+  outline:none;
+}
+
+.rc-auth-form input:focus{
+  border-color:rgba(56,189,248,.85);
+  box-shadow:0 0 0 1px rgba(56,189,248,.25),0 0 18px rgba(56,189,248,.45);
+}
+
+.rc-field-error{
+  margin-top:4px;
+  font-size:12px;
+  color:var(--danger);
+}
+
+.rc-form-errors{
+  font-size:13px;
+  padding:8px 12px;
+  border-radius:12px;
+  background:rgba(239,68,68,.1);
+  border:1px solid rgba(239,68,68,.4);
+  color:#fecaca;
+}
+
+.rc-auth-actions{
+  margin-top:6px;
+}
+
+.rc-btn-primary{
+  width:100%;
+  border:none;
+  cursor:pointer;
+  border-radius:999px;
+  padding:11px 16px;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:.02em;
+  background:linear-gradient(to right,#22d3ee,#22c55e);
+  color:#0f172a;
+  box-shadow:0 14px 40px rgba(34,211,238,.5);
+  transition:transform .15s ease,box-shadow .15s ease,filter .15s ease,opacity .15s ease;
+}
+
+.rc-btn-primary:hover{
+  transform:translateY(-1px);
+  box-shadow:0 20px 50px rgba(34,211,238,.6);
+  filter:brightness(1.02);
+}
+
+.rc-btn-primary.is-loading{
+  opacity:.7;
+  pointer-events:none;
+}
+
+.rc-auth-alt{
+  margin-top:10px;
+  font-size:13px;
+  color:var(--text-dim);
+}
+
+/* Footer */
+
+.rc-auth-footer{
+  padding:16px 0 24px;
+  text-align:center;
+  font-size:11px;
+  color:rgba(148,163,184,.8);
+}
+
+/* Responsive */
+
+@media (max-width: 800px){
+  .rc-auth-header{
+      padding:12px 18px;
+  }
+  .rc-auth-card{
+      grid-template-columns:1fr;
+      padding:22px 18px 26px;
+  }
+  .rc-auth-illustration{
+      order:-1;
+  }
+  .rc-bot-card{
+      width:190px;
+      height:190px;
+  }
+}
+
+/* ================================
+   RC Auth / Password Reset simple
+   ================================ */
+
+.rc-auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: #0f172a0d;
+}
+
+.rc-auth-card {
+  max-width: 420px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 24px 24px 20px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+  box-sizing: border-box;
+}
+
+.rc-auth-card-center {
+  text-align: center;
+}
+
+.rc-auth-title {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.rc-auth-subtitle {
+  margin: 0 0 16px;
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+
+.rc-auth-form {
+  margin-top: 8px;
+}
+
+.rc-auth-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.rc-auth-form input[type="email"],
+.rc-auth-form input[type="password"] {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  background-color: #f9fafb;
+}
+
+.rc-auth-form input[type="email"]:focus,
+.rc-auth-form input[type="password"]:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.25);
+  background-color: #ffffff;
+}
+
+.rc-auth-btn-primary {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
+}
+
+.rc-auth-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 35px rgba(37, 99, 235, 0.35);
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+}
+
+.rc-auth-btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 18px rgba(30, 64, 175, 0.45);
+}
+
+.rc-auth-errors {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.rc-auth-footer-links {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.rc-auth-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.rc-auth-link:hover {
+  text-decoration: underline;
+}
+
+.rc-auth-link-btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid #2563eb;
+  background: #ffffff;
+  color: #2563eb;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.rc-auth-link-btn:hover {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+}
+
+/* =========================================================
+   RC · Ajustes para Formularios de Django y Pantallas de Éxito
+   ========================================================= */
+
+/* Inputs de Django dentro de .login-card */
+.login-card input[type="email"],
+.login-card input[type="password"],
+.login-card input[type="text"] {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.02);
+  color: var(--text);
+  padding: 13px 18px;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+/* Focus bonito azul */
+.login-card input[type="email"]:focus,
+.login-card input[type="password"]:focus,
+.login-card input[type="text"]:focus {
+  border-color: var(--accent);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+/* Modo Oscuro */
+:root:has(#t-dark:checked) .login-card input[type="email"],
+:root:has(#t-dark:checked) .login-card input[type="password"],
+:root:has(#t-dark:checked) .login-card input[type="text"] {
+  background: rgba(15, 23, 42, 0.6);
+  color: #ffffff;
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+/* Icono de éxito grande */
+.icon-success-xl {
+  width: 68px;
+  height: 68px;
+  border-radius: 21px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 18px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+}
+
+.icon-success-xl svg {
+  width: 36px;
+  height: 36px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Textos de confirmación */
+.text-center {
+  text-align: center;
+}
+
+.text-dim-sm {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* ========================================================
+   HACKS PARA AUTOFILL / INPUTS OSCUROS (Login)
+   ======================================================== */
+
+/* 1. Forzar estilo oscuro en inputs de login */
+.login-card input, 
+.login-card input.input,
+#id_login, #id_password {
+  background-color: rgba(15, 23, 42, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* 2. Bloquear fondo blanco de autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #0f172a inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+  /* ============================================================
+   RC ULTRA — TAMAÑO H6 MÁXIMO PARA LOGIN, REGISTRO Y RECUPERAR
+   ============================================================ */
+
+/* Tarjeta principal (todas las pantallas usan esto) */
+.glow-card {
+  max-width: 650px !important;   /* MUCHO MÁS ANCHO */
+}
+
+.login-card,
+.register-card,
+.recovery-card {
+  max-width: 650px !important;
+  padding: 60px 54px !important;     /* MÁS ALTO Y ANCHO */
+  border-radius: 34px !important;
+}
+
+/* LOGO enorme estilo aplicación premium */
+.logo-xl {
+  width: 95px !important;
+  height: 95px !important;
+  font-size: 38px !important;
+  margin-bottom: 26px !important;
+  border-radius: 26px !important;
+}
+
+/* TITULOS H6 ULTRA-GRANDE */
+.title-xl,
+.title-lg,
+.title-md {
+  font-size: 2.6rem !important;      /* A ESTE NIVEL YA ES "H6 MAX" */
+  font-weight: 800 !important;
+  margin-bottom: 16px !important;
+  line-height: 1.15 !important;
+}
+
+/* SUBTÍTULOS MÁS GRANDES */
+.subtitle-md,
+.subtitle-sm {
+  font-size: 1.25rem !important;
+  line-height: 1.55 !important;
+  margin-bottom: 34px !important;
+}
+
+/* INPUTS GIGANTES */
+.input,
+.input-xl {
+  padding: 20px 26px !important;     /* Altura MUY grande */
+  font-size: 1.35rem !important;
+  border-radius: 20px !important;
+}
+
+/* LABELS GIGANTES */
+label,
+.label-lg {
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 8px !important;
+}
+
+/* BOTONES ENORMES */
+.btn,
+.btn-xl,
+.btn-primary,
+.btn-google {
+  padding: 20px 26px !important;
+  font-size: 1.35rem !important;
+  border-radius: 24px !important;
+}
+
+/* BOTÓN GOOGLE */
+.btn-google {
+  gap: 18px !important;
+}
+
+.btn-google svg {
+  width: 26px !important;
+  height: 26px !important;
+}
+
+/* LINKS GIGANTES */
+.links-left,
+.links-row,
+.divider-label,
+.link,
+.muted {
+  font-size: 1.2rem !important;
+}
+
+/* Password reset (recuperar) */
+.recovery-card .title-xl {
+  font-size: 2.4rem !important;
+}
+
+.recovery-card .input-xl {
+  font-size: 1.35rem !important;
+  padding: 20px 26px !important;
+}
+/* ========================================================
+   RC — AJUSTE PARA QUE LOGIN / REGISTER / RECOVERY
+   USEN TÍTULOS TIPO H4 (compactos)
+   ======================================================== */
+
+   .title-xl,
+   .title-lg,
+   .title-md,
+   .rc-auth-title {
+       font-size: 1.35rem !important;   /* tamaño h4 */
+       font-weight: 700 !important;
+       line-height: 1.25 !important;
+       margin-bottom: 12px !important;
+   }
+   
+   /* Subtítulos compactos */
+   .subtitle-md,
+   .subtitle-sm,
+   .rc-auth-subtitle {
+       font-size: 0.95rem !important;
+       line-height: 1.45 !important;
+       margin-bottom: 16px !important;
+   }
+   
+   /* Inputs tamaño normal (no gigantes) */
+   .input,
+   .input-xl,
+   .rc-auth-form input[type="email"],
+   .rc-auth-form input[type="password"],
+   .rc-auth-form input[type="text"] {
+       padding: 12px 16px !important;
+       font-size: 0.95rem !important;
+       border-radius: 12px !important;
+   }
+   
+   /* Labels normales */
+   label,
+   .label-lg,
+   .rc-field-label {
+       font-size: 0.85rem !important;
+       font-weight: 600 !important;
+       margin-bottom: 4px !important;
+   }
+   
+   /* Botones tamaño estándar */
+   .btn,
+   .btn-xl,
+   .btn-primary,
+   .btn-google,
+   .rc-btn-primary {
+       padding: 12px 16px !important;
+       font-size: 0.95rem !important;
+       border-radius: 12px !important;
+   }
+   
+   /* Botón Google visualmente más pequeño */
+   .btn-google {
+       gap: 8px !important;
+   }
+   
+   .btn-google svg {
+       width: 18px !important;
+       height: 18px !important;
+   }
+   
+   /* Textos secundarios (links, divider, metas) */
+   .link,
+   .divider-label,
+   .muted,
+   .links-left,
+   .links-row {
+       font-size: 0.85rem !important;
+   }
+   
+   /* Password reset más pequeño */
+   .recovery-card .title-xl {
+       font-size: 1.35rem !important;   /* mismo h4 */
+   }
+   
+   .recovery-card .input-xl {
+       font-size: 0.95rem !important;
+       padding: 12px 16px !important;
+   }
+   

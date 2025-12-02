@@ -1,0 +1,65 @@
+{% extends "paciente/base.html" %}
+{% load static %}
+
+{% block ptitle %}Pagar penalización | Paciente{% endblock %}
+
+{% block header_title %}
+    Penalización por inasistencias
+{% endblock %}
+
+{% block pcontent %}
+
+{#
+  ESPERA EN EL CONTEXT:
+  - penalizacion: objeto con:
+        - inasistencias
+        - recargo (monto)
+        - fecha_limite (opcional)
+        - estado
+#}
+
+<section class="section-wrapper">
+    <div class="section-title">
+        <i class="ph-duotone ph-warning-octagon"></i>
+        Detalles de penalización
+    </div>
+
+    <div class="card-modern penalty-page">
+        <p class="text-muted">
+            Has acumulado inasistencias que generaron una penalización.
+            Para continuar agendando citas con normalidad, es necesario
+            cubrir el monto correspondiente.
+        </p>
+
+        <ul class="penalty-page__list" style="margin-top:1rem;">
+            <li><strong>Inasistencias:</strong> {{ penalizacion.inasistencias }}</li>
+            <li><strong>Monto a pagar:</strong> ${{ penalizacion.recargo }} MXN</li>
+            {% if penalizacion.fecha_limite %}
+                <li><strong>Fecha límite de pago:</strong> {{ penalizacion.fecha_limite|date:"d/m/Y" }}</li>
+            {% endif %}
+            <li><strong>Estado actual:</strong> {{ penalizacion.get_estado_display|default:"Pendiente" }}</li>
+        </ul>
+
+        <p class="penalty-page__text" style="margin-top:1.5rem;">
+            Una vez realizado el pago, tu cuenta será reactivada y podrás
+            continuar agendando citas normalmente.
+        </p>
+
+        <form method="POST" style="margin-top:1.5rem;">
+            {% csrf_token %}
+            {# Más adelante aquí disparamos MercadoPago en sandbox #}
+            <button type="submit" class="cyber-btn cyber-btn-glow">
+                <i class="ph-bold ph-credit-card"></i>
+                Pagar penalización en línea
+            </button>
+        </form>
+
+        <div style="margin-top:1rem;">
+            <a href="{% url 'paciente:dashboard' %}" class="cyber-btn">
+                ⬅ Volver al panel
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

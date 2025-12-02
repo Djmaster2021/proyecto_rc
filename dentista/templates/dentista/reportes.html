@@ -1,0 +1,59 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Reportes | RC Dental{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+  <div>
+    <h1 class="text-gradient">Reportes del Consultorio</h1>
+    <p class="welcome-subtitle">
+      Resumen ejecutivo de tu actividad como dentista.
+    </p>
+  </div>
+</div>
+
+<div class="reports-grid">
+
+  <div class="cyber-card" style="padding: 1.5rem;">
+    <h3>Resumen General</h3>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">
+      En una versión más avanzada, aquí podrás ver:
+    </p>
+    <ul style="color: var(--text-muted); font-size: 0.9rem; margin-left: 1.2rem;">
+      <li>Ingresos por mes</li>
+      <li>Servicios más solicitados</li>
+      <li>Pacientes con mayor frecuencia</li>
+      <li>Horas pico de demanda</li>
+    </ul>
+  </div>
+
+  <div class="cyber-card" style="padding: 1.5rem;">
+    <h3>Predicción de Demanda (IA)</h3>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">
+      Este módulo conectará con la IA de predicción para sugerir:
+    </p>
+    <ul style="color: var(--text-muted); font-size: 0.9rem; margin-left: 1.2rem;">
+      <li>Semanas con alta demanda</li>
+      <li>Días recomendados para abrir más horarios</li>
+      <li>Épocas con baja ocupación</li>
+    </ul>
+  </div>
+
+</div>
+
+<style>
+  .reports-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+  @media (max-width: 1024px) {
+    .reports-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+{% endblock %}

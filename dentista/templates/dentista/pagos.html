@@ -1,0 +1,52 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Pagos | RC Dental{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+  <div>
+    <h1 class="text-gradient">Pagos Recibidos</h1>
+    <p class="welcome-subtitle">
+      Control de ingresos por citas completadas.
+    </p>
+  </div>
+</div>
+
+<div class="cyber-card" style="padding: 1.5rem;">
+  {% if pagos %}
+    <div class="table-wrapper">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Paciente</th>
+            <th>Servicio</th>
+            <th>Método</th>
+            <th>Monto</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in pagos %}
+          <tr>
+            <td>{{ p.created_at|date:"d/m/Y H:i" }}</td>
+            <td>{{ p.cita.paciente.nombre }}</td>
+            <td>{{ p.cita.servicio.nombre }}</td>
+            <td>{{ p.get_metodo_display }}</td>
+            <td>${{ p.monto }}</td>
+            <td>{{ p.get_estado_display }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p style="color: var(--text-muted); margin: 0;">
+      Aún no hay pagos registrados para tus citas.
+    </p>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Expediente | {{ paciente.nombre }}{% endblock %}
+
+{% block dcontent %}
+
+<div class="profile-header-card" style="background: white; border-radius: 12px; padding: 20px; display: flex; gap: 20px; align-items: center; margin-bottom: 2rem;">
+    <div class="profile-avatar">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: #2c3e50; color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+            {{ paciente.nombre|slice:":1" }}
+        </div>
+    </div>
+    <div class="profile-info" style="flex: 1;">
+        <h1 style="margin: 0;">{{ paciente.nombre }}</h1>
+        <p style="margin: 5px 0; color: #666;">{{ paciente.edad }} años • {{ paciente.telefono }}</p>
+    </div>
+    <div class="profile-actions">
+        <a href="{% url 'dentista:crear_cita_manual' %}?paciente={{ paciente.id }}" class="cyber-btn">Nueva Cita</a>
+    </div>
+</div>
+
+<div class="profile-tabs" style="display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+    <button class="tab-btn active" onclick="openTab('historial')">Historial</button>
+    <button class="tab-btn" onclick="openTab('odonto')">Odontograma</button>
+</div>
+
+<div id="historial" class="tab-content">
+    {% for cita in historial %}
+    <div class="cyber-card" style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid #0083B0;">
+        <div style="display: flex; justify-content: space-between;">
+            <strong>{{ cita.servicio.nombre }}</strong>
+            <small>{{ cita.fecha|date:"d/m/Y" }}</small>
+        </div>
+        <p>{{ cita.notas|default:"Sin notas" }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<div id="odonto" class="tab-content" style="display: none;">
+    <div class="cyber-card" style="background: white; padding: 20px; border-radius: 12px;">
+        <h3>Odontograma Visual</h3>
+        <div class="odontogram-container" style="display: flex; gap: 5px; flex-wrap: wrap; justify-content: center;">
+            {% for i in "8765432112345678"|make_list %}
+                <div class="tooth-item" style="text-align: center;">
+                    <div style="width: 25px; height: 25px; border: 1px solid #ccc; margin: 2px;"></div>
+                    <span style="font-size: 0.6rem;">{{ forloop.counter }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function openTab(id) {
+        document.querySelectorAll('.tab-content').forEach(d => d.style.display = 'none');
+        document.getElementById(id).style.display = 'block';
+    }
+</script>
+
+{% endblock %}

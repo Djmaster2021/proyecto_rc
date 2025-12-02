@@ -1,0 +1,55 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Nuevo Paciente | RC{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+    <h1 class="text-gradient">Registrar Paciente</h1>
+    <p class="welcome-subtitle">Ingresa los datos del nuevo expediente.</p>
+</div>
+
+<div class="cyber-card" style="max-width: 800px; margin: 0 auto; padding: 2rem;">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group">
+                <label class="form-label">Nombre Completo *</label>
+                <input type="text" name="nombre" class="form-control" required placeholder="Ej. Juan Pérez">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Teléfono / WhatsApp</label>
+                <input type="tel" name="telefono" class="form-control" placeholder="Ej. 322 123 4567">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Fecha de Nacimiento <small style="color:#888;">(Opcional)</small></label>
+                <input type="date" name="fecha_nacimiento" class="form-control"> 
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Foto de Perfil</label>
+                <input type="file" name="imagen" class="form-control" accept="image/*">
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <label class="form-label">Dirección <small style="color:#888;">(Opcional)</small></label>
+            <input type="text" name="direccion" class="form-control" placeholder="Calle, Número, Colonia...">
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <label class="form-label">Antecedentes Médicos / Alergias</label>
+            <textarea name="antecedentes" class="form-control" rows="3" placeholder="Diabetes, Hipertensión, Alergia a Penicilina..."></textarea>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
+            <a href="{% url 'dentista:pacientes' %}" class="cyber-btn cyber-btn-secondary">Cancelar</a>
+            <button type="submit" class="cyber-btn cyber-btn-glow">Guardar Paciente</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

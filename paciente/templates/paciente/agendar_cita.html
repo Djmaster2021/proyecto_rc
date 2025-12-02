@@ -1,0 +1,83 @@
+{% extends "paciente/base.html" %}
+{% load static %}
+
+{% block ptitle %}Agendar Cita | Paciente{% endblock %}
+
+{% block header_title %}
+    Nueva Cita
+{% endblock %}
+
+{% block pcontent %}
+
+<div class="row justify-center">
+    <div class="col-md-8">
+        
+        <div class="card-modern" style="padding: 2.5rem;">
+            
+            <div class="text-center mb-4">
+                <i class="ph-duotone ph-calendar-plus" style="font-size: 4rem; color: var(--brand);"></i>
+                <h2 style="margin-top: 1rem;">Solicitar Atención</h2>
+                <p class="text-muted" style="font-size: 1.1rem;">
+                    Selecciona el tratamiento que necesitas. Te asignaremos al especialista adecuado.
+                </p>
+            </div>
+
+            <form method="POST" action="">
+                {% csrf_token %}
+
+                <div class="form-group mb-4">
+                    <label for="servicio" style="font-size: 1.2rem; margin-bottom: 10px;">
+                        <i class="ph-bold ph-tooth"></i> ¿Qué tratamiento necesitas?
+                    </label>
+                    <select name="servicio" id="servicio" class="cyber-input" required style="height: 60px;">
+                        <option value="" disabled selected>-- Selecciona un servicio --</option>
+                        
+                        {% for s in servicios %}
+                            <option value="{{ s.id }}">
+                                {{ s.nombre }} — Dr. {{ s.dentista.nombre }} 
+                                ({{ s.precio }} MXN)
+                            </option>
+                        {% empty %}
+                            <option value="" disabled>No hay servicios disponibles</option>
+                        {% endfor %}
+                    </select>
+                    <small style="color: var(--brand); display: block; margin-top: 5px;">
+                        * El sistema seleccionará la agenda del doctor especialista automáticamente.
+                    </small>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label for="fecha" style="font-size: 1.2rem; margin-bottom: 10px;">
+                            <i class="ph-bold ph-calendar-blank"></i> Fecha deseada
+                        </label>
+                        <input type="date" name="fecha" id="fecha" class="cyber-input" required 
+                               min="{{ fecha_actual|date:'Y-m-d' }}" style="height: 60px;">
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label for="hora" style="font-size: 1.2rem; margin-bottom: 10px;">
+                            <i class="ph-bold ph-clock"></i> Hora preferida
+                        </label>
+                        <input type="time" name="hora" id="hora" class="cyber-input" required style="height: 60px;">
+                        <small class="text-muted">Horario de atención: 09:00 - 19:00</small>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <a href="{% url 'paciente:dashboard' %}" class="rc-btn" style="border-color: transparent; color: var(--muted);">
+                        Cancelar
+                    </a>
+                    
+                    <button type="submit" class="rc-btn rc-btn--primary" style="font-size: 1.3rem; padding: 15px 40px;">
+                        Confirmar Cita <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

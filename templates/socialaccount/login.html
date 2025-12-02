@@ -1,0 +1,66 @@
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Confirmar acceso — RC</title>
+  <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
+  <link rel="stylesheet" href="{% static 'accounts/styles.css' %}">
+</head>
+<body>
+  <header class="site-topbar">
+    <a class="brand" href="#" aria-label="Rodolfo Castellón">RC</a>
+  </header>
+
+  <main class="site-main">
+    <section class="auth-hero">
+      <div class="glow-card">
+        <div class="login-card login-card--center">
+          
+          <div class="card-head">
+            <div class="logo">RC</div>
+            <h1 class="title">Confirmar acceso</h1>
+            <p class="subtitle">Estás a punto de iniciar sesión mediante:</p>
+          </div>
+
+          <div class="provider-wrapper">
+            <div class="provider-badge">
+               <svg width="30" height="30" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                 <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.566 2.684-3.874 2.684-6.615z" fill="#4285F4"></path>
+                 <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"></path>
+                 <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"></path>
+                 <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.27C4.672 5.143 6.656 3.58 9 3.58z" fill="#EA4335"></path>
+               </svg>
+            </div>
+            <h3 class="provider-name">Google</h3>
+          </div>
+
+          <form method="post" class="auth-form">
+            {% csrf_token %}
+            
+            <p class="security-text">
+                Para tu seguridad, confirma que deseas conectar tu cuenta de Google con el consultorio.
+            </p>
+
+            <button class="btn btn-primary w-100" type="submit">
+              Continuar
+            </button>
+
+            <div class="provider-footer">
+                <a href="{% url 'accounts:login' %}" class="link link-muted">
+                    Cancelar y volver
+                </a>
+            </div>
+          </form>
+          
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">© Consultorio Rodolfo Castellón</footer>
+</body>
+</html>

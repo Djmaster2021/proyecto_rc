@@ -1,0 +1,3888 @@
+/* ==========================================================================
+   DENTIST DASHBOARD PRO | CLINICAL SUITE THEME (NOGUCHI PALETTE)
+   ========================================================================== 
+   INDICE:
+   1. VARIABLES & RESET
+   2. LAYOUT MAESTRO & SIDEBAR (Color: #2d7282)
+   3. UI KIT GLOBAL (Botones Cyan #00adc1, Inputs, Tablas)
+   4. PLUGINS (Select2, SweetAlert, Charts)
+   5. VISTA: DASHBOARD & HOME (Fix: Tarjetas Blancas)
+   6. VISTAS ESPECIFICAS (Agenda, Pacientes, Pagos)
+   7. RESPONSIVE (Celular)
+   ========================================================================== */
+
+   @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+   /* =========================================================
+      1. VARIABLES & RESET
+      ========================================================= */
+   :root {
+     /* --- PALETA NOGUCHI: CLÍNICA PRO --- */
+     
+     /* 1. ESTRUCTURA (SECCIONES) */
+     --bg-app: #f1f2f2;       /* Fondo General (Gris muy claro) */
+     --bg-sidebar: #2d7282;   /* COLOR FUERTE: Tu #2d7282 para el Menú Lateral */
+     --bg-card: #ffffff;      /* Tarjetas Blancas (Máximo contraste) */
+     --bg-input: #f8fafc;     /* Inputs casi blancos */
+     
+     /* 2. MARCA Y ACCIONES */
+     --brand: #00adc1;        /* COLOR ACENTO: Tu #00adc1 para Botones/Iconos */
+     --brand-hover: #008aa0;  /* Oscuro del brand para el hover */
+     --brand-glow: rgba(0, 173, 193, 0.25); /* Brillo cyan suave */
+     
+     /* 3. COLORES DE APOYO */
+     --accent-blue: #2d7282;  /* Reusamos el petróleo como acento secundario */
+     --accent-purple: #6366f1;
+     --border-subtle: #cbd5e1; /* Bordes visibles (Gris azulado) */
+     
+     /* 4. TEXTO DE ALTO CONTRASTE (Para Fondo Claro) */
+     --text-main: #0f172a;    /* Casi negro para lectura perfecta */
+     --text-muted: #64748b;   /* Gris medio para subtítulos */
+     --text-on-dark: #ffffff; /* Exclusivo para Sidebar y Botones sólidos */
+     
+     /* Estados */
+     --danger: #ef4444;
+     --success: #10b981;
+     --warning: #f59e0b;
+     
+     /* Efectos */
+     --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+     --shadow-elevated: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+     
+     /* Dimensiones */
+     --sidebar-width: 280px;
+     --radius-md: 12px;
+     --radius-lg: 16px;
+   }
+   
+   * { box-sizing: border-box; margin: 0; padding: 0; }
+   
+   body {
+     background-color: var(--bg-app);
+     color: var(--text-main);
+     font-family: "Inter", sans-serif;
+     /* TRUCO DE VISIBILIDAD: Aumentamos el peso base */
+     font-weight: 600; 
+     -webkit-font-smoothing: antialiased;
+     height: 100vh;
+     overflow: hidden;
+   }
+   
+   a { text-decoration: none; color: inherit; transition: 0.2s; }
+   ul { list-style: none; }
+   
+   /* Scrollbar Discreto */
+   ::-webkit-scrollbar { width: 8px; height: 8px; }
+   ::-webkit-scrollbar-track { background: transparent; }
+   ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+   ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+
+   /* =========================================================
+      2. LAYOUT MAESTRO & SIDEBAR (ESTILO PETRÓLEO)
+      ========================================================= */
+   .dashboard-shell { display: flex; height: 100vh; width: 100vw; }
+   
+   .main-content {
+     flex: 1;
+     overflow-y: auto;
+     padding: 2rem 3rem;
+     position: relative;
+     background: var(--bg-app); /* Fondo sólido limpio */
+     margin-left: var(--sidebar-width);
+   }
+
+   /* --- SIDEBAR --- */
+   .sidebar {
+       width: var(--sidebar-width);
+       height: 100vh;
+       position: fixed; top: 0; left: 0;
+       background: var(--bg-sidebar); /* #2d7282 */
+       color: #ffffff; /* Texto forzado a blanco */
+       border-right: 1px solid rgba(255,255,255,0.1);
+       display: flex; flex-direction: column;
+       z-index: 2000;
+       box-shadow: 4px 0 20px rgba(0,0,0,0.05);
+   }
+   
+   /* Header Sidebar */
+   .sidebar-header {
+      height: 90px; display: flex; align-items: center; gap: 15px; 
+      padding: 0 25px; border-bottom: 1px solid rgba(255,255,255,0.1);
+      width: 100%; box-sizing: border-box;
+   }
+   body > header { display: none !important; } 
+
+   .logo-container { position: relative; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
+   .logo-glow {
+       position: absolute; width: 100%; height: 100%; background: var(--brand); opacity: 0.2;
+       filter: blur(15px); border-radius: 50%;
+   }
+   .logo-icon { font-size: 28px; color: #fff; position: relative; z-index: 2; }
+   .brand-text-box { display: flex; flex-direction: column; }
+   .brand-main { font-weight: 800; font-size: 1.1rem; color: #fff; letter-spacing: 0.5px; }
+   .brand-sub { font-size: 0.7rem; color: rgba(255,255,255,0.7); letter-spacing: 2px; font-weight: 600; text-transform: uppercase; }
+   
+   /* Navegación */
+   .sidebar-content { flex: 1; padding: 20px; overflow-y: auto; }
+   .nav-group { margin-bottom: 25px; }
+   .nav-caption {
+       font-size: 0.7rem; color: rgba(255,255,255,0.5); font-weight: 700; letter-spacing: 1px;
+       margin-bottom: 10px; padding-left: 15px; display: block; text-transform: uppercase;
+   }
+   .nav-list { position: relative; display: flex; flex-direction: column; gap: 5px; }
+   
+   .nav-item {
+       position: relative; z-index: 1; display: flex; align-items: center; gap: 15px;
+       padding: 12px 18px; color: rgba(255,255,255,0.8); font-weight: 600; font-size: 0.95rem;
+       border-radius: 8px; transition: all 0.2s;
+   }
+   .nav-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
+   .nav-item.active { background: rgba(255,255,255,0.15); color: #fff; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+   .nav-item i { font-size: 1.1rem; }
+   .nav-item.active i { color: var(--brand); }
+   
+   /* Footer Sidebar */
+   .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); background-color: rgba(0,0,0,0.1); }
+   .user-glass-card {
+       display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.2);
+       padding: 12px; border-radius: 12px; transition: background 0.2s;
+   }
+   .user-img-wrap { position: relative; width: 40px; height: 40px; }
+   .user-img-wrap img { width: 100%; height: 100%; border-radius: 50%; border: 2px solid #fff; object-fit: cover; }
+   .user-data { flex: 1; overflow: hidden; }
+   .u-name { display: block; color: #fff; font-weight: 700; font-size: 0.85rem; }
+   .u-role { display: block; color: var(--brand); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+   .btn-logout-glass {
+       background: transparent; border: none; color: #ff8a8a; cursor: pointer;
+       font-size: 1.2rem; transition: 0.2s;
+   }
+   .btn-logout-glass:hover { color: #ff5050; transform: scale(1.1); }
+
+
+   /* =========================================================
+      3. UI KIT GLOBAL (PROFESIONAL)
+      ========================================================= */
+   
+   /* Headers */
+   .page-header {
+       display: flex; justify-content: space-between; align-items: flex-end;
+       margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle);
+   }
+   /* Ocultar iconos viejos si existen */
+   .page-header > div:first-child > i:first-child { display: none !important; }
+
+   .text-gradient {
+       color: var(--text-main); /* Ya no degradado, sólido y profesional */
+       font-size: 2rem; font-weight: 800; margin: 0; letter-spacing: -0.5px;
+   }
+   .welcome-subtitle { color: var(--text-muted); font-size: 1rem; margin-top: 0.2rem; font-weight: 500; }
+   
+   /* Tarjetas Base (Card Clean) */
+   .cyber-card {
+       background: var(--bg-card); border: 1px solid var(--border-subtle);
+       border-radius: var(--radius-lg); padding: 2rem;
+       box-shadow: var(--shadow-card); position: relative; overflow: hidden;
+   }
+   
+   /* Botones */
+   .cyber-btn {
+       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+       padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 700; font-size: 0.9rem;
+       cursor: pointer; transition: 0.2s; border: 1px solid var(--border-subtle);
+       background: #fff; color: var(--text-main); text-decoration: none;
+       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+   }
+   .cyber-btn:hover { background: #f8fafc; border-color: var(--brand); transform: translateY(-1px); }
+   
+   /* Botón Principal (Cyan) */
+   .cyber-btn-glow {
+       background: var(--brand); color: #fff; border: none;
+       box-shadow: 0 4px 10px var(--brand-glow);
+   }
+   .cyber-btn-glow:hover { background: var(--brand-hover); color: #fff; box-shadow: 0 6px 15px var(--brand-glow); }
+   
+   /* Botones de Acción (Iconos) */
+   .btn-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: 0.2s; font-size: 1.1rem; }
+   .btn-edit { background: #e0f2fe; color: #0284c7; }
+   .btn-edit:hover { background: #0284c7; color: #fff; }
+   .btn-delete { background: #fee2e2; color: #dc2626; }
+   .btn-delete:hover { background: #dc2626; color: #fff; }
+
+   /* Inputs & Formularios */
+   .form-group { margin-bottom: 1.5rem; }
+   .form-group label { display: block; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-muted); text-transform: uppercase; }
+   
+   input, select, textarea, .cyber-input {
+       width: 100%; background: var(--bg-input) !important; color: var(--text-main) !important;
+       border: 1px solid var(--border-subtle) !important; padding: 0.8rem 1rem; border-radius: 10px;
+       font-family: inherit; font-size: 0.95rem; font-weight: 600; outline: none; transition: 0.2s;
+   }
+   input:focus, select:focus, textarea:focus {
+       border-color: var(--brand) !important; background: #fff !important;
+       box-shadow: 0 0 0 3px rgba(0, 173, 193, 0.15);
+   }
+   
+   /* Tablas Clínicas */
+   .table-responsive { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-subtle); background: #fff; }
+   .data-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+   .data-table th { text-align: left; padding: 1rem 1.5rem; background: #f1f5f9; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; border-bottom: 2px solid var(--border-subtle); }
+   .data-table td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-subtle); color: var(--text-main); font-weight: 500; }
+   .data-table tr:hover td { background: #f8fafc; }
+   
+   /* Badges */
+   .status-badge { padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; text-transform: uppercase; }
+   .status-active { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+   .status-inactive { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+   /* Modales */
+   .modal-overlay {
+     position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+     z-index: 3000; display: none; align-items: center; justify-content: center;
+   }
+   .modal-overlay.active { display: flex; }
+   .modal-content {
+     background: #fff; border: 1px solid var(--border-subtle); width: 90%; max-width: 500px;
+     border-radius: 16px; padding: 2rem; box-shadow: var(--shadow-elevated);
+   }
+
+
+   /* =========================================================
+      4. PLUGINS
+      ========================================================= */
+   /* SweetAlert2 Theme */
+   div:where(.swal2-container) div:where(.swal2-popup) { background: #fff !important; border-radius: 16px !important; color: var(--text-main) !important; }
+   div:where(.swal2-container) .swal2-title { color: var(--text-main) !important; }
+   div:where(.swal2-container) .swal2-html-container { color: var(--text-muted) !important; }
+   
+   /* Select2 Theme */
+   .select2-container--default .select2-selection--single { background-color: var(--bg-input) !important; border: 1px solid var(--border-subtle) !important; height: 45px !important; border-radius: 10px !important; display: flex !important; align-items: center !important; }
+   .select2-container--default .select2-selection--single .select2-selection__rendered { color: var(--text-main) !important; font-weight: 600; }
+   .select2-dropdown { background-color: #fff !important; border: 1px solid var(--border-subtle) !important; box-shadow: var(--shadow-elevated); }
+   .select2-results__option { color: var(--text-main) !important; }
+   .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable { background-color: var(--brand) !important; color: #fff !important; }
+
+
+   /* =========================================================
+      5. VISTA: DASHBOARD & HOME (FIX TARJETAS BLANCAS)
+      ========================================================= */
+   
+   .dashboard-split-grid { display: grid; grid-template-columns: 2.5fr 1.2fr; gap: 1.5rem; height: 100%; }
+   .left-column-wrapper { display: flex; flex-direction: column; gap: 1.5rem; height: 100%; }
+
+   /* KPIs - EL FIX IMPORTANTE */
+   .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+   .kpi-card { 
+       background: #ffffff; /* BLANCO PURO */
+       border: 1px solid var(--border-subtle); border-radius: 16px;
+       padding: 1.5rem; display: flex; align-items: center; gap: 1rem; 
+       box-shadow: var(--shadow-card); transition: transform 0.2s;
+   }
+   .kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-elevated); }
+   
+   .kpi-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+   .kpi-blue .kpi-icon { background: #e0f2fe; color: #0284c7; }
+   .kpi-orange .kpi-icon { background: #ffedd5; color: #c2410c; }
+   .kpi-green .kpi-icon { background: #dcfce7; color: #15803d; }
+   
+   .kpi-content { display: flex; flex-direction: column; }
+   .kpi-value { font-size: 1.8rem; font-weight: 800; color: var(--text-main); line-height: 1.1; }
+   .kpi-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+   
+   /* Radar Operativo (Calendario Home) */
+   .radar-panel {
+       flex: 1; background: #fff; border: 1px solid var(--border-subtle); border-radius: 18px;
+       display: flex; flex-direction: column; overflow: hidden; min-height: 500px;
+       box-shadow: var(--shadow-card);
+   }
+   .panel-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
+   
+   .radar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; padding: 10px; }
+   .radar-day {
+       background: #fff; border: 1px solid var(--border-subtle); border-radius: 8px;
+       padding: 0.8rem; min-height: 100px; display: flex; flex-direction: column; transition: 0.2s;
+   }
+   .radar-day:hover { background: #f1f5f9; border-color: var(--brand); }
+   .radar-day.is-today { border: 2px solid var(--brand); background: rgba(0, 173, 193, 0.05); }
+   
+   /* Stack Derecha */
+   .side-stack { display: flex; flex-direction: column; gap: 1.2rem; height: 100%; }
+   .hero-patient-card {
+       background: #fff; padding: 1.5rem; border-radius: 20px; 
+       border: 1px solid var(--border-subtle); text-align: center;
+       box-shadow: var(--shadow-card);
+   }
+   .hp-avatar { width: 70px; height: 70px; background: var(--bg-sidebar); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 1rem; }
+   
+   .premium-card { background: #fff; border: 1px solid var(--border-subtle); border-radius: 20px; padding: 1.5rem; box-shadow: var(--shadow-card); }
+
+
+   /* =========================================================
+      6. VISTAS ESPECIFICAS (AGENDA, PACIENTES)
+      ========================================================= */
+   
+   /* Toolbar Agenda */
+   .calendar-toolbar { display: flex; gap: 0.5rem; background: #fff; padding: 0.5rem; border-radius: 10px; border: 1px solid var(--border-subtle); width: fit-content; }
+   .tool-btn { border: none; background: transparent; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+   .tool-btn.active { background: var(--bg-sidebar); color: #fff; }
+
+   /* Agenda Layout */
+   .agenda-layout { display: grid; grid-template-columns: 280px 1fr; gap: 2rem; height: calc(100vh - 180px); }
+   .day-card {
+       background: #fff; border: 1px solid var(--border-subtle); border-radius: 16px;
+       height: 320px; min-height: 320px; display: flex; flex-direction: column;
+       box-shadow: var(--shadow-card);
+   }
+   .day-header { padding: 10px 15px; border-bottom: 1px solid var(--border-subtle); background: #f8fafc; display: flex; justify-content: space-between; }
+   
+   /* Chips de Citas */
+   .appointment-chip {
+       background: #fff; border: 1px solid var(--border-subtle); border-left: 4px solid #94a3b8;
+       border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; cursor: pointer;
+       box-shadow: 0 2px 4px rgba(0,0,0,0.03); color: var(--text-main);
+       position: relative; overflow: hidden;
+   }
+   .appointment-chip:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.06); }
+   .status-confirmada { border-left-color: var(--success); }
+   .status-pendiente { border-left-color: var(--warning); }
+   
+   /* Botones Mini Acciones */
+   .btn-mini-action {
+       width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border-subtle);
+       background: #fff; color: var(--text-muted); display: flex; align-items: center; justify-content: center;
+       cursor: pointer; transition: 0.2s;
+   }
+   .btn-mini-action:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+   /* Pacientes Grid */
+   .patients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+   .patient-card { background: #fff; border: 1px solid var(--border-subtle); border-radius: 16px; padding: 1.5rem; box-shadow: var(--shadow-card); transition: 0.2s; }
+   .patient-card:hover { border-color: var(--brand); }
+
+   /* Reportes Toolbar */
+   .premium-toolbar {
+       display: flex; justify-content: space-between; align-items: center;
+       background: #fff; border: 1px solid var(--border-subtle); border-radius: 16px; 
+       padding: 1rem; margin-bottom: 2rem;
+   }
+   .btn-export.csv { background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border-subtle); padding: 0.5rem 1rem; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+   .btn-export.pdf { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+
+
+   /* =========================================================
+      7. RESPONSIVE (CELULAR)
+      ========================================================= */
+   @media (max-width: 1024px) {
+     .sidebar { transform: translateX(-105%); width: 280px; box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
+     .sidebar.sidebar-open { transform: translateX(0); }
+     .main-content { margin-left: 0 !important; padding: 1rem !important; width: 100vw; }
+     .sidebar-toggle-btn, #mobile-toggle { display: flex !important; position: fixed; bottom: 20px; right: 20px; z-index: 2100; width: 55px; height: 55px; border-radius: 50%; background: var(--brand); color: #fff; border: none; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,173,193,0.4); }
+     
+     .dashboard-split-grid, .agenda-layout, .clinical-layout { display: flex !important; flex-direction: column !important; gap: 1.5rem; }
+     .agenda-sidebar { display: none; }
+     .kpi-row { grid-template-columns: 1fr 1fr; }
+   }
+
+   @media (max-width: 600px) {
+     .kpi-row { grid-template-columns: 1fr; }
+   }
+
+   /* =========================================================
+      8. VISTA AGENDA PRO (KANBAN / COLUMNAS)
+      ========================================================= */
+
+   /* Grid Principal: Columnas inteligentes que se ajustan */
+   .agenda-kanban-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+    align-items: start;
+    padding-bottom: 2rem;
+}
+
+/* Columna del Día (Sobrescribe estilos viejos de .day-card si es necesario) */
+.day-column {
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    /* Altura dinámica para scroll interno */
+    height: auto !important; 
+    max-height: 75vh; 
+    overflow: hidden;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-card);
+}
+
+.day-column:hover {
+    border-color: var(--brand);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.day-column.is-today {
+    border: 2px solid var(--brand);
+    background: #ffffff;
+}
+
+/* Cabecera del Día (Sticky: Se queda pegada al bajar) */
+.day-header-sticky {
+    background: #f8fafc;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.is-today .day-header-sticky {
+    background: rgba(0, 173, 193, 0.05); /* Tinte Cyan muy sutil */
+    border-bottom-color: rgba(0, 173, 193, 0.2);
+}
+
+/* Área de Scroll Interno (Donde van las citas) */
+.day-scroll-area {
+    padding: 10px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 150px;
+    
+    /* Scrollbar fina y estética */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+.day-scroll-area::-webkit-scrollbar { width: 5px; }
+.day-scroll-area::-webkit-scrollbar-track { background: transparent; }
+.day-scroll-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+/* TICKET DE CITA (Estilo Tarjeta Compacta) */
+.appt-ticket {
+    background: #fff;
+    border: 1px solid var(--border-subtle);
+    border-left: 4px solid #cbd5e1; /* Color default */
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.appt-ticket:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    z-index: 5;
+}
+
+/* Estados Visuales del Ticket */
+.appt-ticket.confirmada { border-left-color: var(--success); background: linear-gradient(to right, #f0fdf4 0%, #fff 40%); }
+.appt-ticket.pendiente { border-left-color: var(--warning); background: linear-gradient(to right, #fffbeb 0%, #fff 40%); }
+.appt-ticket.completada { border-left-color: #64748b; opacity: 0.7; background: #f1f5f9; }
+
+/* Contenido del Ticket */
+.ticket-header {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
+}
+
+/* Acciones que aparecen al pasar el mouse */
+.ticket-actions-hover {
+    display: flex; gap: 5px; opacity: 0; transition: opacity 0.2s;
+}
+.appt-ticket:hover .ticket-actions-hover { opacity: 1; }
+
+.ticket-patient {
+    font-weight: 700; color: var(--text-main); font-size: 0.9rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.ticket-service {
+    font-size: 0.8rem; color: var(--brand); font-weight: 600;
+}
+
+/* Botón flotante "Agendar" al pasar el mouse sobre un día vacío */
+.add-btn-overlay {
+    opacity: 0; transition: 0.2s; text-align: center; padding: 1rem 0;
+}
+.day-column:hover .add-btn-overlay { opacity: 1; }
+
+/* =========================================================
+      9. VISTA PACIENTES (DIRECTORIO & BÚSQUEDA)
+      ========================================================= */
+
+   /* Barra de Búsqueda Flotante */
+   .search-toolbar-container {
+    background: #fff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 0.8rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    align-items: center;
+    max-width: 800px; /* Que no se estire demasiado */
+}
+
+.search-main-form {
+    display: flex; width: 100%; align-items: center; gap: 10px;
+}
+
+.search-icon-box {
+    color: var(--text-muted); font-size: 1.2rem; padding-left: 10px;
+}
+
+.search-input-lg {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: 1rem !important;
+    padding: 0 !important;
+    height: auto !important;
+}
+.search-input-lg:focus { box-shadow: none !important; }
+
+.btn-clear-search {
+    color: var(--text-muted); cursor: pointer; padding: 5px;
+    display: flex; align-items: center; transition: 0.2s;
+}
+.btn-clear-search:hover { color: var(--danger); }
+
+/* Grid de Pacientes (Ajuste al Grid General) */
+.patients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Tarjeta de Paciente (Rediseño Limpio) */
+.patient-card {
+    background: #fff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 0; /* Padding manejado internamente */
+    box-shadow: var(--shadow-card);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.patient-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    border-color: var(--brand);
+}
+
+/* Cabecera Tarjeta */
+.pc-head {
+    padding: 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+    border-bottom: 1px solid var(--bg-input);
+    background: #f8fafc;
+}
+
+.pc-avatar-circle {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: var(--bg-sidebar); /* Color Petróleo Corporativo */
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1.1rem;
+    box-shadow: 0 4px 10px rgba(45, 114, 130, 0.2);
+}
+
+.pc-info { flex: 1; overflow: hidden; }
+.pc-name { margin: 0; font-size: 1rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pc-id { font-size: 0.7rem; color: var(--text-muted); font-family: monospace; letter-spacing: 0.5px; }
+
+/* Cuerpo Tarjeta */
+.pc-body-content { padding: 1.5rem; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+
+.pc-data-row {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 0.85rem; color: var(--text-muted);
+}
+.pc-data-row i { color: var(--brand); font-size: 1rem; width: 20px; text-align: center; }
+.pc-data-row span { color: var(--text-main); font-weight: 500; }
+
+/* Footer Tarjeta (Botones) */
+.pc-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    background: #fff;
+}
+
+.quick-actions { display: flex; gap: 5px; }
+
+/* =========================================================
+      10. VISTA FINANZAS (BADGES Y TABLAS)
+      ========================================================= */
+   
+   /* Badges de Método de Pago */
+   .pay-badge { 
+    display: inline-flex; align-items: center; gap: 6px; 
+    padding: 4px 10px; border-radius: 6px; 
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase; 
+    border: 1px solid transparent;
+}
+
+.pb-cash { background: #dcfce7; color: #15803d; border-color: #bbf7d0; } /* Efectivo - Verde */
+.pb-card { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; } /* Tarjeta - Azul */
+.pb-transfer { background: #f3e8ff; color: #7e22ce; border-color: #e9d5ff; } /* Transf - Morado */
+.pb-other { background: #f1f5f9; color: #475569; border-color: #cbd5e1; } /* Otro - Gris */
+
+/* Celda de Monto (Destacada) */
+.amount-cell {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+/* KPIs Financieros (Ajuste de Grid) */
+.finance-kpi-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+    gap: 1.5rem; margin-bottom: 2rem;
+}
+
+/* =========================================================
+      11. VISTA REPORTES (TOOLBAR & CHART)
+      ========================================================= */
+
+   /* Barra de Herramientas de Filtro */
+   .report-toolbar {
+    background: #fff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 0.8rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    box-shadow: var(--shadow-card);
+}
+
+.filter-group {
+    display: flex; align-items: center; gap: 10px;
+}
+
+.filter-label {
+    font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;
+}
+
+.date-input-sm {
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-input);
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-family: inherit; font-size: 0.9rem; color: var(--text-main);
+    outline: none;
+}
+
+.export-group {
+    display: flex; gap: 10px; margin-left: auto;
+}
+
+/* Ajuste de botones de exportación para que se vean pro */
+.btn-export {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 0.5rem 1rem; border-radius: 8px;
+    font-size: 0.8rem; font-weight: 600; text-decoration: none;
+    transition: all 0.2s;
+}
+.btn-export.csv { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+.btn-export.csv:hover { background: #0369a1; color: #fff; }
+
+.btn-export.pdf { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+.btn-export.pdf:hover { background: #b91c1c; color: #fff; }
+
+/* Contenedor de Gráfica */
+.chart-container-card {
+    background: #fff; border-radius: 16px; 
+    border: 1px solid var(--border-subtle);
+    padding: 1.5rem; margin-bottom: 2rem;
+    height: 400px; position: relative;
+    box-shadow: var(--shadow-card);
+}
+/* =========================================================
+      12. VISTA DETALLE PACIENTE (PERFIL PRO)
+      ========================================================= */
+
+   /* Cabecera del Perfil */
+   .profile-header-card {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 16px; overflow: hidden; margin-bottom: 2rem;
+    box-shadow: var(--shadow-card);
+}
+
+.profile-cover {
+    height: 140px;
+    background: linear-gradient(135deg, var(--bg-sidebar) 0%, #154e5e 100%);
+    position: relative;
+}
+
+.profile-content {
+    padding: 0 2rem 2rem; position: relative;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    flex-wrap: wrap; gap: 1rem;
+}
+
+.profile-avatar-large {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    background: #fff;
+    border: 5px solid #fff;
+    margin-top: -65px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem; font-weight: 800; color: var(--bg-sidebar);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.profile-info { flex: 1; padding-top: 1rem; min-width: 250px; }
+.profile-name { font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; }
+.profile-meta { display: flex; gap: 15px; color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+
+/* Sistema de Pestañas (Tabs) */
+.profile-tabs {
+    display: flex; gap: 1rem; border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 2rem; overflow-x: auto;
+}
+
+.tab-btn {
+    padding: 1rem 0;
+    background: transparent; border: none;
+    font-size: 0.95rem; font-weight: 600; color: var(--text-muted);
+    cursor: pointer; position: relative;
+    transition: 0.2s; white-space: nowrap;
+}
+
+.tab-btn:hover { color: var(--brand); }
+
+.tab-btn.active {
+    color: var(--brand); font-weight: 700;
+}
+.tab-btn.active::after {
+    content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px;
+    background: var(--brand); border-radius: 3px 3px 0 0;
+}
+
+/* Contenido de Pestañas */
+.tab-pane { display: none; animation: fadeIn 0.3s ease; }
+.tab-pane.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Línea de Tiempo (Historial) */
+.timeline-container { position: relative; padding-left: 2rem; border-left: 2px solid var(--bg-input); }
+
+.timeline-item { position: relative; margin-bottom: 2rem; }
+
+.timeline-marker {
+    position: absolute; left: -2.6rem; top: 0;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; border: 4px solid var(--border-subtle);
+    z-index: 2;
+}
+.timeline-item.visit .timeline-marker { border-color: var(--brand); }
+.timeline-item.note .timeline-marker { border-color: var(--warning); }
+
+.timeline-card {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 12px; padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+}
+
+/* Odontograma (Visual Simple) */
+.odontogram-grid {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+    padding: 2rem; background: #f8fafc; border-radius: 16px; border: 1px solid var(--border-subtle);
+}
+.tooth {
+    width: 40px; height: 50px; background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700; color: var(--text-muted); cursor: pointer;
+    transition: 0.2s;
+}
+.tooth:hover { border-color: var(--brand); color: var(--brand); transform: translateY(-2px); }
+.tooth.affected { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+.tooth.treated { background: #dcfce7; border-color: #10b981; color: #15803d; }
+
+/* =========================================================
+      13. VISTA DETALLE PACIENTE (EXPEDIENTE CLÍNICO)
+      ========================================================= */
+
+   /* Cabecera del Perfil (Banner + Avatar) */
+   .profile-header-card {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 16px; overflow: hidden; margin-bottom: 2rem;
+    box-shadow: var(--shadow-card);
+    position: relative;
+}
+
+.profile-cover {
+    height: 130px;
+    background: linear-gradient(135deg, var(--bg-sidebar) 0%, #154e5e 100%);
+    width: 100%;
+}
+
+.profile-content {
+    padding: 0 2rem 2rem; 
+    display: flex; flex-wrap: wrap; gap: 1.5rem;
+    align-items: flex-end; position: relative;
+}
+
+.profile-avatar-xl {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: #fff;
+    border: 4px solid #fff;
+    margin-top: -60px; /* Para que quede mitad arriba mitad abajo */
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem; font-weight: 800; color: var(--bg-sidebar);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+}
+
+.profile-info { flex: 1; padding-top: 10px; min-width: 280px; }
+
+.profile-name { 
+    font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; 
+}
+
+.profile-meta { 
+    display: flex; gap: 15px; flex-wrap: wrap;
+    color: var(--text-muted); font-size: 0.9rem; margin-top: 8px; font-weight: 500;
+}
+.profile-meta span { display: flex; align-items: center; gap: 5px; }
+
+/* SISTEMA DE PESTAÑAS (TABS) */
+.profile-tabs {
+    display: flex; gap: 2rem; border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 2rem; padding: 0 1rem; overflow-x: auto;
+}
+
+.tab-btn {
+    background: transparent; border: none; padding: 1rem 0;
+    font-size: 0.95rem; font-weight: 600; color: var(--text-muted);
+    cursor: pointer; position: relative; transition: 0.2s; white-space: nowrap;
+}
+.tab-btn:hover { color: var(--brand); }
+
+.tab-btn.active { color: var(--brand); font-weight: 700; }
+.tab-btn.active::after {
+    content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px;
+    background: var(--brand); border-radius: 3px 3px 0 0;
+}
+
+/* Contenido de Pestañas */
+.tab-pane { display: none; animation: fadeIn 0.3s ease; }
+.tab-pane.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* HISTORIAL CLÍNICO (Timeline Vertical) */
+.timeline-container { 
+    position: relative; padding-left: 2rem; border-left: 2px solid var(--bg-input); 
+    margin-top: 1rem;
+}
+
+.timeline-item { position: relative; margin-bottom: 2rem; }
+
+.timeline-marker {
+    position: absolute; left: -2.6rem; top: 0;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; border: 4px solid var(--border-subtle);
+    z-index: 2; transition: 0.2s;
+}
+.timeline-item:hover .timeline-marker { border-color: var(--brand); transform: scale(1.2); }
+
+.timeline-card {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 12px; padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+}
+
+/* ODONTOGRAMA (Grid Visual Simple) */
+.odonto-grid {
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+    background: #f8fafc; padding: 2rem; border-radius: 16px; border: 1px solid var(--border-subtle);
+}
+.tooth {
+    width: 45px; height: 55px; background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: var(--text-muted); font-size: 0.8rem; cursor: pointer;
+    transition: 0.2s;
+}
+.tooth:hover { border-color: var(--brand); color: var(--brand); transform: translateY(-3px); }
+
+/* =========================================================
+      14. VISTA SERVICIOS (CATÁLOGO)
+      ========================================================= */
+
+   /* Barra de Herramientas */
+   .tools-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;
+}
+
+.search-container { position: relative; flex: 1; max-width: 400px; }
+
+.search-icon-overlay {
+    position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+    color: var(--text-muted); pointer-events: none;
+}
+
+.search-input-modern {
+    width: 100%; background: #fff; border: 1px solid var(--border-subtle);
+    padding: 0.75rem 1rem 0.75rem 2.5rem; border-radius: 12px;
+    color: var(--text-main); font-size: 0.95rem; outline: none; transition: 0.3s;
+    box-shadow: var(--shadow-card);
+}
+.search-input-modern:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0, 173, 193, 0.1); }
+
+/* Tabla de Servicios */
+.services-table-wrapper {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-card);
+}
+
+.col-price { font-family: 'Inter', sans-serif; font-weight: 700; color: var(--brand); }
+.col-duration { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; }
+
+/* Switch Toggle (Activo/Inactivo) */
+.switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #cbd5e1; transition: .3s; border-radius: 34px;
+}
+.slider:before {
+    position: absolute; content: ""; height: 18px; width: 18px;
+    left: 3px; bottom: 3px; background-color: white;
+    transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+input:checked + .slider { background-color: var(--success); }
+input:checked + .slider:before { transform: translateX(22px); }
+
+/* Grupo de Formulario Especial (Switch en Modal) */
+.form-group-switch {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #f8fafc; padding: 1rem; border-radius: 12px;
+    border: 1px solid var(--border-subtle); margin-bottom: 1.5rem;
+}
+.form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 2rem; }
+
+/* =========================================================
+      15. VISTA PENALIZACIONES (RIESGOS)
+      ========================================================= */
+
+   /* Grid de KPIs de Riesgo */
+   .risk-kpi-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem; margin-bottom: 2rem;
+}
+
+/* Badges de Nivel de Riesgo */
+.risk-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 50px;
+    font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.risk-low {
+    background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; /* Verde */
+}
+.risk-medium {
+    background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; /* Naranja */
+}
+.risk-high {
+    background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; /* Rojo */
+}
+
+/* Estilo para columna de Historial */
+.history-text {
+    font-family: monospace; font-size: 0.85rem; color: var(--text-muted);
+}
+.history-highlight { color: var(--danger); font-weight: 700; }
+
+/* =========================================================
+      16. VISTA CONFIGURACIÓN (PERFIL & HORARIOS)
+      ========================================================= */
+
+   /* Grid Principal de Configuración */
+   .config-grid-pro {
+    display: grid; grid-template-columns: 350px 1fr;
+    gap: 2rem; align-items: start;
+}
+
+/* Tarjeta de Perfil Izquierda */
+.profile-card-full {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 16px; overflow: hidden; text-align: center;
+    box-shadow: var(--shadow-card);
+}
+
+.profile-body-center { padding: 0 1.5rem 1.5rem; position: relative; margin-top: -60px; }
+
+/* Avatar Uploader (Cámara) */
+.avatar-uploader {
+    width: 120px; height: 120px; margin: 0 auto 1rem; position: relative;
+}
+
+.avatar-placeholder {
+    width: 100%; height: 100%; border-radius: 50%;
+    background: var(--bg-sidebar); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem; font-weight: 800; border: 4px solid #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.avatar-img {
+    width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+    border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.btn-upload-trigger {
+    position: absolute; bottom: 5px; right: 5px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--brand); color: #fff; border: 2px solid #fff;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.btn-upload-trigger:hover { transform: scale(1.1); background: var(--brand-hover); }
+
+/* Lista de Detalles */
+.profile-details-list { padding: 1.5rem; border-top: 1px solid var(--border-subtle); }
+
+.detail-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1rem; font-size: 0.9rem;
+}
+.detail-row:last-child { margin-bottom: 0; }
+
+.lbl { color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+.val { font-weight: 600; color: var(--text-main); }
+
+.profile-actions-footer { padding: 1.5rem; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; }
+
+/* COLUMNA DERECHA: HORARIOS */
+.add-schedule-panel {
+    background: var(--bg-sidebar); /* Azul Petróleo */
+    color: #fff; padding: 2rem; border-radius: 16px;
+    box-shadow: var(--shadow-elevated); margin-bottom: 2rem;
+}
+
+.schedule-form-inline {
+    display: grid; grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 1rem; align-items: end;
+}
+
+.form-group-inline label { color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-bottom: 5px; display: block; }
+
+/* Grid de Horarios Activos */
+.schedule-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem; margin-top: 1rem;
+}
+
+.schedule-item-card {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 12px; padding: 1rem; display: flex; align-items: center;
+    justify-content: space-between; box-shadow: var(--shadow-card);
+}
+
+.sch-icon {
+    width: 40px; height: 40px; border-radius: 8px; background: #f0f9ff;
+    color: var(--brand); display: flex; align-items: center; justify-content: center;
+    margin-right: 10px;
+}
+
+.sch-day { font-weight: 700; color: var(--text-main); display: block; font-size: 0.9rem; }
+.sch-time { color: var(--text-muted); font-size: 0.8rem; }
+
+.btn-delete-sch {
+    color: var(--danger); opacity: 0.6; transition: 0.2s; font-size: 1.1rem;
+}
+.btn-delete-sch:hover { opacity: 1; transform: scale(1.1); }
+
+/* INPUT FILE PERSONALIZADO (Modal) */
+.file-upload-container {
+    border: 2px dashed var(--border-subtle); border-radius: 12px;
+    padding: 1.5rem; text-align: center; cursor: pointer; transition: 0.2s;
+    background: #f8fafc; position: relative;
+}
+.file-upload-container:hover { border-color: var(--brand); background: #fff; }
+.input-file-hidden { display: none; }
+.btn-file-custom { cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--text-muted); }
+.file-name-display { display: block; margin-top: 10px; font-weight: 700; color: var(--brand); font-size: 0.85rem; }
+
+/* =========================================================
+      17. VISTA SOPORTE (FAQ & TICKETS)
+      ========================================================= */
+
+   /* Layout Principal */
+   .support-grid {
+    display: grid; grid-template-columns: 2fr 1.2fr;
+    gap: 2rem; align-items: start;
+}
+
+/* Buscador Hero (En el header) */
+.search-hero-box {
+    position: relative; width: 100%; max-width: 400px;
+}
+.search-hero-input {
+    width: 100%; padding: 0.8rem 1rem 0.8rem 2.5rem;
+    border: 1px solid var(--border-subtle); border-radius: 12px;
+    font-size: 0.95rem; outline: none; transition: 0.3s;
+    background: #fff; color: var(--text-main);
+    box-shadow: var(--shadow-card);
+}
+.search-hero-input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0, 173, 193, 0.1); }
+
+/* Acordeones FAQ */
+.faq-section-title {
+    font-size: 0.9rem; font-weight: 700; color: var(--text-muted);
+    margin-bottom: 1rem; text-transform: uppercase; display: flex; align-items: center; gap: 8px;
+}
+
+details.faq-item {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 12px; margin-bottom: 1rem; overflow: hidden;
+    transition: all 0.2s; box-shadow: var(--shadow-card);
+}
+
+details.faq-item[open] { border-color: var(--brand); }
+
+summary {
+    padding: 1.2rem; font-weight: 600; cursor: pointer;
+    list-style: none; position: relative; display: flex; align-items: center;
+    justify-content: space-between; color: var(--text-main);
+}
+summary::-webkit-details-marker { display: none; } /* Ocultar triangulo default */
+
+summary::after {
+    content: '\e9c5'; /* Icono chevron de Phosphor (caret-down) */
+    font-family: "Phosphor"; 
+    font-weight: bold; transition: transform 0.2s;
+}
+
+details[open] summary::after { transform: rotate(180deg); color: var(--brand); }
+
+.faq-answer {
+    padding: 0 1.2rem 1.2rem; color: var(--text-muted);
+    font-size: 0.95rem; line-height: 1.6; border-top: 1px solid var(--bg-input);
+    padding-top: 1rem;
+}
+
+/* Tarjeta de Contacto (Derecha) */
+.ticket-card {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 2rem; box-shadow: var(--shadow-elevated);
+    position: sticky; top: 20px;
+}
+
+.contact-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 2rem;
+}
+
+.method-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 1rem; border: 1px solid var(--border-subtle); border-radius: 12px;
+    background: #f8fafc; transition: 0.2s; text-decoration: none; color: var(--text-main);
+}
+.method-item:hover {
+    background: #fff; border-color: var(--brand); transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .support-grid { grid-template-columns: 1fr; }
+    .ticket-card { position: static; }
+}
+
+/* =========================================================
+      18. ALERTAS DEL SISTEMA (TOASTS / MENSAJES)
+      ========================================================= */
+   
+      .alert-msg { 
+        padding: 12px; 
+        border-radius: 8px; 
+        margin-bottom: 1rem; 
+        font-size: 0.9rem; 
+        border: 1px solid transparent; 
+        display: flex; 
+        align-items: center; 
+        gap: 10px; 
+        font-weight: 500;
+    }
+ 
+    /* Variantes automáticas según el tag de Django */
+    .alert-success { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+    .alert-error { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+    .alert-warning { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+    .alert-info { background: #e0f2fe; color: #075985; border-color: #bae6fd; }
+
+    /* =========================================================
+   FIX: ICONOS DE ACORDEÓN (SOPORTE)
+   ========================================================= */
+
+/* Asegurar que el título y el icono estén en extremos opuestos */
+summary {
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  list-style: none; /* Quitar triángulo default feo */
+}
+
+/* Ocultar marcador default en navegadores Webkit */
+summary::-webkit-details-marker { display: none; }
+
+/* Estilo del icono de flecha */
+.faq-icon {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* Cuando el detalle está abierto (open), rotar la flecha */
+details[open] .faq-icon {
+  transform: rotate(180deg);
+  color: var(--brand); /* Se pone Cyan al abrir */
+}
+
+/* Hover en la tarjeta completa */
+details.faq-item:hover .faq-icon {
+  color: var(--text-main);
+}
+/* =========================================================
+      19. MEJORA ESTRUCTURA SOPORTE (MÓDULOS)
+      ========================================================= */
+
+   /* Barra de Estado del Sistema (Toque Pro) */
+   .system-status-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: #dcfce7; border: 1px solid #bbf7d0; color: #166534;
+    padding: 0.8rem 1.2rem; border-radius: 12px; margin-bottom: 2rem;
+    font-size: 0.85rem; font-weight: 600;
+}
+.status-pulse-green {
+    width: 10px; height: 10px; background: #22c55e; border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+    animation: pulse-green 2s infinite;
+}
+@keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); } 70% { box-shadow: 0 0 0 6px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
+
+/* Tarjeta de Categoría (Contenedor de FAQs) */
+.support-category-card {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-card);
+}
+
+.cat-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem;
+    padding-bottom: 1rem; border-bottom: 1px solid var(--bg-input);
+}
+
+.cat-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+}
+
+/* Colores por categoría */
+.cat-agenda { background: #e0f2fe; color: #0284c7; }
+.cat-money { background: #dcfce7; color: #15803d; }
+.cat-user { background: #f3e8ff; color: #7e22ce; }
+
+.cat-title { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.cat-desc { font-size: 0.8rem; color: var(--text-muted); margin: 2px 0 0 0; }
+
+/* Ajuste a los detalles para que encajen en la tarjeta */
+.support-category-card details.faq-item {
+    border: 1px solid var(--bg-input); box-shadow: none; margin-bottom: 8px;
+}
+.support-category-card details.faq-item:last-child { margin-bottom: 0; }
+
+/* =========================================================
+      19. FIX COLORES TOAST (Iconos)
+      ========================================================= */
+   
+   /* Icono dentro de mensaje de éxito */
+   .toast-alert.toast-success i { color: #4ade80; }
+   
+   /* Icono dentro de mensaje de error/warning */
+   .toast-alert.toast-error,
+   .toast-alert.toast-warning,
+   .toast-alert.toast-debug { color: #f87171; }
+   
+   /* Icono dentro de mensaje de información */
+   .toast-alert.toast-info i { color: #60a5fa; }
+
+   /* =========================================================
+      20. VISTA CONSULTA (HOJA CLÍNICA)
+      ========================================================= */
+
+   /* Grid de Datos del Paciente (Hero) */
+   .patient-hero-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem; margin-bottom: 2rem;
+}
+
+.hero-info-card {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 12px; padding: 1rem; display: flex; align-items: center; gap: 1rem;
+    box-shadow: var(--shadow-card); transition: 0.2s;
+}
+.hero-info-card:hover { border-color: var(--brand); transform: translateY(-2px); }
+
+.hero-icon-box {
+    width: 45px; height: 45px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+}
+
+.hi-purple { background: #f3e8ff; color: #9333ea; }
+.hi-orange { background: #ffedd5; color: #ea580c; }
+.hi-blue { background: #e0f2fe; color: #0284c7; }
+.hi-brand { background: rgba(0, 173, 193, 0.1); color: var(--brand); }
+
+.hero-data h5 { margin: 0; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.hero-data p { margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main); }
+
+/* Layout Principal */
+.clinical-layout {
+    display: grid; grid-template-columns: 2fr 1fr;
+    gap: 2rem; align-items: start;
+}
+
+/* Panel de Notas (Estilo Papel) */
+.notes-panel {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 2rem; box-shadow: var(--shadow-card);
+}
+
+.notes-textarea {
+    width: 100%; min-height: 400px; 
+    background: #fcfcfc !important; /* Fondo papel muy tenue */
+    border: 1px dashed var(--border-subtle) !important;
+    border-radius: 8px; padding: 1.5rem;
+    font-family: 'Inter', sans-serif; font-size: 1rem; line-height: 1.6; color: var(--text-main);
+    resize: vertical; outline: none; margin-bottom: 1rem;
+}
+.notes-textarea:focus { background: #fff !important; border-color: var(--brand) !important; border-style: solid !important; }
+
+/* Panel Administrativo (Derecha) */
+.admin-panel {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 1.5rem; box-shadow: var(--shadow-elevated);
+    position: sticky; top: 20px;
+}
+
+.big-price-input {
+    font-size: 2rem !important; font-weight: 800 !important;
+    text-align: center; color: var(--brand) !important;
+    height: 60px !important; padding: 0 !important;
+    border: 2px solid var(--border-subtle) !important;
+    background: #fff !important;
+}
+.big-price-input:focus { border-color: var(--brand) !important; }
+
+.payment-toggle-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #f8fafc; padding: 1rem; border-radius: 10px; border: 1px solid var(--bg-input);
+    margin-bottom: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .clinical-layout { grid-template-columns: 1fr; }
+    .admin-panel { position: static; }
+}
+
+/* =========================================================
+      21. VISTA EDICIÓN (FORMULARIOS GENERALES)
+      ========================================================= */
+
+   /* Contenedor Centrado (Para formularios de edición) */
+   .edit-container-centered {
+    max-width: 700px; 
+    margin: 0 auto; /* Centrar horizontalmente */
+}
+
+/* Títulos de Sección dentro del formulario */
+.form-section-heading {
+    font-size: 0.85rem; 
+    font-weight: 800; 
+    color: var(--brand); 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-top: 2rem;
+}
+.form-section-heading:first-of-type { margin-top: 0; }
+
+/* Grid de 2 Columnas para inputs */
+.form-grid-2 {
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 1.5rem;
+}
+
+/* Ajuste responsive para el grid */
+@media (max-width: 768px) {
+    .form-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* =========================================================
+      22. ESTILOS DE IMPRESIÓN (HISTORIAL)
+      ========================================================= */
+   
+      @media print {
+        /* Ocultar elementos de navegación */
+        .sidebar, .sidebar-toggle-btn, .page-header button, .page-header a, .form-actions, #mobile-toggle {
+            display: none !important;
+        }
+        
+        /* Ajustar layout para papel */
+        .dashboard-shell { display: block; height: auto; }
+        .main-content { margin: 0 !important; padding: 0 !important; background: #fff; }
+        
+        /* Limpiar sombras y fondos oscuros */
+        .cyber-card, .timeline-card {
+            box-shadow: none !important;
+            border: 1px solid #ccc !important;
+        }
+        
+        body { color: #000 !important; background: #fff !important; }
+        
+        /* Forzar expansión de textos */
+        .timeline-container { border-left-color: #000 !important; }
+        .timeline-marker { border-color: #000 !important; }
+    }
+
+    /* =========================================================
+      23. VISTA COBRO (TERMINAL POS)
+      ========================================================= */
+
+   /* Grid Principal */
+   .pos-grid {
+    display: grid; grid-template-columns: 1.5fr 1fr;
+    gap: 2rem; align-items: start;
+}
+
+/* Lista de Citas Pendientes */
+.pending-list {
+    display: flex; flex-direction: column; gap: 1rem;
+    max-height: 600px; overflow-y: auto; padding-right: 5px;
+}
+
+/* Tarjeta de Cita (Seleccionable) */
+.pay-card {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 12px; padding: 1.2rem; cursor: pointer;
+    transition: 0.2s; position: relative;
+    box-shadow: var(--shadow-card);
+}
+.pay-card:hover {
+    border-color: var(--brand); transform: translateX(5px);
+}
+
+/* Estado Seleccionado */
+.pay-card.selected {
+    border: 2px solid var(--brand);
+    background: #f0fdfa; /* Fondo Cyan muy suave */
+}
+.pay-card.selected::after {
+    content: '✓'; position: absolute; top: 10px; right: 10px;
+    width: 24px; height: 24px; background: var(--brand); color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;
+}
+
+.pc-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+.pc-name { color: var(--text-main); font-weight: 700; font-size: 1rem; }
+.pc-date { color: var(--text-muted); font-size: 0.8rem; font-weight: 500; }
+.pc-service { color: var(--text-muted); font-size: 0.85rem; }
+.pc-price { color: var(--brand); font-weight: 700; font-size: 1.1rem; }
+
+/* Panel Derecho (Caja / Ticket) */
+.checkout-panel {
+    background: #fff; border: 1px solid var(--border-subtle);
+    border-radius: 16px; padding: 2rem; position: sticky; top: 20px;
+    box-shadow: var(--shadow-elevated);
+}
+
+.big-total {
+    font-size: 3rem; font-weight: 800; color: var(--text-main);
+    text-align: center; margin: 1rem 0; letter-spacing: -1px;
+}
+.lbl-total { text-align: center; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; font-weight: 700; }
+
+/* Responsive */
+@media (max-width: 900px) {
+    .pos-grid { grid-template-columns: 1fr; }
+    .checkout-panel { position: static; margin-top: 2rem; }
+}
+
+/* =========================================================
+      24. VISTA NUEVA CITA (FORMULARIO CENTRAL)
+      ========================================================= */
+
+   /* Contenedor Principal Centrado */
+   .booking-wrapper {
+    max-width: 700px; 
+    margin: 0 auto;
+    padding-bottom: 2rem;
+}
+
+/* Tarjeta del Formulario */
+.booking-card {
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    box-shadow: var(--shadow-elevated);
+    overflow: hidden;
+}
+
+/* Cabecera Visual */
+.booking-header {
+    background: linear-gradient(135deg, var(--bg-sidebar) 0%, #154e5e 100%);
+    padding: 2rem;
+    text-align: center;
+    color: #ffffff;
+}
+
+.booking-title { font-size: 1.5rem; font-weight: 800; margin: 0; }
+.booking-subtitle { opacity: 0.8; font-size: 0.9rem; margin-top: 5px; }
+
+/* Cuerpo del Formulario */
+.booking-body { padding: 2rem; }
+
+/* Input de Fecha/Hora Grande */
+.input-time-big {
+    font-size: 1.1rem; font-weight: 700; color: var(--text-main);
+    padding: 0.8rem; background: #f8fafc !important;
+}
+
+/* Select2 Ajustes (Para que se vea como tus inputs) */
+.select2-container .select2-selection--single {
+    height: 48px !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 10px !important;
+    padding-top: 8px !important;
+    background-color: #f8fafc !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--text-main) !important;
+    font-weight: 600;
+}
+
+/* =========================================================
+   25.REPORTE PDF - ESTILOS DE IMPRESIÓN
+   ========================================================= */
+
+/* Configuración de Página */
+@page {
+  size: letter;
+  margin: 1.5cm;
+  background-color: #ffffff;
+  @bottom-right {
+      content: "Página " counter(page) " de " counter(pages);
+      font-size: 9px;
+      color: #94a3b8;
+  }
+}
+
+body {
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  background-color: #ffffff;
+  color: #334155; /* Gris oscuro profesional */
+  font-size: 11px;
+  line-height: 1.4;
+  margin: 0; 
+  padding: 0;
+}
+
+/* HEADER CORPORATIVO */
+.header-table { 
+  width: 100%; 
+  border-bottom: 2px solid #00adc1; /* Cyan Brand */
+  padding-bottom: 20px; 
+  margin-bottom: 30px; 
+}
+
+.brand-title { 
+  font-size: 24px; 
+  font-weight: bold; 
+  color: #2d7282; /* Petróleo */
+  text-transform: uppercase; 
+  letter-spacing: -0.5px;
+}
+
+.brand-sub { 
+  font-size: 10px; 
+  color: #64748b; 
+  text-transform: uppercase; 
+  letter-spacing: 3px; 
+  margin-top: 5px; 
+}
+
+.meta-info { 
+  text-align: right; 
+  font-size: 10px; 
+  color: #475569; 
+}
+
+.meta-info strong { color: #0f172a; }
+
+/* TABLA DE DATOS */
+.data-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  margin-bottom: 30px; 
+}
+
+.data-table th { 
+  background-color: #f8fafc; /* Gris muy claro */
+  color: #2d7282; /* Petróleo */
+  font-size: 9px; 
+  font-weight: bold; 
+  text-transform: uppercase; 
+  padding: 10px 8px; 
+  text-align: left; 
+  border-bottom: 2px solid #cbd5e1; 
+}
+
+.data-table td { 
+  padding: 10px 8px; 
+  border-bottom: 1px solid #e2e8f0; 
+  color: #334155; 
+  font-size: 10px; 
+  vertical-align: middle; 
+}
+
+/* Filas Alternadas (Zebra) para lectura fácil */
+.row-odd { background-color: #f8fafc; }
+
+/* BADGES DE ESTADO (Versión Impresión) */
+.status { 
+  padding: 3px 6px; 
+  border-radius: 4px; 
+  font-size: 8px; 
+  font-weight: bold; 
+  text-transform: uppercase; 
+  display: inline-block;
+}
+
+.st-conf { color: #166534; background-color: #dcfce7; border: 1px solid #bbf7d0; } /* Verde */
+.st-pend { color: #9a3412; background-color: #ffedd5; border: 1px solid #fed7aa; } /* Naranja */
+.st-canc { color: #991b1b; background-color: #fee2e2; border: 1px solid #fecaca; } /* Rojo */
+
+/* FOOTER Y TOTALES */
+.footer-table { width: 100%; margin-top: 20px; }
+
+.qr-box { 
+  border: 1px solid #e2e8f0; 
+  padding: 5px; 
+  width: 70px; 
+  text-align: center; 
+  border-radius: 4px; 
+}
+
+.summary-box { 
+  background-color: #f8fafc; 
+  border: 1px solid #cbd5e1; 
+  border-radius: 8px;
+  padding: 15px; 
+  width: 220px; 
+  float: right;
+}
+
+.sum-row { 
+  font-size: 10px; 
+  color: #64748b; 
+  margin-bottom: 6px; 
+  display: block; 
+}
+
+.sum-val { 
+  float: right; 
+  color: #0f172a; 
+  font-weight: bold; 
+}
+
+.grand-total { 
+  border-top: 2px solid #cbd5e1; 
+  margin-top: 10px; 
+  padding-top: 10px; 
+  text-align: right; 
+  font-size: 14px; 
+  font-weight: bold; 
+  color: #2d7282; /* Petróleo */
+}
+
+.disclaimer {
+  margin-top: 50px;
+  text-align: center;
+  font-size: 8px;
+  color: #94a3b8;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 10px;
+  font-style: italic;
+}
+
+/* ================================
+   ACCESIBILIDAD: TIPOGRAFÍA GRANDE
+   ================================ */
+
+/* Tamaño base más grande en toda la app */
+html {
+    font-size: 18px;           /* antes suele ser 14–16px */
+  }
+  
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 500;          /* un poco más marcado */
+    color: #0f172a;
+  }
+  
+  /* Títulos principales (Bienvenido, Agenda, etc.) */
+  h1, .page-title, .hero-title {
+    font-size: 2rem;           /* ~36px */
+    font-weight: 700;
+  }
+  
+  /* Subtítulos / secciones (Finanzas, Reportes, Servicios…) */
+  h2, .section-title, .card-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+  
+  /* Texto de tarjetas, listas y contenido general */
+  .card-body,
+  .card-content,
+  .table,
+  .table td,
+  .table th,
+  p,
+  span,
+  label {
+    font-size: 1rem;           /* ~18px con html=18px */
+    line-height: 1.5;
+  }
+  
+  /* Menú lateral (izquierdo) más legible */
+  .sidebar,
+  .nav,
+  .nav a,
+  .nav button {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  /* Texto dentro de los días de la agenda */
+  .day-card,
+  .day-card-header,
+  .day-card-body,
+  .day-card small {
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+  
+  /* Botones principales más grandes y claros */
+  button,
+  .btn,
+  .btn-primary,
+  .btn-secondary {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.75rem 1.4rem;
+  }
+  
+  /* Etiquetas pequeñas (chips, estados, etc.) */
+  .badge,
+  .tag,
+  .status-pill {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  
+  html { font-size: 19px; }   /* o 20px si lo quiere súper grande */
+
+  /* =========================================
+   Sidebar Header Premium (Logo + Marca)
+   ========================================= */
+
+.sidebar-header-premium {
+    padding: 24px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* El cuadro del logo con degradado */
+.logo-box-premium {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #22d3ee, #0ea5e9); /* Degradado Cian/Azul */
+    display: grid;
+    place-items: center;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3); /* Resplandor suave */
+}
+
+.logo-box-premium i {
+    font-size: 24px;
+    color: #ffffff;
+}
+
+/* Contenedor de textos */
+.brand-box-premium {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Título Principal (CONSULTORIO RC) */
+.brand-title-premium {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: #ffffff;
+    line-height: 1.1;
+    letter-spacing: -0.3px;
+}
+
+/* Color de acento para "RC" */
+.brand-highlight {
+    color: #67e8f9; 
+}
+
+/* Eslogan pequeño y elegante */
+.brand-tagline-premium {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.6); /* Blanco semitransparente */
+    text-transform: uppercase;
+    letter-spacing: 1.5px; /* Espaciado amplio para elegancia */
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* =========================================
+   APP BAR MÓVIL (Diseño Premium)
+   ========================================= */
+
+/* Por defecto, oculto en PC */
+.mobile-app-bar {
+    display: none;
+}
+
+/* Solo visible en Celular/Tablet (menos de 1024px) */
+@media (max-width: 1023px) {
+    .mobile-app-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.9); /* Efecto vidrio */
+        backdrop-filter: blur(10px);
+        padding: 12px 20px;
+        border-radius: 16px;
+        margin-bottom: 24px; /* Empuja el contenido suavemente */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        position: sticky; /* Se queda pegado arriba al bajar */
+        top: 10px;
+        z-index: 40;
+    }
+
+    /* Botón Menú Limpio (Sin bordes feos) */
+    .icon-btn-ghost {
+        background: transparent;
+        border: none;
+        font-size: 26px;
+        color: #0f172a;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+    
+    .icon-btn-ghost:active {
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    /* Marca Central */
+    .mobile-brand {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 800;
+        font-size: 18px;
+        color: #0f172a;
+    }
+
+    /* Avatar Pequeño */
+    .mobile-avatar img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        object-fit: cover;
+    }
+}
+
+/* =========================================
+   MÓDULO DE SERVICIOS
+   ========================================= */
+
+/* Grid responsivo para las tarjetas de servicios */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding-bottom: 40px;
+}
+
+/* Tarjeta de servicio específica */
+.service-card {
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+}
+
+/* Indicador visual de estado (borde izquierdo) */
+.border-active {
+    border-left: 4px solid var(--brand);
+}
+
+.border-inactive {
+    border-left: 4px solid var(--border-subtle);
+    opacity: 0.8;
+}
+
+/* Animación de entrada del Modal */
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-animate {
+    animation: slideUp 0.3s ease-out forwards;
+}
+
+/* Menú flotante de opciones (Editar/Eliminar) */
+.mini-menu {
+    display: none; /* Oculto por defecto */
+    position: absolute;
+    right: 10px;
+    top: 40px;
+    background: white;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 10;
+    min-width: 120px;
+    overflow: hidden;
+}
+
+.mini-menu.show {
+    display: block;
+}
+
+.mini-menu a, 
+.mini-menu button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.mini-menu a:hover, 
+.mini-menu button:hover {
+    background-color: var(--bg-input);
+}
+
+.mini-menu button.text-danger {
+    color: var(--danger);
+}
+
+/* =========================================
+   MODAL FLOTANTE PROFESIONAL
+   ========================================= */
+
+/* Fondo oscuro que cubre toda la pantalla */
+.modal-overlay {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.6); /* Azul oscuro transparente */
+    backdrop-filter: blur(4px); /* Efecto vidrio borroso */
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Cuando se activa */
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+/* La tarjeta blanca del formulario */
+.modal-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transform: translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-overlay.active .modal-card {
+    transform: translateY(0);
+}
+
+/* Estilos limpios para el formulario */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background: #f8fafc;
+}
+
+.form-input:focus {
+    background: #fff;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.15);
+    outline: none;
+}
+
+/* Botones del modal */
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.btn-cancel {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--border-subtle);
+    background: #fff;
+    color: var(--text-muted);
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-save {
+    flex: 2;
+    padding: 12px;
+    background: var(--brand); /* Cian */
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(34, 211, 238, 0.4);
+}
+
+/* ====== LAYOUT GENERAL DEL EXPEDIENTE ====== */
+.patient-detail-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Header */
+.patient-header-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+.patient-banner {
+    height: 90px;
+    background: linear-gradient(135deg, #0f9bf7, #00c4cc);
+}
+
+.patient-header-body {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 20px;
+    padding: 20px 24px 22px;
+    align-items: center;
+}
+
+.patient-avatar {
+    margin-top: -40px;
+}
+
+.patient-avatar-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 999px;
+    background: #0f172a;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.6rem;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .35);
+}
+
+.patient-name {
+    margin: 0 0 6px;
+    font-size: 1.4rem;
+}
+
+.patient-contact-row,
+.patient-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    font-size: .85rem;
+}
+
+.patient-contact-item,
+.patient-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+}
+
+.patient-header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.status-pill {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .5px;
+}
+
+.status-ok {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-off {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.patient-header-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.ghost-btn {
+    border-radius: 999px;
+    border: 1px solid var(--border-subtle);
+    padding: 8px 14px;
+    font-size: .85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+}
+
+/* ====== TABS ====== */
+.patient-tabs-card {
+    padding: 0;
+}
+
+.patient-tabs-nav {
+    display: flex;
+    gap: 4px;
+    padding: 12px 16px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    overflow-x: auto;
+}
+
+.patient-tabs-nav .tab-btn {
+    border: none;
+    background: transparent;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: .85rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.patient-tabs-nav .tab-btn.active {
+    background: rgba(14, 165, 233, .1);
+    color: var(--brand);
+    font-weight: 600;
+}
+
+.patient-tabs-nav .tab-btn:disabled {
+    opacity: .4;
+    cursor: default;
+}
+
+.patient-tabs-panels {
+    padding: 16px 18px 18px;
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* ====== SECCIONES / TABLAS ====== */
+.panel-section {
+    margin-bottom: 22px;
+}
+
+.panel-header h3 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+}
+
+.panel-subtitle {
+    margin: 0 0 12px;
+    font-size: .8rem;
+    color: var(--text-muted);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px 20px;
+}
+
+.info-label {
+    display: block;
+    font-size: .75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 2px;
+}
+
+.info-value {
+    font-size: .9rem;
+    font-weight: 500;
+}
+
+.alert-soft {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(34, 197, 94, .08);
+    font-size: .9rem;
+}
+
+.alert-empty {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(248, 113, 113, .05);
+    border: 1px dashed rgba(248, 113, 113, .5);
+    font-size: .85rem;
+    color: #b91c1c;
+}
+
+/* Tabla historial */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.rc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .85rem;
+}
+
+.rc-table th,
+.rc-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    text-align: left;
+}
+
+.rc-table th {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+}
+
+.rc-table tbody tr:hover {
+    background: var(--bg-soft);
+}
+
+.col-notas {
+    max-width: 260px;
+}
+
+/* Tags de estado */
+.tag {
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: .7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.tag-estado-confirmada {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.tag-estado-pendiente {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.tag-estado-completada {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.tag-estado-inasistencia,
+.tag-estado-cancelada {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* Empty states */
+.empty-state {
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 2.4rem;
+    opacity: .6;
+    margin-bottom: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .patient-header-body {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+    }
+    .patient-header-actions {
+        align-items: flex-start;
+    }
+}
+
+/* =========================================================
+      26. MÓDULO PACIENTES PRO (CARDS & EXPEDIENTE)
+      ========================================================= */
+
+   /* --- GRID DE TARJETAS --- */
+   .patients-grid-pro {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.patient-card-pro {
+    background: #fff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: var(--shadow-card);
+}
+.patient-card-pro:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+    border-color: var(--brand);
+}
+
+/* Cabecera de la Tarjeta */
+.pc-header-pro {
+    padding: 1.5rem;
+    background: linear-gradient(to bottom, #f8fafc, #fff);
+    display: flex; align-items: center; gap: 15px;
+    border-bottom: 1px solid var(--bg-input);
+}
+
+.pc-avatar-pro {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: var(--bg-sidebar);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 700;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.pc-info-pro h3 { margin: 0; font-size: 1.1rem; color: var(--text-main); font-weight: 700; }
+.pc-info-pro span { font-size: 0.8rem; color: var(--text-muted); }
+
+/* Cuerpo de la Tarjeta */
+.pc-body-pro { padding: 1.2rem 1.5rem; }
+
+.pc-stat-row {
+    display: flex; justify-content: space-between;
+    font-size: 0.85rem; color: var(--text-muted);
+    margin-bottom: 8px;
+}
+.pc-stat-val { font-weight: 600; color: var(--text-main); }
+
+/* Footer de Acciones */
+.pc-actions-pro {
+    padding: 1rem 1.5rem;
+    background: #fff;
+    border-top: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-between; align-items: center;
+}
+
+/* --- ODONTOGRAMA VISUAL (CSS) --- */
+.odontogram-container {
+    background: #f8fafc;
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+}
+
+.mouth-quadrant {
+    display: flex; gap: 8px; justify-content: center; margin-bottom: 15px;
+}
+
+.tooth-item {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    cursor: pointer; transition: 0.2s;
+}
+.tooth-shape {
+    width: 40px; height: 50px;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px 8px 12px 12px;
+    position: relative;
+    overflow: hidden;
+}
+.tooth-item:hover .tooth-shape { border-color: var(--brand); transform: scale(1.1); }
+
+/* Estados del diente */
+.tooth-shape.caries { background: #fee2e2; border-color: #ef4444; }
+.tooth-shape.bracket { border: 2px solid #3b82f6; }
+.tooth-shape.bracket::after {
+    content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: #3b82f6;
+}
+.tooth-number { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
+
+/* --- GALERÍA DE RAYOS X --- */
+.xray-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem; margin-top: 1.5rem;
+}
+.xray-item {
+    aspect-ratio: 1; background: #000; border-radius: 8px; overflow: hidden;
+    position: relative; cursor: zoom-in; border: 2px solid #334155;
+}
+.xray-item img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.3s; }
+.xray-item:hover img { opacity: 1; transform: scale(1.05); }
+.xray-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.7); color: #fff; font-size: 0.7rem;
+    padding: 5px; text-align: center;
+}
+
+/* =========================================================
+   FIX: HEADER PACIENTES & BÚSQUEDA
+   ========================================================= */
+
+/* Contenedor de herramientas (Buscador + Botón) */
+.header-tools-wrapper {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Formulario de Búsqueda Estilizado */
+.search-bar-pro {
+    position: relative;
+    width: 320px; /* Ancho fijo para que no se aplaste */
+    height: 45px;
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    transition: all 0.2s ease;
+}
+
+.search-bar-pro:focus-within {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(0, 173, 193, 0.1);
+}
+
+.search-bar-pro i {
+    color: #94a3b8;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.search-input-clean {
+    border: none;
+    background: transparent;
+    width: 100%;
+    height: 100%;
+    padding: 0 10px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    outline: none;
+    font-family: 'Inter', sans-serif;
+}
+
+.search-input-clean::placeholder {
+    color: #cbd5e1;
+}
+
+/* Ajuste para móviles */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .header-tools-wrapper {
+        width: 100%;
+        flex-direction: column;
+    }
+    .search-bar-pro {
+        width: 100%;
+    }
+    .cyber-btn-glow {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+.badge-opt {
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: normal;
+    margin-left: 5px;
+    text-transform: uppercase;
+}
+
+/* =========================================================
+   DASHBOARD: PANEL DE AVISOS RECIENTES
+   ========================================================= */
+
+   .cyber-card.no-padding {
+    /* Utilidad para tarjetas sin padding interno del contenedor */
+    padding: 0;
+}
+
+.notif-card {
+    display: flex;
+    flex-direction: column;
+    max-height: 260px;
+    box-shadow: var(--shadow-card);
+}
+
+.notif-card-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+}
+
+.notif-title {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notif-title i {
+    color: var(--brand);
+}
+
+/* Lista de avisos con scroll suave */
+.notif-list-scroll {
+    padding: 0.8rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Cada aviso */
+.notif-item {
+    padding: 10px 8px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    background: #ffffff;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.8rem;
+}
+
+.notif-item-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+}
+
+.notif-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: #eff6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #2563eb;
+    font-size: 1rem;
+}
+
+.notif-text-block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.notif-item-text {
+    margin: 0;
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+.notif-item-meta {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Estado vacío (sin avisos) */
+.notif-empty {
+    padding: 1.5rem 1rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.notif-empty i {
+    font-size: 1.8rem;
+    color: var(--border-subtle);
+}
+
+.notif-empty p {
+    margin: 0;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* =========================================================
+   LAYOUT DASHBOARD DENTISTA
+   Orden, columnas y espacios entre tarjetas
+   ========================================================= */
+
+/* Separar bien el header del resto */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 1.75rem;
+  }
+  
+  /* Fila de KPIs siempre alineada y con el mismo espacio */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.75rem;
+  }
+  
+  /* Que todas las tarjetas de KPI tengan el mismo alto y padding */
+  .kpi-card {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+  }
+  
+  /* GRID PRINCIPAL: izquierda (radar + IA) / derecha (próxima cita + pagos + avisos) */
+  .dashboard-split-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.2fr);
+    gap: 1.75rem;
+    align-items: flex-start;
+  }
+  
+  /* Columna izquierda: cada sección una debajo de otra con espacio */
+  .left-column-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  /* Columna derecha: mismo concepto, pero en formato “stack” */
+  .side-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  /* Tarjeta larga de IA / riesgo: que se vea bien “separada” del radar */
+  .card-long {
+    margin-top: 0;              /* quitamos márgenes raros si hubiera */
+    padding: 1.25rem 1.5rem;
+  }
+  
+  /* Secciones internas (headers de cada card) con respiro */
+  .section-header {
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Tabla de riesgo más compacta y limpia */
+  .risk-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+  }
+  
+  .risk-table th,
+  .risk-table td {
+    padding: 0.45rem 0.5rem;
+  }
+  
+  /* Chips de paciente/riesgo alineados y con mismo tamaño visual */
+  .chip-paciente,
+  .chip-riesgo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  
+  /* Opcional: limitar ancho máximo del contenido del dashboard
+     para que no “se estire” demasiado en pantallas grandes */
+/* Contenedor principal: usar todo el ancho disponible */
+.dentista-main,
+.content-shell {
+  max-width: 100%;
+  width: 100%;
+  margin: 0;              /* sin centrado con márgenes blancos */
+}
+
+/* OJO:
+   .main-content NO se toca aquí para que conserve
+   su margin-left: var(--sidebar-width) definido arriba.
+*/
+
+
+/* ===========================
+   LAYOUT DENTISTA: SIDEBAR + MAIN
+   =========================== */
+
+/* ancho base del sidebar en escritorio */
+:root {
+    --sidebar-width-full: 260px;
+  }
+  
+  /* ===========================
+   LAYOUT DENTISTA: ESCRITORIO
+   Sidebar fijo + contenido al lado
+   =========================== */
+
+:root {
+    --sidebar-width-full: 260px;
+  }
+  
+  @media (min-width: 1024px) {
+    /* Contenedor general */
+    .dentista-shell {
+      display: flex;
+    }
+  
+    /* Sidebar fijo a la izquierda, NO tapa el contenido */
+    .dentista-sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;        /* top:0; left:0; bottom:0 */
+      width: var(--sidebar-width-full);
+      height: 100vh;
+      flex-shrink: 0;
+      overflow: hidden;
+      transition: transform 0.25s ease, width 0.25s ease;
+      z-index: 30;
+    }
+  
+    /* Contenido principal corre a la derecha del sidebar */
+    .dentista-main {
+      margin-left: var(--sidebar-width-full);
+      width: calc(100% - var(--sidebar-width-full));
+      min-height: 100vh;
+      min-width: 0;
+      transition: margin-left 0.25s ease, width 0.25s ease;
+    }
+  
+    /* Cuando colapsamos el sidebar (body.sidebar-collapsed),
+       lo movemos hacia la izquierda y el contenido toma todo el ancho */
+    body.sidebar-collapsed .dentista-sidebar {
+      transform: translateX(-100%);
+    }
+  
+    body.sidebar-collapsed .dentista-main {
+      margin-left: 0;
+      width: 100%;
+    }
+  
+    /* Toolbar de escritorio (donde va el botón para mostrar/ocultar menú) */
+    .desktop-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 25;
+      padding: 0.75rem 0 0.5rem;
+      margin-bottom: 0.25rem;
+      background: linear-gradient(#f8fafc, #f1f5f9);
+      display: flex;
+      align-items: center;
+    }
+  
+    .sidebar-toggle-btn {
+      display: inline-flex;
+      border: none;
+      background: #ffffff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
+    }
+  
+    .sidebar-toggle-btn i {
+      font-size: 1.1rem;
+      color: #0f172a;
+      transition: transform 0.2s ease;
+    }
+  
+    /* Giramos el ícono cuando el sidebar está oculto (solo visual) */
+    body.sidebar-collapsed .sidebar-toggle-btn i {
+      transform: rotate(180deg);
+    }
+  }
+  
+  /* En móvil NO mostramos la toolbar de escritorio */
+  @media (max-width: 1023px) {
+    .desktop-toolbar {
+      display: none;
+    }
+  }
+  
+  /* =========================================
+   DASHBOARD IMPROVEMENTS
+   ========================================= */
+
+/* --- KPI Money --- */
+.kpi-money {
+    border-left: 4px solid #00C9A7;
+}
+.kpi-money .kpi-icon {
+    background-color: #00C9A7;
+    color: white;
+}
+.kpi-money .kpi-value {
+    color: #00C9A7;
+}
+
+/* --- Próxima Cita (Hero Card) --- */
+.hero-patient-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    border: 1px solid #f0f0f0;
+}
+
+.hp-status-bar {
+    height: 6px;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    width: 100%;
+}
+
+.hp-content {
+    padding: 2rem;
+}
+
+.hp-label {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1.2px;
+    color: #888;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.hp-name {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.hp-service {
+    font-size: 1.1rem;
+    color: #0083B0;
+    font-weight: 500;
+    margin-top: 5px;
+    margin-bottom: 1.5rem;
+}
+
+.hp-time-box {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    min-width: 140px;
+}
+
+.time-big {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    line-height: 1;
+}
+
+.duration-small {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 4px;
+}
+
+.cyber-btn-full {
+    display: block;
+    width: 100%;
+    background: #2c3e50;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+
+.cyber-btn-full:hover {
+    transform: translateY(-2px);
+    background: #34495e;
+}
+
+.hp-empty {
+    padding: 3rem;
+    text-align: center;
+    color: #aaa;
+}
+.hp-empty i { font-size: 3rem; margin-bottom: 1rem; display: block; }
+
+/* --- Pagos (Payments) --- */
+.payments-card .card-title {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.1rem;
+    color: #444;
+}
+
+.payments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.payment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.payment-item:last-child {
+    border-bottom: none;
+}
+
+.pay-icon-wrapper {
+    background: #e8f5e9;
+    color: #2e7d32;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.pay-details {
+    flex: 1;
+    margin-left: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.pay-method {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.pay-date {
+    font-size: 0.75rem;
+    color: #999;
+}
+
+.pay-amount {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2e7d32; /* Verde Dinero */
+}
+
+.card-footer-link {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: #007bff;
+    text-decoration: none;
+}
+
+/* --- IA Sections (Risk & Optimization) --- */
+.ia-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    border: 1px solid #eee;
+}
+
+.ia-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.ia-title {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ia-badge {
+    background: #eceff1;
+    color: #546e7a;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.ia-description {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Risk List */
+.risk-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+}
+
+.risk-info {
+    flex: 1;
+    margin-right: 15px;
+}
+
+.risk-name {
+    display: block;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+.risk-bar-track {
+    width: 100%;
+    height: 6px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.risk-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+}
+
+/* Colores para las barras y badges */
+.badge-red, .risk-bar-fill.badge-red { background-color: #ff6b6b; color: #fff; }
+.badge-yellow, .risk-bar-fill.badge-yellow { background-color: #feca57; color: #333; }
+.badge-green, .risk-bar-fill.badge-green { background-color: #1dd1a1; color: #fff; }
+
+.risk-metric {
+    text-align: right;
+    min-width: 80px;
+}
+
+.risk-percent {
+    display: block;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    margin-top: 2px;
+}
+
+/* Optimization Suggestions */
+.suggestion-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.suggestion-item {
+    background: #fff8e1; /* Fondo amarillo muy suave */
+    border-left: 4px solid #f1c40f;
+    padding: 12px;
+    border-radius: 4px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.sug-icon {
+    color: #f39c12;
+    font-size: 1.2rem;
+}
+
+.suggestion-item p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.4;
+}
+
+.suggestion-empty {
+    text-align: center;
+    color: #27ae60;
+    padding: 1rem;
+}
+.suggestion-empty i { font-size: 1.5rem; display: block; margin-bottom: 5px; }
+
+/* Links */
+.link-action {
+    font-size: 0.85rem;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* ESTILO GHOST (Citas pasadas) */
+.cita-card.ghost-mode {
+    background-color: #f3f4f6;       /* Fondo gris claro */
+    border: 1px dashed #cbd5e1;      /* Borde punteado */
+    opacity: 0.6;                    /* Transparencia al 60% */
+    filter: grayscale(100%);         /* Blanco y negro */
+    cursor: pointer;                 /* Manita al pasar mouse */
+    transition: all 0.2s ease;
+    display: flex;                   /* Asegura alineación */
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 6px;
+}
+
+.cita-card.ghost-mode:hover {
+    opacity: 1;                      /* Al pasar el mouse se ve bien */
+    filter: grayscale(0%);           /* Vuelve el color */
+    border-color: #0083B0;           /* Borde azul */
+    transform: scale(1.02);          /* Pequeño zoom */
+}
+  
+/* GRID DE HORARIOS INTELIGENTE */
+.slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 12px;
+    margin-top: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 5px;
+}
+
+/* BOTÓN DE HORA */
+.time-slot-btn {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 5px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    color: #64748b;
+    position: relative;
+    font-size: 0.95rem;
+}
+
+.time-slot-btn:hover {
+    border-color: #0083B0;
+    color: #0083B0;
+    background: #f0f9ff;
+    transform: translateY(-2px);
+}
+
+/* ESTADO SELECCIONADO */
+.time-slot-btn.selected {
+    background: #0083B0;
+    color: white;
+    border-color: #0083B0;
+    box-shadow: 0 4px 12px rgba(0, 131, 176, 0.3);
+}
+
+/* BADGE IA (SUGERIDO) */
+.slot-badge-ia {
+    position: absolute;
+    top: -8px;
+    right: -5px;
+    background: #00C9A7; /* Verde menta */
+    color: white;
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 800;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+}
+
+@keyframes popIn { from{transform: scale(0);} to{transform: scale(1);} }
+
+/* MENSAJE DE ESTADO VACÍO */
+.empty-slot-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2.5rem;
+    color: #94a3b8;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 2px dashed #e2e8f0;
+    font-size: 0.9rem;
+}
+.empty-slot-msg i {
+    display: block;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #cbd5e1;
+}
+
+/* ============================================================
+   ESTILOS DE AGENDA Y MODALES
+   ============================================================ */
+
+/* Cita Ajena */
+.appt-ticket.ticket-ajeno {
+    background: #f8fafc;
+    border-left-color: #cbd5e1 !important;
+    opacity: 0.85;
+}
+.appt-ticket.ticket-ajeno:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Etiqueta del Doctor */
+.doctor-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--brand);
+    background: rgba(34, 211, 238, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+/* ESTILO GHOST (Citas pasadas) */
+.appt-ticket.ghost-mode {
+    background-color: #f3f4f6;       /* Fondo gris claro */
+    border: 1px dashed #cbd5e1;      /* Borde punteado */
+    border-left: 3px solid #94a3b8;  /* Borde izquierdo gris */
+    opacity: 0.6;                    /* Transparencia */
+    filter: grayscale(100%);         /* Blanco y negro */
+    cursor: pointer;                 /* Manita al pasar mouse */
+    transition: all 0.2s ease;
+}
+
+.appt-ticket.ghost-mode:hover {
+    opacity: 1;
+    filter: grayscale(0%);
+    border-color: #0083B0;
+    transform: scale(1.02);
+}
+
+/* MODAL STYLES */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(2px);
+}
+.modal-content {
+    background: white; width: 90%; max-width: 450px;
+    border-radius: 12px; padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s ease;
+}
+@keyframes slideIn { 
+    from {transform: translateY(20px); opacity: 0;} 
+    to {transform: translateY(0); opacity: 1;} 
+}
+.close-btn { 
+    background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999; 
+}
+
+
+
+/* =========================================
+   ESTILOS DIRECTORIO DE PACIENTES
+   ========================================= */
+
+/* Header y Buscador */
+.patients-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-container-floating {
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    margin-bottom: 2rem;
+    border: 1px solid #f0f0f0;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+}
+
+.search-icon { font-size: 1.2rem; color: #94a3b8; }
+
+.search-input-lg {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 1rem;
+    color: #334155;
+    background: transparent;
+    padding: 5px;
+}
+
+.clear-search {
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 1.1rem;
+    text-decoration: none;
+}
+
+/* Grid de Tarjetas */
+.patients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.patient-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #f1f5f9;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.patient-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.06);
+    border-color: #e2e8f0;
+}
+
+/* Header de Tarjeta */
+.p-card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 1.5rem;
+}
+
+.p-avatar img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #f8fafc;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00C9A7, #0083B0);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(0, 131, 176, 0.2);
+}
+
+.p-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.p-id {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+    display: inline-block;
+}
+
+.btn-icon-edit {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #cbd5e1;
+    font-size: 1.1rem;
+    transition: color 0.2s;
+}
+
+.btn-icon-edit:hover { color: #0083B0; }
+
+/* Cuerpo de Tarjeta */
+.p-card-body {
+    flex: 1; /* Empuja el footer abajo */
+    margin-bottom: 1.5rem;
+}
+
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #f1f5f9;
+    font-size: 0.9rem;
+}
+
+.data-row:last-child { border-bottom: none; }
+
+.d-label { color: #64748b; display: flex; align-items: center; gap: 8px; }
+.d-value { color: #334155; font-weight: 500; }
+
+/* Footer */
+.p-card-footer {
+    display: flex;
+    gap: 10px;
+}
+
+.w-100 { width: 100%; justify-content: center; }
+
+.btn-whatsapp {
+    background: #e6fffa;
+    color: #10b981; /* Verde WhatsApp */
+    width: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 1.4rem;
+    text-decoration: none;
+    border: 1px solid #d1fae5;
+    transition: all 0.2s;
+}
+
+.btn-whatsapp:hover {
+    background: #10b981;
+    color: white;
+}
+
+/* Empty State */
+.empty-state-container {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem;
+    color: #94a3b8;
+}
+
+.empty-icon-box {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #cbd5e1;
+}
+
+/* =========================================
+   NUEVO DISEÑO TARJETA PACIENTE
+   ========================================= */
+
+   .patient-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%; /* Para que todas midan lo mismo */
+}
+
+.patient-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1);
+    border-color: #cbd5e1;
+}
+
+/* --- ENCABEZADO --- */
+.card-top-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.2rem;
+}
+
+.patient-main-info {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    max-width: 85%; /* Deja espacio a los botones */
+}
+
+.p-avatar-wrapper {
+    flex-shrink: 0; /* No encoger avatar */
+}
+
+.p-img, .p-initials {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.p-img { border: 2px solid #f1f5f9; }
+
+.p-initials {
+    background: #0083B0;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.p-text-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.p-name {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.3;
+    /* Eliminar truncate para ver nombre completo */
+    word-break: break-word; 
+}
+
+.p-badge-id {
+    font-size: 0.75rem;
+    color: #64748b;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+    width: fit-content;
+    font-family: monospace;
+}
+
+/* --- BOTONES FLOTANTES (Editar/Borrar) --- */
+.card-actions-float {
+    display: flex;
+    gap: 5px;
+}
+
+.mini-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.mini-btn.edit { background: transparent; color: #94a3b8; }
+.mini-btn.edit:hover { background: #f1f5f9; color: #0083B0; }
+
+.mini-btn.delete { background: transparent; color: #fab1a0; }
+.mini-btn.delete:hover { background: #fff1f2; color: #e17055; }
+
+
+/* --- GRID DE DATOS --- */
+.card-data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 Columnas */
+    gap: 15px;
+    margin-bottom: 1.5rem;
+    background: #fcfcfc; /* Fondo sutil */
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px dashed #f1f5f9;
+}
+
+.data-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.data-item.full-width {
+    grid-column: 1 / -1; /* Ocupa todo el ancho */
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+}
+
+.data-item .icon {
+    font-size: 1.2rem;
+    color: #94a3b8;
+}
+
+.data-item .label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.data-item .value {
+    display: block;
+    font-size: 0.9rem;
+    color: #334155;
+    font-weight: 500;
+}
+
+/* --- FOOTER --- */
+.card-footer-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: auto; /* Empujar al fondo */
+}
+
+.btn-expediente {
+    flex: 1;
+    background: white;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-expediente:hover {
+    border-color: #0083B0;
+    color: #0083B0;
+    background: #f0f9ff;
+}
+
+.btn-whatsapp {
+    width: 44px;
+    background: #dcfce7;
+    color: #16a34a;
+    border: 1px solid #86efac;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    text-decoration: none;
+    transition: transform 0.2s;
+}
+
+.btn-whatsapp:hover {
+    background: #22c55e;
+    color: white;
+    border-color: #22c55e;
+    transform: scale(1.05);
+}
+
+.btn-whatsapp {
+    width: 44px;
+    height: 40px; /* Altura fija para alinear con el otro botón */
+    background: #e6fffa;
+    color: #10b981; /* Verde oficial */
+    border: 1px solid #d1fae5;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-whatsapp:hover {
+    background: #10b981;
+    color: white;
+    border-color: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.btn-whatsapp.disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    border-color: #e5e7eb;
+    box-shadow: none;
+    transform: none;
+}

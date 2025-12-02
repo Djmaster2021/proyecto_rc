@@ -1,0 +1,14 @@
+<!-- Elemento <nav> que envuelve la navegación de migas de pan.
+  "aria-label" ayuda a los lectores de pantalla a entender qué es este elemento.-->
+<nav aria-label="breadcrumb" class="breadcrumb">
+  <ol>
+
+    <!--     El primer elemento es siempre un enlace a la página de "Inicio".-->
+    <li><a href="{% url 'home' %}">Inicio</a></li>
+
+    <!--crumbs.
+      Aquí es donde otras páginas insertarán los eslabones intermedios de la ruta.
+      Por ejemplo, una página de "Pacientes" añadiría: <li>Pacientes</li>-->
+    {% block crumbs %}{% endblock %}
+  </ol>
+</nav>

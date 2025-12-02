@@ -1,0 +1,13 @@
+Hola {{ paciente.nombre }},
+
+Te recordamos tu cita en el Consultorio Dental “Rodolfo Castellón”.
+
+Fecha: {{ cita.fecha_hora_inicio|date:"d/m/Y" }}
+Hora: {{ cita.fecha_hora_inicio|time:"H:i" }}
+Servicio: {{ cita.servicio.nombre }}
+
+Si por alguna razón no puedes asistir, por favor avísanos con anticipación para reprogramar tu cita.
+
+Atentamente,
+Dr. {{ dentista.nombre }}
+Consultorio Dental “Rodolfo Castellón”

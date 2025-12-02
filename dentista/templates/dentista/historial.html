@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte Financiero RC</title>
+  </head>
+  <body>
+  
+      <table class="header-table">
+          <tr>
+              <td width="60%" valign="bottom">
+                  <div class="brand-title">CONSULTORIO RC</div>
+                  <div class="brand-sub">Reporte Oficial de Actividades</div>
+              </td>
+              <td width="40%" class="meta-info" valign="bottom">
+                  <div style="font-size: 14px; color: #0f172a; margin-bottom: 5px; font-weight: bold;">
+                      Dr. {{ dentista.nombre }}
+                  </div>
+                  <strong>Periodo:</strong> {{ fecha_inicio }} — {{ fecha_fin }}<br>
+                  <strong>Generado:</strong> {% now "d/m/Y H:i" %}
+              </td>
+          </tr>
+      </table>
+  
+      <table class="data-table">
+          <thead>
+              <tr>
+                  <th width="15%">Fecha</th>
+                  <th width="30%">Paciente</th>
+                  <th width="25%">Tratamiento</th>
+                  <th width="15%">Estado</th>
+                  <th width="15%" align="right">Monto</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for cita in citas %}
+              <tr class="{% cycle '' 'row-odd' %}">
+                  <td>
+                      <b style="color:#0f172a;">{{ cita.fecha_hora_inicio|date:"d/m/Y" }}</b><br>
+                      <span style="color:#64748b; font-size:9px;">{{ cita.fecha_hora_inicio|time:"H:i" }}</span>
+                  </td>
+                  <td style="font-weight:bold; color:#334155;">{{ cita.paciente.nombre }}</td>
+                  <td>{{ cita.servicio.nombre }}</td>
+                  <td>
+                      <span class="status 
+                          {% if cita.estado == 'CONFIRMADA' or cita.estado == 'COMPLETADA' %}st-conf{% endif %}
+                          {% if cita.estado == 'PENDIENTE' %}st-pend{% endif %}
+                          {% if cita.estado == 'CANCELADA' %}st-canc{% endif %}
+                      ">
+                          {{ cita.get_estado_display|upper }}
+                      </span>
+                  </td>
+                  <td align="right">
+                      {% if cita.pago_relacionado %}
+                          <span style="color:#0f172a; font-weight:bold;">${{ cita.pago_relacionado.monto|floatformat:2 }}</span>
+                      {% else %}
+                          <span style="color:#94a3b8;">-</span>
+                      {% endif %}
+                  </td>
+              </tr>
+              {% empty %}
+              <tr>
+                  <td colspan="5" align="center" style="padding:30px; color:#64748b; background-color: #fff;">
+                      No se encontraron registros financieros en este periodo.
+                  </td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  
+      <table class="footer-table">
+          <tr>
+              <td width="20%" valign="top">
+                  {% if qr_code_base64 %}
+                  <div class="qr-box">
+                      <img src="data:image/png;base64,{{ qr_code_base64 }}" width="65" height="65">
+                  </div>
+                  <div style="font-size:9px; color:#64748b; margin-top:4px; width:70px; text-align:center;">
+                      Validación
+                  </div>
+                  {% endif %}
+              </td>
+              <td width="30%"></td>
+              <td width="50%" valign="top" align="right">
+                  <div class="summary-box">
+                      <div class="sum-row">
+                          Citas Realizadas: 
+                          <span class="sum-val">{{ total_citas }}</span>
+                      </div>
+                      <div class="sum-row">
+                          Pacientes Atendidos: 
+                          <span class="sum-val">{{ citas|length }}</span>
+                      </div>
+                      <div class="grand-total">
+                          TOTAL: ${{ total_ingresos|floatformat:2 }}
+                      </div>
+                  </div>
+              </td>
+          </tr>
+      </table>
+  
+      <div class="disclaimer">
+          Este documento es un reporte interno generado automáticamente por Dental Suite Pro. <br>
+          Para fines fiscales oficiales, por favor consulte las facturas emitidas ante el SAT.
+      </div>
+  
+  </body>
+  </html>

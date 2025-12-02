@@ -1,0 +1,214 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Pacientes | RC{% endblock %}
+
+{% block dcontent %}
+
+<div class="patients-header-section" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 15px;">
+    <div class="header-titles">
+        <h1 class="text-gradient">Directorio de Pacientes</h1>
+        <p class="welcome-subtitle">{{ pacientes.count }} expedientes activos.</p>
+    </div>
+    
+    <div class="header-actions">
+        <a href="{% url 'dentista:registrar_paciente' %}" class="cyber-btn cyber-btn-glow">
+            <i class="ph-bold ph-user-plus"></i> Nuevo Paciente
+        </a>
+    </div>
+</div>
+
+<div class="search-container-floating" style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); margin-bottom: 2rem; border: 1px solid #f0f0f0;">
+    <form method="get" class="search-form" style="display: flex; align-items: center; gap: 10px;">
+        <i class="ph-bold ph-magnifying-glass" style="font-size: 1.2rem; color: #94a3b8;"></i>
+        <input type="text" name="q" 
+               style="border: none; outline: none; width: 100%; font-size: 1rem; color: #334155; background: transparent;" 
+               placeholder="Buscar por nombre, teléfono..." 
+               value="{{ query }}" 
+               autocomplete="off">
+        {% if query %}
+        <a href="{% url 'dentista:pacientes' %}" style="color: #ef4444; cursor: pointer; text-decoration: none;" title="Limpiar búsqueda">
+            <i class="ph-bold ph-x"></i>
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="patients-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+    
+    {% for p in pacientes %}
+    <div class="patient-card">
+    
+        <div class="card-top-section">
+            <div class="patient-main-info">
+                <div class="p-avatar-wrapper">
+                    {% if p.imagen %}
+                        <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" class="p-img">
+                    {% else %}
+                        <div class="p-initials">{{ p.nombre|slice:":1" }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="p-text-content">
+                    <h3 class="p-name" title="{{ p.nombre }}">{{ p.nombre }}</h3>
+                    <span class="p-badge-id">ID: {{ p.id|stringformat:"04d" }}</span>
+                </div>
+            </div>
+    
+            <div class="card-actions-float">
+                <a href="{% url 'dentista:editar_paciente' p.id %}" class="mini-btn edit" title="Editar">
+                    <i class="ph-bold ph-pencil-simple"></i>
+                </a>
+                <form action="{% url 'dentista:eliminar_paciente' p.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="button" class="mini-btn delete js-delete-patient" data-nombre="{{ p.nombre }}" title="Eliminar">
+                        <i class="ph-bold ph-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    
+        <div class="card-data-grid">
+            <div class="data-item">
+                <i class="ph-duotone ph-cake icon"></i>
+                <div>
+                    <span class="label">Edad</span>
+                    <span class="value">{{ p.edad }} años</span>
+                </div>
+            </div>
+            <div class="data-item">
+                <i class="ph-duotone ph-phone icon"></i>
+                <div>
+                    <span class="label">Teléfono</span>
+                    <span class="value">{{ p.telefono|default:"--" }}</span>
+                </div>
+            </div>
+            <div class="data-item full-width">
+                <i class="ph-duotone ph-calendar-check icon"></i>
+                <div>
+                    <span class="label">Registro</span>
+                    <span class="value">{{ p.created_at|date:"d M, Y" }}</span>
+                </div>
+            </div>
+        </div>
+    
+        <div class="p-card-footer" style="display: flex; gap: 10px; margin-top: auto;">
+    
+            <a href="{% url 'dentista:detalle_paciente' p.id %}" class="cyber-btn cyber-btn-secondary" style="flex: 1; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="ph-bold ph-folder-open"></i> Expediente
+            </a>
+            
+            {% if p.telefono %}
+                <button type="button" 
+                        class="btn-whatsapp js-whatsapp-trigger"
+                        data-telefono="{{ p.telefono }}"
+                        data-nombre="{{ p.nombre }}"
+                        data-proxima-cita="{% if p.proxima_cita %}{{ p.proxima_cita|date:'d/m/Y' }} a las {{ p.proxima_cita|time:'H:i' }}{% endif %}"
+                        title="Enviar mensaje a {{ p.telefono }}">
+                    <i class="ph-fill ph-whatsapp-logo"></i>
+                </button>
+            {% else %}
+                <button type="button" class="btn-whatsapp disabled" disabled title="Sin número registrado" style="background: #f1f5f9; color: #cbd5e1; border-color: #e2e8f0; cursor: not-allowed;">
+                    <i class="ph-fill ph-whatsapp-logo"></i>
+                </button>
+            {% endif %}
+        
+        </div>
+    
+    </div>
+
+    </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; color: #94a3b8;">
+        <i class="ph-duotone ph-users-three" style="font-size: 3rem; margin-bottom: 1rem; color: #cbd5e1;"></i>
+        <h3>No se encontraron pacientes</h3>
+        <p>Intenta con otro nombre o registra uno nuevo.</p>
+    </div>
+    {% endfor %}
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.js-delete-trigger');
+        
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const nombre = this.dataset.nombre;
+                const form = this.closest('form');
+                
+                Swal.fire({
+                    title: '¿Eliminar paciente?',
+                    text: `Se borrará el expediente de ${nombre} y todo su historial.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#334155',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Seleccionamos todos los botones de WhatsApp
+        const whatsappButtons = document.querySelectorAll('.js-whatsapp-trigger');
+
+        whatsappButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault(); // Evita comportamientos raros
+
+                // 1. OBTENER DATOS DEL HTML
+                const rawTelefono = this.dataset.telefono; 
+                const rawNombre = this.dataset.nombre;
+                const proximaCita = this.dataset.proximaCita;
+
+                // 2. LIMPIEZA DE DATOS
+                // Quitamos espacios, guiones y paréntesis, dejamos solo números
+                const telefonoLimpio = rawTelefono.replace(/\D/g, ''); 
+                
+                // Tomamos solo el primer nombre para que sea más personal (Ej: "Diego" en vez de "Diego Adrian...")
+                const nombreCorto = rawNombre.split(' ')[0]; 
+
+                // 3. VALIDACIÓN
+                if (telefonoLimpio.length < 10) {
+                    alert(`El número de ${nombreCorto} parece incompleto o inválido: ${rawTelefono}`);
+                    return;
+                }
+
+                // 4. CONSTRUCCIÓN DEL MENSAJE (Lógica de Chatbot)
+                const hora = new Date().getHours();
+                let saludo = "Hola";
+                if (hora < 12) saludo = "Buenos días";
+                else if (hora < 19) saludo = "Buenas tardes";
+                else saludo = "Buenas noches";
+
+                let mensaje = "";
+
+                if (proximaCita && proximaCita.trim().length > 0) {
+                    // MESAJE A: RECORDATORIO DE CITA
+                    mensaje = `${saludo} ${nombreCorto}, le escribimos del Consultorio Dental RC para recordarle su cita programada para el día *${proximaCita}*. Favor de confirmar su asistencia. 🦷✨`;
+                } else {
+                    // MENSAJE B: SEGUIMIENTO / GENERAL
+                    mensaje = `${saludo} ${nombreCorto}, esperamos que se encuentre bien. Le escribimos del Consultorio Dental RC para agendar su revisión periódica. ¿Le gustaría ver horarios disponibles?`;
+                }
+
+                // 5. ENVIAR A WHATSAPP
+                // Agregamos '52' para México. Si tus números ya tienen el 52, quita el '52' de abajo.
+                const url = `https://wa.me/52${telefonoLimpio}?text=${encodeURIComponent(mensaje)}`;
+                
+                // Abrir en nueva pestaña
+                window.open(url, '_blank');
+            });
+        });
+    });
+</script>
+
+{% endblock %}

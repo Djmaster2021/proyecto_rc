@@ -1,0 +1,215 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Configuración | RC Pro{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+    <div>
+        <h1 class="text-gradient">Configuración del Sistema</h1>
+        <p class="welcome-subtitle">Gestiona tu perfil profesional y horarios de atención.</p>
+    </div>
+</div>
+
+<div class="config-grid-pro">
+    
+    <div class="profile-card-full">
+        <div class="profile-cover"></div> <div class="profile-body-center">
+            <div class="avatar-uploader">
+                {% if dentista.foto_perfil %}
+                    <img src="{{ dentista.foto_perfil.url }}" class="avatar-img" alt="Perfil">
+                {% else %}
+                    <div class="avatar-placeholder">{{ dentista.nombre|slice:":2"|upper }}</div>
+                {% endif %}
+                
+                <button type="button" class="btn-upload-trigger" onclick="openProfileModal()">
+                    <i class="ph-bold ph-camera"></i>
+                </button>
+            </div>
+
+            <h2 class="profile-name" style="font-size: 1.4rem;">Dr. {{ dentista.nombre }}</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">{{ dentista.especialidad|default:"Odontología General" }}</p>
+            
+            <div style="margin-top: 10px;">
+                <span class="status-badge status-active"><i class="ph-fill ph-seal-check"></i> Verificado</span>
+            </div>
+        </div>
+
+        <div class="profile-details-list">
+            <div class="detail-row">
+                <span class="lbl"><i class="ph-bold ph-envelope"></i> Email</span>
+                <span class="val">{{ user.email }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="lbl"><i class="ph-bold ph-phone"></i> Teléfono</span>
+                <span class="val">{{ dentista.telefono|default:"--" }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="lbl"><i class="ph-bold ph-identification-card"></i> Cédula</span>
+                <span class="val">{{ dentista.licencia|default:"--" }}</span>
+            </div>
+        </div>
+
+        <div class="profile-actions-footer">
+            <button class="cyber-btn cyber-btn-sm w-100" style="justify-content: center;" onclick="openProfileModal()">
+                <i class="ph-bold ph-pencil-simple"></i> Editar Datos
+            </button>
+            <button class="cyber-btn cyber-btn-sm cyber-btn-secondary w-100" style="justify-content: center;" onclick="openPasswordModal()">
+                <i class="ph-bold ph-lock-key"></i> Seguridad
+            </button>
+        </div>
+    </div>
+
+    <div class="schedule-column">
+        
+        <div class="add-schedule-panel">
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="margin:0; font-size:1.2rem;">Nuevo Bloque de Horario</h3>
+                <p style="margin:5px 0 0; font-size:0.85rem; opacity: 0.8;">Define tu disponibilidad para la agenda automática.</p>
+            </div>
+
+            <form method="post" action="{% url 'dentista:configuracion' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_schedule">
+                
+                <div class="schedule-form-inline">
+                    <div class="form-group-inline">
+                        <label>Día</label>
+                        <select name="dia" class="cyber-input" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;" required>
+                            {% for val, name in dias_semana %}
+                                <option value="{{ val }}" style="color: #000;">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group-inline">
+                        <label>Inicio</label>
+                        <input type="time" name="hora_inicio" class="cyber-input" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;" required>
+                    </div>
+                    <div class="form-group-inline">
+                        <label>Fin</label>
+                        <input type="time" name="hora_fin" class="cyber-input" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;" required>
+                    </div>
+                    <button type="submit" class="cyber-btn cyber-btn-glow" style="height: 45px;">
+                        <i class="ph-bold ph-plus"></i> Agregar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="margin:0; font-size:1rem; font-weight:700; color:var(--text-muted);">HORARIOS ACTIVOS</h4>
+            <span class="status-badge status-active">{{ horarios.count }} bloques</span>
+        </div>
+
+        <div class="schedule-grid">
+            {% for h in horarios %}
+            <div class="schedule-item-card">
+                <div style="display:flex; align-items:center;">
+                    <div class="sch-icon"><i class="ph-fill ph-calendar-blank"></i></div>
+                    <div>
+                        <span class="sch-day">{{ h.get_dia_semana_display }}</span>
+                        <span class="sch-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
+                    </div>
+                </div>
+                <a href="{% url 'dentista:eliminar_horario' h.id %}" class="btn-delete-sch" title="Eliminar Bloque">
+                    <i class="ph-bold ph-trash"></i>
+                </a>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 3rem; border: 2px dashed var(--border-subtle); border-radius: 12px; color: var(--text-muted);">
+                <i class="ph-duotone ph-calendar-x" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                <p>No has configurado horarios de trabajo.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+
+<div id="profileModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 style="margin:0; color:var(--text-main);">Editar Perfil</h3>
+            <button onclick="closeModals()" class="btn-icon" style="background:transparent; color:var(--text-muted);"><i class="ph-bold ph-x"></i></button>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_profile">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" name="nombre" class="cyber-input" value="{{ dentista.nombre }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" name="telefono" class="cyber-input" value="{{ dentista.telefono }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Email (Login)</label>
+                <input type="email" name="email" class="cyber-input" value="{{ user.email }}" required>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label style="display:block; margin-bottom: 8px;">Foto de Perfil</label>
+                
+                <div class="file-upload-container">
+                    <input type="file" name="foto_perfil" id="profileFileInput" class="input-file-hidden" onchange="updateProfileFileText()">
+                    
+                    <label for="profileFileInput" class="btn-file-custom">
+                        <i class="ph-bold ph-camera" style="font-size: 2rem; color: var(--border-subtle);"></i>
+                        <span style="font-weight: 600; color: var(--text-main);">Click para subir nueva foto</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">JPG, PNG (Max 2MB)</span>
+                    </label>
+                    
+                    <span id="profileFileText" class="file-name-display"></span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="closeModals()">Cancelar</button>
+                <button type="submit" class="cyber-btn cyber-btn-glow">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="passwordModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 style="margin:0; color:var(--text-main);">Seguridad</h3>
+            <button onclick="closeModals()" class="btn-icon" style="background:transparent; color:var(--text-muted);"><i class="ph-bold ph-x"></i></button>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="change_password">
+
+            <div class="form-group">
+                <label>Contraseña Actual</label>
+                <input type="password" name="old_password" class="cyber-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Nueva Contraseña</label>
+                <input type="password" name="new_password" class="cyber-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Confirmar Nueva</label>
+                <input type="password" name="confirm_password" class="cyber-input" required>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="closeModals()">Cancelar</button>
+                <button type="submit" class="cyber-btn cyber-btn-glow">Actualizar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}Dashboard Dentista | RC Dental{% endblock %}
+
+{% block dcontent %}
+
+<div class="page-header">
+    <div class="welcome-text">
+        <h1 class="text-gradient">Hola, Dr. {{ dentista.nombre }} 👋</h1>
+        <p class="welcome-subtitle">
+            <i class="ph-bold ph-calendar-blank"></i>
+            {% now "l d F, Y" %} • Panel de Control
+        </p>
+    </div>
+    <div class="header-actions">
+        <a href="{% url 'dentista:crear_cita_manual' %}" class="cyber-btn cyber-btn-glow">
+            <i class="ph-bold ph-plus"></i> Nueva Cita
+        </a>
+    </div>
+</div>
+
+<div class="kpi-row">
+    <div class="kpi-card kpi-green">
+        <div class="kpi-icon"><i class="ph-duotone ph-calendar-check"></i></div>
+        <div class="kpi-content">
+            <h3 class="kpi-value">{{ citas_hoy.count }}</h3>
+            <span class="kpi-label">Citas Hoy</span>
+        </div>
+    </div>
+    <div class="kpi-card kpi-orange">
+        <div class="kpi-icon"><i class="ph-duotone ph-clock-countdown"></i></div>
+        <div class="kpi-content">
+            <h3 class="kpi-value">{{ kpi_pendientes }}</h3>
+            <span class="kpi-label">Pendientes</span>
+        </div>
+    </div>
+    <div class="kpi-card kpi-blue">
+        <div class="kpi-icon"><i class="ph-duotone ph-users"></i></div>
+        <div class="kpi-content">
+            <h3 class="kpi-value">{{ kpi_pacientes }}</h3>
+            <span class="kpi-label">Pacientes</span>
+        </div>
+    </div>
+    <div class="kpi-card kpi-money">
+        <div class="kpi-icon"><i class="ph-bold ph-currency-dollar"></i></div>
+        <div class="kpi-content">
+            <h3 class="kpi-value">${{ ingresos_mes|floatformat:2 }}</h3>
+            <span class="kpi-label">Ingresos Mes</span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-split-grid">
+
+    <div class="left-column-wrapper">
+
+        <div class="radar-panel">
+            <div class="panel-header">
+                <h3><i class="ph-fill ph-radar"></i> Radar Operativo</h3>
+                <a href="{% url 'dentista:agenda' %}" class="link-action">Ver Agenda</a>
+            </div>
+            <div class="agenda-scroll-container">
+                {% if calendario_dias %}
+                <div class="radar-grid">
+                    {% for dia in calendario_dias %}
+                    <div class="radar-day {{ dia.clases }}">
+                        <div class="rd-header">
+                            <span class="rd-dow">{{ dia.label_dia }}</span>
+                            <span class="rd-date">{{ dia.dia|date:"d" }}</span>
+                        </div>
+                        <div class="rd-body">
+                            {% for c in dia.citas %}
+                            <div class="rd-chip {{ c.clase_estado }}">
+                                <span class="rd-chip-time">{{ c.hora }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="empty-state">No hay datos para mostrar.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="cyber-card ia-card">
+            <div class="ia-header">
+                <h3 class="ia-title"><i class="ph-bold ph-brain"></i> Riesgo de Inasistencia</h3>
+                <span class="ia-badge">IA Powered</span>
+            </div>
+            <p class="ia-description">Predicción basada en historial de faltas y pagos.</p>
+
+            <div class="risk-list">
+                {% for riesgo in riesgos %}
+                <div class="risk-item">
+                    <div class="risk-info">
+                        <span class="risk-name">{{ riesgo.paciente }}</span>
+                        <div class="risk-bar-track">
+                            <div class="risk-bar-fill {{ riesgo.color }}" style="width: {{ riesgo.porcentaje }}%;"></div>
+                        </div>
+                    </div>
+                    <div class="risk-metric">
+                        <span class="risk-percent">{{ riesgo.porcentaje }}%</span>
+                        <span class="badge {{ riesgo.color }}">{{ riesgo.nivel }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="empty-state">No hay datos de riesgo suficientes.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="cyber-card ia-card">
+            <div class="ia-header">
+                <h3 class="ia-title"><i class="ph-bold ph-lightning"></i> Optimización de Agenda</h3>
+            </div>
+            
+            <div class="suggestion-list">
+                {% for sug in sugerencias %}
+                <div class="suggestion-item">
+                    <div class="sug-icon"><i class="ph-bold ph-info"></i></div>
+                    <p>{{ sug }}</p>
+                </div>
+                {% empty %}
+                <div class="suggestion-empty">
+                    <i class="ph-fill ph-check-circle"></i>
+                    <p>Tu agenda está optimizada al 100% hoy.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    <div class="side-stack">
+
+        <div class="hero-patient-card">
+            {% if proxima_cita %}
+                <div class="hp-status-bar"></div>
+                <div class="hp-content">
+                    <span class="hp-label">Siguiente Paciente</span>
+                    <h2 class="hp-name">{{ proxima_cita.paciente.nombre }}</h2>
+                    <p class="hp-service">{{ proxima_cita.servicio.nombre }}</p>
+                    
+                    <div class="hp-time-box">
+                        <div class="time-big">{{ proxima_cita.hora_inicio|time:"H:i" }}</div>
+                        <div class="duration-small">{{ proxima_cita.servicio.duracion_estimada }} min</div>
+                    </div>
+
+                    <a href="{% url 'dentista:vista_consulta' proxima_cita.id %}" class="cyber-btn cyber-btn-full">
+                        Abrir Expediente <i class="ph-bold ph-arrow-right"></i>
+                    </a>
+                </div>
+            {% else %}
+                <div class="hp-empty">
+                    <i class="ph-duotone ph-coffee"></i>
+                    <p>No hay más citas por hoy.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="cyber-card payments-card">
+            <h4 class="card-title"><i class="ph-bold ph-credit-card"></i> Recientes</h4>
+            <div class="payments-list">
+                {% for p in pagos|slice:":5" %}
+                <div class="payment-item">
+                    <div class="pay-icon-wrapper">
+                        <i class="ph-bold ph-money"></i>
+                    </div>
+                    <div class="pay-details">
+                        <span class="pay-method">{{ p.metodo }}</span>
+                        <span class="pay-date">{{ p.created_at|date:"d M, H:i" }}</span>
+                    </div>
+                    <div class="pay-amount">
+                        +${{ p.monto|floatformat:0 }}
+                    </div>
+                </div>
+                {% empty %}
+                <p class="empty-state">Sin movimientos.</p>
+                {% endfor %}
+            </div>
+            <a href="{% url 'dentista:pagos' %}" class="card-footer-link">Ver historial completo</a>
+        </div>
+
+        <div class="cyber-card notif-card">
+            <h4 class="card-title"><i class="ph-bold ph-bell"></i> Avisos</h4>
+            <div class="notif-list">
+                {% for aviso in notificaciones %}
+                <div class="notif-item">
+                    <p>{{ aviso.mensaje }}</p>
+                    <small>{{ aviso.created_at|timesince }}</small>
+                </div>
+                {% empty %}
+                <p class="empty-state">No hay avisos.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

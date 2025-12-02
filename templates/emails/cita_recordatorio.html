@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+  <body style="font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#020617; color:#e5e7eb; padding:20px;">
+    <div style="max-width:520px;margin:0 auto;background:#020617;border-radius:12px;padding:20px;border:1px solid #1f2937;">
+      <h2 style="color:#fbbf24;margin-top:0;">Recordatorio de cita</h2>
+      <p>Hola <strong>{{ paciente.nombre }}</strong>,</p>
+      <p>Te recordamos tu cita en el <strong>Consultorio Dental “Rodolfo Castellón”</strong>:</p>
+      <ul style="list-style:none;padding-left:0;">
+        <li><strong>Fecha:</strong> {{ cita.fecha_hora_inicio|date:"d/m/Y" }}</li>
+        <li><strong>Hora:</strong> {{ cita.fecha_hora_inicio|time:"H:i" }}</li>
+        <li><strong>Servicio:</strong> {{ cita.servicio.nombre }}</li>
+      </ul>
+      <p style="font-size:14px;color:#9ca3af;">
+        Si no puedes asistir, avísanos con anticipación para reprogramar tu cita.
+      </p>
+      <p>Atentamente,<br>
+        Dr. {{ dentista.nombre }}<br>
+        <span style="color:#22c55e;">Consultorio Dental “Rodolfo Castellón”</span>
+      </p>
+    </div>
+  </body>
+</html>
