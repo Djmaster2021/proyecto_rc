@@ -1,3 +1,7 @@
+# ============================================================
+#  MODELOS DE BASE DE DATOS (DOMAIN) — RC DENTAL PRO
+# ============================================================
+
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
@@ -42,9 +46,8 @@ class Paciente(models.Model):
     fecha_nacimiento = models.DateField(null=True, blank=True)
     antecedentes = models.TextField(blank=True, help_text="Alergias o enfermedades")
     
-    # --- ESTE ES EL CAMPO QUE FALTABA ---
+    # Campo para la foto de perfil
     imagen = models.ImageField(upload_to='pacientes/', blank=True, null=True)
-    # ------------------------------------
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -58,6 +61,7 @@ class Paciente(models.Model):
             today = date.today()
             return today.year - self.fecha_nacimiento.year - ((today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day))
         return 0
+
 # ============================================================
 # 4. HORARIOS DE TRABAJO
 # ============================================================
@@ -73,6 +77,11 @@ class Horario(models.Model):
 
     def __str__(self):
         return f"{self.get_dia_semana_display()}: {self.hora_inicio} - {self.hora_fin}"
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["dentista", "dia_semana"], name="unique_horario_por_dia")
+        ]
 
 # ============================================================
 # 5. CITAS CLÍNICAS
@@ -131,7 +140,7 @@ class Pago(models.Model):
         return f"Pago ${self.monto} - {self.cita}"
 
 # ============================================================
-# 7. COMPROBANTE DE PAGO (Faltaba esta tabla)
+# 7. COMPROBANTE DE PAGO
 # ============================================================
 class ComprobantePago(models.Model):
     pago = models.OneToOneField(Pago, on_delete=models.CASCADE, related_name='comprobante')
@@ -176,3 +185,49 @@ class AvisoDentista(models.Model):
     
     def __str__(self):
         return f"Aviso para {self.dentista}"
+
+# ============================================================
+# 9. ODONTOGRAMA (Modelos Corregidos)
+# ============================================================
+
+# Modelo antiguo (lo mantenemos por si acaso hay datos viejos)
+class OdontogramaEntrada(models.Model):
+    ESTADOS = [
+        ("sano", "Sano"),
+        ("ortodoncia", "Ortodoncia / Bracket"),
+        ("restauracion", "Restauración"),
+        ("observacion", "Observación"),
+    ]
+
+    # Usamos related_name="odontograma" (El original)
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name="odontograma")
+    dentista = models.ForeignKey(Dentista, on_delete=models.CASCADE)
+    numero_diente = models.CharField(max_length=4)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default="sano")
+    nota = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.paciente} - Diente {self.numero_diente} ({self.estado})"
+
+# Modelo nuevo para el Odontograma Interactivo SVG
+# EN domain/models.py (Al final)
+
+class Diente(models.Model):
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='dientes')
+    numero = models.CharField(max_length=3)
+    estado = models.CharField(max_length=20)
+    
+    # NUEVO CAMPO:
+    nota = models.TextField(blank=True, null=True) # Aquí guardaremos el texto
+    
+    class Meta:
+        unique_together = ('paciente', 'numero')
+
+    def __str__(self):
+        return f"{self.paciente} - Diente {self.numero}: {self.estado}"
+    
+    
