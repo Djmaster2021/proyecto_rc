@@ -130,6 +130,11 @@ class UsernameOrEmailPasswordResetForm(PasswordResetForm):
     Permite escribir usuario o correo. Si se ingresa usuario,
     se reemplaza por el correo asociado para que el flujo estándar funcione.
     """
+    email = forms.CharField(
+        label="Usuario o correo electrónico",
+        widget=forms.TextInput(attrs={"placeholder": "ej. juanperez o correo@dominio.com"})
+    )
+
     def clean_email(self):
         identifier = (self.cleaned_data.get("email") or "").strip()
         if not identifier:
