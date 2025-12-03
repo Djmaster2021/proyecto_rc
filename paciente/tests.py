@@ -3,6 +3,8 @@ from unittest.mock import patch
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.conf import settings
 
 from domain.models import Dentista, Paciente, Cita, Pago, Servicio
 
@@ -36,4 +38,25 @@ class PagoMercadoPagoTests(TestCase):
 
         # El método debe marcarse como MercadoPago al salir al checkout
         self.pago.refresh_from_db()
+        self.assertEqual(self.pago.metodo, "MERCADOPAGO")
+
+    @patch("paciente.views.mercadopago.SDK")
+    def test_webhook_actualiza_pago_aprobado(self, mock_sdk):
+        # Simular respuesta MP aprobada
+        mock_payment = mock_sdk.return_value.payment.return_value
+        mock_payment.get.return_value = {
+            "status": 200,
+            "response": {
+                "status": "approved",
+                "external_reference": str(self.cita.id),
+            },
+        }
+
+        url = reverse("paciente:mp_webhook")
+        payload = {"data": {"id": "123"}}
+        resp = self.client.post(url, data=payload, content_type="application/json")
+
+        self.assertEqual(resp.status_code, 200)
+        self.pago.refresh_from_db()
+        self.assertEqual(self.pago.estado, "COMPLETADO")
         self.assertEqual(self.pago.metodo, "MERCADOPAGO")

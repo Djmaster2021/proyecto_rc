@@ -48,6 +48,8 @@ Plataforma integral para el Consultorio Dental **Rodolfo Castellón**: agenda, p
 - Generar token OAuth de Google: `python google_oauth_setup.py` tras colocar `google_credentials/credentials.json`.  
 - Colección de estáticos para producción: `python manage.py collectstatic --no-input`.  
 - Reiniciar datos locales (desarrollo): `python reset_tablas.py` (lee antes el script).
+- Webhook MercadoPago (prod): configura la URL pública a `/paciente/pagos/webhook/`.
+- Cron sugerido para recordatorios (ejemplo): `0 * * * * cd /home/diego/Escritorio/proyecto_rc/proyecto_rc && .venv/bin/python manage.py enviar_recordatorios_citas >> /var/log/rc_recordatorios.log 2>&1`.
 
 ## Estructura rápida
 - `proyecto_rc/` configuración Django.  

@@ -8,6 +8,8 @@ from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
 from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+import mercadopago
 from datetime import datetime, timedelta
 from decimal import Decimal
 from io import BytesIO
@@ -348,6 +350,64 @@ def pago_fallido(request):
 def pago_pendiente(request):
     messages.info(request, "Pago en estado pendiente. Verifica más tarde.")
     return redirect("paciente:mis_pagos")
+
+
+@csrf_exempt
+def mp_webhook(request):
+    """
+    Webhook de MercadoPago para confirmar pagos.
+    Valida el payment_id recibido y actualiza el Pago asociado a la cita (external_reference).
+    """
+    import json
+    import mercadopago
+
+    if request.method != "POST":
+        return JsonResponse({"detail": "Método no permitido"}, status=405)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        return JsonResponse({"detail": "JSON inválido"}, status=400)
+
+    payment_id = payload.get("data", {}).get("id") or payload.get("id")
+    if not payment_id:
+        return JsonResponse({"detail": "Sin payment_id"}, status=400)
+
+    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+    try:
+        payment_info = sdk.payment().get(payment_id)
+        status = payment_info.get("status")
+        response = payment_info.get("response", {})
+    except Exception as exc:
+        print(f"[MP] Error consultando pago {payment_id}: {exc}")
+        return JsonResponse({"detail": "Error consultando pago"}, status=500)
+
+    if status != 200:
+        return JsonResponse({"detail": f"Estado HTTP {status}"}, status=400)
+
+    mp_status = response.get("status")
+    ext_ref = response.get("external_reference")
+    if not ext_ref:
+        return JsonResponse({"detail": "Sin external_reference"}, status=400)
+
+    pago = Pago.objects.filter(cita__id=ext_ref).first()
+    if not pago:
+        return JsonResponse({"detail": "Pago no encontrado"}, status=404)
+
+    if mp_status in ("approved", "authorized"):
+        pago.estado = "COMPLETADO"
+        pago.metodo = "MERCADOPAGO"
+        pago.save(update_fields=["estado", "metodo"])
+        return JsonResponse({"detail": "Pago confirmado"}, status=200)
+
+    # Otros estados: pending, in_process, rejected...
+    if mp_status in ("pending", "in_process"):
+        pago.estado = "PENDIENTE"
+        pago.metodo = "MERCADOPAGO"
+        pago.save(update_fields=["estado", "metodo"])
+        return JsonResponse({"detail": "Pago en proceso"}, status=202)
+
+    return JsonResponse({"detail": f"Estado no aprobado: {mp_status}"}, status=200)
 
 
 @login_required

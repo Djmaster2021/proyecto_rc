@@ -215,9 +215,10 @@ LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/dentista/dashboard/" 
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
+# Allauth (ajustado para evitar deprecations y exigir verificación)
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
-ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
