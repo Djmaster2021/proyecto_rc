@@ -319,19 +319,19 @@ body.light-mode .btn-logout:hover {
 }
 
 body.light-mode .welcome-banner {
-  background: linear-gradient(135deg, #e5f6ff, #f8fbff),
-              radial-gradient(circle at 30% 18%, rgba(14,165,233,0.14), transparent 38%),
-              radial-gradient(circle at 70% 32%, rgba(99,102,241,0.1), transparent 40%);
-  border: 1px solid rgba(14,165,233,0.18);
+  background: linear-gradient(135deg, #0ea5e9, #2563eb),
+              radial-gradient(circle at 30% 18%, rgba(14,165,233,0.18), transparent 38%),
+              radial-gradient(circle at 70% 32%, rgba(99,102,241,0.14), transparent 40%);
+  border: 1px solid rgba(255,255,255,0.18);
 }
 
 body.light-mode .welcome-title {
-  color: #0f172a;
-  text-shadow: none;
+  color: #f8fafc;
+  text-shadow: 0 0 16px rgba(255,255,255,0.25);
 }
 
 body.light-mode .welcome-subtitle {
-  color: #475569;
+  color: #e2e8f0;
 }
 
 /* 6. SECCIONES Y GRID DEL DASHBOARD */
