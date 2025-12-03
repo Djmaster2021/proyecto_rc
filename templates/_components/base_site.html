@@ -31,7 +31,14 @@
   {% include "_components/footer.html" %}
 
   <!-- Widget del chatbot -->
-  <div id="rc-chatbot" class="chat-hidden">
+  <div id="rc-chatbot" class="chat-hidden" data-quick-replies='[
+      {"label":"Agendar","value":"agendar","icon":"🗓️"},
+      {"label":"Horarios","value":"horarios","icon":"🕒"},
+      {"label":"Pagar","value":"pago","icon":"💳"},
+      {"label":"Ubicación","value":"ubicacion","icon":"📍"},
+      {"label":"Precios","value":"precios","icon":"💲"},
+      {"label":"Urgencia","value":"urgencia","icon":"⏱️"}
+  ]'>
       <div class="chat-header">
           <div class="chat-brand">
               <i class="ph-duotone ph-robot brand-logo"></i>
@@ -48,25 +55,7 @@
           </div>
       </div>
 
-      <div class="chat-faq">
-          <div class="faq-title">Preguntas frecuentes</div>
-          <div class="faq-list">
-              <button class="quick-btn" data-msg="horarios">🕒 ¿Cuál es el horario?</button>
-              <button class="quick-btn" data-msg="ubicacion">📍 ¿Dónde están ubicados?</button>
-              <button class="quick-btn" data-msg="precios">💲 ¿Cuánto cuesta una limpieza?</button>
-              <button class="quick-btn" data-msg="agendar">🗓️ ¿Puedo agendar una cita?</button>
-              <button class="quick-btn" data-msg="urgencia">⏱️ Tengo una urgencia</button>
-          </div>
-      </div>
-
-      <div class="chat-quick-replies">
-          <button class="quick-btn" data-msg="agendar">🗓️ Agendar</button>
-          <button class="quick-btn" data-msg="horarios">🕒 Horarios</button>
-          <button class="quick-btn" data-msg="pago">💳 Pagar</button>
-          <button class="quick-btn" data-msg="ubicacion">📍 Ubicación</button>
-          <button class="quick-btn" data-msg="precios">💲 Precios</button>
-          <button class="quick-btn" data-msg="urgencia">⏱️ Urgencia</button>
-      </div>
+      <div class="chat-quick-replies" id="chat-quick-replies"></div>
 
       <form class="chat-footer" id="chat-form">
           <input type="text" id="chat-input" placeholder="Escribe aquí..." autocomplete="off">
