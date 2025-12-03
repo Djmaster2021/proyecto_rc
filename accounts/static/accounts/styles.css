@@ -646,10 +646,10 @@
     height: 16px;
   }
 
-  .btn-google:hover {
-    box-shadow: 0 0 0 3px rgba(88,199,255,0.22), 0 18px 36px -14px rgba(15,23,42,0.45);
-    transform: translateY(-1px);
-  }
+.btn-google:hover {
+  box-shadow: 0 0 0 3px rgba(88,199,255,0.22), 0 18px 36px -14px rgba(15,23,42,0.45);
+  transform: translateY(-1px);
+}
   
   /* ==========================================
    Diseño de OLVIDAR CONTRASEÑA · RC avanzado
@@ -1404,12 +1404,14 @@ label,
 }
 
 .login-page label,
-.login-page .label-lg {
+.login-page .label-lg,
+.reset-page .label-lg {
   font-size: 1.02rem !important;
   margin-bottom: 6px !important;
 }
 
-.login-page .btn-primary {
+.login-page .btn-primary,
+.reset-page .btn-primary {
   padding: 14px 16px !important;
   font-size: 1.06rem !important;
   border-radius: 14px !important;
@@ -1417,9 +1419,27 @@ label,
   transition: box-shadow 0.25s ease, transform 0.2s ease;
 }
 
-.login-page .btn-primary:hover {
+.login-page .btn-primary:hover,
+.reset-page .btn-primary:hover {
   box-shadow: 0 0 0 3px rgba(88,199,255,0.22), 0 18px 36px -14px rgba(33,214,178,0.55);
   transform: translateY(-1px);
+}
+
+.reset-page .glow-card,
+.reset-page .login-card {
+  max-width: 520px !important;
+  padding: 34px 30px !important;
+}
+
+.reset-page .auth-form .field {
+  margin-bottom: 12px !important;
+}
+
+.reset-page .input,
+.reset-page .input-xl {
+  padding: 14px 16px !important;
+  font-size: 1.05rem !important;
+  border-radius: 14px !important;
 }
 .btn-google {
   gap: 18px !important;
