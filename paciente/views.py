@@ -84,6 +84,14 @@ def dashboard(request):
     except:
         return redirect('paciente:completar_perfil')
 
+    # Aseguramos que el paciente tenga dentista asignado (fallback al primero)
+    if not paciente.dentista:
+        from domain.models import Dentista
+        dentista_default = Dentista.objects.first()
+        if dentista_default:
+            paciente.dentista = dentista_default
+            paciente.save(update_fields=["dentista"])
+
     hoy = timezone.localdate()
     now_local = timezone.localtime()
     current_time = now_local.time()
