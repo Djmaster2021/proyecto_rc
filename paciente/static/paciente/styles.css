@@ -358,6 +358,10 @@ a {
   flex-wrap: wrap;
 }
 
+.payment-actions {
+  justify-content: center;
+}
+
 .payment-list {
   display: flex;
   flex-direction: column;
