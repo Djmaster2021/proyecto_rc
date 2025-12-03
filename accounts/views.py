@@ -8,6 +8,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from django.conf import settings
 
 from .forms import PacienteRegisterForm, UsernameOrEmailAuthenticationForm
 
