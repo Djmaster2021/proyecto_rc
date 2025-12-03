@@ -11,35 +11,36 @@
           <li><a href="{% url 'home' %}#acerca">{% trans "Acerca" %}</a></li>
           <li><a href="{% url 'home' %}#pagos">{% trans "Pagos" %}</a></li>
           <li><a href="{% url 'home' %}#contacto">{% trans "Contacto" %}</a></li>
-          <li><a class="rc-btn" href="{% url 'accounts:login' %}">{% trans "Iniciar sesión" %}</a></li>
-          <li><a class="rc-btn rc-btn--primary" href="{% url 'accounts:register' %}">{% trans "Agenda tu cita" %}</a></li>
         </ul>
 
-        <div class="lang-simple">
-            <form action="{% url 'set_language' %}" method="post">
-                {% csrf_token %}
-                <input name="next" type="hidden" value="/">
-                <input name="language" type="hidden" value="es">
-                <button type="submit" class="lang-link {% if CURRENT_LANG|slice:':2' == 'es' %}active{% endif %}">
-                    ES
-                </button>
-            </form>
-            
-            <span class="lang-sep">|</span>
-            
-            <form action="{% url 'set_language' %}" method="post">
-                {% csrf_token %}
-                <input name="next" type="hidden" value="{{ request.get_full_path }}">
-                <input name="language" type="hidden" value="en">
-                <button type="submit" class="lang-link {% if CURRENT_LANG|slice:':2' == 'en' %}active{% endif %}">
-                    EN
-                </button>
-            </form>
-        </div>
+        <div class="nav-actions">
+          <a class="rc-btn rc-btn--ghost" href="{% url 'accounts:login' %}">{% trans "Iniciar sesión" %}</a>
+          <a class="rc-btn rc-btn--primary rc-btn--glow" href="{% url 'accounts:register' %}">{% trans "Agenda tu cita" %}</a>
 
-        <button class="rc-burger" id="burger" aria-label="Abrir menú">
-          <i class="ph-bold ph-list"></i>
-        </button>
+          <div class="lang-switch">
+              <form action="{% url 'set_language' %}" method="post">
+                  {% csrf_token %}
+                  <input name="next" type="hidden" value="/">
+                  <input name="language" type="hidden" value="es">
+                  <button type="submit" class="lang-flag {% if CURRENT_LANG|slice:':2' == 'es' %}active{% endif %}" aria-label="Español">
+                      <span class="flag flag-mx"></span>
+                  </button>
+              </form>
+              
+              <form action="{% url 'set_language' %}" method="post">
+                  {% csrf_token %}
+                  <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                  <input name="language" type="hidden" value="en">
+                  <button type="submit" class="lang-flag {% if CURRENT_LANG|slice:':2' == 'en' %}active{% endif %}" aria-label="English">
+                      <span class="flag flag-us"></span>
+                  </button>
+              </form>
+          </div>
+
+          <button class="rc-burger" id="burger" aria-label="Abrir menú">
+            <i class="ph-bold ph-list"></i>
+          </button>
+        </div>
     </div>
   </div>
 </nav>
@@ -52,4 +53,22 @@
   <hr class="rc-mobile-divider">
   <a class="rc-btn rc-mobile-btn" href="{% url 'accounts:login' %}">{% trans "Iniciar sesión" %}</a>
   <a class="rc-btn rc-btn--primary rc-mobile-btn" href="{% url 'accounts:register' %}">{% trans "Agenda tu cita" %}</a>
+  <div class="lang-simple" style="margin-top:1rem;">
+      <form action="{% url 'set_language' %}" method="post">
+          {% csrf_token %}
+          <input name="next" type="hidden" value="/">
+          <input name="language" type="hidden" value="es">
+          <button type="submit" class="lang-link {% if CURRENT_LANG|slice:':2' == 'es' %}active{% endif %}">
+              <span class="flag flag-mx"></span>
+          </button>
+      </form>
+      <form action="{% url 'set_language' %}" method="post">
+          {% csrf_token %}
+          <input name="next" type="hidden" value="{{ request.get_full_path }}">
+          <input name="language" type="hidden" value="en">
+          <button type="submit" class="lang-link {% if CURRENT_LANG|slice:':2' == 'en' %}active{% endif %}">
+              <span class="flag flag-us"></span>
+          </button>
+      </form>
+  </div>
 </div>
