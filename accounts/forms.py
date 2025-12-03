@@ -1,6 +1,7 @@
 # accounts/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User, Group
 from django.db import transaction, IntegrityError # <-- Se importa IntegrityError (buena práctica)
 from domain.models import Paciente, Dentista  # Importamos el modelo Paciente y Dentista
@@ -160,7 +161,7 @@ class UsernameOrEmailPasswordResetForm(PasswordResetForm):
         Incluimos también usuarios sin contraseña usable (p.ej. alta por Google)
         para que puedan establecer una nueva contraseña vía este flujo.
         """
-        UserModel = self.get_users.__self__.user_model  # compatibilidad con Django < 5.1
+        UserModel = get_user_model()
         email_field_name = UserModel.get_email_field_name()
         active_users = UserModel._default_manager.filter(
             **{f"{email_field_name}__iexact": email, "is_active": True}
