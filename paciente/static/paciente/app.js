@@ -42,11 +42,14 @@ function showToast(message, type = "success") {
     const modalPerfil  = document.getElementById("modal-perfil");
   
     const formCita     = document.getElementById("form-cita");
-    const servicio     = document.getElementById("cita-servicio");
+    const servicio     = document.getElementById("servicio_modal") || document.getElementById("cita-servicio");
     const fecha        = document.getElementById("cita-fecha");
-    const hora         = document.getElementById("cita-hora");
+    const horaSelect   = document.getElementById("cita-hora");
+    const horaHelp     = document.getElementById("hora-help");
+    const proximaCita  = document.getElementById("proxima-cita-card");
     const btnSubmit    = document.getElementById("btn-submit-cita");
     const formCancelar = document.getElementById("form-cancelar");
+    const slotsUrl     = formCita ? formCita.dataset.slotsUrl || "/paciente/api/slots/" : "/paciente/api/slots/";
   
     // Si no estamos en el dashboard paciente, no hacemos nada más
     if (!formCita || !modalCita) {
@@ -61,8 +64,9 @@ function showToast(message, type = "success") {
         window.citaCalendar = flatpickr("#cita-fecha", {
             locale: "es",
             minDate: "today",
-            maxDate: new Date().fp_incr(30),
+            maxDate: new Date().fp_incr(60),
             dateFormat: "Y-m-d",
+            inline: true,
             disable: [
                 function (date) {
                     // Bloquea domingos (0)
@@ -70,7 +74,9 @@ function showToast(message, type = "success") {
                 }
             ],
             onChange: function (selectedDates, dateStr) {
-                consultarHorarios(dateStr);
+                if (servicio && servicio.value) {
+                    consultarHorarios(dateStr);
+                }
             }
         });
     }
@@ -80,17 +86,36 @@ function showToast(message, type = "success") {
        2.2 Cambiar servicio → habilitar fecha
     ------------------------------------------- */
     if (servicio && fecha) {
-        fecha.disabled = true;
-  
+
+        // límites: hoy y hasta 60 días
+        const today = new Date();
+        const todayStr = today.toISOString().split("T")[0];
+        const maxDate = new Date();
+        maxDate.setDate(maxDate.getDate() + 60);
+        const maxStr = maxDate.toISOString().split("T")[0];
+        fecha.min = todayStr;
+        fecha.max = maxStr;
+
         servicio.addEventListener("change", () => {
-            if (servicio.value) {
-                fecha.disabled = false;
-                if (window.citaCalendar) {
-                    window.citaCalendar.clear();
-                }
-            } else {
-                fecha.disabled = true;
+            fecha.value = "";
+            resetHoras("Selecciona fecha para ver horarios.");
+            btnSubmit.disabled = true;
+            if (window.citaCalendar) {
+                window.citaCalendar.clear();
             }
+        });
+
+        fecha.addEventListener("change", () => {
+            if (!fecha.value || !servicio.value) return;
+            const f = new Date(fecha.value + "T00:00:00");
+            if (f.getDay() === 0) {
+                showToast("No atendemos domingos. Elige otra fecha.", "danger");
+                fecha.value = "";
+                resetHoras("Selecciona otra fecha.");
+                btnSubmit.disabled = true;
+                return;
+            }
+            consultarHorarios(fecha.value);
         });
     }
   
@@ -153,12 +178,11 @@ function showToast(message, type = "success") {
             servicio.value = "";
         }
         if (fecha) {
-            fecha.disabled = true;
             fecha.value = "";
         }
-        if (hora) {
-            hora.disabled = true;
-            hora.innerHTML = '<option value="">-- Primero fecha --</option>';
+        resetHoras("Selecciona servicio y fecha para ver horarios.");
+        if (horaSelect) {
+            horaSelect.value = "";
         }
         if (btnSubmit) {
             btnSubmit.disabled = true;
@@ -192,7 +216,7 @@ function showToast(message, type = "success") {
             // Si no está SweetAlert, abrimos el modal directo
             return abrirModalReprogramarDirecto(citaId, servicioId);
         }
-  
+
         if (veces >= 1) {
             Swal.fire({
                 title: "Límite de reprogramación alcanzado",
@@ -204,17 +228,25 @@ function showToast(message, type = "success") {
             });
             return;
         }
-  
+
         Swal.fire({
-            title: "¿Deseas reprogramar tu cita?",
-            html: "<p>Recuerda que solo tienes <b>1 oportunidad</b> para reprogramar.</p>",
-            icon: "warning",
+            title: "¿Deseas reprogramar?",
+            html: `
+                <div class="alert-icon">
+                    <span>!</span>
+                </div>
+                <p>Solamente se puede reprogramar <b>1 sola vez</b>.</p>
+                <p>Para volver a cancelar o reprogramar, avisa a tu dentista para que él lo haga.</p>
+            `,
+            icon: null,
             showCancelButton: true,
-            confirmButtonText: "Sí, reprogramar",
+            confirmButtonText: "Continuar y reprogramar",
             confirmButtonColor: "#00d4ff",
-            cancelButtonColor: "#64748b",
-            background: "#18212f",
-            color: "#e8eef7"
+            cancelButtonText: "Cancelar",
+            cancelButtonColor: "#94a3b8",
+            background: "rgba(8,13,23,0.95)",
+            color: "#e8eef7",
+            customClass: { popup: "swal-rc" }
         }).then(result => {
             if (result.isConfirmed) {
                 abrirModalReprogramarDirecto(citaId, servicioId);
@@ -253,12 +285,12 @@ function showToast(message, type = "success") {
         }
   
         // Limpiar horarios y deshabilitar botón hasta elegir fecha
-        if (hora) {
-            hora.disabled = true;
-            hora.innerHTML = '<option value="">-- Primero fecha --</option>';
+        resetHoras("Selecciona fecha para ver horarios.");
+        if (horaSelect) {
+            horaSelect.value = "";
         }
         if (btnSubmit) {
-            btnSubmit.disabled = false; // se habilita al elegir horario, pero aquí lo dejamos listo
+            btnSubmit.disabled = true;
         }
   
         modalCita.classList.add("is-visible");
@@ -275,17 +307,26 @@ function showToast(message, type = "success") {
             formCancelar.action = `/paciente/citas/${citaId}/cancelar/`;
             return formCancelar.submit();
         }
-  
+
         Swal.fire({
             title: "¿Seguro que deseas cancelar?",
-            html: "<p>Solo puedes cancelar <b>1 vez</b> y con <b>24 horas de anticipación</b>.</p>",
-            icon: "warning",
+            html: `
+                <div class="alert-icon">
+                    <span>!</span>
+                </div>
+                <p>Solamente se puede cancelar <b>1 sola vez</b>.</p>
+                <p>Recuerda hacerlo con <b>1 día de anticipación</b>.</p>
+                <p style="color:#f87171;"><strong>Si cancelas ahora, perderás tu lugar.</strong></p>
+            `,
+            icon: null,
             showCancelButton: true,
             confirmButtonText: "Sí, cancelar",
             confirmButtonColor: "#ef4444",
-            cancelButtonColor: "#64748b",
-            background: "#18212f",
-            color: "#e8eef7"
+            cancelButtonText: "Cancelar",
+            cancelButtonColor: "#94a3b8",
+            background: "rgba(8,13,23,0.95)",
+            color: "#e8eef7",
+            customClass: { popup: "swal-rc" }
         }).then(result => {
             if (result.isConfirmed) {
                 formCancelar.action = `/paciente/citas/${citaId}/cancelar/`;
@@ -328,39 +369,77 @@ function showToast(message, type = "success") {
        Se deja dentro del DOMContentLoaded para tener acceso a refs.
     ============================================================ */
     async function consultarHorarios(fechaStr) {
-        if (!servicio || !hora || !btnSubmit) return;
+        if (!servicio || !horaSelect || !btnSubmit) return;
   
         const servicioId = servicio.value;
         if (!servicioId) return;
   
-        hora.innerHTML = "<option>Cargando...</option>";
-        hora.disabled = true;
         btnSubmit.disabled = true;
+        horaSelect.innerHTML = "<option>Cargando...</option>";
+        horaSelect.disabled = true;
+        if (horaHelp) {
+            horaHelp.style.display = "block";
+            horaHelp.textContent = "Buscando horarios...";
+        }
   
         try {
             const res = await fetch(
-                `/paciente/api/horarios/?fecha=${fechaStr}&servicio_id=${servicioId}`
+                `${slotsUrl}?fecha=${fechaStr}&servicio_id=${servicioId}`
             );
-            const horarios = await res.json();
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.msg || "No disponible");
+            }
   
-            hora.innerHTML = "";
-  
-            if (horarios.length > 0) {
-                horarios.forEach(h => {
-                    const opt = document.createElement("option");
-                    opt.value = h;
-                    opt.textContent = h;
-                    hora.appendChild(opt);
-                });
-  
-                hora.disabled = false;
-                btnSubmit.disabled = false;
+            if (data.slots && data.slots.length > 0) {
+                setHorasDesdeSlots(data.slots);
             } else {
-                hora.innerHTML = "<option>Sin disponibilidad</option>";
+                resetHoras("Lleno / No disponible. Intenta otro día.");
             }
         } catch (err) {
-            hora.innerHTML = "<option>Error</option>";
+            resetHoras(err.message || "Error de conexión.");
+            showToast("No se pudieron obtener los horarios.", "danger");
         }
+    }
+
+    function setHorasDesdeSlots(slots) {
+        horaSelect.innerHTML = '<option value="" selected disabled>-- Elige hora --</option>';
+        let candidato = null;
+        slots.forEach((s) => {
+            const opt = document.createElement("option");
+            opt.value = s.hora;
+            opt.textContent = s.hora + (s.recomendado ? " • sugerido" : "");
+            if (s.estado === "ocupado") {
+                opt.disabled = true;
+                opt.textContent = `${s.hora} (ocupado)`;
+            } else if (!candidato || s.recomendado) {
+                candidato = s.hora;
+            }
+            horaSelect.appendChild(opt);
+        });
+
+        if (candidato) {
+            horaSelect.value = candidato;
+            btnSubmit.disabled = false;
+            horaSelect.disabled = false;
+            if (horaHelp) {
+                horaHelp.style.display = "none";
+            }
+        } else {
+            resetHoras("Sin horarios libres. Intenta otro día.");
+        }
+    }
+
+    function resetHoras(mensaje) {
+        if (horaSelect) {
+            horaSelect.innerHTML = `<option value="">${mensaje}</option>`;
+            horaSelect.disabled = true;
+        }
+        if (horaHelp) {
+            horaHelp.style.display = "block";
+            horaHelp.textContent = mensaje;
+        }
+        if (btnSubmit) btnSubmit.disabled = true;
     }
   
   }); // FIN DOMContentLoaded

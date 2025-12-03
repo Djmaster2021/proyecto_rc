@@ -5,100 +5,155 @@
 {% block header_title %}Pagos del paciente{% endblock %}
 
 {% block extra_css %}
-  {# Si tienes un CSS específico para pagos, lo puedes linkear aquí #}
+  <style>
+    :root {
+      --bg-dark: #050816;
+      --card: #0c1224;
+      --border: rgba(255,255,255,0.08);
+      --purple: #8b5cf6;
+      --aqua: #22d3ee;
+      --blue: #2563eb;
+      --mint: #2dd4bf;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+    }
+    body {
+      background: radial-gradient(circle at 20% 20%, rgba(139,92,246,0.18), transparent 28%),
+                  radial-gradient(circle at 80% 0%, rgba(34,211,238,0.16), transparent 25%),
+                  radial-gradient(circle at 60% 80%, rgba(37,99,235,0.16), transparent 30%),
+                  var(--bg-dark);
+      color: var(--text);
+    }
+    .pay-wrapper { max-width: 1100px; margin: 0 auto; padding: 0 1rem 2rem; }
+    .pay-hero { text-align: center; margin: 1.2rem auto 2rem; }
+    .pay-hero h2 { font-size: 2.4rem; margin: 0; color: #f8fafc; letter-spacing: 0.4px; }
+    .pay-hero p { color: var(--muted); }
+    .pay-grid { display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+    .pay-card {
+      position: relative;
+      background: linear-gradient(140deg, rgba(12,18,36,0.92), rgba(9,12,26,0.9));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1.4rem;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.28);
+      overflow: hidden;
+    }
+    .pay-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: conic-gradient(from 120deg, rgba(139,92,246,0.25), rgba(34,211,238,0.2), rgba(37,99,235,0.2), rgba(139,92,246,0.25));
+      filter: blur(60px);
+      opacity: 0.3;
+    }
+    .pay-card h3 {
+      margin: 0 0 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #f8fafc;
+      position: relative;
+      z-index: 1;
+    }
+    .pay-card h3 i { color: var(--aqua); }
+    .pay-list { display: grid; gap: 12px; position: relative; z-index: 1; }
+    .pay-item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+      display: grid;
+      gap: 4px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+    .pay-item .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .amount { font-weight: 800; font-size: 1.15rem; color: #f8fafc; }
+    .meta { color: var(--muted); font-size: 0.95rem; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 10px; border-radius: 999px; font-weight: 700; font-size: 0.85rem;
+      border: 1px solid var(--border);
+    }
+    .pill.success { background: rgba(45,212,191,0.14); color: #2dd4bf; }
+    .pill.pending { background: rgba(251,191,36,0.16); color: #fbbf24; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+    .btn {
+      border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px;
+      background: rgba(255,255,255,0.05); cursor: pointer; font-weight: 700; font-size: 0.95rem; color: #f8fafc;
+      transition: all .15s ease;
+    }
+    .btn.primary { background: linear-gradient(120deg, var(--purple), var(--aqua)); color: #0b1220; border: none; box-shadow: 0 12px 28px rgba(139,92,246,0.35); }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,0.18); }
+    .empty { text-align: center; color: var(--muted); padding: 0.9rem; border: 1px dashed var(--border); border-radius: 12px; background: rgba(255,255,255,0.03); }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-weight: 800; font-size: 0.85rem; }
+    .badge.success { background: rgba(45,212,191,0.16); color: #2dd4bf; }
+  </style>
 {% endblock %}
 
-{% block content %}
-<div class="paciente-page">
-  <div class="page-header">
-    <h2 class="page-title">Pagos</h2>
-    <p class="page-subtitle">
-      Aquí puedes ver tus pagos pendientes y los pagos completados de tus citas.
-    </p>
+{% block pcontent %}
+<div class="pay-wrapper">
+  <div class="pay-hero">
+    <h2>Pagos</h2>
+    <p>Gestiona tus pagos pendientes o revisa tus pagos completados.</p>
+    <div style="margin-top:0.8rem;">
+      <a href="{% url 'paciente:dashboard' %}" class="cyber-btn cyber-btn-secondary">← Volver al panel</a>
+    </div>
   </div>
 
-  <div class="pagos-grid">
-    <!-- Pagos pendientes -->
-    <section class="card-block">
-      <h3 class="card-title">Pagos pendientes</h3>
+<div class="pay-grid">
+  <!-- Pagos pendientes -->
+  <section class="pay-card">
+    <h3><i class="ph-duotone ph-credit-card"></i> Pagos pendientes</h3>
 
-      {% if pagos_pendientes %}
-        <div class="table-wrapper">
-          <table class="rc-table">
-            <thead>
-              <tr>
-                <th>Cita</th>
-                <th>Servicio</th>
-                <th>Fecha</th>
-                <th>Monto</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for pago in pagos_pendientes %}
-                <tr>
-                  <td>#{{ pago.cita.id }}</td>
-                  <td>{{ pago.cita.servicio.nombre }}</td>
-                  <td>
-                    {{ pago.cita.fecha_hora_inicio|date:"d/m/Y" }}
-                    {{ pago.cita.fecha_hora_inicio|time:"H:i" }}
-                  </td>
-                  <td>${{ pago.monto }} MXN</td>
-                  <td>
-                    <a href="{% url 'paciente:iniciar_pago' pago.cita.id %}" class="btn btn-primary">
-                      Pagar ahora
-                    </a>
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+    {% if pagos_pendientes %}
+      <div class="pay-list">
+        {% for pago in pagos_pendientes %}
+        <div class="pay-item">
+          <div class="row">
+            <span class="pill pending">Pendiente</span>
+            <span class="amount">${{ pago.monto }} MXN</span>
+          </div>
+          <div class="meta">{{ pago.cita.servicio.nombre }} • {{ pago.cita.fecha|date:"d/m/Y" }} {{ pago.cita.hora_inicio|time:"H:i" }}</div>
+          <div class="meta">Cita #{{ pago.cita.id }} • Dr. {{ pago.cita.dentista.nombre }}</div>
+          <div class="actions">
+            <form method="post" action="{% url 'paciente:iniciar_pago' pago.cita.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn primary">Pagar ahora</button>
+            </form>
+            <a class="btn" href="{% url 'paciente:recibo_pago_pdf' pago.id %}" target="_blank" rel="noopener">Descargar PDF</a>
+          </div>
         </div>
-      {% else %}
-        <p class="empty-text">No tienes pagos pendientes 🎉</p>
-      {% endif %}
-    </section>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty">No tienes pagos pendientes 🎉</div>
+    {% endif %}
+  </section>
 
-    <!-- Pagos completados -->
-    <section class="card-block">
-      <h3 class="card-title">Pagos completados</h3>
+  <!-- Pagos completados -->
+  <section class="pay-card">
+    <h3><i class="ph-duotone ph-check-circle"></i> Pagos completados</h3>
 
-      {% if pagos_completados %}
-        <div class="table-wrapper">
-          <table class="rc-table">
-            <thead>
-              <tr>
-                <th>Cita</th>
-                <th>Servicio</th>
-                <th>Fecha</th>
-                <th>Monto</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for pago in pagos_completados %}
-                <tr>
-                  <td>#{{ pago.cita.id }}</td>
-                  <td>{{ pago.cita.servicio.nombre }}</td>
-                  <td>
-                    {{ pago.cita.fecha_hora_inicio|date:"d/m/Y" }}
-                    {{ pago.cita.fecha_hora_inicio|time:"H:i" }}
-                  </td>
-                  <td>${{ pago.monto }} MXN</td>
-                  <td><span class="badge badge-success">Completado</span></td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+    {% if pagos_completados %}
+      <div class="pay-list">
+        {% for pago in pagos_completados %}
+        <div class="pay-item">
+          <div class="row">
+            <span class="pill success">Completado</span>
+            <span class="amount">${{ pago.monto }} MXN</span>
+          </div>
+          <div class="meta">{{ pago.cita.servicio.nombre }} • {{ pago.cita.fecha|date:"d/m/Y" }} {{ pago.cita.hora_inicio|time:"H:i" }}</div>
+          <div class="meta">Cita #{{ pago.cita.id }} • Dr. {{ pago.cita.dentista.nombre }}</div>
+          <div class="actions">
+            <a class="btn primary" href="{% url 'paciente:recibo_pago_pdf' pago.id %}" target="_blank" rel="noopener">Descargar PDF</a>
+          </div>
         </div>
-      {% else %}
-        <p class="empty-text">Aún no tienes pagos completados.</p>
-      {% endif %}
-    </section>
-  </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty">Aún no tienes pagos completados.</div>
+    {% endif %}
+  </section>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-  {# JS específico si quieres, o lo dejamos vacío #}
+</div>
 {% endblock %}

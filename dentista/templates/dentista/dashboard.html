@@ -3,6 +3,66 @@
 
 {% block dtitle %}Dashboard Dentista | RC Dental{% endblock %}
 
+{% block extra_css %}
+<style>
+.agenda-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+.agenda-card {
+    border: 1px solid #d5e3eb;
+    border-radius: 12px;
+    background: #f8fbfc;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.agenda-card.active {
+    border-color: #1fb6ff;
+    box-shadow: 0 0 0 2px rgba(31,182,255,0.15);
+}
+.agenda-card .day-label {
+    font-weight: 800;
+    color: #1b3c4d;
+}
+.agenda-card .date-num {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #0f1f2c;
+    line-height: 1.1;
+}
+.agenda-item {
+    background: #fff;
+    border: 1px solid #e2eef3;
+    border-radius: 10px;
+    padding: 6px 8px;
+    font-size: 0.92rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.agenda-item .time { font-weight: 800; color: #0f172a; }
+.agenda-item .pac { font-weight: 700; color: #1b3c4d; }
+.agenda-item .srv { color: #64748b; font-size: 0.85rem; }
+.agenda-wrapper {
+    border: 1px solid #d5e3eb;
+    border-radius: 16px;
+    background: #fff;
+    padding: 16px;
+}
+.grid-layout {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 2fr 1fr;
+}
+@media (max-width: 1024px) {
+    .grid-layout { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
 {% block dcontent %}
 
 <div class="page-header">
@@ -51,87 +111,37 @@
     </div>
 </div>
 
-<div class="dashboard-split-grid">
+<div class="grid-layout">
 
-    <div class="left-column-wrapper">
-
-        <div class="radar-panel">
-            <div class="panel-header">
-                <h3><i class="ph-fill ph-radar"></i> Radar Operativo</h3>
-                <a href="{% url 'dentista:agenda' %}" class="link-action">Ver Agenda</a>
-            </div>
-            <div class="agenda-scroll-container">
-                {% if calendario_dias %}
-                <div class="radar-grid">
-                    {% for dia in calendario_dias %}
-                    <div class="radar-day {{ dia.clases }}">
-                        <div class="rd-header">
-                            <span class="rd-dow">{{ dia.label_dia }}</span>
-                            <span class="rd-date">{{ dia.dia|date:"d" }}</span>
-                        </div>
-                        <div class="rd-body">
-                            {% for c in dia.citas %}
-                            <div class="rd-chip {{ c.clase_estado }}">
-                                <span class="rd-chip-time">{{ c.hora }}</span>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <p class="empty-state">No hay datos para mostrar.</p>
-                {% endif %}
-            </div>
+    <div class="agenda-wrapper">
+        <div class="panel-header" style="margin-bottom: 12px;">
+            <h3 style="margin:0;"><i class="ph-bold ph-calendar-check"></i> Agenda</h3>
+            <a href="{% url 'dentista:agenda' %}" class="link-action">Ver Agenda</a>
         </div>
-
-        <div class="cyber-card ia-card">
-            <div class="ia-header">
-                <h3 class="ia-title"><i class="ph-bold ph-brain"></i> Riesgo de Inasistencia</h3>
-                <span class="ia-badge">IA Powered</span>
-            </div>
-            <p class="ia-description">Predicción basada en historial de faltas y pagos.</p>
-
-            <div class="risk-list">
-                {% for riesgo in riesgos %}
-                <div class="risk-item">
-                    <div class="risk-info">
-                        <span class="risk-name">{{ riesgo.paciente }}</span>
-                        <div class="risk-bar-track">
-                            <div class="risk-bar-fill {{ riesgo.color }}" style="width: {{ riesgo.porcentaje }}%;"></div>
-                        </div>
+        <div class="agenda-grid">
+            {% for dia in calendario_dias %}
+            <div class="agenda-card {% if dia.dia == fecha_actual %}active{% endif %}">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                    <div>
+                        <div class="day-label">{{ dia.label_dia|upper }}</div>
+                        <div class="date-num">{{ dia.dia|date:"d" }}</div>
                     </div>
-                    <div class="risk-metric">
-                        <span class="risk-percent">{{ riesgo.porcentaje }}%</span>
-                        <span class="badge {{ riesgo.color }}">{{ riesgo.nivel }}</span>
-                    </div>
+                    {% if dia.dia == fecha_actual %}
+                        <span class="badge badge-success">HOY</span>
+                    {% endif %}
+                </div>
+                {% for c in dia.citas %}
+                <div class="agenda-item">
+                    <span class="time">{{ c.hora }}</span>
+                    <span class="pac">{{ c.paciente }}</span>
+                    <span class="srv">{{ c.servicio|default:"Cita" }}</span>
                 </div>
                 {% empty %}
-                <p class="empty-state">No hay datos de riesgo suficientes.</p>
+                <small style="color:#94a3b8;">Sin citas</small>
                 {% endfor %}
             </div>
+            {% endfor %}
         </div>
-
-        <div class="cyber-card ia-card">
-            <div class="ia-header">
-                <h3 class="ia-title"><i class="ph-bold ph-lightning"></i> Optimización de Agenda</h3>
-            </div>
-            
-            <div class="suggestion-list">
-                {% for sug in sugerencias %}
-                <div class="suggestion-item">
-                    <div class="sug-icon"><i class="ph-bold ph-info"></i></div>
-                    <p>{{ sug }}</p>
-                </div>
-                {% empty %}
-                <div class="suggestion-empty">
-                    <i class="ph-fill ph-check-circle"></i>
-                    <p>Tu agenda está optimizada al 100% hoy.</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
     </div>
 
     <div class="side-stack">
@@ -149,7 +159,7 @@
                         <div class="duration-small">{{ proxima_cita.servicio.duracion_estimada }} min</div>
                     </div>
 
-                    <a href="{% url 'dentista:vista_consulta' proxima_cita.id %}" class="cyber-btn cyber-btn-full">
+                    <a href="{% url 'dentista:consulta' proxima_cita.id %}" class="cyber-btn cyber-btn-full">
                         Abrir Expediente <i class="ph-bold ph-arrow-right"></i>
                     </a>
                 </div>

@@ -6,6 +6,10 @@ Fecha: {{ cita.fecha_hora_inicio|date:"d/m/Y" }}
 Hora: {{ cita.fecha_hora_inicio|time:"H:i" }}
 Servicio: {{ cita.servicio.nombre }}
 
+{% if confirm_url %}
+Confirma tu asistencia: {{ confirm_url }}
+{% endif %}
+
 Si por alguna razón no puedes asistir, por favor avísanos con anticipación para reprogramar tu cita.
 
 Atentamente,

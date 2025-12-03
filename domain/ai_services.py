@@ -1,12 +1,15 @@
 # domain/ai_services.py
 
 from datetime import datetime, time, timedelta
+from decimal import Decimal
 
 from django.utils import timezone
 from django.utils.timezone import localtime
+from django.conf import settings
+from domain.notifications import enviar_correo_penalizacion
 
 # CORRECCIÓN 1: Importamos Horario en lugar de Disponibilidad
-from domain.models import Cita, Paciente, Servicio, Horario
+from domain.models import Cita, Paciente, Servicio, Horario, PenalizacionLog, Pago
 
 
 # ============================================================
@@ -173,8 +176,11 @@ def sugerir_horario_cita(dentista, fecha, servicio, hora_deseada):
 
 def calcular_score_riesgo(paciente, dentista=None):
     """
-    Calcula un score de riesgo simple basado en inasistencias y cancelaciones.
-    0 = sin riesgo, 100 = riesgo máximo.
+    Calcula un score de riesgo de 0 a 100 combinando:
+    - Inasistencias (peso alto)
+    - Cancelaciones (peso medio)
+    - Pagos pendientes (peso medio)
+    - Frecuencia de reprogramaciones (peso bajo)
     """
     qs = Cita.objects.filter(paciente=paciente)
     if dentista is not None:
@@ -186,26 +192,42 @@ def calcular_score_riesgo(paciente, dentista=None):
 
     inasistencias = qs.filter(estado="INASISTENCIA").count()
     canceladas = qs.filter(estado="CANCELADA").count()
+    reprogramadas = qs.filter(veces_reprogramada__gte=1).count()
+    pagos_pend = Pago.objects.filter(cita__paciente=paciente, estado="PENDIENTE").count()
 
-    peso_inasistencia = 3
-    peso_cancelada = 1
+    # Pesos ajustados
+    peso_inasistencia = 5
+    peso_cancelada = 2
+    peso_reprog = 1
+    peso_pago = 3
 
-    score_bruto = inasistencias * peso_inasistencia + canceladas * peso_cancelada
-    score = min(100, score_bruto * 10)  # normalización simple
+    score_bruto = (
+        inasistencias * peso_inasistencia
+        + canceladas * peso_cancelada
+        + reprogramadas * peso_reprog
+        + pagos_pend * peso_pago
+    )
+    # Normalizamos: cada punto suma ~8 hasta un máximo de 100
+    score = min(100, score_bruto * 8)
     return score
 
 
 def calcular_penalizacion_paciente(paciente, dentista=None):
     """
     Devuelve un dict con el estado de penalización del paciente.
+
+    Regla:
+    - 1ra inasistencia confirmada: advertencia (warning)
+    - 2da inasistencia confirmada: suspensión automática + cuota $300
+      (se mantiene en pending hasta 5 días, luego pasa a disabled)
     """
-    # Seguridad extra
     if not paciente or not getattr(paciente, "pk", None):
         return {
             "estado": "sin_penalizacion",
             "recargo": 0,
-            "dias_transcurridos": None,
+            "dias_restantes": None,
             "inasistencias": 0,
+            "fecha_limite": None,
         }
 
     hoy = timezone.localdate()
@@ -217,33 +239,50 @@ def calcular_penalizacion_paciente(paciente, dentista=None):
     if dentista is not None:
         qs = qs.filter(dentista=dentista)
 
-    # CORRECCIÓN 3: Ordenar por fecha y hora (campos reales)
     qs = qs.order_by("-fecha", "-hora_inicio")
     inasistencias_count = qs.count()
 
-    if inasistencias_count < 3:
-        return {
-            "estado": "sin_penalizacion",
-            "recargo": 0,
-            "dias_transcurridos": None,
-            "inasistencias": inasistencias_count,
-        }
+    # Datos base
+    estado = "sin_penalizacion"
+    recargo = 0
+    dias_restantes = None
+    fecha_limite = None
 
-    ultima = qs.first()
-    # Reconstruimos fecha/hora
-    fecha_ultima = ultima.fecha
-    dias_transcurridos = (hoy - fecha_ultima).days
+    # Revisamos si hay un cargo pendiente de penalización
+    penalizacion = (
+        Pago.objects.filter(
+            cita__paciente=paciente,
+            cita__estado="INASISTENCIA",
+            estado="PENDIENTE",
+            monto__gte=Decimal("300"),
+        )
+        .order_by("-created_at")
+        .first()
+    )
 
-    if dias_transcurridos > 5:
-        estado = "disabled"
-    else:
+    if penalizacion:
+        recargo = float(penalizacion.monto)
+        fecha_penal = penalizacion.created_at.date()
+        dias_restantes = max(0, 5 - (hoy - fecha_penal).days)
+        fecha_limite = fecha_penal + timezone.timedelta(days=5)
+        estado = "pending" if dias_restantes > 0 else "disabled"
+    elif inasistencias_count == 1:
+        # Primer falta: solo advertencia
+        estado = "warning"
+        recargo = 0
+        dias_restantes = None
+    elif inasistencias_count >= 2:
+        # Segunda falta sin pago registrado (fallback)
         estado = "pending"
+        recargo = 300
+        dias_restantes = 5
 
     return {
         "estado": estado,
-        "recargo": 300,
-        "dias_transcurridos": dias_transcurridos,
+        "recargo": recargo,
+        "dias_restantes": dias_restantes,
         "inasistencias": inasistencias_count,
+        "fecha_limite": fecha_limite,
     }
 
 
@@ -265,24 +304,77 @@ def procesar_inasistencia(cita):
     inasistencias = info["inasistencias"]
     estado = info["estado"]
 
-    if inasistencias < 3:
-        return (
-            f"Inasistencia registrada. El paciente acumula {inasistencias} "
-            "inasistencias con este consultorio."
+    mensaje = "Inasistencia registrada."
+
+    if inasistencias == 1:
+        # Solo advertencia en la primera falta
+        PenalizacionLog.objects.create(
+            dentista=cita.dentista,
+            paciente=cita.paciente,
+            accion="ADVERTENCIA",
+            motivo="Primera inasistencia confirmada.",
+            monto=Decimal("0"),
+        )
+        mensaje = (
+            "Inasistencia registrada. Advertencia emitida: la siguiente falta generará un cargo de $300."
+        )
+        _enviar_correo_penalizacion(cita, advertencia=True)
+    else:
+        # Desde la segunda falta generamos el pago pendiente
+        pago_penal, creado = Pago.objects.get_or_create(
+            cita=cita,
+            defaults={
+                "monto": Decimal("300.00"),
+                "metodo": "EFECTIVO",
+                "estado": "PENDIENTE",
+            },
+        )
+        if not creado and pago_penal.estado != "COMPLETADO":
+            pago_penal.monto = Decimal("300.00")
+            pago_penal.estado = "PENDIENTE"
+            pago_penal.save(update_fields=["monto", "estado"])
+
+        PenalizacionLog.objects.create(
+            dentista=cita.dentista,
+            paciente=cita.paciente,
+            accion="AUTO_PENALIZAR",
+            motivo="Inasistencia reiterada. Cargo automático.",
+            monto=Decimal("300.00"),
         )
 
-    if estado == "pending":
-        return (
-            "Inasistencia registrada. El paciente ha alcanzado 3 inasistencias y "
-            "queda penalizado con una cuota de $300. Tiene 5 días para regularizarse."
-        )
+        if inasistencias >= 2:
+            user = getattr(cita.paciente, "user", None)
+            if user and user.is_active:
+                user.is_active = False
+                user.save(update_fields=["is_active"])
+            mensaje = (
+                "Inasistencia registrada. Penalización de $300 generada y la cuenta se suspendió "
+                "automáticamente hasta liquidar."
+            )
+        _enviar_correo_penalizacion(cita, advertencia=False)
 
-    if estado == "disabled":
-        return (
-            "Inasistencia registrada. El paciente ha superado el plazo de 5 días "
-            "sin cubrir la penalización, por lo que su cuenta se considera SUSPENDIDA."
-        )
+    return mensaje
 
-    return (
-        "Inasistencia registrada. Revisa la sección de penalizaciones para más detalles."
+
+def _enviar_correo_penalizacion(cita, advertencia=True):
+    """
+    Email sencillo al paciente notificando advertencia o penalización.
+    """
+    correo = getattr(getattr(cita.paciente, "user", None), "email", None)
+    if not correo:
+        return
+
+    if advertencia:
+        motivo = "Advertencia por inasistencia. Si vuelves a faltar se generará una penalización."
+        recargo = 0
+    else:
+        motivo = "Penalización por inasistencia reiterada. Tu cuenta se suspende hasta cubrir el pago."
+        recargo = 300
+
+    enviar_correo_penalizacion(
+        email_destino=correo,
+        nombre_paciente=cita.paciente.nombre,
+        motivo=motivo,
+        recargo=recargo,
+        dias_limite=5,
     )

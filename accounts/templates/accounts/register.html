@@ -29,11 +29,12 @@
             <p class="subtitle">Regístrate para agendar y gestionar tus citas</p>
           </div>
 
-          <form method="post" class="auth-form" action="{% url 'accounts:register' %}">
+          <form method="post" class="auth-form" action="{% url 'accounts:register' %}" autocomplete="off">
             {% csrf_token %}
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 
             {% if form.non_field_errors %}
-              <div class-="form-errors">
+              <div class="form-errors">
                 {% for error in form.non_field_errors %}
                   <span class="error-text">{{ error }}</span>
                 {% endfor %}
@@ -42,8 +43,8 @@
 
             {% if form.errors %}
               {% for field in form %}
-                {% if field.errors and field.name not in 'username,first_name,last_name,email,telefono' %}
-                  <div class-="form-errors">
+                {% if field.errors %}
+                  <div class="form-errors">
                     <strong>{{ field.label }}:</strong>
                     {% for error in field.errors %}
                       <span class="error-text">{{ error }}</span>

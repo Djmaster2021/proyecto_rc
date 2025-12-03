@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <div class="profile-details-list">
+    <div class="profile-details-list">
             <div class="detail-row">
                 <span class="lbl"><i class="ph-bold ph-envelope"></i> Email</span>
                 <span class="val">{{ user.email }}</span>
@@ -49,13 +49,21 @@
                 <span class="lbl"><i class="ph-bold ph-identification-card"></i> Cédula</span>
                 <span class="val">{{ dentista.licencia|default:"--" }}</span>
             </div>
-        </div>
+            <div class="detail-row">
+                <span class="lbl"><i class="ph-bold ph-stethoscope"></i> Especialidad</span>
+                <span class="val">{{ dentista.especialidad|default:"Odontología General" }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="lbl"><i class="ph-bold ph-map-pin"></i> Dirección</span>
+                <span class="val">{{ dentista.direccion|default:"--" }}</span>
+            </div>
+    </div>
 
         <div class="profile-actions-footer">
-            <button class="cyber-btn cyber-btn-sm w-100" style="justify-content: center;" onclick="openProfileModal()">
+            <button type="button" class="cyber-btn cyber-btn-sm w-100 js-open-modal" data-target="profileModal" style="justify-content: center;">
                 <i class="ph-bold ph-pencil-simple"></i> Editar Datos
             </button>
-            <button class="cyber-btn cyber-btn-sm cyber-btn-secondary w-100" style="justify-content: center;" onclick="openPasswordModal()">
+            <button type="button" class="cyber-btn cyber-btn-sm cyber-btn-secondary w-100 js-open-modal" data-target="passwordModal" style="justify-content: center;">
                 <i class="ph-bold ph-lock-key"></i> Seguridad
             </button>
         </div>
@@ -76,7 +84,7 @@
                 <div class="schedule-form-inline">
                     <div class="form-group-inline">
                         <label>Día</label>
-                        <select name="dia" class="cyber-input" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;" required>
+                        <select name="dia" class="cyber-input" required>
                             {% for val, name in dias_semana %}
                                 <option value="{{ val }}" style="color: #000;">{{ name }}</option>
                             {% endfor %}
@@ -112,7 +120,7 @@
                         <span class="sch-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
                     </div>
                 </div>
-                <a href="{% url 'dentista:eliminar_horario' h.id %}" class="btn-delete-sch" title="Eliminar Bloque">
+                <a href="{% url 'dentista:eliminar_horario' h.id %}" class="btn-delete-sch" title="Eliminar Bloque" data-dia="{{ h.get_dia_semana_display }}" data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}">
                     <i class="ph-bold ph-trash"></i>
                 </a>
             </div>
@@ -138,20 +146,36 @@
             {% csrf_token %}
             <input type="hidden" name="action" value="update_profile">
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                <div class="form-group">
-                    <label>Nombre Completo</label>
-                    <input type="text" name="nombre" class="cyber-input" value="{{ dentista.nombre }}" required>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" name="nombre" class="cyber-input" value="{{ dentista.nombre }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" name="telefono" class="cyber-input" value="{{ dentista.telefono }}">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="text" name="telefono" class="cyber-input" value="{{ dentista.telefono }}">
-                </div>
-            </div>
 
             <div class="form-group">
                 <label>Email (Login)</label>
                 <input type="email" name="email" class="cyber-input" value="{{ user.email }}" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>Especialidad</label>
+                    <input type="text" name="especialidad" class="cyber-input" value="{{ dentista.especialidad }}">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>Cédula / Licencia</label>
+                    <input type="text" name="licencia" class="cyber-input" value="{{ dentista.licencia }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Dirección</label>
+                <input type="text" name="direccion" class="cyber-input" value="{{ dentista.direccion }}">
             </div>
 
             <div class="form-group" style="margin-top: 1.5rem;">

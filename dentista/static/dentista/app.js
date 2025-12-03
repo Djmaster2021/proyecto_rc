@@ -692,9 +692,16 @@ document.addEventListener("DOMContentLoaded", function() {
     const selectServicio = document.getElementById('selectServicio');
     const inputHoraFin = document.getElementById('inputHoraFin');
 
-    // Leer datos del Backend (JSON)
-    const horariosData = JSON.parse(document.getElementById('horarios-data').textContent || '{}');
-    const ocupadasData = JSON.parse(document.getElementById('ocupadas-data').textContent || '{}');
+    // Leer datos del Backend (JSON) solo si existen los nodos
+    const horariosEl = document.getElementById('horarios-data');
+    const ocupadasEl = document.getElementById('ocupadas-data');
+    const horariosData = horariosEl ? JSON.parse(horariosEl.textContent || '{}') : {};
+    const ocupadasData = ocupadasEl ? JSON.parse(ocupadasEl.textContent || '{}') : {};
+
+    // Si no estamos en una vista que use agenda, salimos
+    if (!inputFecha && !selectHora && !selectServicio) {
+        return;
+    }
 
     // 1. Inicializar Select2
     if (typeof $ !== 'undefined' && $('.select2-patient').length) {
@@ -1184,6 +1191,75 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
   });
+
+  // Confirmación al eliminar horario
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".btn-delete-sch").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const href = btn.getAttribute("href");
+        const dia = btn.dataset.dia || "este día";
+        const hora = btn.dataset.hora || "";
+        const texto = `Vas a eliminar el bloque ${dia} ${hora}. No se podrá agendar en ese horario.`;
+
+        if (typeof Swal !== "undefined") {
+          Swal.fire({
+            title: "¿Eliminar horario?",
+            text: texto,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#94a3b8",
+          }).then((result) => {
+            if (result.isConfirmed && href) window.location.href = href;
+          });
+        } else {
+          if (confirm(texto)) {
+            if (href) window.location.href = href;
+          }
+        }
+      });
+    });
+  });
+
+  // Apertura de modales genéricos por data-target
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".js-open-modal").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const targetId = btn.dataset.target;
+        if (!targetId) return;
+        const modal = document.getElementById(targetId);
+        if (!modal) return;
+        modal.style.display = "flex";
+        modal.classList.add("active");
+      });
+    });
+
+    // Cerrar modales al click en fondo
+    document.querySelectorAll(".modal-overlay").forEach((modal) => {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          modal.classList.remove("active");
+          setTimeout(() => (modal.style.display = "none"), 200);
+        }
+      });
+    });
+  });
+
+  // Forzar submit del formulario de horario aunque haya JS extra cargado
+  document.querySelectorAll("form[action*='configuracion'][method='post']").forEach((form) => {
+    const actionInput = form.querySelector("input[name='action'][value='add_schedule']");
+    if (!actionInput) return;
+    const submitBtn = form.querySelector("button[type='submit']");
+    if (submitBtn) {
+      submitBtn.addEventListener("click", () => {
+        form.submit();
+      });
+    }
+  });
   /* ============================================================
    LÓGICA DE CITAS MANUALES (AJAX)
    ============================================================ */
@@ -1209,7 +1285,7 @@ async function cargarSlots() {
 
     try {
         // 3. Llamada a la API de Django
-        const response = await fetch(`/dentista/api/get-slots/?fecha=${fecha}&servicio_id=${servicioId}`);
+        const response = await fetch(`/dentista/api/slots/?fecha=${fecha}&servicio_id=${servicioId}`);
         const data = await response.json();
 
         loader.style.display = 'none';
@@ -1312,3 +1388,244 @@ window.onclick = function(event) {
     }
 }
 
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- GRÁFICAS DE FINANZAS ---
+    const ctxIncome = document.getElementById('incomeChart');
+    const ctxMethod = document.getElementById('methodChart');
+
+    if (ctxIncome && typeof Chart !== 'undefined') {
+        // Gráfica de Barras (Ingresos vs Gastos simulado)
+        new Chart(ctxIncome, {
+            type: 'bar',
+            data: {
+                labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+                datasets: [{
+                    label: 'Ingresos',
+                    data: [1200, 1900, 3000, 2500], // Aquí podrías poner datos reales de Django
+                    backgroundColor: '#00adc1',
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+            }
+        });
+    }
+
+    if (ctxMethod && typeof Chart !== 'undefined' && typeof chartData !== 'undefined') {
+        // Gráfica de Dona (Métodos de Pago)
+        new Chart(ctxMethod, {
+            type: 'doughnut',
+            data: {
+                labels: ['Efectivo', 'Digital'],
+                datasets: [{
+                    data: [chartData.efectivo, chartData.digital],
+                    backgroundColor: ['#10b981', '#3b82f6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: { legend: { position: 'right' } }
+            }
+        });
+    }
+
+    // --- MODAL PAGO ---
+    window.abrirModalPago = function() {
+        const m = document.getElementById('modal-pago');
+        if(m) m.style.display = 'flex';
+    }
+    window.cerrarModalPago = function() {
+        const m = document.getElementById('modal-pago');
+        if(m) m.style.display = 'none';
+    }
+});
+/* ============================================================
+   LÓGICA FINANZAS (GRÁFICAS)
+   ============================================================ */
+   document.addEventListener('DOMContentLoaded', function() {
+    
+    // 1. LEER DATOS DEL HTML
+    const dataDiv = document.getElementById('finance-data');
+    
+    if (dataDiv && typeof Chart !== 'undefined') {
+        // Convertimos texto a número flotante
+        const efectivo = parseFloat(dataDiv.dataset.efectivo) || 0;
+        const digital = parseFloat(dataDiv.dataset.digital) || 0;
+
+        // 2. GRÁFICA DE DONA (MÉTODOS)
+        const ctxMethod = document.getElementById('methodChart');
+        if (ctxMethod) {
+            new Chart(ctxMethod, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Efectivo', 'Digital'],
+                    datasets: [{
+                        data: [efectivo, digital],
+                        backgroundColor: ['#10b981', '#3b82f6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12, usePointStyle: true } }
+                    }
+                }
+            });
+        }
+
+        // 3. GRÁFICA DE BARRAS (SIMULADA POR AHORA)
+        const ctxIncome = document.getElementById('incomeChart');
+        if (ctxIncome) {
+            new Chart(ctxIncome, {
+                type: 'bar',
+                data: {
+                    labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+                    datasets: [{
+                        label: 'Ingresos',
+                        data: [efectivo * 0.2, digital * 0.5, efectivo * 0.8, (efectivo + digital)],
+                        backgroundColor: '#00adc1',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+    }
+
+    // --- MODAL PAGO MANUAL ---
+    window.abrirModalPago = function() {
+        const m = document.getElementById('modal-pago');
+        if(m) m.style.display = 'flex';
+    }
+    window.cerrarModalPago = function() {
+        const m = document.getElementById('modal-pago');
+        if(m) m.style.display = 'none';
+    }
+});
+
+/* =========================================
+   MODAL DE PAGO (FINANZAS)
+   ========================================= */
+   window.abrirModalPago = function() {
+    const modal = document.getElementById('modal-pago');
+    if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10); // Animación suave
+    } else {
+        console.error("Error: No se encontró el modal con ID 'modal-pago'");
+    }
+};
+
+window.cerrarModalPago = function() {
+    const modal = document.getElementById('modal-pago');
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => modal.style.display = 'none', 300);
+    }
+};
+
+// Cerrar al dar clic fuera
+window.addEventListener('click', function(event) {
+    const modal = document.getElementById('modal-pago');
+    if (event.target === modal) {
+        cerrarModalPago();
+    }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    // ELIMINAR SERVICIO
+    document.querySelectorAll(".btn-servicio-delete").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        const nombre = btn.dataset.nombre || "este servicio";
+  
+        if (typeof Swal === "undefined") {
+          if (confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`)) {
+            document
+              .getElementById(`form-delete-servicio-${id}`)
+              .submit();
+          }
+          return;
+        }
+  
+        Swal.fire({
+          title: "¿Eliminar servicio?",
+          text: `Estás a punto de borrar el servicio "${nombre}". Esta acción no se puede deshacer.`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            document
+              .getElementById(`form-delete-servicio-${id}`)
+              .submit();
+          }
+        });
+      });
+    });
+  
+    // ACTIVAR / INHABILITAR SERVICIO
+    document.querySelectorAll(".btn-servicio-toggle").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        const nombre = btn.dataset.nombre || "este servicio";
+        const activo = btn.dataset.activo === "true";
+  
+        const accion = activo ? "inhabilitar" : "activar";
+        const descripcion = activo
+          ? "ya no podrá ser agendado por los pacientes."
+          : "volverá a estar disponible para agendar.";
+  
+        if (typeof Swal === "undefined") {
+          if (
+            confirm(
+              `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} "${nombre}"? ` +
+                `El servicio ${descripcion}`
+            )
+          ) {
+            document
+              .getElementById(`form-toggle-servicio-${id}`)
+              .submit();
+          }
+          return;
+        }
+  
+        Swal.fire({
+          title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} servicio?`,
+          text: `Estás a punto de ${accion} "${nombre}". El servicio ${descripcion}`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: `Sí, ${accion}`,
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            document
+              .getElementById(`form-toggle-servicio-${id}`)
+              .submit();
+          }
+        });
+      });
+    });
+  });
+  

@@ -3,8 +3,154 @@
 
 {% block dtitle %}Centro de Ayuda | RC{% endblock %}
 
+{% block extra_css %}
+<style>
+.support-page {
+    font-size: 1.02rem;
+    line-height: 1.7;
+}
+.support-page h1,
+.support-page h3,
+.support-page h4,
+.support-page label,
+.support-page summary {
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+.support-page .page-header h1 {
+    font-size: 2.1rem;
+}
+.support-page .welcome-subtitle {
+    font-size: 1rem;
+}
+.support-page .search-hero-input {
+    font-size: 1rem;
+    padding: 12px 14px 12px 40px;
+}
+.support-page .cat-title {
+    font-size: 1.1rem;
+}
+.support-page .cat-desc {
+    font-size: 0.98rem;
+}
+.support-page .faq-item summary {
+    font-size: 1rem;
+    padding: 12px;
+}
+.support-page .faq-answer {
+    font-size: 0.98rem;
+    padding: 12px 14px 14px;
+}
+.support-page .cyber-input,
+.support-page select,
+.support-page textarea {
+    font-size: 1rem;
+    padding: 12px;
+}
+.support-page .cyber-btn {
+    font-size: 1rem;
+}
+.support-page .method-item span {
+    font-size: 0.95rem !important;
+}
+.support-page table.finance-table th,
+.support-page table.finance-table td {
+    font-size: 0.98rem;
+}
+.ticket-card {
+    background: linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,41,59,0.95));
+    border: 1px solid rgba(148,163,184,0.2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    border-radius: 18px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.ticket-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(120% 120% at 85% 10%, rgba(59,130,246,0.15), transparent 40%);
+    pointer-events: none;
+}
+.ticket-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.06);
+    color: #e2e8f0;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    font-size: 0.85rem;
+}
+.pill i { color: var(--brand); }
+.quick-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.quick-tags button {
+    border: 1px solid rgba(148,163,184,0.4);
+    background: rgba(255,255,255,0.05);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all .15s ease;
+}
+.quick-tags button:hover {
+    border-color: var(--brand);
+    color: #fff;
+}
+.steps {
+    display: grid;
+    gap: 10px;
+    margin-top: 1rem;
+}
+.steps .step {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 10px;
+    align-items: center;
+}
+.steps .step .num {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.08);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-weight: 800;
+    border: 1px solid rgba(148,163,184,0.3);
+}
+.steps .step .copy {
+    color: #cbd5e1;
+    font-size: 0.92rem;
+}
+.history-card {
+    border-radius: 14px;
+    border: 1px solid rgba(148,163,184,0.25);
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(4px);
+}
+</style>
+{% endblock %}
+
 {% block dcontent %}
 
+<div class="support-page">
 <div class="page-header" style="margin-bottom: 1.5rem;">
     <div>
         <h1 class="text-gradient">Centro de Ayuda</h1>
@@ -104,23 +250,34 @@
                 {% endfor %}
             {% endif %}
 
-            <div style="text-align: center; margin-bottom: 1.5rem;">
-                <div style="width: 60px; height: 60px; background: var(--bg-input); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: var(--brand);">
+            <div style="display:flex; align-items:flex-start; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.06); border:1px solid rgba(148,163,184,0.3); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--brand);">
                     <i class="ph-duotone ph-life-buoy" style="font-size: 2rem;"></i>
                 </div>
-                <h3 style="margin:0; color: var(--text-main); font-size: 1.2rem; font-weight: 700;">Soporte Técnico</h3>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">
-                    Respuesta estimada: <span style="color: var(--success); font-weight: 700;">&lt; 24h</span>
-                </p>
+                <div>
+                    <h3 style="margin:0; color: #e2e8f0; font-size: 1.3rem; font-weight: 800;">Soporte Técnico</h3>
+                    <div class="ticket-meta">
+                        <span class="pill"><i class="ph-bold ph-bolt"></i> SLA &lt; 24h</span>
+                        <span class="pill"><i class="ph-bold ph-headset"></i> Mesa N1</span>
+                        <span class="pill"><i class="ph-bold ph-shield-check"></i> Prioridad médica</span>
+                    </div>
+                </div>
             </div>
           
             <form method="post" action="{% url 'dentista:soporte' %}">
               {% csrf_token %}
+
+              <div class="quick-tags">
+                <button type="button" onclick="presetTicket('Error Crítico', 'Describe el mensaje de error en pantalla, antes y después. Incluye si estabas guardando una cita o pago.')">Error crítico</button>
+                <button type="button" onclick="presetTicket('Agenda/Citas', 'Indica paciente, fecha/hora y qué intentabas hacer (crear, mover, cancelar).')">Agenda</button>
+                <button type="button" onclick="presetTicket('Problema Pagos', 'Indica el paciente, monto y método. ¿Se guardó el pago o falló?')">Pagos</button>
+                <button type="button" onclick="presetTicket('Sugerencia', 'Cuéntanos la mejora que te gustaría ver. Ej: reporte, alerta, integración.')">Sugerencia</button>
+              </div>
               
               <div class="form-group">
                 <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Categoría</label>
                 <div style="position: relative;">
-                    <select name="asunto" class="cyber-input" required style="appearance: none; background: #f8fafc;">
+                    <select name="asunto" id="asuntoInput" class="cyber-input" required style="appearance: none; background: rgba(255,255,255,0.05); color:#e2e8f0; border-color: rgba(148,163,184,0.3);">
                       <option value="" disabled selected>Selecciona el problema...</option>
                       <option value="Error Crítico">🔴 Sistema Detenido</option>
                       <option value="Problema Pagos">🟡 Finanzas / Caja</option>
@@ -135,10 +292,11 @@
                 <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Detalle</label>
                 <textarea 
                   name="mensaje" 
-                  rows="4" 
+                  id="mensajeInput"
+                  rows="5" 
                   class="cyber-input" 
                   placeholder="Describe lo que sucedió..." 
-                  style="resize: none; background: #f8fafc;"
+                  style="resize: none; background: rgba(255,255,255,0.05); color:#e2e8f0; border-color: rgba(148,163,184,0.3);"
                   required></textarea>
               </div>
           
@@ -147,14 +305,31 @@
               </button>
             </form>
 
-            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-subtle);">
-                <p style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">O contáctanos directo:</p>
+            <div style="margin-top: 1.5rem; padding: 1rem; border:1px dashed rgba(148,163,184,0.3); border-radius: 12px; background: rgba(255,255,255,0.03);">
+                <div class="steps">
+                    <div class="step">
+                        <div class="num">1</div>
+                        <div class="copy">Adjunta contexto: acción que realizabas y pantallazo si hay error.</div>
+                    </div>
+                    <div class="step">
+                        <div class="num">2</div>
+                        <div class="copy">Incluye paciente/servicio/monto si aplica (agenda o pagos).</div>
+                    </div>
+                    <div class="step">
+                        <div class="num">3</div>
+                        <div class="copy">Enviamos correo al soporte y respondemos en &lt;24h.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(148,163,184,0.2);">
+                <p style="text-align: center; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 1rem;">Contacto directo</p>
                 <div class="contact-grid">
-                    <a href="https://wa.me/523220000000" target="_blank" class="method-item">
+                    <a href="https://wa.me/523228892558?text=Hola%2C%20necesito%20soporte%20para%20el%20sistema%20RC%20Dental." target="_blank" class="method-item">
                         <i class="ph-fill ph-whatsapp-logo" style="font-size:1.5rem; color:#25D366;"></i>
                         <span style="font-weight: 700; font-size: 0.8rem; margin-top: 5px;">WhatsApp</span>
                     </a>
-                    <a href="mailto:soporte@dentistarc.com" class="method-item">
+                    <a href="mailto:diegomag2996@gmail.com?subject=Soporte%20RC%20Dental&body=Describe%20tu%20problema..." class="method-item">
                         <i class="ph-fill ph-envelope-simple" style="font-size:1.5rem; color:var(--brand);"></i>
                         <span style="font-weight: 700; font-size: 0.8rem; margin-top: 5px;">Email</span>
                     </a>
@@ -162,7 +337,58 @@
             </div>
 
         </div>
+
+        <div class="cyber-card history-card" style="margin-top:1rem; padding:1rem;">
+            <h3 style="margin:0 0 10px;">Historial de Tickets</h3>
+            <div class="table-responsive">
+                <table class="finance-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Asunto</th>
+                            <th>Estado</th>
+                            <th>Creado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in tickets %}
+                        <tr>
+                            <td>#{{ t.id }}</td>
+                            <td>{{ t.asunto }}</td>
+                            <td>
+                                <span class="badge-pill {% if t.estado == 'ABIERTO' %}yellow{% elif t.estado == 'EN_PROCESO' %}blue{% else %}green{% endif %}">
+                                    {{ t.estado }}
+                                </span>
+                            </td>
+                            <td>{{ t.created_at|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" style="text-align:center; padding:12px; color:#94a3b8;">Sin tickets previos.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
+</div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function presetTicket(asunto, detalle) {
+    const asuntoInput = document.getElementById("asuntoInput");
+    const mensajeInput = document.getElementById("mensajeInput");
+    if (asuntoInput) {
+        for (const opt of asuntoInput.options) {
+            if (opt.value === asunto) { opt.selected = true; break; }
+        }
+    }
+    if (mensajeInput && (!mensajeInput.value || mensajeInput.value.length < 10)) {
+        mensajeInput.value = detalle;
+    }
+    if (mensajeInput) { mensajeInput.focus(); }
+}
+</script>
 {% endblock %}

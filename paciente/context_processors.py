@@ -24,9 +24,10 @@ def penalizacion_paciente(request):
     if not perfil_paciente.pk:
         return {}
 
-    # Calcular info de penalización
     info = calcular_penalizacion_paciente(perfil_paciente)
 
+    # Exponemos con dos llaves para compatibilidad
     return {
         "penalizacion_paciente": info,
+        "penalizacion_info": info,
     }

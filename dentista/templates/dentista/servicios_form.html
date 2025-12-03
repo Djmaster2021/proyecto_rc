@@ -1,0 +1,44 @@
+{% extends "dentista/base.html" %}
+{% load static %}
+
+{% block dtitle %}
+  {% if modo == "editar" %}Editar Servicio{% else %}Nuevo Servicio{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">
+    {% if modo == "editar" %}Editar Servicio{% else %}Nuevo Servicio{% endif %}
+  </h1>
+</div>
+
+<div class="card card-panel">
+  <form method="post" class="form-stacked">
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+
+    {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}
+          <div class="form-text">{{ field.help_text }}</div>
+        {% endif %}
+        {% for error in field.errors %}
+          <div class="invalid-feedback d-block">{{ error }}</div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+
+    <div class="d-flex justify-content-end gap-3 mt-4">
+      <a href="{% url 'dentista_servicios' %}" class="btn btn-outline-secondary">
+        Cancelar
+      </a>
+      <button type="submit" class="btn btn-primary">
+        Guardar
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

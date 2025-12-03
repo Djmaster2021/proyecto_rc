@@ -5,55 +5,77 @@
 
 {% block dcontent %}
 
-<div class="page-header">
+<div class="page-header compact" style="margin-bottom: 1rem;">
   <div>
     <h1 class="text-gradient">Reportes del Consultorio</h1>
-    <p class="welcome-subtitle">
-      Resumen ejecutivo de tu actividad como dentista.
-    </p>
+    <p class="welcome-subtitle">Exporta tus movimientos entre fechas.</p>
   </div>
 </div>
 
-<div class="reports-grid">
-
-  <div class="cyber-card" style="padding: 1.5rem;">
-    <h3>Resumen General</h3>
-    <p style="color: var(--text-muted); font-size: 0.9rem;">
-      En una versión más avanzada, aquí podrás ver:
-    </p>
-    <ul style="color: var(--text-muted); font-size: 0.9rem; margin-left: 1.2rem;">
-      <li>Ingresos por mes</li>
-      <li>Servicios más solicitados</li>
-      <li>Pacientes con mayor frecuencia</li>
-      <li>Horas pico de demanda</li>
-    </ul>
-  </div>
-
-  <div class="cyber-card" style="padding: 1.5rem;">
-    <h3>Predicción de Demanda (IA)</h3>
-    <p style="color: var(--text-muted); font-size: 0.9rem;">
-      Este módulo conectará con la IA de predicción para sugerir:
-    </p>
-    <ul style="color: var(--text-muted); font-size: 0.9rem; margin-left: 1.2rem;">
-      <li>Semanas con alta demanda</li>
-      <li>Días recomendados para abrir más horarios</li>
-      <li>Épocas con baja ocupación</li>
-    </ul>
-  </div>
-
+<div class="cyber-card" style="margin-bottom: 1rem; padding: 1.25rem;">
+  <form method="get" class="filter-form" style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
+    <div>
+      <label class="form-label">Desde</label>
+      <input type="date" name="inicio" value="{{ fecha_inicio|date:'Y-m-d' }}" class="form-control">
+    </div>
+    <div>
+      <label class="form-label">Hasta</label>
+      <input type="date" name="fin" value="{{ fecha_fin|date:'Y-m-d' }}" class="form-control">
+    </div>
+    <button type="submit" class="cyber-btn">Filtrar</button>
+    <a href="{% url 'dentista:reporte_csv' %}?inicio={{ fecha_inicio|date:'Y-m-d' }}&fin={{ fecha_fin|date:'Y-m-d' }}" class="cyber-btn cyber-btn-secondary">
+      <i class="ph-bold ph-download-simple"></i> CSV
+    </a>
+    <a href="{% url 'dentista:reporte_pdf' %}?inicio={{ fecha_inicio|date:'Y-m-d' }}&fin={{ fecha_fin|date:'Y-m-d' }}" class="cyber-btn cyber-btn-glow">
+      <i class="ph-bold ph-file-pdf"></i> PDF
+    </a>
+  </form>
 </div>
 
-<style>
-  .reports-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-    gap: 1.5rem;
-  }
-  @media (max-width: 1024px) {
-    .reports-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>
+<div class="cyber-card" style="padding: 1rem;">
+  <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
+    <span><strong>Total citas:</strong> {{ total_citas }}</span>
+    <span><strong>Pacientes:</strong> {{ total_pacientes }}</span>
+    <span><strong>Ingresos:</strong> ${{ total_monto|floatformat:2 }}</span>
+  </div>
+  <div class="table-responsive">
+    <table class="finance-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Paciente</th>
+          <th>Tratamiento</th>
+          <th>Estado</th>
+          <th style="text-align:right;">Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in citas %}
+        {% with pago=c.pago_relacionado %}
+        <tr>
+          <td>{{ c.fecha|date:"d/m/Y" }}<br><small style="color:#94a3b8;">{{ c.hora_inicio|time:"H:i" }}</small></td>
+          <td>{{ c.paciente.nombre }}</td>
+          <td>{{ c.servicio.nombre }}</td>
+          <td>
+            <span class="badge-pill {% if c.estado == 'COMPLETADA' %}green{% elif c.estado == 'PENDIENTE' %}yellow{% else %}blue{% endif %}">
+              {{ c.estado }}
+            </span>
+          </td>
+          <td style="text-align:right;">
+            {% if pago and pago.estado == "COMPLETADO" %}
+              ${{ pago.monto|floatformat:2 }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+        {% endwith %}
+        {% empty %}
+        <tr><td colspan="5" style="text-align:center; padding:20px; color:#94a3b8;">No hay datos en el rango.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 
 {% endblock %}

@@ -1,55 +1,77 @@
-{% extends "dentista/base.html" %}
+{% extends 'dentista/base.html' %}
 {% load static %}
 
-{% block dtitle %}Nuevo Paciente | RC{% endblock %}
+{% block dtitle %}Registrar Paciente | RC{% endblock %}
 
 {% block dcontent %}
 
-<div class="page-header">
-    <h1 class="text-gradient">Registrar Paciente</h1>
-    <p class="welcome-subtitle">Ingresa los datos del nuevo expediente.</p>
+<div class="page-header" style="margin-bottom: 2rem;">
+    <div>
+        <h1 class="text-gradient" style="font-size: 1.8rem;">Registrar Nuevo Paciente</h1>
+        <p style="color: #64748b;">Crea el expediente clínico y sus credenciales de acceso.</p>
+    </div>
 </div>
 
-<div class="cyber-card" style="max-width: 800px; margin: 0 auto; padding: 2rem;">
-    <form method="post" enctype="multipart/form-data">
+<div class="cyber-card" style="max-width: 800px; margin: 0 auto;">
+    <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-
-        <div class="row-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="form-group">
-                <label class="form-label">Nombre Completo *</label>
-                <input type="text" name="nombre" class="form-control" required placeholder="Ej. Juan Pérez">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Teléfono / WhatsApp</label>
-                <input type="tel" name="telefono" class="form-control" placeholder="Ej. 322 123 4567">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Fecha de Nacimiento <small style="color:#888;">(Opcional)</small></label>
-                <input type="date" name="fecha_nacimiento" class="form-control"> 
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Foto de Perfil</label>
-                <input type="file" name="imagen" class="form-control" accept="image/*">
+        
+        <div style="background: #f1f5f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid #00adc1;">
+            <h3 style="margin-top: 0; color: #1e293b; font-size: 1.1rem; margin-bottom: 1rem;">
+                <i class="ph-bold ph-lock-key"></i> Credenciales de Acceso
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label style="font-weight: 600; color: #475569;">Correo Electrónico (Usuario) *</label>
+                    <input type="email" name="email" class="form-control" required placeholder="ejemplo@correo.com">
+                    <small style="color: #64748b;">Este será su usuario para entrar.</small>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: 600; color: #475569;">Contraseña *</label>
+                    <input type="password" name="password" class="form-control" required placeholder="Crear contraseña segura">
+                    <small style="color: #64748b;">Compártela con el paciente.</small>
+                </div>
             </div>
         </div>
 
-        <div class="form-group" style="margin-top: 15px;">
-            <label class="form-label">Dirección <small style="color:#888;">(Opcional)</small></label>
+        <h3 style="color: #1e293b; font-size: 1.1rem; margin-bottom: 1rem;">Datos Personales</h3>
+        
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label style="font-weight: 600; color: #475569;">Nombre Completo *</label>
+            <input type="text" name="nombre" class="form-control" required placeholder="Nombre y Apellidos">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="form-group">
+                <label style="font-weight: 600; color: #475569;">Teléfono</label>
+                <input type="tel" name="telefono" class="form-control" placeholder="10 dígitos">
+            </div>
+            <div class="form-group">
+                <label style="font-weight: 600; color: #475569;">Fecha de Nacimiento</label>
+                <input type="date" name="fecha_nacimiento" class="form-control">
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label style="font-weight: 600; color: #475569;">Dirección</label>
             <input type="text" name="direccion" class="form-control" placeholder="Calle, Número, Colonia...">
         </div>
 
-        <div class="form-group" style="margin-top: 15px;">
-            <label class="form-label">Antecedentes Médicos / Alergias</label>
-            <textarea name="antecedentes" class="form-control" rows="3" placeholder="Diabetes, Hipertensión, Alergia a Penicilina..."></textarea>
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label style="font-weight: 600; color: #475569;">Antecedentes Médicos</label>
+            <textarea name="antecedentes" class="form-control" rows="3" placeholder="Alergias, enfermedades crónicas, cirugías previas..."></textarea>
         </div>
 
-        <div style="margin-top: 2rem; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
-            <a href="{% url 'dentista:pacientes' %}" class="cyber-btn cyber-btn-secondary">Cancelar</a>
-            <button type="submit" class="cyber-btn cyber-btn-glow">Guardar Paciente</button>
+        <div class="form-group" style="margin-bottom: 2rem;">
+            <label style="font-weight: 600; color: #475569;">Foto de Perfil (Opcional)</label>
+            <input type="file" name="imagen" class="form-control" accept="image/*">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+            <a href="{% url 'dentista:pacientes' %}" class="btn-ghost">Cancelar</a>
+            <button type="submit" class="btn-primary">Guardar Paciente</button>
         </div>
     </form>
 </div>
+
 {% endblock %}

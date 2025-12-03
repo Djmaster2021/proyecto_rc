@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 from django.db import transaction, IntegrityError # <-- Se importa IntegrityError (buena práctica)
-from domain.models import Paciente  # Importamos el modelo Paciente
+from domain.models import Paciente, Dentista  # Importamos el modelo Paciente y Dentista
 
 # --- 1. IMPORTAMOS LOS VALIDADORES ---
 from django.core.exceptions import ValidationError
@@ -61,7 +61,7 @@ class PacienteRegisterForm(UserCreationForm):
     telefono = forms.CharField(
         label="Teléfono",
         validators=[phone_validator], # Regla: 10 números exactos
-        widget=forms.TextInput(attrs={'placeholder': 'ej. 3221234567', 'type': 'tel'})
+        widget=forms.TextInput(attrs={'placeholder': 'ej. 3221234567', 'type': 'tel', 'maxlength': '10', 'minlength': '10'})
     )
     email = forms.EmailField(
         label="Correo (opcional)",
@@ -95,10 +95,15 @@ class PacienteRegisterForm(UserCreationForm):
         # --- INICIO DE LA CORRECCIÓN ---
         # 3. Crea el perfil 'Paciente' enlazado
         try:
+            dentista_default = Dentista.objects.first()
+            if not dentista_default:
+                raise forms.ValidationError("No hay dentistas registrados en el sistema.")
+
             Paciente.objects.create(
                 user=user,
                 # Usamos los campos del User para poblar el perfil del Paciente
                 nombre=f"{user.first_name} {user.last_name}",
+                dentista=dentista_default,
                 telefono=self.cleaned_data['telefono'], # El teléfono viene de cleaned_data
             )
         except Exception as e:
