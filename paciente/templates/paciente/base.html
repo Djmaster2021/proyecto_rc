@@ -1,4 +1,5 @@
-{% load static %}
+{% load static i18n %}
+{% get_current_language as CURRENT_LANG %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -13,7 +14,7 @@
 
     <!-- Fuentes -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
@@ -24,7 +25,7 @@
     {% block extra_css %}{% endblock %}
 </head>
 
-<body class="dark-mode">
+<body class="dark-mode" data-theme="dark">
     <!-- =====================================================================
          TOPBAR / BARRA SUPERIOR
          Esta barra es fija y aparece en todas las vistas del módulo paciente.
@@ -43,6 +44,32 @@
 
             <!-- Acción de cerrar sesión -->
             <div class="right-actions">
+                <div class="topbar-toggle">
+                    <button id="theme-toggle" class="chip-toggle" type="button" aria-label="Cambiar tema">
+                        <span class="chip-icon">🌙</span>
+                        <span class="chip-label">Modo</span>
+                    </button>
+                </div>
+                <div class="lang-switch">
+                    <form action="{% url 'set_language' %}" method="post">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                        <input name="language" type="hidden" value="es">
+                        <button type="submit" class="lang-pill {% if CURRENT_LANG|slice:':2' == 'es' %}active{% endif %}" aria-label="Español">
+                            <span class="flag flag-mx"></span>
+                            <span class="flag-code">MX</span>
+                        </button>
+                    </form>
+                    <form action="{% url 'set_language' %}" method="post">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                        <input name="language" type="hidden" value="en">
+                        <button type="submit" class="lang-pill {% if CURRENT_LANG|slice:':2' == 'en' %}active{% endif %}" aria-label="English">
+                            <span class="flag flag-us"></span>
+                            <span class="flag-code">US</span>
+                        </button>
+                    </form>
+                </div>
                 <form
                     action="{% url 'accounts:logout' %}"
                     method="post"

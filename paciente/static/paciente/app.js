@@ -36,10 +36,42 @@ function showToast(message, type = "success") {
    2. INICIALIZACIÓN GENERAL (esperar al DOM)
   =============================================================== */
   
-  document.addEventListener("DOMContentLoaded", () => {
-    // Referencias principales (solo existen en dashboard de paciente)
-    const modalCita    = document.getElementById("modal-cita");
-    const modalPerfil  = document.getElementById("modal-perfil");
+document.addEventListener("DOMContentLoaded", () => {
+  // ------------------------------
+  // Tema claro/oscuro con persistencia
+  // ------------------------------
+  const body = document.body;
+  const themeToggle = document.getElementById("theme-toggle");
+  const THEME_KEY = "paciente-theme";
+
+  function applyTheme(theme) {
+    body.classList.remove("dark-mode", "light-mode");
+    body.classList.add(theme === "light" ? "light-mode" : "dark-mode");
+    body.setAttribute("data-theme", theme);
+    if (themeToggle) {
+      themeToggle.querySelector(".chip-icon").textContent = theme === "light" ? "☀️" : "🌙";
+      themeToggle.querySelector(".chip-label").textContent = theme === "light" ? "Claro" : "Oscuro";
+    }
+  }
+
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  if (savedTheme === "light" || savedTheme === "dark") {
+    applyTheme(savedTheme);
+  } else {
+    applyTheme("dark");
+  }
+
+  if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+      const next = body.classList.contains("light-mode") ? "dark" : "light";
+      localStorage.setItem(THEME_KEY, next);
+      applyTheme(next);
+    });
+  }
+
+  // Referencias principales (solo existen en dashboard de paciente)
+  const modalCita    = document.getElementById("modal-cita");
+  const modalPerfil  = document.getElementById("modal-perfil");
   
     const formCita     = document.getElementById("form-cita");
     const servicio     = document.getElementById("servicio_modal") || document.getElementById("cita-servicio");
