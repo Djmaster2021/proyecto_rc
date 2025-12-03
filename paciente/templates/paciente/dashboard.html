@@ -70,7 +70,7 @@
                 <div class="empty-state">
                     <i class="ph-duotone ph-calendar-x empty-icon"></i>
                     <p>No tienes citas próximas.</p>
-                    <button onclick="abrirModalAgendar()" class="cyber-btn cyber-btn-glow" {% if penal_info.estado == "pending" or penal_info.estado == "disabled" %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>
+                    <button onclick="abrirModalAgendar()" class="cyber-btn cyber-btn-glow" style="margin-top: 0.3rem;" {% if penal_info.estado == "pending" or penal_info.estado == "disabled" %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>
                         Agendar una cita
                     </button>
                 </div>
@@ -130,7 +130,7 @@
             {% else %}
                 <div class="empty-state"><p>Estás al día con tus pagos.</p></div>
                 <div class="payment-actions">
-                    <a href="{% url 'paciente:mis_pagos' %}" class="cyber-btn cyber-btn-secondary">Gestionar pagos en línea</a>
+                    <a href="{% url 'paciente:mis_pagos' %}" class="cyber-btn cyber-btn-secondary" style="margin-top: 0.6rem;">Gestionar pagos en línea</a>
                 </div>
             {% endif %}
         </div>
