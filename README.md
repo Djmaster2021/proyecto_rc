@@ -49,7 +49,8 @@ Plataforma integral para el Consultorio Dental **Rodolfo Castellón**: agenda, p
 - Colección de estáticos para producción: `python manage.py collectstatic --no-input`.  
 - Reiniciar datos locales (desarrollo): `python reset_tablas.py` (lee antes el script).
 - Webhook MercadoPago (prod): configura la URL pública a `/paciente/pagos/webhook/`.
-- Cron sugerido para recordatorios (ejemplo): `0 * * * * cd /home/diego/Escritorio/proyecto_rc/proyecto_rc && .venv/bin/python manage.py enviar_recordatorios_citas >> /var/log/rc_recordatorios.log 2>&1`.
+- Cron sugerido para recordatorios (ejemplo): `0 * * * * cd /home/diego/Escritorio/proyecto_rc/proyecto_rc && .venv/bin/python manage.py enviar_recordatorios_citas >> /var/log/rc_recordatorios.log 2>&1` (plantilla en `ops/cron_recordatorios.example`).
+- Flags de seguridad configurables en `.env`: `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`, `SECURE_HSTS_SECONDS`, `SECURE_HSTS_INCLUDE_SUBDOMAINS`, `SECURE_HSTS_PRELOAD`, `SECURE_PROXY_SSL_HEADER`, `DRF_THROTTLE_ANON`, `DRF_THROTTLE_USER`.
 
 ## Estructura rápida
 - `proyecto_rc/` configuración Django.  
