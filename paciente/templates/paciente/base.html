@@ -68,7 +68,13 @@
                     </form>
                     <form action="{% url 'set_language' %}" method="post">
                         {% csrf_token %}
-                        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                        {% with path=request.get_full_path %}
+                            {% if path|slice:":4" == "/en/" %}
+                                <input name="next" type="hidden" value="{{ path }}">
+                            {% else %}
+                                <input name="next" type="hidden" value="/en{{ path }}">
+                            {% endif %}
+                        {% endwith %}
                         <input name="language" type="hidden" value="en">
                         <button type="submit" class="lang-pill {% if CURRENT_LANG|slice:':2' == 'en' %}active{% endif %}" aria-label="English (US)">
                             <span class="flag flag-us"></span>
