@@ -154,3 +154,16 @@ class UsernameOrEmailPasswordResetForm(PasswordResetForm):
         # Sustituimos el valor para que el PasswordResetForm use el correo real
         self.cleaned_data["email"] = user.email
         return user.email
+
+    def get_users(self, email):
+        """
+        Incluimos también usuarios sin contraseña usable (p.ej. alta por Google)
+        para que puedan establecer una nueva contraseña vía este flujo.
+        """
+        UserModel = self.get_users.__self__.user_model  # compatibilidad con Django < 5.1
+        email_field_name = UserModel.get_email_field_name()
+        active_users = UserModel._default_manager.filter(
+            **{f"{email_field_name}__iexact": email, "is_active": True}
+        )
+        for user in active_users:
+            yield user
