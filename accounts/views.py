@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.conf import settings
+from django.http import HttpResponseRedirect
 
 from .forms import (
     PacienteRegisterForm,
@@ -87,7 +88,19 @@ class CustomPasswordResetView(PasswordResetView):
         if not getattr(settings, "SEND_EMAILS", True):
             print("[PASSWORD RESET] SEND_EMAILS=False; no se envió correo.")
         try:
-            return super().form_valid(form)
+            email_destino = form.cleaned_data.get("email")
+            form.save(
+                domain_override=self.request.get_host(),
+                use_https=self.request.is_secure(),
+                token_generator=self.token_generator,
+                subject_template_name=self.subject_template_name,
+                email_template_name=self.email_template_name,
+                html_email_template_name=self.html_email_template_name,
+                from_email=self.get_from_email(),
+                request=self.request,
+            )
+            print(f"[PASSWORD RESET] Intento de envío a: {email_destino}")
+            return HttpResponseRedirect(self.success_url)
         except Exception as exc:
             messages.error(self.request, "No pudimos enviar el correo. Intenta de nuevo en unos minutos.")
             print(f"[PASSWORD RESET] Error enviando correo: {exc}")
