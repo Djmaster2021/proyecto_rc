@@ -9,7 +9,7 @@
   <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
   <link rel="stylesheet" href="{% static 'accounts/styles.css' %}">
 </head>
-<body>
+<body class="login-page">
   <header class="site-topbar">
     <a class="brand-pill" href="{% url 'home' %}">
       <span class="brand-pill-logo">RC</span>
@@ -47,10 +47,10 @@
             {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
 
             <div class="field">
-              <label for="id_username" class="label-lg">Correo electrónico</label>
+              <label for="id_username" class="label-lg">Usuario o correo electrónico</label>
               <input id="id_username" class="input input-xl" type="text" name="username"
                      value="{{ username|default_if_none:'' }}" autocomplete="username" required
-                     placeholder="ej. nombre@correo.com">
+                     placeholder="ej. juanperez o correo@dominio.com">
             </div>
 
             <div class="field">

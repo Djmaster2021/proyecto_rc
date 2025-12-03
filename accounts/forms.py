@@ -1,6 +1,6 @@
 # accounts/forms.py
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User, Group
 from django.db import transaction, IntegrityError # <-- Se importa IntegrityError (buena práctica)
 from domain.models import Paciente, Dentista  # Importamos el modelo Paciente y Dentista
@@ -98,3 +98,28 @@ class PacienteRegisterForm(UserCreationForm):
 
             
         return user
+
+
+class UsernameOrEmailAuthenticationForm(AuthenticationForm):
+    """
+    Permite iniciar sesión con usuario o correo. Si se detecta un correo,
+    se busca el usuario correspondiente y se pasa su username al flujo base.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].label = "Usuario o correo electrónico"
+        self.fields['username'].widget.attrs.update({
+            'placeholder': 'ej. juanperez o correo@dominio.com'
+        })
+
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        if username and '@' in username:
+            try:
+                user_obj = User.objects.get(email__iexact=username.strip())
+                # Sustituimos por el username real antes de la validación base
+                self.cleaned_data['username'] = user_obj.get_username()
+            except User.DoesNotExist:
+                # Si no existe, dejamos que el flujo original genere el error
+                pass
+        return super().clean()

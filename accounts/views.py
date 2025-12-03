@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 
-from .forms import PacienteRegisterForm
+from .forms import PacienteRegisterForm, UsernameOrEmailAuthenticationForm
 
 
 # ==============================
@@ -53,6 +53,7 @@ class CustomLoginView(LoginView):
     Después del login, redirige por rol usando redirect_by_role.
     """
     template_name = "accounts/login.html"
+    authentication_form = UsernameOrEmailAuthenticationForm
 
     def get_success_url(self):
         # Mandamos siempre a la vista central de redirección
