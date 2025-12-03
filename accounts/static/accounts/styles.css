@@ -1343,6 +1343,42 @@ label,
 }
 
 /* BOTÓN GOOGLE */
+.register-page .glow-card,
+.register-page .login-card,
+.register-page .register-card {
+  max-width: 520px !important;
+  padding: 36px 34px !important;
+}
+
+.register-page .auth-form .field {
+  margin-bottom: 12px !important;
+}
+
+.register-page .input,
+.register-page .input-xl {
+  padding: 14px 16px !important;
+  font-size: 1.05rem !important;
+  border-radius: 14px !important;
+}
+
+.register-page label,
+.register-page .label-lg {
+  font-size: 1.02rem !important;
+  margin-bottom: 6px !important;
+}
+
+.register-page .btn-primary {
+  padding: 14px 16px !important;
+  font-size: 1.06rem !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 24px -12px rgba(33,214,178,0.4), 0 0 0 1px rgba(255,255,255,0.06);
+  transition: box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+.register-page .btn-primary:hover {
+  box-shadow: 0 0 0 3px rgba(88,199,255,0.25), 0 18px 36px -14px rgba(33,214,178,0.6);
+  transform: translateY(-1px);
+}
 .btn-google {
   gap: 18px !important;
 }

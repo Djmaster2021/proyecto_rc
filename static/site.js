@@ -63,7 +63,8 @@ function initChatbot() {
         close: document.getElementById('chat-close'),
         msgs: document.getElementById('chat-messages'),
         form: document.getElementById('chat-form'),
-        input: document.getElementById('chat-input')
+        input: document.getElementById('chat-input'),
+        quickWrap: document.getElementById('chat-quick-replies')
     };
 
     if (!el.widget || !el.trigger || !el.form || !el.input || !el.msgs) {
@@ -125,6 +126,52 @@ function initChatbot() {
             console.error("Chatbot Error:", err);
         }
     };
+
+    // Construye los botones rápidos a partir de la config (data-quick-replies) o usa defaults
+    const hydrateQuickReplies = () => {
+        const defaults = [
+            { label: 'Agendar', value: 'agendar', icon: '🗓️' },
+            { label: 'Horarios', value: 'horarios', icon: '🕒' },
+            { label: 'Pagar', value: 'pago', icon: '💳' },
+            { label: 'Ubicación', value: 'ubicacion', icon: '📍' },
+            { label: 'Precios', value: 'precios', icon: '💲' },
+            { label: 'Urgencia', value: 'urgencia', icon: '⏱️' }
+        ];
+
+        const rawConfig = el.widget?.dataset.quickReplies || el.quickWrap?.dataset.quickReplies;
+        let parsed = null;
+
+        if (rawConfig) {
+            try {
+                parsed = JSON.parse(rawConfig);
+            } catch (err) {
+                console.warn('Chatbot: data-quick-replies con formato inválido, usando defaults.', err);
+            }
+        }
+
+        const replies = (Array.isArray(parsed) && parsed.length ? parsed : defaults)
+            .map(item => ({
+                label: item.label || item.text || item.value || item.msg,
+                value: item.value || item.msg || item.label || item.text,
+                icon: item.icon || item.emoji || ''
+            }))
+            .filter(item => item.label && item.value);
+
+        if (!el.quickWrap) return document.querySelectorAll('.quick-btn');
+
+        el.quickWrap.innerHTML = '';
+        replies.forEach(({ label, value, icon }) => {
+            const btn = document.createElement('button');
+            btn.className = 'quick-btn';
+            btn.dataset.msg = value;
+            btn.textContent = `${icon ? icon + ' ' : ''}${label}`;
+            el.quickWrap.appendChild(btn);
+        });
+
+        return el.quickWrap.querySelectorAll('.quick-btn');
+    };
+
+    const quickButtons = hydrateQuickReplies();
     
     // Evento Submit del formulario
     el.form.addEventListener('submit', (e) => {
@@ -133,7 +180,7 @@ function initChatbot() {
     });
 
     // Eventos para botones de respuesta rápida
-    document.querySelectorAll('.quick-btn').forEach(btn => {
+    (quickButtons.length ? quickButtons : document.querySelectorAll('.quick-btn')).forEach(btn => {
         btn.addEventListener('click', () => {
             const text = btn.dataset.msg || btn.innerText;
             if (!text) return;

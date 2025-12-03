@@ -1,52 +1,180 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-{% block dtitle %}Pagos | RC Dental{% endblock %}
+{% block dtitle %}Finanzas | RC{% endblock %}
 
 {% block dcontent %}
 
-<div class="page-header">
-  <div>
-    <h1 class="text-gradient">Pagos Recibidos</h1>
-    <p class="welcome-subtitle">
-      Control de ingresos por citas completadas.
-    </p>
-  </div>
+<div class="main-container">
+
+    <div class="page-header compact" style="margin-bottom: 1.5rem;">
+        <div>
+            <h1 class="text-gradient">Control de Caja</h1>
+            <p class="subtitle">Corte de caja diario y registro de movimientos.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button type="button" id="btnCorte" class="cyber-btn" style="background:#fff; border-color:#e2e8f0;">
+                <i class="ph-bold ph-scales"></i> Corte
+            </button>
+            <a href="{% url 'dentista:registrar_pago' %}" class="cyber-btn cyber-btn-glow">
+                <i class="ph-bold ph-currency-dollar"></i> Registrar ingreso
+            </a>
+        </div>
+    </div>
+
+    <div class="search-container-full">
+        <i class="ph-bold ph-magnifying-glass search-icon"></i>
+        <input type="text" id="searchPagos" class="search-input-lg" placeholder="Buscar por recibo, paciente o método...">
+    </div>
+
+    <div class="kpi-row-finance">
+        <div class="finance-card green-theme">
+            <div class="fc-icon"><i class="ph-bold ph-wallet"></i></div>
+            <div>
+                <div class="fc-amount" id="kpiRecaudo">${{ kpi_hoy|floatformat:2 }}</div>
+                <div class="fc-label">RECAUDADO HOY <span class="fc-sub">* Se reinicia 00:00</span></div>
+            </div>
+        </div>
+
+        <div class="finance-card blue-theme">
+            <div class="fc-icon"><i class="ph-bold ph-receipt"></i></div>
+            <div>
+                <div class="fc-amount">{{ pagos.count }}</div>
+                <div class="fc-label">TRANSACCIONES</div>
+            </div>
+        </div>
+
+        <div class="finance-card dark-theme">
+            <div class="fc-icon"><i class="ph-bold ph-clock"></i></div>
+            <div>
+                <div class="fc-amount" id="cierreClock">--:--</div>
+                <div class="fc-label">CIERRE AUTOMÁTICO</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="finance-table-card">
+        <div class="table-responsive">
+            <table class="finance-table">
+                <thead>
+                    <tr>
+                        <th>ID RECIBO</th>
+                        <th>FECHA / HORA</th>
+                        <th>PACIENTE</th>
+                        <th>CONCEPTO</th>
+                        <th>MÉTODO</th>
+                        <th>ESTADO</th>
+                        <th style="text-align:right;">MONTO</th>
+                        <th style="text-align:center;">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaPagosBody">
+                    {% for p in pagos %}
+                    <tr>
+                        <td class="ft-id">#{{ p.id|stringformat:"05d" }}</td>
+                        <td class="ft-date">
+                            <span style="font-weight:700;">{{ p.created_at|date:"d M" }}</span>
+                            <br><span style="font-size:0.75rem; color:#999;">{{ p.created_at|time:"H:i" }}</span>
+                        </td>
+                        <td class="ft-patient">
+                            <div class="ft-avatar">{{ p.cita.paciente.nombre|slice:":1" }}</div>
+                            {{ p.cita.paciente.nombre }}
+                        </td>
+                        <td class="ft-concept">
+                            {% if p.cita.notas %}{{ p.cita.notas }}{% else %}{{ p.cita.servicio.nombre }}{% endif %}
+                        </td>
+                        <td>
+                            {% if p.metodo == 'EFECTIVO' %}
+                                <span class="badge-pill green"><i class="ph-bold ph-money"></i> EFECTIVO</span>
+                            {% else %}
+                                <span class="badge-pill blue"><i class="ph-bold ph-credit-card"></i> TARJETA</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge-dot green">● PAGADO</span>
+                        </td>
+                        <td class="ft-amount">${{ p.monto|floatformat:2 }}</td>
+                        <td style="text-align:center;">
+                            {% if p.comprobante and p.comprobante.datos_extra.pdf_path %}
+                                <a href="/media/{{ p.comprobante.datos_extra.pdf_path }}" class="btn-icon-sm" title="Descargar comprobante">
+                                    <i class="ph-bold ph-download-simple"></i>
+                                </a>
+                            {% else %}
+                                <span title="Sin comprobante" style="color:#cbd5e1;"><i class="ph-bold ph-download-simple"></i></span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="8" style="text-align:center; padding:40px; color:#999;">No hay movimientos hoy.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="ft-footer">Mostrando {{ pagos.count }} transacciones</div>
+    </div>
+
 </div>
 
-<div class="cyber-card" style="padding: 1.5rem;">
-  {% if pagos %}
-    <div class="table-wrapper">
-      <table class="modern-table">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Paciente</th>
-            <th>Servicio</th>
-            <th>Método</th>
-            <th>Monto</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for p in pagos %}
-          <tr>
-            <td>{{ p.created_at|date:"d/m/Y H:i" }}</td>
-            <td>{{ p.cita.paciente.nombre }}</td>
-            <td>{{ p.cita.servicio.nombre }}</td>
-            <td>{{ p.get_metodo_display }}</td>
-            <td>${{ p.monto }}</td>
-            <td>{{ p.get_estado_display }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% else %}
-    <p style="color: var(--text-muted); margin: 0;">
-      Aún no hay pagos registrados para tus citas.
-    </p>
-  {% endif %}
-</div>
+<script>
+    document.getElementById('searchPagos').addEventListener('keyup', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#tablaPagosBody tr');
+        rows.forEach(row => {
+            let text = row.innerText.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
+        });
+    });
+
+    // Countdown a medianoche
+    const cierreClock = document.getElementById('cierreClock');
+    function updateCountdown() {
+        const now = new Date();
+        const midnight = new Date(now);
+        midnight.setHours(24,0,0,0);
+        const diff = midnight - now;
+        const hrs = String(Math.floor(diff / (1000*60*60))).padStart(2,'0');
+        const mins = String(Math.floor((diff / (1000*60)) % 60)).padStart(2,'0');
+        const secs = String(Math.floor((diff / 1000) % 60)).padStart(2,'0');
+        if (cierreClock) cierreClock.textContent = `${hrs}:${mins}:${secs}`;
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    // Corte de caja (visual)
+    const btnCorte = document.getElementById('btnCorte');
+    const kpiRecaudo = document.getElementById('kpiRecaudo');
+    const montoHoy = parseFloat("{{ kpi_hoy|floatformat:2 }}");
+    const corteKey = `rc_corte_${new Date().toISOString().slice(0,10)}`;
+
+    function aplicarCorteLocal() {
+        if (kpiRecaudo) kpiRecaudo.textContent = '$0.00';
+        localStorage.setItem(corteKey, 'done');
+    }
+    // Si ya se hizo corte hoy, mantener en 0 visualmente
+    if (localStorage.getItem(corteKey) === 'done') {
+        aplicarCorteLocal();
+    }
+
+    if (btnCorte) {
+        btnCorte.addEventListener('click', () => {
+            const montoLabel = isNaN(montoHoy) ? '$0.00' : `$${montoHoy.toFixed(2)}`;
+            Swal.fire({
+                title: 'Corte de caja',
+                html: `Hoy recaudaste <strong>${montoLabel}</strong>. ¿Deseas hacer corte y reiniciar a $0.00?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#334155',
+                confirmButtonText: 'Hacer corte',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    aplicarCorteLocal();
+                    Swal.fire({toast:true, position:'top-end', icon:'success', title:'Corte aplicado', showConfirmButton:false, timer:1500});
+                }
+            });
+        });
+    }
+</script>
 
 {% endblock %}

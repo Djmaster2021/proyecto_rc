@@ -1,0 +1,4 @@
+#!/bin/sh
+# Añade esto a tu crontab (crontab -e) ajustando la ruta si cambia:
+# 0 * * * * cd /home/diego/Escritorio/proyecto_rc/proyecto_rc && .venv/bin/python manage.py enviar_recordatorios_citas >> /var/log/rc_recordatorios.log 2>&1
+

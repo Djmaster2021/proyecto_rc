@@ -3,7 +3,7 @@ from django import forms
 from .models import Pago
 from django import forms
 from domain.models import Paciente
-
+from domain.models import Servicio
 class PacienteForm(forms.ModelForm):
     class Meta:
         model = Paciente
@@ -30,3 +30,15 @@ class FinalizarConsultaForm(forms.Form):
         widget=forms.Textarea(attrs={"rows": 3}),
         required=False,
     )
+
+    class ServicioForm(forms.ModelForm):
+        class Meta:
+            model = Servicio
+        fields = ['nombre', 'descripcion', 'precio', 'duracion_estimada']
+        # Opcional: widgets para estilizar con CSS
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'precio': forms.NumberInput(attrs={'class': 'form-control'}),
+            'duracion_estimada': forms.NumberInput(attrs={'class': 'form-control'}),
+        }

@@ -1,26 +1,29 @@
-from django.core.management.base import BaseCommand
-from django.utils import timezone
-from django.core.mail import send_mail
+from datetime import datetime, timedelta
+
 from django.conf import settings
-from django.urls import reverse
+from django.core.mail import send_mail
+from django.core.management.base import BaseCommand
 from django.core.signing import TimestampSigner
+from django.urls import reverse
+from django.utils import timezone
+
 from domain.models import Cita
-from datetime import timedelta
 
 class Command(BaseCommand):
-    help = 'Robot que envía correos de confirmación para citas de mañana.'
+    help = "Robot que envía correos de confirmación para citas de mañana."
 
     def handle(self, *args, **options):
         self.stdout.write("🤖 Iniciando robot de recordatorios...")
         
         # 1. Calcular fecha de "MAÑANA"
-        hoy = timezone.now().date()
-        manana = hoy  # <-- Truco para probar hoy mismo
-        
-        # 2. Buscar citas de mañana que sigan PENDIENTES
+        hoy = timezone.localdate()
+        manana = hoy + timedelta(days=1)
+
+        # 2. Buscar citas de mañana que sigan PENDIENTES y no tengan recordatorio previo
         citas_manana = Cita.objects.filter(
-            fecha_hora_inicio__date=manana,
-            estado=Cita.EstadoCita.PENDIENTE
+            fecha=manana,
+            estado="PENDIENTE",
+            recordatorio_24h_enviado=False,
         )
         
         self.stdout.write(f"📅 Buscando citas para: {manana}")
@@ -31,6 +34,14 @@ class Command(BaseCommand):
 
         for cita in citas_manana:
             try:
+                user = getattr(cita.paciente, "user", None)
+                email_destino = getattr(user, "email", None)
+                if not email_destino:
+                    self.stdout.write(self.style.WARNING(
+                        f"Paciente sin email para cita #{cita.id}, se omite."
+                    ))
+                    continue
+
                 # 3. Generar el enlace secreto único
                 token = signer.sign(cita.id)
                 # Construimos la URL completa (ej. http://localhost:8000/paciente/confirmar/...)
@@ -63,9 +74,11 @@ Dr. Rodolfo Castellón
                     asunto,
                     mensaje,
                     settings.DEFAULT_FROM_EMAIL,
-                    [cita.paciente.user.email],
+                    [email_destino],
                     fail_silently=False,
                 )
+                cita.recordatorio_24h_enviado = True
+                cita.save(update_fields=["recordatorio_24h_enviado"])
                 self.stdout.write(self.style.SUCCESS(f"✅ Correo enviado a {cita.paciente.nombre}"))
                 enviados += 1
 

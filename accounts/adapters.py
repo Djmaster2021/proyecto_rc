@@ -29,22 +29,28 @@ class MyAccountAdapter(DefaultAccountAdapter):
         # =======================
         # DENTISTA
         # =======================
-        if hasattr(user, "perfil_dentista"):
+        if hasattr(user, "dentista"):
             return reverse("dentista:dashboard")
 
         # =======================
         # PACIENTE
         # =======================
         # 1) Si ya tiene perfil_paciente, lo usamos
-        if hasattr(user, "perfil_paciente"):
-            paciente = user.perfil_paciente
+        if hasattr(user, "paciente_perfil"):
+            paciente = user.paciente_perfil
         else:
             # 2) Si NO tiene, lo creamos automáticamente
             nombre = user.get_full_name() or (user.email.split("@")[0] if user.email else user.username)
+            from domain.models import Dentista
+            dentista_default = Dentista.objects.first()
+            if dentista_default is None:
+                # No hay dentista registrado; mandamos al home con mensaje genérico
+                return reverse("home")
             paciente, _ = Paciente.objects.get_or_create(
                 user=user,
                 defaults={
                     "nombre": nombre,
+                    "dentista": dentista_default,
                 },
             )
 

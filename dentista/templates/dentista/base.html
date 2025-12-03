@@ -23,7 +23,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
   <!-- Estilos principales del módulo Dentista -->
-  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}?v=7.3">
+  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}?v=8.0">
 
   <!-- Espacio para CSS adicional por vista (si alguna plantilla hija lo necesita) -->
   {% block extra_css %}{% endblock %}
@@ -299,6 +299,7 @@
         }
     });
   </script>
+  <script src="{% static 'dentista/app.js' %}?v=8.0"></script>
 
   <!-- Espacio para JS adicional de cada vista (Dashboard, Agenda, etc.) -->
   {% block extra_js %}{% endblock %}

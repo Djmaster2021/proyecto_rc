@@ -9,15 +9,6 @@
 
 {% block pcontent %}
 
-{#
-  ESPERA EN EL CONTEXT:
-  - penalizacion: objeto con:
-        - inasistencias
-        - recargo (monto)
-        - fecha_limite (opcional)
-        - estado
-#}
-
 <section class="section-wrapper">
     <div class="section-title">
         <i class="ph-duotone ph-warning-octagon"></i>
@@ -37,7 +28,7 @@
             {% if penalizacion.fecha_limite %}
                 <li><strong>Fecha límite de pago:</strong> {{ penalizacion.fecha_limite|date:"d/m/Y" }}</li>
             {% endif %}
-            <li><strong>Estado actual:</strong> {{ penalizacion.get_estado_display|default:"Pendiente" }}</li>
+            <li><strong>Estado actual:</strong> {{ penalizacion.estado|default:"Pendiente" }}</li>
         </ul>
 
         <p class="penalty-page__text" style="margin-top:1.5rem;">
@@ -47,11 +38,14 @@
 
         <form method="POST" style="margin-top:1.5rem;">
             {% csrf_token %}
-            {# Más adelante aquí disparamos MercadoPago en sandbox #}
             <button type="submit" class="cyber-btn cyber-btn-glow">
                 <i class="ph-bold ph-credit-card"></i>
-                Pagar penalización en línea
+                Pagar con MercadoPago (prueba)
             </button>
+            <p style="margin-top:0.5rem; color: var(--text-muted);">
+                Este botón activará el cobro con las credenciales de MercadoPago del consultorio.
+                Por ahora está en modo de simulación de pago.
+            </p>
         </form>
 
         <div style="margin-top:1rem;">

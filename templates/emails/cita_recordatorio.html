@@ -10,6 +10,11 @@
         <li><strong>Hora:</strong> {{ cita.fecha_hora_inicio|time:"H:i" }}</li>
         <li><strong>Servicio:</strong> {{ cita.servicio.nombre }}</li>
       </ul>
+      {% if confirm_url %}
+      <div style="text-align:center; margin: 16px 0;">
+        <a href="{{ confirm_url }}" style="background:#22c55e; color:#0b1120; padding:12px 18px; border-radius:10px; text-decoration:none; font-weight:800; display:inline-block;">Confirmar asistencia</a>
+      </div>
+      {% endif %}
       <p style="font-size:14px;color:#9ca3af;">
         Si no puedes asistir, avísanos con anticipación para reprogramar tu cita.
       </p>

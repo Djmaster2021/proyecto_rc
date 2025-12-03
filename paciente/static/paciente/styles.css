@@ -5,20 +5,20 @@
 
 /* 1. VARIABLES GLOBALES */
 :root {
-  --font-main: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-main: 'Space Grotesk', 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 
-  --c-bg-dark: #050814;
-  --c-bg-section: #111827;
-  --c-bg-card: rgba(15,23,42,0.9);
+  --c-bg-dark: #040712;
+  --c-bg-section: #0b1020;
+  --c-bg-card: rgba(12,18,36,0.85);
 
-  --c-border: rgba(148,163,184,0.3);
-  --c-border-soft: rgba(148,163,184,0.18);
+  --c-border: rgba(255,255,255,0.07);
+  --c-border-soft: rgba(255,255,255,0.04);
 
-  --c-text: #e5ecff;
-  --c-text-muted: #9ca3af;
+  --c-text: #e8edff;
+  --c-text-muted: #9ba6c5;
 
-  --c-primary: #22d3ee;
-  --c-primary-glow: #67e8f9;
+  --c-primary: #5be4ff;
+  --c-primary-glow: #7df7ff;
 
   --c-success: #22c55e;
   --c-danger: #f97373;
@@ -35,8 +35,8 @@
   --transition-fast: 0.18s ease;
   --transition-medium: 0.3s ease;
 
-  --shadow-soft: 0 18px 35px rgba(0,0,0,0.45);
-  --shadow-glow: 0 0 16px rgba(34,211,238,0.55);
+  --shadow-soft: 0 24px 60px rgba(4,7,18,0.75);
+  --shadow-glow: 0 0 25px rgba(91,228,255,0.45);
 }
 
 /* 2. RESET / BASE */
@@ -59,10 +59,12 @@ html, body {
 }
 
 body.dark-mode {
-  background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%);
+  background: radial-gradient(circle at 20% 20%, rgba(91,228,255,0.08), transparent 35%),
+              radial-gradient(circle at 80% 10%, rgba(255,100,196,0.12), transparent 30%),
+              #030713;
   color: var(--c-text);
   font-family: var(--font-main);
-  font-size: 19px;   /* << Aumentado (antes 17px) */
+  font-size: 19px;
   overflow-x: hidden;
 }
 
@@ -74,7 +76,8 @@ a {
 /* 3. TOPBAR */
 
 .topbar {
-  background: #020617;
+  backdrop-filter: blur(12px);
+  background: linear-gradient(90deg, rgba(5,10,25,0.75), rgba(10,16,32,0.75));
   border-bottom: 1px solid var(--c-border-soft);
   position: sticky;
   top: 0;
@@ -84,39 +87,43 @@ a {
 .topbar__inner {
   max-width: 1200px;
   margin: auto;
-  padding: .75rem 1.5rem;
+  padding: 0.85rem 1.5rem;
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
 .brand {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.4px;
   color: var(--c-primary);
+  text-shadow: 0 0 10px rgba(91,228,255,0.45);
 }
 
 .center-title {
   flex: 1;
   text-align: center;
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: .6px;
 }
 
 .btn-logout {
-  padding: .4rem 1.1rem;
-  border-radius: 999px;
-  border: 1px solid var(--c-border-soft);
-  background: transparent;
+  padding: .45rem 1.15rem;
+  border-radius: 14px;
+  border: 1px solid var(--c-border);
+  background: rgba(255,255,255,0.02);
   color: var(--c-text-muted);
   cursor: pointer;
-  font-size: .85rem;
-  transition: var(--transition-fast);
+  font-size: .9rem;
+  transition: var(--transition-medium);
 }
 
 .btn-logout:hover {
   border-color: var(--c-danger);
   color: var(--c-danger);
+  box-shadow: 0 10px 30px rgba(249,115,115,0.2);
 }
 
 /* 4. CONTENEDOR PRINCIPAL */
@@ -134,26 +141,40 @@ a {
 /* 5. BANNER DE BIENVENIDA */
 
 .welcome-banner {
-  background: radial-gradient(circle at top, #0f172a, #020617 70%);
-  padding: 2.2rem 2rem;
-  border-radius: var(--radius-base);
-  border: 1px solid rgba(148,163,184,0.35);
+  position: relative;
+  background: radial-gradient(circle at 40% 20%, rgba(91,228,255,0.25), transparent 45%),
+              radial-gradient(circle at 70% 30%, rgba(255,122,193,0.22), transparent 45%),
+              linear-gradient(135deg, #0c1224, #0a0f1f 65%);
+  padding: 2.6rem 2.2rem;
+  border-radius: 18px;
+  border: 1px solid rgba(91,228,255,0.25);
   text-align: center;
   box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+
+.welcome-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.05);
+  pointer-events: none;
 }
 
 .welcome-title {
-  font-size: 3.3rem;
-  font-weight: 700;
-  letter-spacing: .02em;
+  font-size: 3.4rem;
+  font-weight: 800;
+  letter-spacing: .01em;
   color: var(--c-primary-glow);
-  text-shadow: 0 0 14px rgba(45,212,191,0.3);
+  text-shadow: 0 0 22px rgba(91,228,255,0.45);
 }
 
 .welcome-subtitle {
-  margin-top: .7rem;
-  font-size: 1.45rem;
+  margin-top: .8rem;
+  font-size: 1.3rem;
   color: var(--c-text-muted);
+  letter-spacing: .2px;
 }
 
 /* 6. SECCIONES Y GRID DEL DASHBOARD */
@@ -197,15 +218,33 @@ a {
 
 .card-modern {
   flex: 1;
-  background: var(--c-bg-card);
-  padding: 1.6rem 1.7rem;
-  border-radius: var(--radius-base);
-  border: 1px solid var(--c-border-soft);
+  background: linear-gradient(145deg, rgba(12,18,36,0.85), rgba(14,25,48,0.85));
+  padding: 1.7rem 1.8rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.05);
   box-shadow: var(--shadow-soft);
   backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-modern::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: radial-gradient(circle at 20% 20%, rgba(91,228,255,0.08), transparent 30%),
+              radial-gradient(circle at 80% 20%, rgba(255,122,193,0.08), transparent 35%);
+  pointer-events: none;
+  opacity: 0;
+  transition: var(--transition-medium);
+}
+
+.card-modern:hover::before {
+  opacity: 1;
 }
 
 /* Para que el contenido de tabla llene bien la card */
@@ -219,14 +258,15 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: .4rem;
-  padding: .7rem 1.5rem;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--c-primary);
-  font-size: .96rem;
-  font-weight: 500;
-  background: transparent;
-  color: var(--c-primary);
+  gap: .55rem;
+  padding: .85rem 1.35rem;
+  border-radius: 14px;
+  border: 1px solid var(--c-border);
+  font-size: .98rem;
+  font-weight: 700;
+  letter-spacing: .3px;
+  background: rgba(255,255,255,0.05);
+  color: var(--c-text);
   cursor: pointer;
   transition: var(--transition-medium);
   position: relative;
@@ -237,7 +277,7 @@ a {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top, rgba(34,211,238,0.22), transparent 60%);
+  background: radial-gradient(circle at top, rgba(91,228,255,0.18), transparent 55%);
   opacity: 0;
   transition: var(--transition-medium);
 }
@@ -247,15 +287,16 @@ a {
 }
 
 .cyber-btn:hover {
-  background: var(--c-primary);
-  color: #020617;
+  transform: translateY(-2px) scale(1.01);
+  border-color: var(--c-primary);
+  box-shadow: var(--shadow-glow);
 }
 
 .cyber-btn-glow {
-  background: radial-gradient(circle at 10% 0, #67e8f9, #22d3ee);
+  background: linear-gradient(110deg, #5be4ff, #7df7ff, #5be4ff);
   border-color: transparent;
-  color: #020617;
-  box-shadow: var(--shadow-glow);
+  color: #041025;
+  box-shadow: 0 18px 40px rgba(91,228,255,0.28);
 }
 
 .cyber-btn-glow:hover {
@@ -263,8 +304,9 @@ a {
 }
 
 .cyber-btn-danger {
-  border-color: var(--c-danger);
-  color: var(--c-danger);
+  background: linear-gradient(110deg, rgba(249,115,115,0.2), rgba(249,115,115,0.08));
+  border-color: rgba(249,115,115,0.5);
+  color: #fca5a5;
 }
 
 .cyber-btn-danger:hover {
@@ -303,6 +345,43 @@ a {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+.payment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 0.5rem;
+}
+
+.payment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+}
+
+.payment-amount {
+  font-weight: 700;
+  color: #22c55e;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: linear-gradient(120deg, #00d4ff, #00e0b8);
+  color: #0b1220;
+  box-shadow: 0 8px 30px rgba(0,212,255,0.25);
 }
 
 /* 11. CHIPS / ESTADOS */
@@ -491,10 +570,41 @@ a {
 .modal-content {
   background: #020617;
   border-radius: var(--radius-base);
-  padding: 1.7rem 1.6rem;
-  width: min(480px, 92%);
+  padding: 1.4rem 1.25rem;
+  width: min(480px, 94%);
   border: 1px solid var(--c-border-soft);
   box-shadow: var(--shadow-soft);
+}
+
+/* Calendario + slots en modal */
+.calendar-wrapper {
+  background: linear-gradient(145deg, rgba(13,23,43,0.9), rgba(5,8,20,0.9));
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.calendar-inline {
+  width: 100%;
+  background: transparent;
+  border: none;
+}
+
+.slot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tag-recom {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 .modal-header {
@@ -517,6 +627,26 @@ a {
 
 .modal-close:hover {
   color: var(--c-primary);
+}
+
+.alert-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 4px solid #fcd34d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  color: #fcd34d;
+  font-size: 40px;
+  font-weight: 700;
+  box-shadow: 0 0 0 6px rgba(252, 211, 77, 0.12);
+}
+
+.swal-rc {
+  width: 520px !important;
+  padding-top: 24px;
 }
 
 .form-group {
@@ -586,8 +716,8 @@ select option {
 .penalty-banner {
   width: 100%;
   padding: .7rem 0;
-  background: rgba(248,113,113,0.12);
-  border-bottom: 1px solid rgba(248,113,113,0.3);
+  background: linear-gradient(90deg, rgba(252,211,77,0.18), rgba(248,113,113,0.18));
+  border-bottom: 1px solid rgba(248,113,113,0.25);
 }
 
 /* 17. ENCUESTA — ESTRELLAS */
@@ -918,4 +1048,10 @@ select option {
    ========================================= */
 .flatpickr-calendar {
   z-index: 99999 !important;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
 }

@@ -8,7 +8,7 @@
   <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
   <link rel="stylesheet" href="{% static 'accounts/styles.css' %}">
 </head>
-<body>
+<body class="register-page">
   <header class="site-topbar">
     <a class="brand" href="#" aria-label="Rodolfo Castellón">RC</a>
     <div class="theme-toggle" id="themeToggle">
@@ -22,18 +22,19 @@
   <main class="site-main">
     <section class="auth-hero">
       <div class="glow-card">
-        <div class="login-card">
+        <div class="login-card register-card">
           <div class="card-head">
             <div class="logo">RC</div>
             <h1 class="title">Crear cuenta</h1>
             <p class="subtitle">Regístrate para agendar y gestionar tus citas</p>
           </div>
 
-          <form method="post" class="auth-form" action="{% url 'accounts:register' %}">
+          <form method="post" class="auth-form" action="{% url 'accounts:register' %}" autocomplete="off">
             {% csrf_token %}
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 
             {% if form.non_field_errors %}
-              <div class-="form-errors">
+              <div class="form-errors">
                 {% for error in form.non_field_errors %}
                   <span class="error-text">{{ error }}</span>
                 {% endfor %}
@@ -42,8 +43,8 @@
 
             {% if form.errors %}
               {% for field in form %}
-                {% if field.errors and field.name not in 'username,first_name,last_name,email,telefono' %}
-                  <div class-="form-errors">
+                {% if field.errors %}
+                  <div class="form-errors">
                     <strong>{{ field.label }}:</strong>
                     {% for error in field.errors %}
                       <span class="error-text">{{ error }}</span>
@@ -69,46 +70,19 @@
             </div>
 
             <div class="field">
-              <label for="id_first_name" class="muted">Nombre</label>
+              <label for="id_first_name" class="muted">Nombre completo</label>
               <input id="id_first_name" class="input" type="text" name="first_name"
                      required
-                     minlength="4"   maxlength="25"
+                     minlength="4"   maxlength="60"
                      pattern="[a-zA-Z\sñÑáéíóúÁÉÍÓÚüÜ]+"
-                     title="Solo letras (mínimo 4, máximo 25 caracteres)." placeholder="ej. Juan" value="{{ form.first_name.value|default:'' }}">
+                     title="Solo letras (mínimo 4, máximo 60 caracteres)." placeholder="ej. Juan Pérez" value="{{ form.first_name.value|default:'' }}">
               {% for error in form.first_name.errors %}
                 <span class="error-text">{{ error }}</span>
               {% endfor %}
             </div>
-            
-            <div class="field">
-              <label for="id_last_name" class="muted">Apellido</label>
-              <input id="id_last_name" class="input" type="text" name="last_name"
-                     required
-                     minlength="4"   maxlength="25"
-                     pattern="[a-zA-Z\sñÑáéíóúÁÉÍÓÚüÜ]+"
-                     title="Solo letras (mínimo 4, máximo 25 caracteres)." placeholder="ej. Pérez" value="{{ form.last_name.value|default:'' }}">
-              {% for error in form.last_name.errors %}
-                <span class="error-text">{{ error }}</span>
-              {% endfor %}
-            </div>
-
-            
-            <div class="field">
-              <label for="id_telefono" class="muted">Teléfono</label>
-              <input id="id_telefono" class="input" type="tel" name="telefono"
-                     required
-                     minlength="10"
-                     maxlength="10"
-                     pattern="[0-9]{10}"
-                     title="El teléfono debe tener exactamente 10 números."
-                     placeholder="ej. 3221234567" value="{{ form.telefono.value|default:'' }}">
-              {% for error in form.telefono.errors %}
-                <span class="error-text">{{ error }}</span>
-              {% endfor %}
-            </div>
 
             <div class="field">
-              <label for="id_email" class="muted">Correo (opcional)</label>
+              <label for="id_email" class="muted">Correo</label>
               <input id="id_email" class="input" type="email" name="email"
                      autocomplete="email" placeholder="ej. juan@correo.com" value="{{ form.email.value|default:'' }}">
               {% for error in form.email.errors %}
@@ -123,7 +97,7 @@
             </div>
 
             <div class="field" style="margin-bottom:.75rem;">
-              <label for="id_password2" class="muted">Repite contraseña</label>
+              <label for="id_password2" class="muted">Confirmación de contraseña</label>
               <input id="id_password2" class="input" type="password" name="password2"
                      required autocomplete="new-password">
             </div>

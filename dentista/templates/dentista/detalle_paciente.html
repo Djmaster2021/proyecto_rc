@@ -3,6 +3,29 @@
 
 {% block dtitle %}Expediente | {{ paciente.nombre }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .odonto-wrapper { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1rem; align-items: start; }
+    .odonto-card { background: #fff; border: 1px solid var(--border-subtle); border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow-card); }
+    .tooth-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: 10px; }
+    .tooth-btn { border: 1px solid #e2e8f0; border-radius: 14px; padding: 8px 6px; background: #f8fafc; cursor: pointer; transition: all 0.2s; display: grid; gap: 6px; justify-items: center; }
+    .tooth-btn:hover { border-color: var(--brand); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+    .tooth-btn.active { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0,173,193,0.2); background: #fff; }
+    .tooth-shape { width: 30px; height: 40px; border-radius: 10px 10px 6px 6px; border: 2px solid #cbd5e1; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; color: #475569; position: relative; }
+    .tooth-state-tag { font-size: 0.7rem; font-weight: 700; padding: 4px 8px; border-radius: 999px; border: 1px solid transparent; }
+    .state-sano { border-color: #cbd5e1; color: #94a3b8; background: #e2e8f0; }
+    .state-bracket { border-color: #0284c7; color: #0284c7; background: #e0f2fe; }
+    .state-caries { border-color: #dc2626; color: #dc2626; background: #fee2e2; }
+    .state-corona { border-color: #0ea5e9; color: #0ea5e9; background: #e0f2fe; }
+    .state-chip { border: 1px solid #e2e8f0; background: #fff; color: #475569; border-radius: 10px; padding: 10px 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+    .state-chip i { font-size: 1rem; }
+    .state-chip.active { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0,173,193,0.15); color: var(--brand); }
+    .odonto-note { width: 100%; min-height: 120px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; font-size: 0.95rem; }
+    .odonto-actions { display: flex; justify-content: flex-end; gap: 10px; }
+    @media (max-width: 1023px) { .odonto-wrapper { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
 {% block dcontent %}
 
 <div class="profile-header-card" style="background: white; border-radius: 12px; padding: 20px; display: flex; gap: 20px; align-items: center; margin-bottom: 2rem;">
@@ -13,7 +36,11 @@
     </div>
     <div class="profile-info" style="flex: 1;">
         <h1 style="margin: 0;">{{ paciente.nombre }}</h1>
-        <p style="margin: 5px 0; color: #666;">{{ paciente.edad }} años • {{ paciente.telefono }}</p>
+        <p style="margin: 5px 0; color: #666;">
+            {% if paciente.fecha_nacimiento %}{{ paciente.edad }} años{% endif %}
+            {% if paciente.fecha_nacimiento and paciente.telefono %} • {% endif %}
+            {{ paciente.telefono|default:"--" }}
+        </p>
     </div>
     <div class="profile-actions">
         <a href="{% url 'dentista:crear_cita_manual' %}?paciente={{ paciente.id }}" class="cyber-btn">Nueva Cita</a>
@@ -38,15 +65,32 @@
 </div>
 
 <div id="odonto" class="tab-content" style="display: none;">
-    <div class="cyber-card" style="background: white; padding: 20px; border-radius: 12px;">
-        <h3>Odontograma Visual</h3>
-        <div class="odontogram-container" style="display: flex; gap: 5px; flex-wrap: wrap; justify-content: center;">
-            {% for i in "8765432112345678"|make_list %}
-                <div class="tooth-item" style="text-align: center;">
-                    <div style="width: 25px; height: 25px; border: 1px solid #ccc; margin: 2px;"></div>
-                    <span style="font-size: 0.6rem;">{{ forloop.counter }}</span>
+    <div class="odonto-wrapper">
+        <div class="odonto-card">
+            <div style="display:flex; align-items:center; justify-content: space-between; margin-bottom: 0.75rem;">
+                <div>
+                    <h3 style="margin:0;">Odontograma interactivo</h3>
+                    <p class="subtitle" style="margin:0;">Selecciona el diente y asigna estado o nota.</p>
                 </div>
-            {% endfor %}
+                <span id="selectedToothLabel" style="font-weight:700; color:#0f172a;">Sin diente seleccionado</span>
+            </div>
+            <div id="odontogramGrid" class="tooth-grid"></div>
+        </div>
+
+        <div class="odonto-card">
+            <h4 style="margin-top:0;">Estado y notas</h4>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 12px;">
+                <button type="button" class="state-chip" data-state="sano"><i class="ph-bold ph-shield-checkered"></i> Sano</button>
+                <button type="button" class="state-chip" data-state="bracket"><i class="ph-bold ph-wrench"></i> Bracket</button>
+                <button type="button" class="state-chip" data-state="caries"><i class="ph-bold ph-warning-octagon"></i> Caries</button>
+                <button type="button" class="state-chip" data-state="corona"><i class="ph-bold ph-crown"></i> Corona</button>
+            </div>
+            <label for="toothNote" class="form-label">Nota</label>
+            <textarea id="toothNote" class="odonto-note" placeholder="Describe el hallazgo o tratamiento..."></textarea>
+            <div class="odonto-actions" style="margin-top: 10px;">
+                <button type="button" class="cyber-btn" onclick="resetSelection()">Limpiar</button>
+                <button type="button" class="cyber-btn cyber-btn-glow" onclick="saveOdonto()">Guardar cambios</button>
+            </div>
         </div>
     </div>
 </div>
@@ -58,4 +102,165 @@
     }
 </script>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const patientId = "{{ paciente.id }}";
+    const dataUrl = "{% url 'dentista:odontograma_data' paciente.id %}";
+    const saveUrl = "{% url 'dentista:odontograma_guardar' paciente.id %}";
+    const grid = document.getElementById('odontogramGrid');
+    const noteBox = document.getElementById('toothNote');
+    const stateChips = document.querySelectorAll('.state-chip');
+    const selectedLabel = document.getElementById('selectedToothLabel');
+
+    const teethNumbers = Array.from({length: 32}, (_, i) => (i + 1).toString());
+    const toothState = {}; // { numero: {estado, nota} }
+    let selectedTooth = null;
+    let currentState = 'sano';
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function renderTeeth() {
+        grid.innerHTML = '';
+        teethNumbers.forEach(num => {
+            const btn = document.createElement('button');
+            btn.className = 'tooth-btn';
+            btn.setAttribute('data-num', num);
+
+            const stateInfo = toothState[num];
+            const state = stateInfo ? stateInfo.estado : 'sano';
+
+            const shape = document.createElement('div');
+            shape.className = 'tooth-shape';
+            shape.textContent = num;
+            shape.dataset.num = num;
+
+            const tag = document.createElement('span');
+            tag.className = `tooth-state-tag state-${state}`;
+            tag.textContent = state.toUpperCase();
+
+            btn.appendChild(shape);
+            btn.appendChild(tag);
+
+            btn.addEventListener('click', () => selectTooth(num));
+            grid.appendChild(btn);
+        });
+        highlightSelection();
+    }
+
+    function highlightSelection() {
+        document.querySelectorAll('.tooth-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.num === selectedTooth);
+        });
+        stateChips.forEach(chip => {
+            chip.classList.toggle('active', chip.dataset.state === currentState);
+        });
+        selectedLabel.textContent = selectedTooth ? `Diente ${selectedTooth}` : 'Sin diente seleccionado';
+    }
+
+    function selectTooth(num) {
+        selectedTooth = num;
+        const data = toothState[num];
+        currentState = data ? data.estado : 'sano';
+        noteBox.value = data ? (data.nota || '') : '';
+        highlightSelection();
+    }
+
+    stateChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            currentState = chip.dataset.state;
+            highlightSelection();
+        });
+    });
+
+    window.resetSelection = function() {
+        // Si hay un diente seleccionado, enviamos estado "sano" para limpiarlo en servidor
+        if (selectedTooth) {
+            const payload = { diente: selectedTooth, estado: 'sano', nota: '' };
+            fetch(saveUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(() => {
+                delete toothState[selectedTooth];
+                selectedTooth = null;
+                currentState = 'sano';
+                noteBox.value = '';
+                renderTeeth();
+                Swal.fire({toast:true, position:'top-end', icon:'success', title:'Diente limpiado', showConfirmButton:false, timer:1400});
+            })
+            .catch(() => {
+                Swal.fire({icon:'error', title:'Error', text:'No se pudo limpiar el odontograma.'});
+            });
+        } else {
+            currentState = 'sano';
+            noteBox.value = '';
+            highlightSelection();
+        }
+    };
+
+    window.saveOdonto = function() {
+        if (!selectedTooth) {
+            Swal.fire({icon:'info', title:'Selecciona un diente', text:'Toca un diente para aplicar estado o nota.'});
+            return;
+        }
+        const payload = {
+            diente: selectedTooth,
+            estado: currentState,
+            nota: noteBox.value.trim()
+        };
+        fetch(saveUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(() => {
+            toothState[selectedTooth] = {estado: currentState, nota: payload.nota};
+            renderTeeth();
+            Swal.fire({toast:true, position:'top-end', icon:'success', title:'Guardado', showConfirmButton:false, timer:1500});
+        })
+        .catch(() => {
+            Swal.fire({icon:'error', title:'Error', text:'No se pudo guardar el odontograma.'});
+        });
+    };
+
+    function loadData() {
+        fetch(dataUrl)
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(item => {
+                    toothState[item.diente.toString()] = {estado: item.estado, nota: item.nota};
+                });
+                renderTeeth();
+            })
+            .catch(() => renderTeeth());
+    }
+
+    loadData();
+});
+</script>
 {% endblock %}

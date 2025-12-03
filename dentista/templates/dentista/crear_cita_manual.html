@@ -108,8 +108,8 @@
         container.innerHTML = ''; 
 
         try {
-            // Petición a la API
-            const response = await fetch(`/dentista/api/get-slots/?fecha=${fecha}&servicio_id=${servicioId}`);
+            // Petición a la API (ruta Django)
+            const response = await fetch(`{% url 'dentista:obtener_slots' %}?fecha=${fecha}&servicio_id=${servicioId}`);
             
             if (!response.ok) throw new Error("Error en la red o URL no encontrada");
             

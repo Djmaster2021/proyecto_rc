@@ -1,109 +1,102 @@
-<!DOCTYPE html>
 {% load static %}
-<html>
+<!doctype html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Reporte Financiero RC</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reporte | {{ dentista.nombre }}</title>
+  <style>
+    body { font-family: 'Inter', Arial, sans-serif; background:#0f172a; color:#e2e8f0; margin:0; padding:0; }
+    .wrap { max-width: 1024px; margin: 0 auto; padding: 32px 24px 48px; }
+    h1 { margin: 0; color: #34d399; letter-spacing: 0.5px; }
+    h2 { margin: 0; color: #8b5cf6; }
+    .subtitle { color:#22d3ee; text-transform: uppercase; letter-spacing:2px; font-size:0.85rem; margin-bottom:8px; }
+    .meta { text-align:right; font-size:0.85rem; line-height:1.4; }
+    .bar { height:2px; background: linear-gradient(90deg, #22d3ee, #8b5cf6, #34d399); margin:12px 0 20px; }
+    table { width:100%; border-collapse: collapse; font-size:0.9rem; }
+    th, td { padding:10px 8px; }
+    thead th { color:#94a3b8; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.08); }
+    tbody tr { background: rgba(255,255,255,0.02); }
+    tbody tr:nth-child(even) { background: rgba(255,255,255,0.04); }
+    .pill { padding:4px 8px; border-radius:6px; font-weight:700; font-size:0.8rem; color:#0f172a; }
+    .pill-green { background:#34d399; }
+    .pill-yellow { background:#f59e0b; }
+    .pill-blue { background:#38bdf8; }
+    .footer { display:flex; justify-content: space-between; align-items: flex-start; margin-top:24px; gap:16px; }
+    .totals { background: rgba(255,255,255,0.04); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); min-width: 260px; }
+    .totals strong { display:block; font-size:1rem; margin-bottom:6px; }
+    .total-amount { color:#22d3ee; font-size:1.2rem; font-weight:800; }
+    .qr-box { width:140px; height:140px; background:#0b1220; border:1px solid rgba(255,255,255,0.08); border-radius:12px; display:flex; align-items:center; justify-content:center; }
+    .qr-box img { width:120px; height:120px; object-fit:contain; }
+  </style>
 </head>
 <body>
-
-    <table class="header-table">
-        <tr>
-            <td width="60%" valign="bottom">
-                <div class="brand-title">CONSULTORIO RC</div>
-                <div class="brand-sub">Reporte Oficial de Actividades</div>
-            </td>
-            <td width="40%" class="meta-info" valign="bottom">
-                <div style="font-size: 14px; color: #0f172a; margin-bottom: 5px; font-weight: bold;">
-                    Dr. {{ dentista.nombre }}
-                </div>
-                <strong>Periodo:</strong> {{ fecha_inicio }} — {{ fecha_fin }}<br>
-                <strong>Generado:</strong> {% now "d/m/Y H:i" %}
-            </td>
-        </tr>
-    </table>
-
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th width="15%">Fecha</th>
-                <th width="30%">Paciente</th>
-                <th width="25%">Tratamiento</th>
-                <th width="15%">Estado</th>
-                <th width="15%" align="right">Monto</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cita in citas %}
-            <tr class="{% cycle '' 'row-odd' %}">
-                <td>
-                    <b style="color:#0f172a;">{{ cita.fecha_hora_inicio|date:"d/m/Y" }}</b><br>
-                    <span style="color:#64748b; font-size:9px;">{{ cita.fecha_hora_inicio|time:"H:i" }}</span>
-                </td>
-                <td style="font-weight:bold; color:#334155;">{{ cita.paciente.nombre }}</td>
-                <td>{{ cita.servicio.nombre }}</td>
-                <td>
-                    <span class="status 
-                        {% if cita.estado == 'CONFIRMADA' or cita.estado == 'COMPLETADA' %}st-conf{% endif %}
-                        {% if cita.estado == 'PENDIENTE' %}st-pend{% endif %}
-                        {% if cita.estado == 'CANCELADA' %}st-canc{% endif %}
-                    ">
-                        {{ cita.get_estado_display|upper }}
-                    </span>
-                </td>
-                <td align="right">
-                    {% if cita.pago_relacionado %}
-                        <span style="color:#0f172a; font-weight:bold;">${{ cita.pago_relacionado.monto|floatformat:2 }}</span>
-                    {% else %}
-                        <span style="color:#94a3b8;">-</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" align="center" style="padding:30px; color:#64748b; background-color: #fff;">
-                    No se encontraron registros financieros en este periodo.
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <table class="footer-table">
-        <tr>
-            <td width="20%" valign="top">
-                {% if qr_code_base64 %}
-                <div class="qr-box">
-                    <img src="data:image/png;base64,{{ qr_code_base64 }}" width="65" height="65">
-                </div>
-                <div style="font-size:9px; color:#64748b; margin-top:4px; width:70px; text-align:center;">
-                    Validación
-                </div>
-                {% endif %}
-            </td>
-            <td width="30%"></td>
-            <td width="50%" valign="top" align="right">
-                <div class="summary-box">
-                    <div class="sum-row">
-                        Citas Realizadas: 
-                        <span class="sum-val">{{ total_citas }}</span>
-                    </div>
-                    <div class="sum-row">
-                        Pacientes Atendidos: 
-                        <span class="sum-val">{{ citas|length }}</span>
-                    </div>
-                    <div class="grand-total">
-                        TOTAL: ${{ total_ingresos|floatformat:2 }}
-                    </div>
-                </div>
-            </td>
-        </tr>
-    </table>
-
-    <div class="disclaimer">
-        Este documento es un reporte interno generado automáticamente por Dental Suite Pro. <br>
-        Para fines fiscales oficiales, por favor consulte las facturas emitidas ante el SAT.
+  <div class="wrap">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+      <div>
+        <h1>RC DENTAL</h1>
+        <div class="subtitle">Reporte oficial de actividades</div>
+      </div>
+      <div class="meta">
+        <div>Dr(a). {{ dentista.nombre }}</div>
+        <div>Generado: {% now "d/m/Y H:i" %}</div>
+        <div>Periodo: {{ fecha_inicio|date:"d/m/Y" }} — {{ fecha_fin|date:"d/m/Y" }}</div>
+      </div>
     </div>
 
+    <div class="bar"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Paciente</th>
+          <th>Tratamiento</th>
+          <th>Estado</th>
+          <th style="text-align:right;">Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in citas %}
+        {% with pago=c.pago_relacionado %}
+        <tr>
+          <td>{{ c.fecha|date:"d/m/Y" }}<br><small style="color:#94a3b8;">{{ c.hora_inicio|time:"H:i" }}</small></td>
+          <td>{{ c.paciente.nombre }}</td>
+          <td>{{ c.servicio.nombre }}</td>
+          <td>
+            {% if c.estado == "COMPLETADA" %}
+              <span class="pill pill-green">COMPLETADA</span>
+            {% elif c.estado == "PENDIENTE" %}
+              <span class="pill pill-yellow">PENDIENTE</span>
+            {% else %}
+              <span class="pill pill-blue">{{ c.estado }}</span>
+            {% endif %}
+          </td>
+          <td style="text-align:right;">
+            {% if pago and pago.estado == "COMPLETADO" %}
+              ${{ pago.monto|floatformat:2 }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+        {% endwith %}
+        {% empty %}
+        <tr><td colspan="5" style="text-align:center; padding:16px; color:#94a3b8;">Sin datos en el rango.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <div class="qr-box">
+        <img src="{% static 'img/favicon.png' %}" alt="QR/Logo">
+      </div>
+      <div class="totals">
+        <strong>Total Citas: {{ total_citas }}</strong>
+        <strong>Pacientes: {{ total_pacientes }}</strong>
+        <div class="total-amount">TOTAL: ${{ total_monto|floatformat:2 }}</div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

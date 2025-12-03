@@ -1,55 +1,276 @@
 {% extends "dentista/base.html" %}
 {% load static %}
 
-{% block dtitle %}Servicios | RC Dental{% endblock %}
+{% block dtitle %}Catálogo de Servicios | RC{% endblock %}
 
 {% block dcontent %}
 
-<div class="page-header">
-  <div>
-    <h1 class="text-gradient">Servicios Odontológicos</h1>
-    <p class="welcome-subtitle">
-      Catálogo de servicios ofrecidos por el Dr. {{ dentista.nombre }}.
-    </p>
-  </div>
-</div>
+<div class="main-container">
 
-<div class="cyber-card" style="padding: 1.5rem;">
-  {% if servicios %}
-    <div class="table-wrapper">
-      <table class="modern-table">
-        <thead>
-          <tr>
-            <th>Servicio</th>
-            <th>Duración</th>
-            <th>Precio</th>
-            <th>Estatus</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for s in servicios %}
-          <tr>
-            <td>{{ s.nombre }}</td>
-            <td>{{ s.duracion_estimada }} min</td>
-            <td>${{ s.precio }}</td>
-            <td>
-              {% if s.activo %}
-                <span class="status-badge status-active">Activo</span>
-              {% else %}
-                <span class="status-badge status-muted">Inactivo</span>
-              {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div class="page-header" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <h1 class="text-gradient" style="font-size: 2rem; margin: 0;">Catálogo de Servicios</h1>
+            <p class="subtitle" style="color: #64748b; margin-top: 0.5rem;">Gestiona tus tratamientos, precios y tiempos.</p>
+        </div>
+        <button type="button" class="cyber-btn cyber-btn-glow" onclick="abrirModal()">
+            <i class="ph-bold ph-plus"></i> Nuevo Servicio
+        </button>
     </div>
-  {% else %}
-    <p style="color: var(--text-muted); margin: 0;">
-      No hay servicios registrados. Puedes crearlos desde el panel de administración
-      o más adelante agregar aquí un formulario de alta rápida.
-    </p>
-  {% endif %}
+
+    <div class="tools-bar" style="background: white; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 1rem; align-items: center;">
+        <form class="search-container" method="GET" style="flex: 1; position: relative;">
+            <i class="ph-bold ph-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Buscar tratamiento..." style="padding-left: 36px; width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; height: 40px;">
+        </form>
+        <span style="color: #64748b; font-weight: 600; font-size: 0.9rem;">Total: {{ total }}</span>
+    </div>
+
+    <div class="cyber-card" style="padding: 0; overflow: hidden; border: none;">
+        <div class="table-responsive">
+            <table class="finance-table" style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                    <tr>
+                        <th style="padding: 1rem; text-align: left;">Tratamiento</th>
+                        <th style="padding: 1rem; text-align: left;">Precio</th>
+                        <th style="padding: 1rem; text-align: left;">Duración</th>
+                        <th style="padding: 1rem; text-align: left;">Estado</th>
+                        <th style="padding: 1rem; text-align: right;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in servicios %}
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 1rem;">
+                            <strong style="color: #0f172a;">{{ s.nombre }}</strong>
+                            <div style="font-size: 0.85rem; color: #64748b;">
+                                {{ s.descripcion|default:"Sin descripción"|truncatechars:50 }}
+                            </div>
+                        </td>
+                        <td style="padding: 1rem; font-weight: 600;">${{ s.precio }}</td>
+                        <td style="padding: 1rem;">{{ s.duracion_estimada }} min</td>
+                        <td style="padding: 1rem;">
+                            {% if s.activo %}
+                                <span style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">ACTIVO</span>
+                            {% else %}
+                                <span style="background: #f1f5f9; color: #64748b; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">INACTIVO</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem; text-align: right;">
+                            <div style="display: inline-flex; gap: 8px;">
+                                
+                                <button type="button" 
+                                        class="btn-icon-sm btn-editar"
+                                        style="cursor: pointer; background: white; border: 1px solid #e2e8f0; padding: 6px; border-radius: 6px;"
+                                        data-id="{{ s.id }}"
+                                        data-nombre="{{ s.nombre }}"
+                                        data-desc="{{ s.descripcion }}"
+                                        data-precio="{{ s.precio }}"
+                                        data-duracion="{{ s.duracion_estimada }}"
+                                        title="Editar">
+                                    <i class="ph-bold ph-pencil-simple" style="color: #64748b;"></i>
+                                </button>
+
+                                <form action="{% url 'dentista:servicio_toggle' s.id %}" method="POST" style="display:inline;" class="form-toggle" data-active="{{ s.activo|yesno:'true,false' }}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-icon-hover" 
+                                            style="cursor: pointer; background: white; border: 1px solid #e2e8f0; padding: 6px; border-radius: 6px;"
+                                            title="{% if s.activo %}Desactivar{% else %}Activar{% endif %}">
+                                        <i class="ph-bold ph-power" style="color: {% if s.activo %}#10b981{% else %}#cbd5e1{% endif %};"></i>
+                                    </button>
+                                </form>
+
+                                <form action="{% url 'dentista:servicio_eliminar' s.id %}" method="POST" style="display:inline;" class="form-eliminar">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-icon-sm" title="Eliminar"
+                                            style="cursor: pointer; background: white; border: 1px solid #fee2e2; padding: 6px; border-radius: 6px;">
+                                        <i class="ph-bold ph-trash" style="color: #ef4444;"></i>
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 3rem; color: #94a3b8;">No hay servicios registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
+<div id="serviceModal" class="modal-overlay">
+    <div class="modal-card cyber-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 id="modalTitle" style="margin: 0;">Nuevo Servicio</h3>
+            <button type="button" onclick="cerrarModal()" style="border: none; background: transparent; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+
+        <form method="POST" id="formServicio" action="{% url 'dentista:servicio_crear' %}">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Nombre</label>
+                <input type="text" name="nombre" id="inputNombre" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px;" required>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Descripción</label>
+                <textarea name="descripcion" id="inputDescripcion" class="form-control" rows="2" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px;"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Precio</label>
+                    <input type="number" step="0.01" name="precio" id="inputPrecio" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px;" required>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Duración (min)</label>
+                    <input type="number" name="duracion" id="inputDuracion" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px;" required>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="cerrarModal()" style="padding: 8px 16px; border: 1px solid #cbd5e0; background: white; border-radius: 6px; cursor: pointer;">Cancelar</button>
+                <button type="submit" style="padding: 8px 16px; border: none; background: #00adc1; color: white; border-radius: 6px; cursor: pointer; font-weight: bold;">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); z-index: 9999;
+        display: none; align-items: center; justify-content: center;
+        backdrop-filter: blur(2px);
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-card {
+        background: white; padding: 2rem; border-radius: 12px; width: 90%; max-width: 500px;
+        box-shadow: 0 20px 25px rgba(0,0,0,0.1);
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // --- VARIABLES Y REFERENCIAS ---
+    const modal = document.getElementById('serviceModal');
+    const form = document.getElementById('formServicio');
+    const modalTitle = document.getElementById('modalTitle');
+    const urlCrear = "{% url 'dentista:servicio_crear' %}";
+
+    // --- FUNCIONES MODAL ---
+    function abrirModal(datos = null) {
+        modal.classList.add('active');
+        if (datos) {
+            modalTitle.innerText = "Editar Servicio";
+            document.getElementById('inputNombre').value = datos.nombre;
+            document.getElementById('inputDescripcion').value = datos.desc;
+            document.getElementById('inputPrecio').value = datos.precio.replace(',', '.');
+            document.getElementById('inputDuracion').value = datos.duracion;
+            form.action = "/dentista/servicios/" + datos.id + "/editar/";
+        } else {
+            modalTitle.innerText = "Nuevo Servicio";
+            form.reset();
+            form.action = urlCrear;
+        }
+    }
+
+    function cerrarModal() {
+        modal.classList.remove('active');
+    }
+
+    // --- INICIALIZACIÓN ---
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // 1. Botones Editar
+        document.querySelectorAll('.btn-editar').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const d = this.dataset;
+                abrirModal({
+                    id: d.id, 
+                    nombre: d.nombre, 
+                    desc: d.desc, 
+                    precio: d.precio, 
+                    duracion: d.duracion
+                });
+            });
+        });
+
+        // 2. Botones Toggle (ACTIVAR/DESACTIVAR) - ESTILO SWEETALERT
+        document.querySelectorAll('.form-toggle').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // Detener envío
+                
+                const isActivo = this.dataset.active === 'true';
+                
+                // Configuración según estado
+                let titulo, texto, colorBoton, textoBoton;
+
+                if (isActivo) {
+                    titulo = "¿Desactivar servicio?";
+                    texto = "Los pacientes ya no podrán agendar este tratamiento.";
+                    colorBoton = "#f59e0b"; // Naranja advertencia
+                    textoBoton = "Sí, desactivar";
+                } else {
+                    titulo = "¿Reactivar servicio?";
+                    texto = "El servicio volverá a estar visible.";
+                    colorBoton = "#10b981"; // Verde éxito
+                    textoBoton = "Sí, activar";
+                }
+
+                Swal.fire({
+                    title: titulo,
+                    text: texto,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: colorBoton,
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: textoBoton,
+                    cancelButtonText: 'Cancelar',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.submit(); // Enviar formulario si acepta
+                    }
+                });
+            });
+        });
+
+        // 3. Botones Eliminar (ESTILO ROJO)
+        document.querySelectorAll('.form-eliminar').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: '¿Eliminar permanentemente?',
+                    text: "Esta acción no se puede deshacer.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444', // Rojo peligro
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.submit();
+                    }
+                });
+            });
+        });
+
+        // Cerrar modal click afuera
+        window.onclick = function(e) {
+            if (e.target == modal) cerrarModal();
+        }
+    });
+</script>
 {% endblock %}

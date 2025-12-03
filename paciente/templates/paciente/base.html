@@ -11,9 +11,9 @@
 
     <title>{% block ptitle %}Consultorio RC{% endblock %}</title>
 
-    <!-- Fuente principal -->
+    <!-- Fuentes -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
@@ -61,52 +61,7 @@
          BANNER DE PENALIZACIÓN (si aplica)
          Se muestra automáticamente si la vista manda penalizacion_info.
     ========================================================= -->
-    {% if penalizacion_info and penalizacion_info.estado != "sin_penalizacion" %}
-        <section class="penalty-banner">
-            <div class="penalty-banner__content">
-                <div>
-                    {% if penalizacion_info.estado == "pending" %}
-                        <h2 class="penalty-banner__title">
-                            Tienes una penalización pendiente
-                        </h2>
-                        <p class="penalty-banner__text">
-                            Has acumulado <strong>{{ penalizacion_info.inasistencias }}</strong> inasistencias.
-                            Debes cubrir una cuota de <strong>${{ penalizacion_info.recargo }}</strong> MXN.
-                        </p>
-                        {% if penalizacion_info.dias_restantes > 0 %}
-                            <p class="penalty-banner__text">
-                                Tienes <strong>{{ penalizacion_info.dias_restantes }}</strong> día(s) restantes
-                                para realizar el pago.
-                            </p>
-                        {% else %}
-                            <p class="penalty-banner__text">
-                                El plazo de pago está por vencer. Regulariza cuanto antes.
-                            </p>
-                        {% endif %}
-                    {% elif penalizacion_info.estado == "disabled" %}
-                        <h2 class="penalty-banner__title">
-                            Tu cuenta está desactivada por penalización
-                        </h2>
-                        <p class="penalty-banner__text">
-                            Excediste el tiempo de pago. Contacta directamente al consultorio.
-                        </p>
-                    {% endif %}
-                </div>
-
-                {% if penalizacion_info.estado == "pending" %}
-                    <div class="penalty-banner__actions">
-                        <a
-                          href="{% url 'paciente:pagar_penalizacion' %}"
-                          class="cyber-btn cyber-btn-glow"
-                        >
-                          <i class="ph-bold ph-banknote"></i>
-                          Pagar penalización
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-        </section>
-    {% endif %}
+    {# Banner global de penalización removido (se muestra solo en la vista de pagos) #}
 
     <!-- ========================================================
          SISTEMA GLOBAL DE ALERTAS - TARJETAS TIPO TOAST

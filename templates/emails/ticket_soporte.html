@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ticket de soporte</title>
+</head>
+<body style="margin:0;padding:0;font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; color:#e2e8f0;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0f172a; padding: 24px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#111827; border:1px solid #1f2937; border-radius:16px; overflow:hidden;">
+          <tr>
+            <td style="padding:24px 28px; background: linear-gradient(135deg, #0f172a, #1e293b); border-bottom:1px solid #1f2937;">
+              <h1 style="margin:0; color:#fff; font-size:22px; letter-spacing:-0.02em;">Nuevo ticket de soporte</h1>
+              <p style="margin:6px 0 0; color:#94a3b8; font-size:14px;">Enviado desde RC Dental</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 22px 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+                <tr>
+                  <td style="padding:12px 14px; background:#0b1224; border:1px solid #1f2937; border-radius:12px;">
+                    <p style="margin:0; color:#94a3b8; font-size:13px;">Asunto</p>
+                    <p style="margin:4px 0 0; color:#f8fafc; font-size:15px; font-weight:700;">{{ asunto }}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="height:12px;"></td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 14px; background:#0b1224; border:1px solid #1f2937; border-radius:12px;">
+                    <p style="margin:0; color:#94a3b8; font-size:13px;">Detalle</p>
+                    <p style="margin:6px 0 0; color:#e2e8f0; font-size:15px; line-height:1.6; white-space:pre-line;">{{ mensaje }}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="height:12px;"></td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 14px; background:#0b1224; border:1px solid #1f2937; border-radius:12px;">
+                    <p style="margin:0 0 10px; color:#94a3b8; font-size:13px;">Datos del dentista</p>
+                    <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; color:#e2e8f0; font-size:14px;">
+                      <tr>
+                        <td style="padding:4px 0;">Nombre:</td>
+                        <td style="padding:4px 0; font-weight:700;">{{ dentista.nombre }}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;">Email:</td>
+                        <td style="padding:4px 0;">{{ email_dentista|default:"(sin correo)" }}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;">Teléfono:</td>
+                        <td style="padding:4px 0;">{{ telefono|default:"(no proporcionado)" }}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;">ID:</td>
+                        <td style="padding:4px 0;">{{ dentista.id }}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 0 28px 20px;">
+              <p style="margin:0; color:#64748b; font-size:12px; text-align:center;">
+                Este mensaje fue generado automáticamente por el módulo de soporte de RC Dental.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

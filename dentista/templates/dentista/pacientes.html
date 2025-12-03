@@ -61,10 +61,12 @@
             </div>
 
             <div class="card-body">
-                <div class="data-row">
-                    <span class="lbl"><i class="ph-duotone ph-cake"></i> Edad</span>
-                    <span class="val">{{ p.edad }} años</span>
-                </div>
+                {% if p.fecha_nacimiento %}
+                    <div class="data-row">
+                        <span class="lbl"><i class="ph-duotone ph-cake"></i> Edad</span>
+                        <span class="val">{{ p.edad }} años</span>
+                    </div>
+                {% endif %}
                 <div class="data-row">
                     <span class="lbl"><i class="ph-duotone ph-phone"></i> Teléfono</span>
                     <span class="val">{{ p.telefono|default:"--" }}</span>
@@ -81,9 +83,11 @@
                 </a>
                 
                 {% if p.telefono %}
-                <a href="https://wa.me/52{{ p.telefono }}" target="_blank" class="btn-whatsapp-pro">
-                    <i class="ph-fill ph-whatsapp-logo"></i>
-                </a>
+                {% with "Hola "|add:p.nombre|add:", te escribo de Consultorio RC para confirmar/agendar tu cita. ¿Qué día y hora te viene bien?" as wa_msg %}
+                    <a href="https://wa.me/52{{ p.telefono }}?text={{ wa_msg|urlencode }}" target="_blank" class="btn-whatsapp-pro">
+                        <i class="ph-fill ph-whatsapp-logo"></i>
+                    </a>
+                {% endwith %}
                 {% else %}
                 <button class="btn-whatsapp-pro disabled" disabled><i class="ph-fill ph-whatsapp-logo"></i></button>
                 {% endif %}

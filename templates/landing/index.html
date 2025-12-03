@@ -10,6 +10,11 @@
 {% endblock %}
 
 {% block content %}
+<div class="bg-shapes">
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+  <div class="orb orb-c"></div>
+</div>
 <header class="hero">
   <div class="hero-overlay"></div>
   <div class="hero-inner wrap">
@@ -81,7 +86,7 @@
             <h2 class="section-title">{% trans "Acerca del consultorio" %}</h2>
             <p class="lead">{% trans "Ubicados en El Pitillal, Puerto Vallarta, ofrecemos tratamientos de última generación con un trato humano." %}</p>
             <ul class="feature-list">
-                <li>{% trans "Horario flexible: Lunes a Sábado, 2pm - 8pm" %}</li>
+                <li>{% trans "Horario flexible: Lunes, 7 am - 7pm y Sabados, 9 a 2" %}</li>
                 <li>{% trans "Tecnología moderna y ambiente seguro" %}</li>
                 <li>{% trans "Atención personalizada por el Dr. Castellón" %}</li>
             </ul>
@@ -94,10 +99,58 @@
     </div>
   </section>
 
-  <section id="pagos" class="bg-dark text-center">
+  <section id="sistema" class="bg-dark">
     <div class="wrap">
+      <div class="panel-card panel-grid reveal">
+        <div>
+          <h2 class="section-title" style="margin-bottom:0.5rem;">{% trans "Sistema digital RC" %}</h2>
+          <p class="section-lead" style="margin-bottom:1.5rem;">{% trans "Agenda, pagos y recordatorios conectados para pacientes y dentistas." %}</p>
+          <p class="lead" style="font-size:1.05rem; color:var(--muted);">{% trans "Un panel para el dentista y otro para el paciente, sincronizados con correos, penalizaciones y cobros en línea." %}</p>
+          <div class="cta" style="justify-content:flex-start; margin-top:1.5rem;">
+            <a href="{% url 'accounts:register' %}" class="rc-btn rc-btn--primary">{% trans "Crear mi cuenta" %}</a>
+            <a href="{% url 'accounts:login' %}" class="rc-btn">{% trans "Acceder" %}</a>
+          </div>
+        </div>
+        <div>
+          <div class="pill-list">
+            <div class="pill">
+              <div class="pill-icon"><i class="ph-fill ph-calendar-check"></i></div>
+              <div>
+                <strong>{% trans "Agenda inteligente" %}</strong>
+                <small>{% trans "Slots en tiempo real, reprogramaciones y confirmaciones por correo." %}</small>
+              </div>
+            </div>
+            <div class="pill">
+              <div class="pill-icon"><i class="ph-fill ph-credit-card"></i></div>
+              <div>
+                <strong>{% trans "Pagos con MercadoPago" %}</strong>
+                <small>{% trans "Cobros seguros, recibos en PDF y conciliación automática." %}</small>
+              </div>
+            </div>
+            <div class="pill">
+              <div class="pill-icon"><i class="ph-fill ph-bell"></i></div>
+              <div>
+                <strong>{% trans "Recordatorios 24h" %}</strong>
+                <small>{% trans "Correos automáticos antes de la cita y enlaces de confirmación." %}</small>
+              </div>
+            </div>
+            <div class="pill">
+              <div class="pill-icon"><i class="ph-fill ph-shield-check"></i></div>
+              <div>
+                <strong>{% trans "Seguridad y acceso" %}</strong>
+                <small>{% trans "Verificación de email y control de penalizaciones por inasistencias." %}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pagos" class="bg-dark text-center">
+    <div class="wrap pagos-wrap">
         <h2 class="section-title reveal">{% trans "Formas de pago" %}</h2>
-        <p class="section-lead reveal">{% trans "Flexibilidad para tu comodidad." %}</p>
+        <p class="section-lead reveal pagos-sub">{% trans "Flexibilidad para tu comodidad." %}</p>
         <div class="badges reveal justify-center">
           <span class="badge"><i class="ph-fill ph-money"></i> {% trans "Efectivo" %}</span>
           <span class="badge active"><i class="ph-fill ph-credit-card"></i> {% trans "MercadoPago" %}</span>

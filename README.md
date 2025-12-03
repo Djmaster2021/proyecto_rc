@@ -1,45 +1,65 @@
-# proyecto_rc
-# 🦷 Sistema de Gestión Dental RC (Rodolfo Castellón)
+# 🦷 Sistema de Gestión Dental RC
 
-![Status](https://img.shields.io/badge/Estado-Finalizado-success)
-![Python](https://img.shields.io/badge/Python-3.11+-blue)
-![Django](https://img.shields.io/badge/Django-5.0-green)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED)
+![Estado](https://img.shields.io/badge/Estado-Finalizado-success) ![Python](https://img.shields.io/badge/Python-3.11+-blue) ![Django](https://img.shields.io/badge/Django-5.0-green) ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED)
 
-Un **Sistema Integral de Gestión de Citas** automatizado, diseñado para optimizar el flujo de trabajo del Consultorio Dental Rodolfo Castellón. Este sistema elimina la necesidad de una secretaria para la gestión básica, permitiendo al dentista enfocarse en la atención al cliente y a los pacientes gestionar sus propias citas.
+Plataforma integral para el Consultorio Dental **Rodolfo Castellón**: agenda, pagos, recordatorios, chatbot y sincronización con Google Calendar.
 
-## 🚀 Características Principales
+## Características
+- Panel del dentista con agenda diaria/semana/mes, reportes y gestión de pacientes.
+- Flujos del paciente: agendar/reprogramar/cancelar, pagar penalizaciones, completar perfil.
+- Recordatorios y confirmaciones por correo, con enlaces de confirmación seguros.
+- Integración Google Calendar (OAuth) y pagos con MercadoPago.
+- Interfaz responsiva con modo oscuro/claro y chatbot embebido.
 
-### 👨‍⚕️ Para el Dentista
-* **Gestión de Agenda:** Visualización y administración total de citas.
-* **Automatización:** Sistema capaz de operar sin asistencia administrativa constante.
-* **Reportes y Métricas:** Panel de control (Dashboard) con estadísticas del consultorio.
-* **Gestión de Pacientes:** Historial clínico y seguimiento digital.
+## Requisitos
+- Python 3.11+, pip, virtualenv.
+- MySQL 8 (puedes levantarlo con Docker).
+- Credenciales SMTP (Gmail con contraseña de aplicación).
+- Opcional: Google OAuth (calendar) y credenciales de MercadoPago.
 
-### 🧑‍🦱 Para el Paciente
-* **Autogestión de Citas:** Agendar, reprogramar o cancelar citas en línea.
-* **Interfaz Accesible:** Diseño intuitivo con **Modo Oscuro/Claro** persistente.
-* **Notificaciones:** Recordatorios automáticos vía Email.
+## Configuración rápida (local)
+1) Crear entorno: `python -m venv .venv && source .venv/bin/activate`  
+2) Instalar dependencias: `pip install -r requirements.txt`  
+3) Copiar variables: `cp .env.example .env` y completar valores (secret key, DB, SMTP, Google/MercadoPago).  
+4) Base de datos: inicia MySQL (puedes usar `docker compose up db -d`), luego `python manage.py migrate`.  
+5) Usuario admin: `python manage.py createsuperuser`.  
+6) Servidor: `python manage.py runserver 0.0.0.0:8000` y entra a `http://127.0.0.1:8000`.
 
-### 🤖 Tecnología e Innovación
-* **Chatbot Integrado:** Asistente virtual para resolver dudas básicas y guiar al usuario.
-* **Integración Google Calendar:** Sincronización de citas con calendarios externos (Google OAuth).
-* **Dockerizado:** Configuración lista para despliegue con Docker Compose.
+## Variables de entorno (referencia)
+- `DJANGO_DEBUG`, `DJANGO_SECRET_KEY`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`.
+- `MYSQL_DB_NAME`, `MYSQL_DB_USER`, `MYSQL_DB_PASSWORD`, `MYSQL_DB_HOST`, `MYSQL_DB_PORT`, `MYSQL_ROOT_PASSWORD` (para Docker).
+- `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_FROM_EMAIL`.
+- `MERCADOPAGO_PUBLIC_KEY`, `MERCADOPAGO_ACCESS_TOKEN`.
+- `GOOGLE_CALENDAR_ID` y archivos en `google_credentials/credentials.json` + `token.json`.
 
-## 🛠️ Tecnologías Utilizadas
+### Integración Google Calendar (opcional, desactivada)
+- La app funciona sin credenciales ni sincronización. Si no quieres usar Calendar, no necesitas crear `google_credentials/`.
+- Para activarlo: crea la carpeta `google_credentials/`, coloca `credentials.json` y ejecuta `python google_oauth_setup.py` (requiere instalar `google-auth`, `google-auth-oauthlib`, `google-api-python-client`).
+- Ajusta `GOOGLE_CALENDAR_ID` en `.env` al calendario donde se escribirán eventos.
 
-* **Backend:** Python, Django Framework.
-* **Frontend:** HTML5, CSS3 (Diseño Responsivo), JavaScript (Vanilla).
-* **Base de Datos:** SQLite (Entorno local) / PostgreSQL (Producción).
-* **Integraciones:** Google Calendar API, SMTP para correos.
-* **DevOps:** Docker & Docker Compose.
+## Docker (solo base de datos)
+- Levanta MySQL y phpMyAdmin: `docker compose up db phpmyadmin -d`.  
+  - MySQL expone `3307` en tu host; ajusta `MYSQL_DB_PORT=3307` en `.env` si corres Django fuera del contenedor.
+- La app Django se ejecuta en tu máquina con `runserver` (no hay servicio web en el compose).
 
-## 📸 Capturas de Pantalla
+## Tareas útiles
+- Recordatorios diarios: `python manage.py enviar_recordatorios` (usa SMTP y links de confirmación).  
+- Correo de prueba SMTP: `python manage.py enviar_correo_prueba --to tu_correo@example.com` (respeta `SEND_EMAILS`; usa `--force` para ignorarlo).  
+- Generar token OAuth de Google: `python google_oauth_setup.py` tras colocar `google_credentials/credentials.json`.  
+- Colección de estáticos para producción: `python manage.py collectstatic --no-input`.  
+- Reiniciar datos locales (desarrollo): `python reset_tablas.py` (lee antes el script).
+- Webhook MercadoPago (prod): configura la URL pública a `/paciente/pagos/webhook/`.
+- Cron sugerido para recordatorios (ejemplo): `0 * * * * cd /home/diego/Escritorio/proyecto_rc/proyecto_rc && .venv/bin/python manage.py enviar_recordatorios_citas >> /var/log/rc_recordatorios.log 2>&1` (plantilla en `ops/cron_recordatorios.example`).
+- Flags de seguridad configurables en `.env`: `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`, `SECURE_HSTS_SECONDS`, `SECURE_HSTS_INCLUDE_SUBDOMAINS`, `SECURE_HSTS_PRELOAD`, `SECURE_PROXY_SSL_HEADER`, `DRF_THROTTLE_ANON`, `DRF_THROTTLE_USER`.
 
-*(Aquí puedes subir imágenes de tu proyecto en funcionamiento. Ej: El Login, el Calendario, el Chatbot)*
-## 🔧 Instalación y Despliegue Local
+## Estructura rápida
+- `proyecto_rc/` configuración Django.  
+- Apps: `accounts/`, `dentista/`, `paciente/`, `domain/` (modelos/negocio), `api/` (DRF).  
+- Plantillas compartidas en `templates/` y estáticos globales en `static/`; cada app tiene sus propios assets.
 
-### Opción A: Con Docker (Recomendado)
-Si tienes Docker instalado, solo ejecuta:
-```bash
-docker-compose up --build
+## Tests
+- Ejecuta `python manage.py test` (recomendable usar una base separada o SQLite en local para no tocar datos reales).
+
+## Producción
+- `DEBUG=False`, configure `ALLOWED_HOSTS` y `CSRF_TRUSTED_ORIGINS`.
+- Revisa permisos de escritura en `MEDIA_ROOT` y `STATIC_ROOT`, y activa HTTPS en el servidor frontal (Nginx/Apache).

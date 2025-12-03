@@ -1,13 +1,17 @@
 Hola {{ paciente.nombre }},
 
-Tu cita ha sido registrada en el Consultorio Dental “Rodolfo Castellón”.
+Tu cita ha sido registrada con éxito.
 
 Fecha: {{ cita.fecha_hora_inicio|date:"d/m/Y" }}
 Hora: {{ cita.fecha_hora_inicio|time:"H:i" }}
 Servicio: {{ cita.servicio.nombre }}
+Dentista: Dr. {{ dentista.nombre }}
 
-Si necesitas modificar o cancelar tu cita, comunícate con el consultorio.
+{% if confirm_url %}
+Confirma tu asistencia: {{ confirm_url }}
+{% endif %}
+
+Si necesitas reprogramar o cancelar, hazlo con anticipación. Recuerda: solo puedes reprogramar o cancelar una vez.
 
 Atentamente,
-Dr. {{ dentista.nombre }}
 Consultorio Dental “Rodolfo Castellón”

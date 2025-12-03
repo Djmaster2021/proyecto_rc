@@ -5,53 +5,175 @@
 
 {% block dcontent %}
 
-<div class="page-header">
+<div class="page-header" style="margin-bottom: 2rem;">
   <div>
-    <h1 class="text-gradient">Penalizaciones y Pagos Pendientes</h1>
-    <p class="welcome-subtitle">
-      Control de cargos pendientes por inasistencia, reprogramaciones tardías
-      o citas sin liquidar.
-    </p>
+    <h1 style="font-size: 1.8rem; font-weight: 700; color: #1e293b; margin: 0;">Penalizaciones y Riesgos</h1>
+    <p style="color: #64748b; margin-top: 0.5rem; font-size: 1rem;">Gestión de inasistencias, bloqueos manuales y deudas.</p>
   </div>
 </div>
 
-<div class="cyber-card" style="padding: 1.5rem;">
-  {% if pendientes %}
-    <div class="table-wrapper">
-      <table class="modern-table">
-        <thead>
+<div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+  
+  <div class="cyber-card" style="border-left: 4px solid #f59e0b;">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <div style="background: #fef3c7; padding: 10px; border-radius: 10px;">
+          <i class="ph-duotone ph-robot" style="font-size: 1.5rem; color: #d97706;"></i>
+        </div>
+        <div>
+          <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Regla Automática</h3>
+          <span class="badge-pill badge-green" style="margin-top: 4px; display: inline-block;">IA Activa</span>
+        </div>
+      </div>
+    </div>
+    
+    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">
+      El sistema detecta automáticamente las inasistencias confirmadas.
+    </p>
+
+    <div class="penal-steps">
+      <div class="step-item">
+        <span class="step-badge warning">1</span>
+        <div class="step-content">
+          <strong>Advertencia</strong>
+          <p>Alerta visual en el perfil del paciente.</p>
+        </div>
+      </div>
+      <div class="step-item">
+        <span class="step-badge danger">2</span>
+        <div class="step-content">
+          <strong>Bloqueo Temporal</strong>
+          <p>Suspensión de citas online por 30 días.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cyber-card">
+    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 1.5rem;">
+      <div style="background: #e2e8f0; padding: 10px; border-radius: 10px;">
+        <i class="ph-duotone ph-sliders-horizontal" style="font-size: 1.5rem; color: #475569;"></i>
+      </div>
+      <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Control Manual</h3>
+    </div>
+
+    <form method="POST" action="." class="manual-control-form">
+      {% csrf_token %}
+      <label style="display: block; font-weight: 500; color: #475569; margin-bottom: 0.5rem;">Buscar paciente por nombre o ID</label>
+      <div class="search-input-group" style="margin-bottom: 1.5rem;">
+        <i class="ph-bold ph-magnifying-glass"></i>
+        <input type="text" name="paciente_query" placeholder="Ej. Diego Magaña..." class="form-control" style="width: 100%;">
+      </div>
+
+      <div class="action-buttons-grid">
+        <button type="submit" name="accion" value="suspender" class="btn-action danger">
+          <i class="ph-bold ph-prohibit"></i> Suspender
+        </button>
+        <button type="submit" name="accion" value="reactivar" class="btn-action success">
+          <i class="ph-bold ph-check-circle"></i> Reactivar
+        </button>
+        <button type="submit" name="accion" value="advertencia" class="btn-action warning">
+          <i class="ph-bold ph-warning"></i> Advertir
+        </button>
+      </div>
+
+      <div style="margin-top: 1.5rem;">
+        <label style="display: block; font-weight: 600; color: #475569; margin-bottom: 0.4rem;">Penalizar manual (ID paciente)</label>
+        <select name="paciente_id" class="form-control" style="width: 100%; margin-bottom: 0.6rem;" required>
+          <option value="" disabled selected>Selecciona paciente</option>
+          {% for p in pacientes %}
+            <option value="{{ p.id }}">#{{ p.id }} — {{ p.nombre }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" name="accion" value="penalizar" class="btn-action danger" style="width: 100%;">
+          <i class="ph-bold ph-warning-octagon"></i> Generar penalización ($300)
+        </button>
+        <small style="color:#64748b;">Usa el ID del paciente: 1ra falta = advertencia, 2da = cargo $300 y bloqueo hasta pagar.</small>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="dashboard-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+  
+  <div class="cyber-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+    <div style="padding: 1.5rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Pagos Pendientes</h3>
+      <span class="badge-pill badge-gray">{{ pendientes.count }} casos</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="finance-table" style="width: 100%;">
+        <thead style="background: #f8fafc;">
           <tr>
-            <th>Fecha</th>
-            <th>Paciente</th>
-            <th>Servicio</th>
-            <th>Monto</th>
-            <th>Método</th>
-            <th>Estado</th>
+            <th style="padding: 1rem; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Paciente</th>
+            <th style="padding: 1rem; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Concepto</th>
+            <th style="padding: 1rem; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Monto</th>
+            <th style="padding: 1rem; text-align: right; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Acción</th>
           </tr>
         </thead>
         <tbody>
           {% for p in pendientes %}
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 1rem;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 32px; height: 32px; background: #e0f2fe; color: #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">
+                  {{ p.cita.paciente.nombre|slice:":1" }}
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                  <span style="font-weight: 600; color: #334155;">{{ p.cita.paciente.nombre }}</span>
+                  <span style="font-size: 0.8rem; color: #94a3b8;">{{ p.cita.paciente.email|default:"Sin correo" }}</span>
+                </div>
+              </div>
+            </td>
+            <td style="padding: 1rem;">
+              <span style="display: block; color: #475569;">{{ p.cita.servicio.nombre }}</span>
+              <small style="color: #94a3b8;">{{ p.created_at|date:"d M, Y" }}</small>
+            </td>
+            <td style="padding: 1rem; font-weight: 600; color: #ef4444;">
+              ${{ p.monto }}
+            </td>
+            <td style="padding: 1rem; text-align: right;">
+              <a href="{% url 'dentista:registrar_pago' %}?cita_id={{ p.cita.id }}" class="btn-icon-sm" title="Cobrar ahora" style="color: #059669; background: #ecfdf5; border: 1px solid #d1fae5; text-decoration: none; padding: 6px 10px; border-radius: 6px; font-size: 0.9rem; font-weight: 600;">
+                 Cobrar
+              </a>
+            </td>
+          </tr>
+          {% empty %}
           <tr>
-            <td>{{ p.created_at|date:"d/m/Y H:i" }}</td>
-            <td>{{ p.cita.paciente.nombre }}</td>
-            <td>{{ p.cita.servicio.nombre }}</td>
-            <td>${{ p.monto }}</td>
-            <td>{{ p.get_metodo_display }}</td>
-            <td>
-              <span class="status-badge status-warning">
-                {{ p.get_estado_display }}
-              </span>
+            <td colspan="4" style="text-align: center; padding: 3rem; color: #94a3b8;">
+              <i class="ph-duotone ph-check-circle" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; color: #cbd5e1;"></i>
+              No hay pagos pendientes.
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-  {% else %}
-    <p style="color: var(--text-muted); margin: 0;">
-      No tienes penalizaciones ni pagos pendientes actualmente.
-    </p>
-  {% endif %}
-</div>
+  </div>
 
+  <div class="cyber-card">
+    <div style="margin-bottom: 1.5rem;">
+      <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Historial</h3>
+      <p style="margin: 4px 0 0; font-size: 0.85rem; color: #64748b;">Últimos movimientos.</p>
+    </div>
+
+    <div class="timeline-feed">
+      {% for log in logs %}
+      <div class="feed-item">
+        <div class="feed-icon {% if log.accion == 'SUSPENSION' %}danger{% elif log.accion == 'REACTIVACION' %}success{% else %}warning{% endif %}"></div>
+        <div class="feed-content">
+          <p class="feed-title">
+            <strong>{{ log.get_accion_display }}</strong> a {{ log.paciente.nombre }}
+          </p>
+          <p class="feed-meta">{{ log.created_at|date:"d/m H:i" }} • {{ log.motivo|default:"Sin motivo" }}</p>
+        </div>
+      </div>
+      {% empty %}
+      <p style="color: #94a3b8; font-size: 0.9rem;">Sin registros recientes.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
 {% endblock %}

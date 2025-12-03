@@ -16,6 +16,7 @@ class Dentista(models.Model):
     telefono = models.CharField(max_length=20, blank=True, null=True)
     especialidad = models.CharField(max_length=100, default="Odontología General")
     licencia = models.CharField(max_length=50, blank=True, null=True, verbose_name="Cédula Profesional")
+    direccion = models.CharField(max_length=255, blank=True, null=True)
     foto_perfil = models.ImageField(upload_to='perfiles/', blank=True, null=True)
     
     def __str__(self):
@@ -27,6 +28,7 @@ class Dentista(models.Model):
 class Servicio(models.Model):
     dentista = models.ForeignKey(Dentista, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=200)
+    descripcion = models.TextField(blank=True, help_text="Descripción breve del tratamiento")
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     duracion_estimada = models.IntegerField(default=30, help_text="Duración en minutos")
     activo = models.BooleanField(default=True)
@@ -41,7 +43,7 @@ class Paciente(models.Model):
     dentista = models.ForeignKey(Dentista, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='paciente_perfil')
     nombre = models.CharField(max_length=200)
-    telefono = models.CharField(max_length=20, blank=True)
+    telefono = models.CharField(max_length=10, blank=True)
     direccion = models.TextField(blank=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
     antecedentes = models.TextField(blank=True, help_text="Alergias o enfermedades")
@@ -56,11 +58,11 @@ class Paciente(models.Model):
     
     @property
     def edad(self):
-        if self.fecha_nacimiento:
-            from datetime import date
-            today = date.today()
-            return today.year - self.fecha_nacimiento.year - ((today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day))
-        return 0
+        if not self.fecha_nacimiento:
+            return None
+        from datetime import date
+        today = date.today()
+        return today.year - self.fecha_nacimiento.year - ((today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day))
 
 # ============================================================
 # 4. HORARIOS DE TRABAJO
@@ -79,9 +81,7 @@ class Horario(models.Model):
         return f"{self.get_dia_semana_display()}: {self.hora_inicio} - {self.hora_fin}"
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["dentista", "dia_semana"], name="unique_horario_por_dia")
-        ]
+        ordering = ["dentista", "dia_semana", "hora_inicio"]
 
 # ============================================================
 # 5. CITAS CLÍNICAS
@@ -108,6 +108,8 @@ class Cita(models.Model):
     archivo_adjunto = models.FileField(upload_to='citas_archivos/', blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
+    veces_reprogramada = models.PositiveSmallIntegerField(default=0)
+    recordatorio_24h_enviado = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.fecha} - {self.paciente} ({self.servicio})"
@@ -152,6 +154,26 @@ class ComprobantePago(models.Model):
 
     def __str__(self):
         return f"Comprobante {self.folio}"
+
+class PenalizacionLog(models.Model):
+    ACCIONES = [
+        ("ADVERTENCIA", "Advertencia"),
+        ("AUTO_PENALIZAR", "Penalización automática"),
+        ("SUSPENDER", "Suspender cuenta"),
+        ("REACTIVAR", "Reactivar cuenta"),
+    ]
+    dentista = models.ForeignKey(Dentista, on_delete=models.CASCADE)
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+    accion = models.CharField(max_length=20, choices=ACCIONES)
+    motivo = models.TextField(blank=True)
+    monto = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.get_accion_display()} - {self.paciente.nombre}"
 
 # ============================================================
 # 8. ENCUESTAS, NOTIFICACIONES Y AVISOS
@@ -212,6 +234,27 @@ class OdontogramaEntrada(models.Model):
 
     def __str__(self):
         return f"{self.paciente} - Diente {self.numero_diente} ({self.estado})"
+
+# ============================================================
+# 10. TICKET DE SOPORTE
+# ============================================================
+class TicketSoporte(models.Model):
+    ESTADOS = [
+        ("ABIERTO", "Abierto"),
+        ("EN_PROCESO", "En proceso"),
+        ("CERRADO", "Cerrado"),
+    ]
+    dentista = models.ForeignKey(Dentista, on_delete=models.CASCADE)
+    asunto = models.CharField(max_length=200)
+    mensaje = models.TextField()
+    estado = models.CharField(max_length=20, choices=ESTADOS, default="ABIERTO")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Ticket {self.id} - {self.asunto}"
+
+    class Meta:
+        ordering = ["-created_at"]
 
 # Modelo nuevo para el Odontograma Interactivo SVG
 # EN domain/models.py (Al final)
