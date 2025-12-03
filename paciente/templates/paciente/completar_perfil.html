@@ -1,8 +1,8 @@
 {% extends "paciente/base.html" %}
-{% load static %}
+{% load static i18n %}
 
-{% block ptitle %}Completar perfil | Paciente{% endblock %}
-{% block header_title %}Completar perfil{% endblock %}
+{% block ptitle %}{% trans "Completar perfil | Paciente" %}{% endblock %}
+{% block header_title %}{% trans "Completar perfil" %}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -176,7 +176,7 @@
   <div class="onboarding-card">
 
     <div class="onboarding-steps">
-      Paso 2 de 2 · Completar perfil
+      {% trans "Paso 2 de 2 · Completar perfil" %}
     </div>
 
     <div class="onboarding-header">
@@ -188,10 +188,9 @@
         {% endif %}
       </div>
       <div class="onboarding-title-block">
-        <h2>Solo falta tu número de teléfono</h2>
+        <h2>{% trans "Solo falta tu número de teléfono" %}</h2>
         <p>
-          Hola, {{ paciente.nombre|default:"Paciente" }}.
-          Usaremos tu teléfono solo para confirmar o avisarte sobre tus citas.
+          {% blocktrans with nombre=paciente.nombre|default:"Paciente" %}Hola, {{ nombre }}. Usaremos tu teléfono solo para confirmar o avisarte sobre tus citas.{% endblocktrans %}
         </p>
       </div>
     </div>
@@ -200,7 +199,7 @@
       {% csrf_token %}
 
       <div class="form-group">
-        <label for="{{ form.telefono.id_for_label }}">Número de teléfono</label>
+        <label for="{{ form.telefono.id_for_label }}">{% trans "Número de teléfono" %}</label>
 
         <!-- Input con validación exacta de 10 dígitos -->
         <input
@@ -222,18 +221,18 @@
         </div>
         {% else %}
         <p class="onboarding-help">
-          Debe contener exactamente 10 dígitos, sin espacios ni guiones.
+          {% trans "Debe contener exactamente 10 dígitos, sin espacios ni guiones." %}
         </p>
         {% endif %}
       </div>
 
       <div class="onboarding-actions">
-        <a href="{% url 'paciente:cancelar_registro' %}" class="btn-outline-soft">Cancelar</a>
-        <button type="submit" class="cyber-btn">Guardar y continuar</button>
+        <a href="{% url 'paciente:cancelar_registro' %}" class="btn-outline-soft">{% trans "Cancelar" %}</a>
+        <button type="submit" class="cyber-btn">{% trans "Guardar y continuar" %}</button>
       </div>
 
       <p class="onboarding-footer-note">
-        Al continuar, aceptas que podremos contactarte vía este número solo para temas relacionados con tus citas.
+        {% trans "Al continuar, aceptas que podremos contactarte vía este número solo para temas relacionados con tus citas." %}
       </p>
     </form>
 

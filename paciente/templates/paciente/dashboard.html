@@ -37,12 +37,12 @@
         <div class="card-modern">
             {% if proxima_cita %}
                 <div class="appointment-info">
-                    <p><strong>Fecha:</strong> {{ proxima_cita.fecha_hora_inicio|date:"l d F, Y" }}</p>
-                    <p><strong>Hora:</strong> {{ proxima_cita.fecha_hora_inicio|time:"h:i A" }}</p>
-                    <p><strong>Tratamiento:</strong> {{ proxima_cita.servicio.nombre }}</p>
-                    <p><strong>Doctor:</strong> {{ proxima_cita.dentista.nombre }}</p>
+                    <p><strong>{% trans "Fecha:" %}</strong> {{ proxima_cita.fecha_hora_inicio|date:"l d F, Y" }}</p>
+                    <p><strong>{% trans "Hora:" %}</strong> {{ proxima_cita.fecha_hora_inicio|time:"h:i A" }}</p>
+                    <p><strong>{% trans "Tratamiento:" %}</strong> {{ proxima_cita.servicio.nombre }}</p>
+                    <p><strong>{% trans "Doctor:" %}</strong> {{ proxima_cita.dentista.nombre }}</p>
                     <p>
-                        <strong>Estado:</strong>
+                        <strong>{% trans "Estado:" %}</strong>
                         <span class="chip status-{{ proxima_cita.estado|lower }}">
                             {{ proxima_cita.get_estado_display }}
                         </span>

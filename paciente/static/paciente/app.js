@@ -42,7 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ------------------------------
   const body = document.body;
   const themeToggle = document.getElementById("theme-toggle");
-  const lang = (body.dataset.lang || document.documentElement.lang || "es").slice(0, 2);
+  const pathLang = window.location.pathname.startsWith("/en/") ? "en" : null;
+  const lang = (pathLang || body.dataset.lang || document.documentElement.lang || "es").slice(0, 2);
   const THEME_KEY = "paciente-theme";
   const STR = {
     selectDate: lang === "en" ? "Select a date to see times." : "Selecciona fecha para ver horarios.",
