@@ -10,7 +10,11 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.conf import settings
 
-from .forms import PacienteRegisterForm, UsernameOrEmailAuthenticationForm
+from .forms import (
+    PacienteRegisterForm,
+    UsernameOrEmailAuthenticationForm,
+    UsernameOrEmailPasswordResetForm,
+)
 
 
 # ==============================
@@ -70,6 +74,7 @@ class CustomPasswordResetView(PasswordResetView):
     Password reset con logs sencillos y from_email explícito.
     """
     template_name = "accounts/password_reset_form.html"
+    form_class = UsernameOrEmailPasswordResetForm
     email_template_name = "accounts/password_reset_email.html"
     html_email_template_name = "accounts/password_reset_email.html"
     subject_template_name = "accounts/password_reset_subject.txt"

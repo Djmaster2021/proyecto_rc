@@ -1,6 +1,6 @@
 # accounts/forms.py
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm
 from django.contrib.auth.models import User, Group
 from django.db import transaction, IntegrityError # <-- Se importa IntegrityError (buena práctica)
 from domain.models import Paciente, Dentista  # Importamos el modelo Paciente y Dentista
@@ -123,3 +123,29 @@ class UsernameOrEmailAuthenticationForm(AuthenticationForm):
                 # Si no existe, dejamos que el flujo original genere el error
                 pass
         return super().clean()
+
+
+class UsernameOrEmailPasswordResetForm(PasswordResetForm):
+    """
+    Permite escribir usuario o correo. Si se ingresa usuario,
+    se reemplaza por el correo asociado para que el flujo estándar funcione.
+    """
+    def clean_email(self):
+        identifier = (self.cleaned_data.get("email") or "").strip()
+        if not identifier:
+            raise ValidationError("Ingresa tu usuario o correo electrónico.")
+
+        if "@" in identifier:
+            return identifier
+
+        try:
+            user = User.objects.get(username__iexact=identifier)
+        except User.DoesNotExist:
+            raise ValidationError("No encontramos una cuenta con esos datos.")
+
+        if not user.email:
+            raise ValidationError("Tu cuenta no tiene un correo registrado. Contacta a soporte.")
+
+        # Sustituimos el valor para que el PasswordResetForm use el correo real
+        self.cleaned_data["email"] = user.email
+        return user.email
