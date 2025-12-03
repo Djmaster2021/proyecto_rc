@@ -363,3 +363,9 @@ msgstr "Cancel"
 
 msgid "Confirmar Cita"
 msgstr "Confirm Appointment"
+
+msgid "Reprogramar"
+msgstr "Reschedule"
+
+msgid "Solo puedes cancelar o reprogramar una vez al mes. Después deberás comunicarte con tu dentista."
+msgstr "You can only cancel or reschedule once per month. After that, please contact your dentist."

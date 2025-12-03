@@ -52,19 +52,19 @@
                     <button class="cyber-btn" type="button"
                         onclick="verificarReprogramacion({{ proxima_cita.id }}, {{ proxima_cita.servicio.id }}, {{ proxima_cita.veces_reprogramada|default:0 }})"
                         {% if reprogram_used_month %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>
-                        Reprogramar
+                        {% trans "Reprogramar" %}
                     </button>
                     <button class="cyber-btn cyber-btn-danger" type="button"
                         onclick="confirmarCancelacion({{ proxima_cita.id }})"
                         {% if cancel_used_month %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>
-                        Cancelar
+                        {% trans "Cancelar" %}
                     </button>
                     <form id="form-cancelar" method="POST" style="display:none;">
                         {% csrf_token %}
                     </form>
                 </div>
                 <p style="margin-top:8px; color:#eab308; font-weight:700; font-size:0.9rem;">
-                    Solo puedes cancelar o reprogramar una vez al mes. Después deberás comunicarte con tu dentista.
+                    {% trans "Solo puedes cancelar o reprogramar una vez al mes. Después deberás comunicarte con tu dentista." %}
                 </p>
             {% else %}
                 <div class="empty-state">
