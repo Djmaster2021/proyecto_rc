@@ -49,6 +49,7 @@ class PagoMercadoPagoTests(TestCase):
             "response": {
                 "status": "approved",
                 "external_reference": str(self.cita.id),
+                "transaction_amount": float(self.pago.monto),
             },
         }
 
@@ -60,3 +61,23 @@ class PagoMercadoPagoTests(TestCase):
         self.pago.refresh_from_db()
         self.assertEqual(self.pago.estado, "COMPLETADO")
         self.assertEqual(self.pago.metodo, "MERCADOPAGO")
+
+    @patch("paciente.views.mercadopago.SDK")
+    def test_webhook_rechaza_monto_inconsistente(self, mock_sdk):
+        mock_payment = mock_sdk.return_value.payment.return_value
+        mock_payment.get.return_value = {
+            "status": 200,
+            "response": {
+                "status": "approved",
+                "external_reference": str(self.cita.id),
+                "transaction_amount": float(self.pago.monto) + 1,
+            },
+        }
+
+        url = reverse("paciente:mp_webhook")
+        payload = {"data": {"id": "999"}}
+        resp = self.client.post(url, data=payload, content_type="application/json")
+
+        self.assertEqual(resp.status_code, 400)
+        self.pago.refresh_from_db()
+        self.assertEqual(self.pago.estado, "PENDIENTE")

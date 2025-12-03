@@ -359,7 +359,6 @@ def mp_webhook(request):
     Valida el payment_id recibido y actualiza el Pago asociado a la cita (external_reference).
     """
     import json
-    import mercadopago
 
     if request.method != "POST":
         return JsonResponse({"detail": "Método no permitido"}, status=405)
@@ -393,6 +392,12 @@ def mp_webhook(request):
     pago = Pago.objects.filter(cita__id=ext_ref).first()
     if not pago:
         return JsonResponse({"detail": "Pago no encontrado"}, status=404)
+
+    # Validar monto contra el pago registrado
+    mp_amount = response.get("transaction_amount")
+    if mp_amount is not None and float(mp_amount) != float(pago.monto):
+        print(f"[MP] Monto inconsistente: MP {mp_amount} vs Pago {pago.monto} (cita {ext_ref})")
+        return JsonResponse({"detail": "Monto inconsistente"}, status=400)
 
     if mp_status in ("approved", "authorized"):
         pago.estado = "COMPLETADO"

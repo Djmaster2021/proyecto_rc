@@ -115,6 +115,7 @@
           </div>
           <div class="meta">{{ pago.cita.servicio.nombre }} • {{ pago.cita.fecha|date:"d/m/Y" }} {{ pago.cita.hora_inicio|time:"H:i" }}</div>
           <div class="meta">Cita #{{ pago.cita.id }} • Dr. {{ pago.cita.dentista.nombre }}</div>
+          <div class="meta">Método: {{ pago.metodo|default:"No especificado" }}</div>
           <div class="actions">
             <form method="post" action="{% url 'paciente:iniciar_pago' pago.cita.id %}">
               {% csrf_token %}
@@ -144,6 +145,7 @@
           </div>
           <div class="meta">{{ pago.cita.servicio.nombre }} • {{ pago.cita.fecha|date:"d/m/Y" }} {{ pago.cita.hora_inicio|time:"H:i" }}</div>
           <div class="meta">Cita #{{ pago.cita.id }} • Dr. {{ pago.cita.dentista.nombre }}</div>
+          <div class="meta">Método: {{ pago.metodo|default:"No especificado" }}</div>
           <div class="actions">
             <a class="btn primary" href="{% url 'paciente:recibo_pago_pdf' pago.id %}" target="_blank" rel="noopener">Descargar PDF</a>
           </div>
