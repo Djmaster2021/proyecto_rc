@@ -54,7 +54,6 @@
               {% endfor %}
             {% endif %}
 
-
             <div class="field">
               <label for="id_username" class="muted">Usuario</label>
               <input id="id_username" class="input" type="text" name="username"
@@ -79,6 +78,21 @@
               {% for error in form.first_name.errors %}
                 <span class="error-text">{{ error }}</span>
               {% endfor %}
+            </div>
+
+            <div class="field">
+              <label for="id_telefono" class="muted">Teléfono</label>
+              <input id="id_telefono" class="input" type="text" name="telefono"
+                     required
+                     minlength="10" maxlength="10"
+                     pattern="[0-9]{10}"
+                     title="Ingresa exactamente 10 dígitos."
+                     placeholder="10 dígitos" value="{{ form.telefono.value|default:'' }}">
+              {% if form.telefono %}
+                {% for error in form.telefono.errors %}
+                  <span class="error-text">{{ error }}</span>
+                {% endfor %}
+              {% endif %}
             </div>
 
             <div class="field">

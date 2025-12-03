@@ -29,6 +29,12 @@ name_validator = RegexValidator(
 # --- 3. MODIFICAMOS TU FORMULARIO ---
 # (Los campos del formulario estaban correctos, no se modifican)
 
+telefono_validator = RegexValidator(
+    regex=r'^\d{10}$',
+    message='Ingresa un teléfono de 10 dígitos.'
+)
+
+
 class PacienteRegisterForm(UserCreationForm):
     
     # --- Aplicamos las reglas a los campos ---
@@ -100,6 +106,71 @@ class PacienteRegisterForm(UserCreationForm):
             
         return user
 
+
+class DentistaRegisterForm(UserCreationForm):
+    """
+    Registro de dentista con teléfono obligatorio (exactamente 10 dígitos).
+    """
+    username = forms.CharField(
+        label="Usuario",
+        max_length=25,
+        validators=[username_validator],
+        widget=forms.TextInput(attrs={'placeholder': 'ej. drlopez'})
+    )
+    first_name = forms.CharField(
+        label="Nombre completo",
+        min_length=4,
+        max_length=60,
+        validators=[name_validator],
+        widget=forms.TextInput(attrs={'placeholder': 'ej. Dra. Ana López'})
+    )
+    email = forms.EmailField(
+        label="Correo",
+        required=False,
+        widget=forms.EmailInput(attrs={'placeholder': 'ej. ana@correo.com'})
+    )
+    telefono = forms.CharField(
+        label="Teléfono",
+        min_length=10,
+        max_length=10,
+        validators=[telefono_validator],
+        widget=forms.TextInput(attrs={'placeholder': '10 dígitos'})
+    )
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = ('username', 'first_name', 'email', 'telefono')
+
+    @transaction.atomic
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_active = True
+        user.first_name = self.cleaned_data['first_name'].strip()
+        user.last_name = ""
+        user.email = self.cleaned_data.get('email')
+
+        if commit:
+            user.save()
+
+        try:
+            dentista_group, _ = Group.objects.get_or_create(name='Dentista')
+            user.groups.add(dentista_group)
+        except Exception:
+            # No detener el registro por grupo, pero lo registramos en consola
+            print("[WARN] No se pudo asignar el grupo Dentista")
+
+        try:
+            Dentista.objects.create(
+                user=user,
+                nombre=user.first_name,
+                telefono=self.cleaned_data['telefono'],
+            )
+        except Exception as e:
+            raise forms.ValidationError(
+                f"No se pudo crear el perfil de dentista. Error: {e}"
+            )
+
+        return user
 
 class UsernameOrEmailAuthenticationForm(AuthenticationForm):
     """

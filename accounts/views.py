@@ -13,6 +13,7 @@ from django.http import HttpResponseRedirect
 
 from .forms import (
     PacienteRegisterForm,
+    DentistaRegisterForm,
     UsernameOrEmailAuthenticationForm,
     UsernameOrEmailPasswordResetForm,
 )
@@ -129,27 +130,25 @@ class CustomPasswordResetView(PasswordResetView):
 
 def register(request):
     """
-    Registro de pacientes (correo + contraseña).
+    Registro de dentistas con teléfono obligatorio.
     """
+    FormClass = DentistaRegisterForm
+
     if request.method == "POST":
-        form = PacienteRegisterForm(request.POST)
+        form = FormClass(request.POST)
         if form.is_valid():
             user = form.save()
-
-            # Asignar grupo Paciente
-            paciente_group, _ = Group.objects.get_or_create(name="Paciente")
-            user.groups.add(paciente_group)
 
             messages.success(
                 request,
                 "Tu cuenta ha sido creada correctamente. ¡Bienvenido!",
             )
 
-            # Login directo y redirección al dashboard paciente
+            # Login directo y redirección al dashboard dentista
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-            return redirect("paciente:dashboard")
+            return redirect("dentista:dashboard")
     else:
-        form = PacienteRegisterForm()
+        form = FormClass()
 
     return render(request, "accounts/register.html", {"form": form})
 

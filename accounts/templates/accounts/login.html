@@ -116,6 +116,15 @@
           </form>
         </div>
       </div>
+
+      <div class="login-card manual-card">
+        <h3 class="manual-title">Manuales</h3>
+        <div class="manual-links">
+          <a class="manual-link" href="{% static 'manuales/manual_paciente.pdf' %}" target="_blank" rel="noopener">
+            Guía del paciente (PDF)
+          </a>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -124,5 +133,12 @@
   </footer>
 
   <script src="{% static 'accounts/app.js' %}"></script>
+  <style>
+    .manual-card{margin-top:16px;}
+    .manual-title{margin:0 0 8px;font-size:18px;}
+    .manual-links{display:grid;gap:8px;}
+    .manual-link{display:inline-block;font-size:14px;font-weight:600;color:var(--blue);text-decoration:none;}
+    .manual-link:hover{text-decoration:underline;}
+  </style>
 </body>
 </html>
