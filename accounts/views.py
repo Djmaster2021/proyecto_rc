@@ -89,6 +89,7 @@ class CustomPasswordResetView(PasswordResetView):
             print("[PASSWORD RESET] SEND_EMAILS=False; no se envió correo.")
         try:
             email_destino = form.cleaned_data.get("email")
+            # Enviamos usando el backend configurado
             form.save(
                 domain_override=self.request.get_host(),
                 use_https=self.request.is_secure(),
@@ -99,7 +100,22 @@ class CustomPasswordResetView(PasswordResetView):
                 from_email=self.get_from_email(),
                 request=self.request,
             )
-            print(f"[PASSWORD RESET] Intento de envío a: {email_destino}")
+            # Log de destinatario y enlaces generados (para depurar entregabilidad)
+            base = (
+                settings.SITE_BASE_URL.rstrip("/")
+                if hasattr(settings, "SITE_BASE_URL")
+                else f"{'https' if self.request.is_secure() else 'http'}://{self.request.get_host()}"
+            )
+            users = list(form.get_users(email_destino))
+            if not users:
+                print(f"[PASSWORD RESET] No hay usuarios con email/usuario: {email_destino}")
+            for user in users:
+                uid = self.uidb64(user)
+                token = self.token_generator.make_token(user)
+                link = f"{base}{reverse('accounts:password_reset_confirm', args=[uid, token])}"
+                print(f"[PASSWORD RESET] Enlace generado para {user.get_username()}: {link}")
+
+            print(f"[PASSWORD RESET] Intento de envío a: {email_destino} (usuarios encontrados: {len(users)})")
             return HttpResponseRedirect(self.success_url)
         except Exception as exc:
             messages.error(self.request, "No pudimos enviar el correo. Intenta de nuevo en unos minutos.")
