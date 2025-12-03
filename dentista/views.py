@@ -416,7 +416,7 @@ def crear_cita_manual(request):
                         cita=nueva_cita,
                         defaults={
                             "monto": s.precio,
-                            "metodo": "EFECTIVO",
+                            "metodo": "MERCADOPAGO",
                             "estado": "PENDIENTE",
                         },
                     )

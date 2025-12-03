@@ -222,7 +222,7 @@ def agendar_cita(request):
                         cita=nueva_cita,
                         defaults={
                             "monto": servicio.precio,
-                            "metodo": "EFECTIVO",
+                            "metodo": "MERCADOPAGO",
                             "estado": "PENDIENTE",
                         }
                     )
