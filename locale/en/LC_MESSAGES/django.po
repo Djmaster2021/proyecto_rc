@@ -287,3 +287,47 @@ msgstr "Location"
 #: templates/landing/index.html:153
 msgid "Agendar cita"
 msgstr "Book appointment"
+
+# Dashboard paciente
+
+msgid "Dashboard | Paciente"
+msgstr "Dashboard | Patient"
+
+msgid "Panel del Paciente"
+msgstr "Patient Panel"
+
+msgid "Tu sonrisa dental en tus manos."
+msgstr "Your dental smile in your hands."
+
+msgid "Tu Próxima Cita"
+msgstr "Your Next Appointment"
+
+msgid "No tienes citas próximas."
+msgstr "You have no upcoming appointments."
+
+msgid "Agendar una cita"
+msgstr "Book an appointment"
+
+msgid "Mi Perfil"
+msgstr "My Profile"
+
+msgid "Sin dirección"
+msgstr "No address on file"
+
+msgid "Pagos en línea"
+msgstr "Online Payments"
+
+msgid "Estás al día con tus pagos."
+msgstr "You are up to date with your payments."
+
+msgid "Gestionar pagos en línea"
+msgstr "Manage online payments"
+
+msgid "Mi Especialista"
+msgstr "My Specialist"
+
+msgid "Médico de Cabecera"
+msgstr "Primary Doctor"
+
+msgid "Contactar"
+msgstr "Contact"
