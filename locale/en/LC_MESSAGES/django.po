@@ -369,6 +369,99 @@ msgstr "Reschedule"
 msgid "Solo puedes cancelar o reprogramar una vez al mes. Después deberás comunicarte con tu dentista."
 msgstr "You can only cancel or reschedule once per month. After that, please contact your dentist."
 
+# Pagos (paciente)
+
+#: paciente/templates/paciente/pagos.html:4
+msgid "Mis pagos"
+msgstr "My payments"
+
+#: paciente/templates/paciente/pagos.html:5
+msgid "Pagos del paciente"
+msgstr "Patient payments"
+
+#: paciente/templates/paciente/pagos.html:57
+msgid "Pagos"
+msgstr "Payments"
+
+#: paciente/templates/paciente/pagos.html:58
+msgid "Gestiona tus pagos pendientes o revisa tus pagos completados."
+msgstr "Manage your pending payments or review completed ones."
+
+#: paciente/templates/paciente/pagos.html:64
+msgid "Volver"
+msgstr "Back"
+
+#: paciente/templates/paciente/pagos.html:71
+msgid "Pagos pendientes"
+msgstr "Pending payments"
+
+#: paciente/templates/paciente/pagos.html:83
+msgid "Cita"
+msgstr "Appointment"
+
+#: paciente/templates/paciente/pagos.html:83
+msgid "Dr."
+msgstr "Dr."
+
+#: paciente/templates/paciente/pagos.html:84
+msgid "Método"
+msgstr "Method"
+
+#: paciente/templates/paciente/pagos.html:84
+msgid "No especificado"
+msgstr "Not specified"
+
+#: paciente/templates/paciente/pagos.html:87
+msgid "Pagar ahora"
+msgstr "Pay now"
+
+#: paciente/templates/paciente/pagos.html:89
+#: paciente/templates/paciente/pagos.html:109
+msgid "Descargar PDF"
+msgstr "Download PDF"
+
+#: paciente/templates/paciente/pagos.html:94
+msgid "No tienes pagos pendientes 🎉"
+msgstr "You have no pending payments 🎉"
+
+#: paciente/templates/paciente/pagos.html:101
+msgid "Pagos completados"
+msgstr "Completed payments"
+
+#: paciente/templates/paciente/pagos.html:113
+msgid "Completado"
+msgstr "Completed"
+
+#: paciente/templates/paciente/pagos.html:121
+msgid "Aún no tienes pagos completados."
+msgstr "You don't have completed payments yet."
+
+# Modal editar perfil (paciente)
+
+#: paciente/templates/paciente/dashboard.html:211
+msgid "Editar Perfil"
+msgstr "Edit Profile"
+
+#: paciente/templates/paciente/dashboard.html:217
+msgid "Teléfono (no editable)"
+msgstr "Phone (not editable)"
+
+#: paciente/templates/paciente/dashboard.html:221
+msgid "Correo (no editable)"
+msgstr "Email (not editable)"
+
+#: paciente/templates/paciente/dashboard.html:225
+msgid "Dirección"
+msgstr "Address"
+
+#: paciente/templates/paciente/dashboard.html:229
+msgid "Nacimiento"
+msgstr "Birthdate"
+
+#: paciente/templates/paciente/dashboard.html:236
+msgid "Guardar"
+msgstr "Save"
+
 # Completar perfil
 
 msgid "Completar perfil | Paciente"

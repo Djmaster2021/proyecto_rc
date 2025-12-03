@@ -32,7 +32,7 @@
             <div class="fc-icon"><i class="ph-bold ph-wallet"></i></div>
             <div>
                 <div class="fc-amount" id="kpiRecaudo">${{ kpi_hoy|floatformat:2 }}</div>
-                <div class="fc-label">RECAUDADO HOY <span class="fc-sub">* Se reinicia 00:00</span></div>
+                <div class="fc-label">RECAUDADO HOY <span class="fc-sub">* Se reinicia 00:00 (<span id="recaudoCountdown">--:--</span>)</span></div>
             </div>
         </div>
 
@@ -95,13 +95,9 @@
                         </td>
                         <td class="ft-amount">${{ p.monto|floatformat:2 }}</td>
                         <td style="text-align:center;">
-                            {% if p.comprobante and p.comprobante.datos_extra.pdf_path %}
-                                <a href="/media/{{ p.comprobante.datos_extra.pdf_path }}" class="btn-icon-sm" title="Descargar comprobante">
-                                    <i class="ph-bold ph-download-simple"></i>
-                                </a>
-                            {% else %}
-                                <span title="Sin comprobante" style="color:#cbd5e1;"><i class="ph-bold ph-download-simple"></i></span>
-                            {% endif %}
+                            <a href="{% url 'dentista:descargar_comprobante' p.id %}" class="btn-icon-sm" title="Descargar comprobante">
+                                <i class="ph-bold ph-download-simple"></i>
+                            </a>
                         </td>
                     </tr>
                     {% empty %}
@@ -127,6 +123,7 @@
 
     // Countdown a medianoche
     const cierreClock = document.getElementById('cierreClock');
+    const recaudoCountdown = document.getElementById('recaudoCountdown');
     function updateCountdown() {
         const now = new Date();
         const midnight = new Date(now);
@@ -135,7 +132,9 @@
         const hrs = String(Math.floor(diff / (1000*60*60))).padStart(2,'0');
         const mins = String(Math.floor((diff / (1000*60)) % 60)).padStart(2,'0');
         const secs = String(Math.floor((diff / 1000) % 60)).padStart(2,'0');
-        if (cierreClock) cierreClock.textContent = `${hrs}:${mins}:${secs}`;
+        const text = `${hrs}:${mins}:${secs}`;
+        if (cierreClock) cierreClock.textContent = text;
+        if (recaudoCountdown) recaudoCountdown.textContent = text;
     }
     updateCountdown();
     setInterval(updateCountdown, 1000);

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 # Importamos Horario en lugar de Disponibilidad
-from domain.models import Cita, Horario, Dentista, AvisoDentista
+from domain.models import Cita, Horario, Dentista
+from domain.notifications import registrar_aviso_dentista
 
 
 def obtener_horarios_disponibles(fecha_str, duracion_minutos):
@@ -83,13 +84,21 @@ def crear_aviso_por_cita(cita, tipo, mensaje):
     if cita is None or cita.dentista is None:
         return None
 
-    try:
-        aviso = AvisoDentista.objects.create(
-            dentista=cita.dentista,
-            cita=cita,
-            tipo=tipo,
-            mensaje=mensaje,
-        )
-        return aviso
-    except Exception:
-        return None
+    def _fmt_fecha_hora(c):
+        fecha_txt = c.fecha.strftime("%d/%m") if getattr(c, "fecha", None) else ""
+        hora_txt = c.hora_inicio.strftime("%H:%M") if getattr(c, "hora_inicio", None) else ""
+        return f"{fecha_txt} {hora_txt}".strip()
+
+    tipo_map = {
+        "NUEVA_CITA": "Nueva cita agendada",
+        "REPROGRAMADA": "Cita reprogramada",
+        "CANCELADA": "Cita cancelada",
+        "PAGO": "Pago registrado",
+    }
+
+    encabezado = tipo_map.get(tipo, "Actualización de cita")
+    cuerpo = f"{cita.paciente.nombre} - {cita.servicio.nombre} ({_fmt_fecha_hora(cita)})"
+    extra = mensaje.strip() if mensaje else ""
+    texto = " • ".join([p for p in [encabezado, cuerpo, extra] if p])
+
+    return registrar_aviso_dentista(cita.dentista, texto)

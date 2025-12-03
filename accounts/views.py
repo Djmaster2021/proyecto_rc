@@ -38,7 +38,7 @@ def redirect_by_role(request):
         return redirect("/admin/")
 
     # 2. Dentista -> dashboard dentista
-    if user.groups.filter(name="Dentista").exists():
+    if user.groups.filter(name="Dentista").exists() or hasattr(user, "dentista"):
         return redirect("dentista:dashboard")
 
     # 3. Paciente -> dashboard paciente
@@ -63,7 +63,7 @@ class CustomLoginView(LoginView):
 
     def get_success_url(self):
         # Mandamos siempre a la vista central de redirección
-        return reverse("redirect_by_role")
+        return reverse("accounts:redirect_by_role")
 
     def form_invalid(self, form):
         messages.error(self.request, "Usuario o contraseña incorrectos. Intenta de nuevo.")

@@ -53,6 +53,7 @@ urlpatterns = [
     # ==========================
     path("pagos/", views.pagos, name="pagos"),
     path("pagos/registrar/", views.registrar_pago, name="registrar_pago"),
+    path("pagos/<int:pago_id>/comprobante/", views.descargar_comprobante, name="descargar_comprobante"),
 
     # ==========================
     # CONFIGURACIÓN Y SOPORTE

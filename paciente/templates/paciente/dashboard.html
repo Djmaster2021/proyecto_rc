@@ -109,6 +109,40 @@
 
     <section class="section-wrapper dash-item">
         <div class="section-title">
+            <i class="ph-duotone ph-clock-counter-clockwise"></i> {% trans "Historial de citas" %}
+        </div>
+        <div class="card-modern">
+            {% if historial %}
+                <div class="payment-list">
+                    {% for cita_hist in historial %}
+                        <div class="payment-item" style="align-items: flex-start;">
+                            <div>
+                                <strong>{{ cita_hist.servicio.nombre }}</strong><br>
+                                <small>
+                                    {{ cita_hist.fecha|date:"d/m/Y" }} {{ cita_hist.hora_inicio|time:"H:i" }} &mdash;
+                                    Dr. {{ cita_hist.dentista.nombre }}
+                                </small>
+                            </div>
+                            <div style="text-align:right;">
+                                <span class="chip status-{{ cita_hist.estado|lower }}">{{ cita_hist.get_estado_display }}</span>
+                                <div style="margin-top:6px; font-weight:700; color: var(--c-primary);">${{ cita_hist.servicio.precio }}</div>
+                            </div>
+                            <div style="text-align:right; margin-top:6px;">
+                                <a href="{% url 'paciente:feedback_cita' cita_hist.id %}" class="cyber-btn cyber-btn-secondary" style="padding:0.55rem 1rem;">
+                                    {% trans "Comentario / encuesta" %}
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state"><p>{% trans "Aún no tienes historial de citas." %}</p></div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="section-wrapper dash-item">
+        <div class="section-title">
             <i class="ph-duotone ph-credit-card"></i> {% trans "Pagos en línea" %}
         </div>
         <div class="card-modern">
@@ -205,7 +239,7 @@
 <div id="modal-perfil" class="modal-overlay">
     <div class="modal-content glow-card">
         <div class="modal-header">
-            <h3><i class="ph-duotone ph-user-gear"></i> Editar Perfil</h3>
+            <h3><i class="ph-duotone ph-user-gear"></i> {% trans "Editar Perfil" %}</h3>
             <button class="modal-close" type="button" onclick="cerrarModalPerfil()">
                 <i class="ph-bold ph-x"></i>
             </button>
@@ -213,28 +247,35 @@
         <form method="POST" action="{% url 'paciente:editar_perfil' %}" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
-                <label>Nombre</label>
+                <label>{% trans "Nombre" %}</label>
                 <input type="text" name="nombre" class="cyber-input" value="{{ paciente.nombre }}">
             </div>
             <div class="form-group">
-                <label>Teléfono (no editable)</label>
+                <label>{% trans "Teléfono (no editable)" %}</label>
                 <input type="text" class="cyber-input" value="{{ paciente.telefono }}" disabled>
             </div>
             <div class="form-group">
-                <label>Correo (no editable)</label>
+                <label>{% trans "Correo (no editable)" %}</label>
                 <input type="text" class="cyber-input" value="{{ user.email }}" disabled>
             </div>
             <div class="form-group">
-                <label>Dirección</label>
+                <label>{% trans "Dirección" %}</label>
                 <input type="text" name="direccion" class="cyber-input" value="{{ paciente.direccion }}">
             </div>
             <div class="form-group">
-                <label>Nacimiento</label>
-                <input type="date" name="fecha_nacimiento" class="cyber-input" value="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}" style="color-scheme: dark;">
+                <label>{% trans "Nacimiento" %}</label>
+                <input
+                    type="date"
+                    name="fecha_nacimiento"
+                    class="cyber-input"
+                    value="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}"
+                    style="color-scheme: dark;"
+                    placeholder="{% if CURRENT_LANG|slice:':2' == 'en' %}mm/dd/yyyy{% else %}dd/mm/aaaa{% endif %}"
+                >
             </div>
             <div class="form-actions">
-                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModalPerfil()">Cancelar</button>
-                <button type="submit" class="cyber-btn cyber-btn-glow">Guardar</button>
+                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModalPerfil()">{% trans "Cancelar" %}</button>
+                <button type="submit" class="cyber-btn cyber-btn-glow">{% trans "Guardar" %}</button>
             </div>
         </form>
     </div>

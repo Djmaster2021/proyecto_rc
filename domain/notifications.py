@@ -7,6 +7,8 @@ from django.utils.html import strip_tags
 from django.core.signing import TimestampSigner
 from django.urls import reverse
 
+from .models import AvisoDentista
+
 def _get_email_paciente(cita):
     """
     Devuelve el email del paciente si existe y está vinculado a un User.
@@ -156,3 +158,25 @@ def enviar_correo_ticket_soporte(dentista, asunto: str, mensaje: str):
     html_body = render_to_string("emails/ticket_soporte.html", contexto)
     text_body = strip_tags(html_body)
     _enviar_email(subject, text_body, html_body, [destino])
+
+
+def registrar_aviso_dentista(dentista, mensaje: str):
+    """
+    Guarda un aviso para el panel del dentista. Se mantiene simple para evitar
+    dependencias con el resto del flujo.
+    """
+    if not dentista or not mensaje:
+        return None
+
+    texto = mensaje.strip()
+    if not texto:
+        return None
+
+    try:
+        return AvisoDentista.objects.create(
+            dentista=dentista,
+            mensaje=texto[:500],  # evitamos avisos excesivamente largos
+        )
+    except Exception as exc:
+        print(f"[WARN] No se pudo registrar aviso: {exc}")
+        return None

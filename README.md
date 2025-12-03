@@ -29,7 +29,8 @@ Plataforma integral para el Consultorio Dental **Rodolfo Castellón**: agenda, p
 - `DJANGO_DEBUG`, `DJANGO_SECRET_KEY`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`.
 - `MYSQL_DB_NAME`, `MYSQL_DB_USER`, `MYSQL_DB_PASSWORD`, `MYSQL_DB_HOST`, `MYSQL_DB_PORT`, `MYSQL_ROOT_PASSWORD` (para Docker).
 - `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_FROM_EMAIL`.
-- `MERCADOPAGO_PUBLIC_KEY`, `MERCADOPAGO_ACCESS_TOKEN`.
+- `MERCADOPAGO_PUBLIC_KEY`, `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_TEST_PAYER_EMAIL` (email del comprador de prueba cuando uses token TEST-).
+- `MERCADOPAGO_FAKE_SUCCESS`: si `1/true`, en sandbox marca el pago como completado sin ir a MercadoPago (útil para desarrollar cuando el checkout de prueba falla).
 - `GOOGLE_CALENDAR_ID` y archivos en `google_credentials/credentials.json` + `token.json`.
 
 ### Integración Google Calendar (opcional, desactivada)

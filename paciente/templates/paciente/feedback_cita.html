@@ -1,0 +1,50 @@
+{% extends "paciente/base.html" %}
+{% load i18n %}
+
+{% block ptitle %}{% trans "Feedback de cita" %}{% endblock %}
+{% block header_title %}{% trans "Feedback de cita" %}{% endblock %}
+
+{% block pcontent %}
+<div class="pay-wrapper" style="max-width: 820px; margin: 0 auto;">
+  <div class="welcome-banner pay-hero" style="margin-top: 1rem;">
+    <div class="titles">
+      <h1>{% trans "Tu opinión" %}</h1>
+      <p>{% trans "Cuéntanos cómo te fue en tu cita para seguir mejorando." %}</p>
+    </div>
+    <div class="back" style="align-self:flex-end; margin-top: 0.4rem;">
+      <a href="{% url 'paciente:dashboard' %}" class="cyber-btn cyber-btn-secondary" style="margin-top:0.5rem;">
+        <i class="ph-bold ph-arrow-left"></i> {% trans "Volver" %}
+      </a>
+    </div>
+  </div>
+
+  <section class="card-modern" style="margin-bottom: 1.8rem; box-shadow: 0 18px 48px rgba(56,131,255,0.18);">
+    <h3><i class="ph-duotone ph-calendar-check"></i> {% trans "Cita" %}</h3>
+    <p style="margin: 0; color: var(--c-text-muted);">
+      {{ cita.fecha|date:"d/m/Y" }} {{ cita.hora_inicio|time:"H:i" }} — Dr. {{ cita.dentista.nombre }} &middot; {{ cita.servicio.nombre }}
+    </p>
+  </section>
+
+  <section class="card-modern" style="box-shadow: 0 18px 48px rgba(56,131,255,0.18); margin-bottom: 1rem;">
+    <form method="post" action="{% url 'paciente:feedback_cita' cita.id %}" style="display: grid; gap: 1.3rem;">
+      {% csrf_token %}
+      <div>
+        <label style="font-weight:700; display:block; margin-bottom:6px;">{% trans "Puntuación" %}</label>
+        <select name="puntuacion" class="cyber-input" style="max-width: 220px; background: #0b1226; color: #e5edff; border: 1px solid rgba(255,255,255,0.18);">
+          {% for i in "12345" %}
+            <option value="{{ forloop.counter }}" {% if feedback and feedback.puntuacion == forloop.counter %}selected{% endif %}>{{ forloop.counter }}/5</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label style="font-weight:700; display:block; margin-bottom:6px;">{% trans "Comentario" %}</label>
+        <textarea name="comentario" class="cyber-input" rows="4" placeholder="{% trans 'Comparte detalles de tu experiencia' %}" style="background:#ffffff; color:#0f172a; border:1px solid rgba(15,23,42,0.18);">{% if feedback %}{{ feedback.comentario }}{% endif %}</textarea>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button type="submit" class="cyber-btn cyber-btn-glow">{% trans "Guardar feedback" %}</button>
+        <a href="{% url 'paciente:dashboard' %}" class="cyber-btn">{% trans "Cancelar" %}</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

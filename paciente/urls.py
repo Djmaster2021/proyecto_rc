@@ -21,6 +21,7 @@ urlpatterns = [
     path('pagos/webhook/', views.mp_webhook, name='mp_webhook'),
     path('confirmar/<str:token>/', views.confirmar_por_email, name='confirmar_por_email'),
     path('recibo/<int:pago_id>/', views.recibo_pago_pdf, name='recibo_pago_pdf'),
+    path('citas/<int:cita_id>/feedback/', views.feedback_cita, name='feedback_cita'),
 
     # Funciones
     path('agendar/', views.agendar_cita, name='agendar_cita'),

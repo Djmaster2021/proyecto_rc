@@ -28,7 +28,7 @@ ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split("
 
 CSRF_TRUSTED_ORIGINS = os.getenv(
     "DJANGO_CSRF_TRUSTED_ORIGINS", 
-    "http://127.0.0.1:8000,http://localhost:8000"
+    "http://127.0.0.1:8000,http://localhost:8000,https://127.0.0.1:8000,https://localhost:8000"
 ).split(",")
 
 # ====================================
@@ -259,6 +259,9 @@ REST_FRAMEWORK = {
 # MercadoPago
 MERCADOPAGO_PUBLIC_KEY = os.getenv("MERCADOPAGO_PUBLIC_KEY", "")
 MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN", "")
+MERCADOPAGO_TEST_PAYER_EMAIL = os.getenv("MERCADOPAGO_TEST_PAYER_EMAIL", "")
+# Si está en '1'/'true', simula pago exitoso (solo sandbox/desarrollo)
+MERCADOPAGO_FAKE_SUCCESS = os.getenv("MERCADOPAGO_FAKE_SUCCESS", "0").lower() in ("1", "true", "yes")
 
 # Google Calendar API
 GOOGLE_CALENDAR_SCOPES = ["https://www.googleapis.com/auth/calendar"]

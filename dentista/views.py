@@ -17,7 +17,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
 from django.db.models import Sum, Q, Count
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -37,8 +37,18 @@ from domain.models import (
     TicketSoporte,
 )
 from domain.ai_services import procesar_inasistencia
-from domain.notifications import enviar_correo_confirmacion_cita, enviar_correo_ticket_soporte
-from domain.notifications import enviar_correo_confirmacion_cita
+from domain.notifications import (
+    enviar_correo_confirmacion_cita,
+    enviar_correo_ticket_soporte,
+    registrar_aviso_dentista,
+)
+
+def _guardar_aviso(dentista, mensaje):
+    """Wrapper seguro para registrar avisos sin romper el flujo principal."""
+    try:
+        registrar_aviso_dentista(dentista, mensaje)
+    except Exception as exc:
+        print(f"[WARN] Aviso no guardado: {exc}")
 
 def _build_weeks(dentista, start_date, end_date, hoy, hora_actual):
     """
@@ -289,12 +299,15 @@ def dashboard_dentista(request):
             "citas": procesadas,
         })
 
+    avisos = AvisoDentista.objects.filter(dentista=dentista).order_by("-created_at")[:15]
+
     return render(request, "dentista/dashboard.html", {
         "dentista": dentista, "citas_hoy": citas_hoy, "kpi_pacientes": kpi_pacs, "kpi_pendientes": kpi_pend,
         "ingresos_mes": ingresos, "proxima_cita": prox, "calendario_dias": calendario,
         "riesgos": [calcular_riesgo_paciente(p) for p in Paciente.objects.filter(dentista=dentista)],
         "sugerencias": optimizar_agenda(citas_hoy),
-        "pagos": Pago.objects.filter(cita__dentista=dentista).order_by("-created_at")[:5]
+        "pagos": Pago.objects.filter(cita__dentista=dentista).order_by("-created_at")[:5],
+        "notificaciones": avisos,
     })
 
 @login_required
@@ -422,6 +435,11 @@ def crear_cita_manual(request):
                     )
                 except Exception as exc:
                     print(f"[WARN] No se pudo crear pago pendiente: {exc}")
+
+                _guardar_aviso(
+                    dentista,
+                    f"Cita creada manualmente para {paciente_obj.nombre} el {f.strftime('%d/%m')} {h.strftime('%H:%M')} ({s.nombre})",
+                )
                 
                 # NOTIFICACIÓN AUTOMÁTICA
                 procesar_notificacion_cita(nueva_cita, origen="DENTISTA", accion="CREADA")
@@ -466,13 +484,16 @@ def consulta(request, id):
         if request.FILES.get("archivo_adjunto"): 
             cita.archivo_adjunto = request.FILES.get("archivo_adjunto")
         
+        aviso_text = None
         if "pagado" in request.POST:
             # Flujo de pago rápido desde consulta
             cita.estado = "COMPLETADA"
-            Pago.objects.update_or_create(
+            monto_registrado = request.POST.get("monto", cita.servicio.precio)
+            pago_obj, _ = Pago.objects.update_or_create(
                 cita=cita, 
-                defaults={"monto": request.POST.get("monto", cita.servicio.precio), "estado": "COMPLETADO", "metodo": "EFECTIVO"}
+                defaults={"monto": monto_registrado, "estado": "COMPLETADO", "metodo": "EFECTIVO"}
             )
+            aviso_text = f"Pago registrado en consulta para {cita.paciente.nombre}: ${pago_obj.monto} ({pago_obj.metodo})"
         else:
             # Confirmación manual
             if cita.estado not in ["COMPLETADA", "CANCELADA"]:
@@ -480,8 +501,14 @@ def consulta(request, id):
                     cita.estado = "CONFIRMADA"
                     # NOTIFICACIÓN DE CONFIRMACIÓN
                     procesar_notificacion_cita(cita, origen="DENTISTA", accion="CONFIRMADA")
+                    aviso_text = (
+                        f"Cita confirmada para {cita.paciente.nombre} el "
+                        f"{cita.fecha.strftime('%d/%m')} {cita.hora_inicio.strftime('%H:%M')}"
+                    )
         
         cita.save()
+        if aviso_text:
+            _guardar_aviso(cita.dentista, aviso_text)
         messages.success(request, "Consulta actualizada.")
         return redirect("dentista:consulta", id=cita.id)
         
@@ -748,8 +775,10 @@ def pagos(request):
 
     qs = Pago.objects.filter(cita__dentista=dentista).order_by("-created_at")
     inicio_mes = date.today().replace(day=1)
+    hoy = date.today()
     
     kpi_mes = qs.filter(created_at__date__gte=inicio_mes, estado="COMPLETADO").aggregate(Sum("monto"))["monto__sum"] or 0
+    kpi_hoy = qs.filter(created_at__date=hoy, estado="COMPLETADO").aggregate(Sum("monto"))["monto__sum"] or 0
     kpi_efectivo = qs.filter(metodo="EFECTIVO", estado="COMPLETADO").aggregate(Sum("monto"))["monto__sum"] or 0
     kpi_digital = qs.filter(metodo__in=["TARJETA", "TRANSFERENCIA"], estado="COMPLETADO").aggregate(Sum("monto"))["monto__sum"] or 0
     kpi_total = qs.filter(estado="COMPLETADO").aggregate(Sum("monto"))["monto__sum"] or 0
@@ -758,6 +787,7 @@ def pagos(request):
         "dentista": dentista, "pagos": qs,
         "kpi_mes": kpi_mes, "kpi_efectivo": kpi_efectivo,
         "kpi_digital": kpi_digital, "kpi_total": kpi_total,
+        "kpi_hoy": kpi_hoy,
     })
 
 @login_required
@@ -799,13 +829,62 @@ def registrar_pago(request):
             cita_obj.save()
 
         _generar_comprobante_pdf(pago_obj)
+        paciente_nombre = getattr(cita_obj.paciente, "nombre", "Paciente")
+        fecha_txt = cita_obj.fecha.strftime("%d/%m") if getattr(cita_obj, "fecha", None) else ""
+        hora_txt = cita_obj.hora_inicio.strftime("%H:%M") if getattr(cita_obj, "hora_inicio", None) else ""
+        concepto_txt = concepto or getattr(getattr(cita_obj, "servicio", None), "nombre", "")
+        horario_txt = f"{fecha_txt} {hora_txt}".strip()
+        detalle_txt = " - ".join([p for p in [horario_txt, concepto_txt] if p])
+        _guardar_aviso(
+            dentista,
+            " ".join(
+                [
+                    f"Pago registrado para {paciente_nombre}: ${pago_obj.monto}",
+                    f"({pago_obj.metodo})",
+                    f"- {detalle_txt}" if detalle_txt else "",
+                ]
+            ).strip(),
+        )
         messages.success(request, "Pago registrado.")
         return redirect("dentista:pagos")
 
     return render(request, "dentista/registrar_pago.html", {"dentista": dentista, "citas": citas_pendientes})
 
+@login_required
+def descargar_comprobante(request, pago_id):
+    """
+    Genera (si no existe) y entrega el comprobante PDF del pago.
+    """
+    pago = get_object_or_404(
+        Pago.objects.select_related("cita", "cita__dentista"),
+        id=pago_id,
+        cita__dentista__user=request.user,
+    )
+
+    # Regeneramos siempre para asegurar diseño y datos actualizados
+    _generar_comprobante_pdf(pago)
+
+    pdf_rel = None
+    if getattr(pago, "comprobante", None):
+        pdf_rel = (pago.comprobante.datos_extra or {}).get("pdf_path")
+
+    if not pdf_rel:
+        raise Http404("Comprobante no disponible.")
+
+    pdf_path = Path(settings.MEDIA_ROOT) / pdf_rel
+    if not pdf_path.exists():
+        raise Http404("Archivo de comprobante no encontrado.")
+
+    filename = pdf_path.name
+    return FileResponse(
+        open(pdf_path, "rb"),
+        content_type="application/pdf",
+        as_attachment=True,
+        filename=filename,
+    )
+
 def _generar_comprobante_pdf(pago):
-    """Genera PDF simple y lo guarda."""
+    """Genera PDF estilizado y lo guarda."""
     if not pago: return
     base_dir = Path(settings.MEDIA_ROOT)
     out_dir = base_dir / "comprobantes"
@@ -813,15 +892,124 @@ def _generar_comprobante_pdf(pago):
     folio = f"RC-{pago.id:06d}"
     pdf_path = out_dir / f"{folio}.pdf"
     
-    # Simulación de contenido PDF
-    content = f"Folio: {folio} | Monto: ${pago.monto} | Fecha: {pago.created_at}"
-    pdf_path.write_bytes(_pdf_minimal(content))
+    pdf_bytes = _pdf_recibo_lindo(pago, folio)
+    pdf_path.write_bytes(pdf_bytes)
     
     ComprobantePago.objects.update_or_create(pago=pago, defaults={"folio": folio, "monto": pago.monto, "datos_extra": {"pdf_path": f"comprobantes/{folio}.pdf"}})
 
-def _pdf_minimal(text):
-    escaped = text.replace("(", "\\(").replace(")", "\\)")
-    return f"%PDF-1.4\n1 0 obj<<>>endobj\n2 0 obj<< /Type /Catalog /Pages 3 0 R>>endobj\n3 0 obj<< /Type /Pages /Count 1 /Kids [4 0 R]>>endobj\n4 0 obj<< /Type /Page /Parent 3 0 R /MediaBox [0 0 612 792] /Contents 5 0 R /Resources << /Font << /F1 6 0 R >> >> >>endobj\n5 0 obj<< /Length {len(text)+50} >>stream\nBT /F1 12 Tf 72 720 Td ({escaped}) Tj ET\nendstream\nendobj\n6 0 obj<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>endobj\nxref\n0 7\n0000000000 65535 f \ntrailer<< /Size 7 /Root 2 0 R >>\nstartxref\n550\n%%EOF".encode("latin-1")
+def _pdf_recibo_lindo(pago, folio):
+    """
+    Crea un PDF claro con bloques de información (sin librerías externas).
+    """
+    # Dimensiones carta
+    width, height = 612, 792
+    margin = 48
+
+    # Helpers
+    def esc(txt):
+        return str(txt).replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+    def text(x, y, msg, size=12):
+        return f"BT /F1 {size} Tf 0 0 0 rg {x} {y} Td ({esc(msg)}) Tj ET\n"
+    def rect(x, y, w, h, fill=None, stroke=(0.8, 0.85, 0.95), sw=1):
+        ops = ""
+        if fill:
+            r, g, b = fill
+            ops += f"{r} {g} {b} rg "
+        if stroke:
+            r, g, b = stroke
+            ops += f"{r} {g} {b} RG {sw} w "
+        ops += f"{x} {y} {w} {h} re "
+        if fill and stroke:
+            ops += "B\n"
+        elif fill:
+            ops += "f\n"
+        else:
+            ops += "S\n"
+        return ops
+
+    # Datos
+    cita = getattr(pago, "cita", None)
+    paciente = getattr(cita, "paciente", None)
+    dentista = getattr(cita, "dentista", None)
+    servicio = getattr(cita, "servicio", None)
+    fecha_cita = getattr(cita, "fecha", None)
+    hora_cita = getattr(cita, "hora_inicio", None)
+    duracion = getattr(servicio, "duracion_estimada", None)
+    notas = getattr(cita, "notas", "") or ""
+    fecha_pago = pago.created_at.strftime("%d/%m/%Y %H:%M")
+    telefono_pac = getattr(paciente, "telefono", "") or "N/D"
+    licencia = getattr(dentista, "licencia", "") or ""
+
+    contenido = ""
+    # Fondo tarjeta
+    contenido += rect(margin, margin, width - 2 * margin, height - 2 * margin, fill=(0.97, 0.99, 1), stroke=(0.77, 0.86, 0.95), sw=1.6)
+    # Header
+    header_h = 110
+    contenido += rect(margin + 10, height - margin - header_h, width - 2 * margin - 20, header_h - 14, fill=(0.2, 0.38, 0.82), stroke=(0.2, 0.38, 0.82))
+    contenido += text(margin + 24, height - margin - 36, "Consultorio Dental RC", 18)
+    contenido += text(margin + 24, height - margin - 58, "Recibo de pago", 14)
+    contenido += text(width - margin - 150, height - margin - 34, f"Folio: {folio}", 11)
+    contenido += text(width - margin - 150, height - margin - 52, f"Emitido: {fecha_pago}", 11)
+
+    # Bloque datos paciente / cita
+    block_x = margin + 18
+    block_y = height - margin - header_h - 240
+    block_w = width - 2 * margin - 36
+    block_h = 230
+    contenido += rect(block_x, block_y, block_w, block_h, fill=(1, 1, 1), stroke=(0.75, 0.84, 0.95))
+    y = block_y + block_h - 24
+    contenido += text(block_x + 14, y, "Datos del paciente", 13); y -= 18
+    contenido += text(block_x + 14, y, f"Nombre: {getattr(paciente, 'nombre', 'N/D')}", 12); y -= 16
+    contenido += text(block_x + 14, y, f"Teléfono: {telefono_pac}", 12); y -= 22
+    contenido += text(block_x + 14, y, "Dentista", 13); y -= 18
+    contenido += text(block_x + 14, y, f"{getattr(dentista, 'nombre', 'Consultorio RC')} {('- ' + licencia) if licencia else ''}".strip(), 12); y -= 22
+    contenido += text(block_x + 14, y, "Servicio", 13); y -= 18
+    servicio_nom = getattr(servicio, "nombre", "Consulta / Pago")
+    dur_txt = f" ({duracion} min)" if duracion else ""
+    contenido += text(block_x + 14, y, f"{servicio_nom}{dur_txt}", 12); y -= 22
+    fecha_label = fecha_cita.strftime("%d/%m/%Y") if fecha_cita else "N/D"
+    hora_label = hora_cita.strftime("%H:%M") if hora_cita else ""
+    contenido += text(block_x + 14, y, "Fecha de la cita", 13); y -= 18
+    contenido += text(block_x + 14, y, f"{fecha_label} {hora_label}".strip(), 12)
+
+    # Resumen de pago
+    sum_h = 140
+    sum_y = block_y - sum_h - 14
+    contenido += rect(block_x, sum_y, block_w, sum_h, fill=(0.95, 0.98, 1), stroke=(0.75, 0.84, 0.95))
+    contenido += text(block_x + 16, sum_y + sum_h - 30, "Monto", 12)
+    contenido += text(block_x + 16, sum_y + sum_h - 56, f"${pago.monto:.2f} MXN", 18)
+    contenido += text(block_x + 200, sum_y + sum_h - 30, "Método", 12)
+    contenido += text(block_x + 200, sum_y + sum_h - 56, pago.metodo, 13)
+    estado = (pago.estado or "COMPLETADO").title()
+    contenido += text(block_x + 360, sum_y + sum_h - 30, "Estado", 12)
+    contenido += text(block_x + 360, sum_y + sum_h - 56, estado, 13)
+    if notas:
+        contenido += text(block_x + 16, sum_y + 24, f"Concepto: {notas[:140]}", 11)
+
+    # Pie de página
+    contenido += text(margin + 6, margin + 32, "Gracias por tu pago. Conserva este recibo como comprobante. | Soporte: contacto@rc-dental.mx", 11)
+
+    stream = contenido.encode("latin-1", "ignore")
+
+    # Objetos PDF
+    obj_catalog = b"1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n"
+    obj_pages = b"2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n"
+    obj_page = b"3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 5 0 R /Resources << /Font << /F1 4 0 R >> >> >> endobj\n"
+    obj_font = b"4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n"
+    obj_content = f"5 0 obj << /Length {len(stream)} >> stream\n".encode() + stream + b"\nendstream endobj\n"
+
+    parts = [b"%PDF-1.4\n", obj_catalog, obj_pages, obj_page, obj_font, obj_content]
+    offsets, cursor = [], 0
+    for p in parts:
+        offsets.append(cursor); cursor += len(p)
+    xref_start = cursor
+
+    xref = b"xref\n0 6\n0000000000 65535 f \n"
+    for off in offsets:
+        xref += f"{off:010d} 00000 n \n".encode()
+    trailer = b"trailer << /Size 6 /Root 1 0 R >>\nstartxref\n" + str(xref_start).encode() + b"\n%%EOF"
+
+    return b"".join(parts) + xref + trailer
 
 
 # ============================================================
@@ -932,6 +1120,7 @@ def reportes(request):
     citas = (
         Cita.objects.filter(dentista=dentista, fecha__range=(fi, ff))
         .select_related("paciente", "servicio")
+        .prefetch_related("encuestasatisfaccion_set")
         .order_by("-fecha")
     )
     return render(request, "dentista/reportes.html", {
@@ -957,50 +1146,113 @@ def reporte_csv(request):
 @login_required
 def reporte_pdf(request):
     dentista = get_object_or_404(Dentista, user=request.user)
-    fi = datetime.strptime(request.GET.get("inicio") or (date.today()-timedelta(30)).strftime("%Y-%m-%d"), "%Y-%m-%d").date()
-    ff = datetime.strptime(request.GET.get("fin") or date.today().strftime("%Y-%m-%d"), "%Y-%m-%d").date()
+    fi = datetime.strptime(
+        request.GET.get("inicio") or (date.today() - timedelta(30)).strftime("%Y-%m-%d"),
+        "%Y-%m-%d",
+    ).date()
+    ff = datetime.strptime(
+        request.GET.get("fin") or date.today().strftime("%Y-%m-%d"),
+        "%Y-%m-%d",
+    ).date()
     citas = (
         Cita.objects.filter(dentista=dentista, fecha__range=(fi, ff))
         .select_related("paciente", "servicio")
         .order_by("fecha", "hora_inicio")
     )
 
-    def _esc(text):
-        return text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+    total_monto = (
+        Pago.objects.filter(cita__in=citas, estado="COMPLETADO")
+        .aggregate(Sum("monto"))["monto__sum"]
+        or 0
+    )
+    total_citas = citas.count()
+    total_pacientes = citas.values("paciente_id").distinct().count()
 
-    lines = [
-        f"Reporte de Citas ({fi.strftime('%d/%m/%Y')} - {ff.strftime('%d/%m/%Y')})",
-        f"Dentista: {dentista.nombre}",
-        "----------------------------------------",
+    def esc(txt):
+        return str(txt).replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+
+    def rect(x, y, w, h, fill=None, stroke=(0.8, 0.85, 0.95), sw=1):
+        ops = ""
+        if fill:
+            r, g, b = fill
+            ops += f"{r} {g} {b} rg "
+        if stroke:
+            r, g, b = stroke
+            ops += f"{r} {g} {b} RG {sw} w "
+        ops += f"{x} {y} {w} {h} re "
+        if fill and stroke:
+            ops += "B\n"
+        elif fill:
+            ops += "f\n"
+        else:
+            ops += "S\n"
+        return ops
+
+    def text(x, y, msg, size=12):
+        return f"BT /F1 {size} Tf 0 0 0 rg {x} {y} Td ({esc(msg)}) Tj ET\n"
+
+    width, height = 595, 842
+    margin = 40
+    contenido = ""
+
+    # Fondo principal
+    contenido += rect(margin, margin, width - 2 * margin, height - 2 * margin, fill=(0.97, 0.99, 1), stroke=(0.77, 0.86, 0.95), sw=1.4)
+
+    # Header
+    header_h = 120
+    contenido += rect(margin + 8, height - margin - header_h, width - 2 * margin - 16, header_h - 12, fill=(0.2, 0.4, 0.82), stroke=(0.2, 0.4, 0.82))
+    contenido += text(margin + 22, height - margin - 40, "Reporte de citas", 18)
+    contenido += text(margin + 22, height - margin - 62, f"Dentista: {dentista.nombre}", 12)
+    contenido += text(margin + 22, height - margin - 82, f"Rango: {fi.strftime('%d/%m/%Y')} - {ff.strftime('%d/%m/%Y')}", 12)
+    contenido += text(width - margin - 160, height - margin - 40, f"Citas: {total_citas}", 12)
+    contenido += text(width - margin - 160, height - margin - 58, f"Pacientes: {total_pacientes}", 12)
+    contenido += text(width - margin - 160, height - margin - 76, f"Total: ${total_monto:.2f}", 12)
+
+    # Subheader tabla
+    table_top = height - margin - header_h - 30
+    contenido += rect(margin + 8, table_top - 26, width - 2 * margin - 16, 28, fill=(0.9, 0.95, 1), stroke=(0.75, 0.84, 0.95))
+    headers = [
+        ("FECHA", margin + 16),
+        ("HORA", margin + 90),
+        ("PACIENTE", margin + 150),
+        ("SERVICIO", margin + 300),
+        ("MONTO", width - margin - 90),
     ]
+    for h_label, hx in headers:
+        contenido += text(hx, table_top - 8, h_label, 11)
+
+    # Filas
+    y = table_top - 40
+    max_rows = 32
+    row = 0
     for c in citas:
+        if row >= max_rows:
+            break  # corte simple
         monto = getattr(getattr(c, "pago_relacionado", None), "monto", None)
         monto_txt = f"${monto:.2f}" if monto else "-"
-        lines.append(f"{c.fecha.strftime('%d/%m/%Y')} {c.hora_inicio.strftime('%H:%M')} - {c.paciente.nombre} - {c.servicio.nombre} - {monto_txt}")
+        contenido += text(margin + 16, y, c.fecha.strftime("%d/%m/%Y"), 10)
+        contenido += text(margin + 90, y, c.hora_inicio.strftime("%H:%M"), 10)
+        contenido += text(margin + 150, y, c.paciente.nombre[:26], 10)
+        contenido += text(margin + 300, y, c.servicio.nombre[:22], 10)
+        contenido += text(width - margin - 90, y, monto_txt, 10)
+        y -= 18
+        row += 1
 
-    # Simple PDF manual (texto)
-    stream = "BT\n/F1 12 Tf\n"
-    y = 800
-    for line in lines:
-        stream += f"1 0 0 1 50 {y} Tm ({_esc(line)}) Tj\n"
-        y -= 16
-        if y < 50:
-            break  # corte simple si hay muchas líneas
-    stream += "ET"
-    stream_bytes = stream.encode("latin-1", "ignore")
+    # Nota pie
+    contenido += text(margin + 4, margin + 28, "Generado automáticamente por RC Dental. Para detalles completos exporta el CSV.", 10)
+
+    stream = contenido.encode("latin-1", "ignore")
 
     obj_catalog = b"1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n"
     obj_pages = b"2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n"
     obj_page = b"3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 5 0 R /Resources << /Font << /F1 4 0 R >> >> >> endobj\n"
     obj_font = b"4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n"
-    obj_content = f"5 0 obj << /Length {len(stream_bytes)} >> stream\n".encode() + stream_bytes + b"\nendstream endobj\n"
+    obj_content = f"5 0 obj << /Length {len(stream)} >> stream\n".encode() + stream + b"\nendstream endobj\n"
 
     parts = [b"%PDF-1.4\n", obj_catalog, obj_pages, obj_page, obj_font, obj_content]
-    offsets = []
-    cursor = 0
+    offsets, cursor = [], 0
     for p in parts:
-        offsets.append(cursor)
-        cursor += len(p)
+        offsets.append(cursor); cursor += len(p)
     xref_start = cursor
 
     xref = b"xref\n0 6\n0000000000 65535 f \n"

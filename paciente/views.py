@@ -13,9 +13,12 @@ import mercadopago
 from datetime import datetime, timedelta
 from decimal import Decimal
 from io import BytesIO
+from urllib.parse import urlencode
+from django.urls import reverse
+from django.db.models import Q
 
 # Importamos modelos
-from domain.models import Paciente, Dentista, Cita, Pago, Servicio, Horario, PenalizacionLog
+from domain.models import Paciente, Dentista, Cita, Pago, Servicio, Horario, PenalizacionLog, EncuestaSatisfaccion
 from domain.notifications import enviar_correo_confirmacion_cita
 from domain.ai_services import calcular_penalizacion_paciente
 from .mp_service import crear_preferencia_pago
@@ -82,12 +85,15 @@ def dashboard(request):
         return redirect('paciente:completar_perfil')
 
     hoy = timezone.localdate()
+    now_local = timezone.localtime()
+    current_time = now_local.time()
     penal_info = calcular_penalizacion_paciente(paciente)
     
     proxima_cita = Cita.objects.filter(
         paciente=paciente,
-        fecha__gte=hoy,
         estado__in=['PENDIENTE', 'CONFIRMADA']
+    ).filter(
+        Q(fecha__gt=hoy) | Q(fecha=hoy, hora_inicio__gte=current_time)
     ).order_by('fecha', 'hora_inicio').first()
     cancel_used_month = Cita.objects.filter(
         paciente=paciente,
@@ -104,9 +110,9 @@ def dashboard(request):
 
     historial = Cita.objects.filter(
         paciente=paciente
-    ).exclude(
-        id=proxima_cita.id if proxima_cita else None
-    ).order_by('-fecha', '-hora_inicio')[:5]
+    ).filter(
+        Q(fecha__lt=hoy) | Q(fecha=hoy, hora_inicio__lt=current_time)
+    ).order_by('-fecha', '-hora_inicio').prefetch_related('encuestasatisfaccion_set')[:5]
 
     # --- NUEVO: Cargamos los servicios para el Modal ---
     servicios = Servicio.objects.filter(activo=True).order_by('nombre')
@@ -235,7 +241,11 @@ def agendar_cita(request):
                 except Exception as e:
                     print(f"[WARN] No se pudo enviar correo de confirmación al paciente: {e}")
                 
-                crear_aviso_por_cita(nueva_cita, "NUEVA_CITA", f"Cita agendada: {servicio.nombre}")
+                crear_aviso_por_cita(
+                    nueva_cita,
+                    "NUEVA_CITA",
+                    f"Cita solicitada por el paciente: {servicio.nombre}",
+                )
                 
                 # Mensaje personalizado
                 if dentista_especialista != paciente.dentista:
@@ -298,6 +308,26 @@ def iniciar_pago(request, cita_id):
         messages.error(request, "Acción no permitida.")
         return redirect("paciente:mis_pagos")
 
+    # Fallback para desarrollo/sandbox: marcar pago como completado sin ir a MP
+    if getattr(settings, "MERCADOPAGO_FAKE_SUCCESS", False):
+        pago.estado = "COMPLETADO"
+        pago.metodo = pago.metodo or "MERCADOPAGO_FAKE"
+        pago.save(update_fields=["estado", "metodo"])
+        try:
+            crear_aviso_por_cita(
+                pago.cita,
+                "PAGO",
+                f"Pago completado por el paciente (${pago.monto}) via {pago.metodo}",
+            )
+        except Exception as exc:
+            print(f"[WARN] Aviso de pago (fake) no guardado: {exc}")
+        params = urlencode({
+            "pago_ok": 1,
+            "servicio": pago.cita.servicio.nombre,
+            "monto": str(pago.monto),
+        })
+        return redirect(f"{reverse('paciente:mis_pagos')}?{params}")
+
     try:
         init_point = crear_preferencia_pago(pago.cita, request)
         # Guardamos método para saber que salió hacia MP
@@ -331,13 +361,27 @@ def pago_exitoso(request):
         messages.error(request, "Pago no encontrado para esta cuenta.")
         return redirect("paciente:mis_pagos")
 
+    previo = pago.estado
     if pago.estado != "COMPLETADO":
         pago.estado = "COMPLETADO"
         pago.metodo = pago.metodo or "MERCADOPAGO"
         pago.save(update_fields=["estado", "metodo"])
+        if previo != "COMPLETADO":
+            try:
+                crear_aviso_por_cita(
+                    pago.cita,
+                    "PAGO",
+                    f"Pago aprobado (${pago.monto}) via {pago.metodo}",
+                )
+            except Exception as exc:
+                print(f"[WARN] Aviso de pago exitoso no guardado: {exc}")
 
-    messages.success(request, "Pago completado correctamente.")
-    return redirect("paciente:mis_pagos")
+    params = urlencode({
+        "pago_ok": 1,
+        "servicio": pago.cita.servicio.nombre,
+        "monto": str(pago.monto),
+    })
+    return redirect(f"{reverse('paciente:mis_pagos')}?{params}")
 
 
 @login_required
@@ -393,6 +437,7 @@ def mp_webhook(request):
     if not pago:
         return JsonResponse({"detail": "Pago no encontrado"}, status=404)
 
+    previo = pago.estado
     # Validar monto contra el pago registrado
     mp_amount = response.get("transaction_amount")
     if mp_amount is not None and float(mp_amount) != float(pago.monto):
@@ -403,6 +448,15 @@ def mp_webhook(request):
         pago.estado = "COMPLETADO"
         pago.metodo = "MERCADOPAGO"
         pago.save(update_fields=["estado", "metodo"])
+        if previo != "COMPLETADO":
+            try:
+                crear_aviso_por_cita(
+                    pago.cita,
+                    "PAGO",
+                    f"Pago aprobado (${pago.monto}) via MercadoPago",
+                )
+            except Exception as exc:
+                print(f"[WARN] Aviso de webhook no guardado: {exc}")
         return JsonResponse({"detail": "Pago confirmado"}, status=200)
 
     # Otros estados: pending, in_process, rejected...
@@ -552,6 +606,48 @@ def contactar_dentista(request):
 
 
 @login_required
+def feedback_cita(request, cita_id):
+    try:
+        paciente = request.user.paciente_perfil
+    except Exception:
+        return redirect("paciente:completar_perfil")
+
+    cita = get_object_or_404(Cita, id=cita_id, paciente=paciente)
+    feedback = (
+        EncuestaSatisfaccion.objects.filter(paciente=paciente, cita=cita)
+        .order_by("-created_at")
+        .first()
+    )
+
+    if request.method == "POST":
+        puntuacion_raw = request.POST.get("puntuacion", "5")
+        comentario = request.POST.get("comentario", "").strip()
+
+        try:
+            puntuacion = max(1, min(5, int(puntuacion_raw)))
+        except ValueError:
+            puntuacion = 5
+
+        feedback, _ = EncuestaSatisfaccion.objects.update_or_create(
+            paciente=paciente,
+            dentista=cita.dentista,
+            cita=cita,
+            defaults={"puntuacion": puntuacion, "comentario": comentario},
+        )
+
+        tono = "positivo" if puntuacion >= 4 else "neutral" if puntuacion == 3 else "negativo"
+        resumen = comentario or f"Experiencia {tono}"
+        messages.success(request, f"¡Gracias por tu opinión! Resumen IA: {resumen[:140]}")
+        return redirect("paciente:dashboard")
+
+    return render(
+        request,
+        "paciente/feedback_cita.html",
+        {"cita": cita, "feedback": feedback},
+    )
+
+
+@login_required
 def confirmar_por_email(request, token):
     signer = TimestampSigner()
     try:
@@ -582,30 +678,79 @@ def recibo_pago_pdf(request, pago_id):
         cita__paciente=paciente,
     )
 
-    lines = [
-        "Recibo de Pago",
-        f"Paciente: {pago.cita.paciente.nombre}",
-        f"Dentista: {pago.cita.dentista.nombre}",
-        f"Servicio: {pago.cita.servicio.nombre}",
-        f"Fecha cita: {pago.cita.fecha.strftime('%d/%m/%Y')} {pago.cita.hora_inicio.strftime('%H:%M')}",
-        f"Monto: ${pago.monto:.2f} MXN",
-        f"Método: {pago.metodo}",
-        f"Estado: {pago.estado}",
-        f"Folio: {pago.id}",
-    ]
-
     def _esc(text):
         return text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
 
-    stream = "BT\n/F1 12 Tf\n"
-    y = 800
-    for line in lines:
-        stream += f"1 0 0 1 50 {y} Tm ({_esc(line)}) Tj\n"
-        y -= 18
-        if y < 60:
-            break
-    stream += "ET"
-    stream_bytes = stream.encode("latin-1", "ignore")
+    def t_line(x, y, text, size=12, color=(0, 0, 0)):
+        r, g, b = color
+        return f"BT /F1 {size} Tf {r:.3f} {g:.3f} {b:.3f} rg 1 0 0 1 {x} {y} Tm ({_esc(text)}) Tj ET\n"
+
+    def rect(x, y, w, h, fill_color=None, stroke_color=None, stroke_width=1):
+        ops = ""
+        if fill_color:
+            r, g, b = fill_color
+            ops += f"{r:.3f} {g:.3f} {b:.3f} rg "
+        if stroke_color:
+            r, g, b = stroke_color
+            ops += f"{r:.3f} {g:.3f} {b:.3f} RG "
+        ops += f"{stroke_width:.2f} w {x} {y} {w} {h} re "
+        if fill_color and stroke_color:
+            ops += "B\n"
+        elif fill_color:
+            ops += "f\n"
+        elif stroke_color:
+            ops += "S\n"
+        return ops
+
+    width, height = 595, 842
+    card_x, card_y = 70, 180
+    card_w, card_h = width - 2 * card_x, 520
+    header_h = 82
+
+    content = ""
+    # Fondo y tarjeta
+    content += rect(card_x - 8, card_y - 10, card_w + 16, card_h + 26, fill_color=(0.04, 0.07, 0.12), stroke_color=(0.28, 0.5, 0.85), stroke_width=2.2)
+    content += rect(card_x, card_y, card_w, card_h, fill_color=(0.055, 0.09, 0.16), stroke_color=(0.32, 0.55, 0.9), stroke_width=2)
+
+    # Header
+    content += rect(card_x + 6, card_y + card_h - header_h, card_w - 12, header_h - 12, fill_color=(0.35, 0.62, 0.96), stroke_color=(0.9, 0.96, 1), stroke_width=1.6)
+    content += t_line(card_x + 20, card_y + card_h - 32, "Recibo de pago", size=20, color=(1, 1, 1))
+    content += t_line(card_x + 20, card_y + card_h - 52, f"Emitido: {timezone.localtime().strftime('%d/%m/%Y %H:%M')}", size=11, color=(0.9, 0.95, 1))
+    content += t_line(card_x + card_w - 120, card_y + card_h - 32, f"Folio #{pago.id}", size=12, color=(0.96, 0.98, 1))
+
+    # Datos del paciente
+    info_w = card_w - 24
+    info_h = 230
+    info_x = card_x + 12
+    info_y = card_y + card_h - header_h - info_h - 10
+    content += rect(info_x, info_y, info_w, info_h, fill_color=(0.98, 0.99, 1), stroke_color=(0.76, 0.86, 1), stroke_width=1.4)
+    y_text = info_y + info_h - 28
+    content += t_line(info_x + 12, y_text, "Datos del paciente", size=13, color=(0.1, 0.16, 0.32)); y_text -= 22
+    content += t_line(info_x + 12, y_text, f"Paciente: {pago.cita.paciente.nombre}", size=12, color=(0.05, 0.08, 0.18)); y_text -= 18
+    content += t_line(info_x + 12, y_text, f"Dentista: {pago.cita.dentista.nombre}", size=12, color=(0.05, 0.08, 0.18)); y_text -= 18
+    content += t_line(info_x + 12, y_text, f"Servicio: {pago.cita.servicio.nombre}", size=12, color=(0.05, 0.08, 0.18)); y_text -= 18
+    content += t_line(info_x + 12, y_text, f"Fecha cita: {pago.cita.fecha.strftime('%d/%m/%Y')} {pago.cita.hora_inicio.strftime('%H:%M')}", size=12, color=(0.05, 0.08, 0.18))
+
+    # Resumen de pago (abajo)
+    summary_h = 120
+    summary_x = card_x + 12
+    summary_y = card_y + 28
+    content += rect(summary_x, summary_y, info_w, summary_h, fill_color=(0.93, 0.97, 1), stroke_color=(0.75, 0.86, 1), stroke_width=1.3)
+    col1 = summary_x + 16
+    col2 = summary_x + 200
+    col3 = summary_x + 360
+    content += t_line(col1, summary_y + summary_h - 30, "Monto", size=12, color=(0.1, 0.16, 0.32))
+    content += t_line(col1, summary_y + summary_h - 56, f"${pago.monto:.2f} MXN", size=18, color=(0.05, 0.45, 0.22))
+    content += t_line(col2, summary_y + summary_h - 30, "Método", size=12, color=(0.1, 0.16, 0.32))
+    content += t_line(col2, summary_y + summary_h - 56, pago.metodo.upper(), size=13, color=(0.05, 0.08, 0.18))
+    content += t_line(col3, summary_y + summary_h - 30, "Estado", size=12, color=(0.1, 0.16, 0.32))
+    estado_color = (0.05, 0.55, 0.32) if pago.estado.upper() == "COMPLETADO" else (0.9, 0.55, 0.1)
+    content += t_line(col3, summary_y + summary_h - 56, pago.estado.title(), size=13, color=estado_color)
+
+    # Nota
+    content += t_line(card_x - 4, 108, "Gracias por tu pago. Conserva este recibo como comprobante.", size=11, color=(0.25, 0.35, 0.55))
+
+    stream_bytes = content.encode("latin-1", "ignore")
 
     obj_catalog = b"1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n"
     obj_pages = b"2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n"
@@ -628,7 +773,7 @@ def recibo_pago_pdf(request, pago_id):
 
     pdf_bytes = b"".join(parts) + xref + trailer
     response = HttpResponse(pdf_bytes, content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename="recibo_pago_{pago.id}.pdf"'
+    response["Content-Disposition"] = f'attachment; filename=\"recibo_pago_{pago.id}.pdf\"'
     return response
 
 

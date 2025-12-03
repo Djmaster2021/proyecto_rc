@@ -50,6 +50,11 @@
                       ">
                           {{ cita.get_estado_display|upper }}
                       </span>
+                      {% if cita.pago_relacionado and cita.pago_relacionado.estado == "COMPLETADO" %}
+                        <span class="status st-conf" style="background:#ecfdf3; color:#065f46; border-color:#bbf7d0; margin-left:4px;">
+                          PAGADO EN LÍNEA
+                        </span>
+                      {% endif %}
                   </td>
                   <td align="right">
                       {% if cita.pago_relacionado %}
@@ -59,6 +64,21 @@
                       {% endif %}
                   </td>
               </tr>
+              {% with feedback=cita.encuestasatisfaccion_set.all|first %}
+              {% if feedback %}
+              <tr style="background:#f8fafc;">
+                  <td colspan="2" style="font-size:0.92rem; color:#0f172a;">
+                      <strong>Feedback:</strong> {{ feedback.comentario|default:"Sin comentarios" }}
+                  </td>
+                  <td colspan="2" style="font-size:0.92rem; color:#0f172a;">
+                      <strong>Puntuación:</strong> {{ feedback.puntuacion }}/5
+                  </td>
+                  <td align="right" style="color:#64748b; font-size:0.85rem;">
+                      {{ feedback.created_at|date:"d/m/Y H:i" }}
+                  </td>
+              </tr>
+              {% endif %}
+              {% endwith %}
               {% empty %}
               <tr>
                   <td colspan="5" align="center" style="padding:30px; color:#64748b; background-color: #fff;">
