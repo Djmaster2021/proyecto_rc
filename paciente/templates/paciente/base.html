@@ -1,7 +1,7 @@
 {% load static i18n %}
 {% get_current_language as CURRENT_LANG %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ CURRENT_LANG|default:'es' }}">
 
 <head>
     <!-- ================================

@@ -1,20 +1,20 @@
 {% extends "paciente/base.html" %}
-{% load static %}
+{% load static i18n %}
 
-{% block ptitle %}Dashboard | Paciente{% endblock %}
+{% block ptitle %}{% trans "Dashboard | Paciente" %}{% endblock %}
 
 {% block header_title %}
-    Panel del Paciente
+    {% trans "Panel del Paciente" %}
 {% endblock %}
 
 {% block pcontent %}
 
 <section class="welcome-banner">
     <h1 class="welcome-title">
-        Bienvenido, {{ user.first_name|default:user.username }}
+        {% blocktrans with nombre=user.first_name|default:user.username %}Bienvenido, {{ nombre }}{% endblocktrans %}
     </h1>
     <p class="welcome-subtitle">
-        Tu sonrisa dental en tus manos.
+        {% trans "Tu sonrisa dental en tus manos." %}
     </p>
 </section>
 
@@ -32,7 +32,7 @@
 
     <section class="section-wrapper dash-item">
         <div class="section-title">
-            <i class="ph-duotone ph-calendar-check"></i> Tu Próxima Cita
+            <i class="ph-duotone ph-calendar-check"></i> {% trans "Tu Próxima Cita" %}
         </div>
         <div class="card-modern">
             {% if proxima_cita %}
@@ -69,9 +69,9 @@
             {% else %}
                 <div class="empty-state">
                     <i class="ph-duotone ph-calendar-x empty-icon"></i>
-                    <p>No tienes citas próximas.</p>
+                    <p>{% trans "No tienes citas próximas." %}</p>
                     <button onclick="abrirModalAgendar()" class="cyber-btn cyber-btn-glow" style="margin-top: 0.3rem;" {% if penal_info.estado == "pending" or penal_info.estado == "disabled" %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>
-                        Agendar una cita
+                        {% trans "Agendar una cita" %}
                     </button>
                 </div>
             {% endif %}
@@ -80,7 +80,7 @@
 
     <section class="section-wrapper dash-item">
         <div class="section-title">
-            <i class="ph-duotone ph-user"></i> Mi Perfil
+            <i class="ph-duotone ph-user"></i> {% trans "Mi Perfil" %}
         </div>
         <div class="card-modern profile-card">
             <button class="btn-edit-profile" type="button" onclick="abrirModalPerfil()">✏️</button>
@@ -91,7 +91,7 @@
                     <p class="profile-email">{{ user.email }}</p>
                     <div class="profile-info">
                         <div>📞 {{ paciente.telefono }}</div>
-                        <div>📍 {{ paciente.direccion|default:"Sin dirección" }}</div>
+                        <div>📍 {{ paciente.direccion|default:_("Sin dirección") }}</div>
                     </div>
                 </div>
                 <div class="profile-avatar">
@@ -109,7 +109,7 @@
 
     <section class="section-wrapper dash-item">
         <div class="section-title">
-            <i class="ph-duotone ph-credit-card"></i> Pagos en línea
+            <i class="ph-duotone ph-credit-card"></i> {% trans "Pagos en línea" %}
         </div>
         <div class="card-modern">
             {% if deuda_pendiente %}
@@ -128,9 +128,9 @@
                     <a href="{% url 'paciente:mis_pagos' %}" class="cyber-btn cyber-btn-glow">Gestionar pago en línea</a>
                 </div>
             {% else %}
-                <div class="empty-state"><p>Estás al día con tus pagos.</p></div>
+                <div class="empty-state"><p>{% trans "Estás al día con tus pagos." %}</p></div>
                 <div class="payment-actions">
-                    <a href="{% url 'paciente:mis_pagos' %}" class="cyber-btn cyber-btn-secondary" style="margin-top: 0.6rem;">Gestionar pagos en línea</a>
+                    <a href="{% url 'paciente:mis_pagos' %}" class="cyber-btn cyber-btn-secondary" style="margin-top: 0.6rem;">{% trans "Gestionar pagos en línea" %}</a>
                 </div>
             {% endif %}
         </div>
@@ -138,15 +138,15 @@
 
     <section class="section-wrapper dash-item">
         <div class="section-title">
-            <i class="ph-duotone ph-first-aid-kit"></i> Mi Especialista
+            <i class="ph-duotone ph-first-aid-kit"></i> {% trans "Mi Especialista" %}
         </div>
         <div class="card-modern" style="padding: 2rem;">
             <div>
-                <p style="color: var(--muted); font-size: 0.9rem; text-transform: uppercase;">Médico de Cabecera</p>
+                <p style="color: var(--muted); font-size: 0.9rem; text-transform: uppercase;">{% trans "Médico de Cabecera" %}</p>
                 <h3 style="font-size: 1.8rem; margin-bottom: 5px; color: #fff;">{{ paciente.dentista.nombre }}</h3>
                 <p style="color: var(--brand); font-weight: 600; margin-bottom: 15px;">{{ paciente.dentista.especialidad }}</p>
                 <button type="button" class="rc-btn" style="padding: 10px 25px; font-size: 1rem;" onclick="contactarDentista()">
-                    <i class="ph-bold ph-envelope-simple"></i> Contactar
+                    <i class="ph-bold ph-envelope-simple"></i> {% trans "Contactar" %}
                 </button>
             </div>
         </div>
