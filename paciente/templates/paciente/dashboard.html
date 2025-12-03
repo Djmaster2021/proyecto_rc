@@ -158,7 +158,7 @@
 <div id="modal-cita" class="modal-overlay">
     <div class="modal-content glow-card">
         <div class="modal-header">
-            <h3 id="modal-title"><i class="ph-duotone ph-calendar-plus"></i> Agendar Cita</h3>
+            <h3 id="modal-title"><i class="ph-duotone ph-calendar-plus"></i> {% trans "Agendar Cita" %}</h3>
             <button class="modal-close" type="button" onclick="cerrarModal()">
                 <i class="ph-bold ph-x"></i>
             </button>
@@ -168,33 +168,34 @@
             {% csrf_token %}
 
             <div class="form-group">
-                <label for="servicio_modal">Tratamiento</label>
+                <label for="servicio_modal">{% trans "Tratamiento" %}</label>
                 <select name="servicio" id="servicio_modal" class="cyber-input" required>
-                    <option value="" disabled selected>-- Selecciona --</option>
+                    <option value="" disabled selected>-- {% trans "Selecciona" %} --</option>
                     {% for s in servicios %}
                         <option value="{{ s.id }}">🦷 {{ s.nombre }} (Dr. {{ s.dentista.nombre }})</option>
                     {% empty %}
-                        <option disabled>No hay servicios activos</option>
+                        <option disabled>{% trans "No hay servicios activos" %}</option>
                     {% endfor %}
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="cita-fecha">Fecha Deseada</label>
-                <input type="date" id="cita-fecha" name="fecha" class="cyber-input" required style="color-scheme: dark;">
+                <label for="cita-fecha">{% trans "Fecha Deseada" %}</label>
+                <input type="date" id="cita-fecha" name="fecha" class="cyber-input" required style="color-scheme: dark;"
+                  placeholder="{% if CURRENT_LANG|slice:':2' == 'en' %}mm/dd/yyyy{% else %}dd/mm/aaaa{% endif %}">
             </div>
 
             <div class="form-group" style="margin-top: 15px;">
-                <label for="cita-hora">Horario Disponible</label>
+                <label for="cita-hora">{% trans "Horario Disponible" %}</label>
                 <select name="hora" id="cita-hora" class="cyber-input" disabled required>
-                    <option value="" selected>-- Primero selecciona fecha --</option>
+                    <option value="" selected>-- {% trans "Primero selecciona fecha" %} --</option>
                 </select>
-                <small id="hora-help" class="text-muted" style="display:none; color:#00ffc3; font-weight:bold;">Buscando horarios...</small>
+                <small id="hora-help" class="text-muted" style="display:none; color:#00ffc3; font-weight:bold;">{% trans "Buscando horarios..." %}</small>
             </div>
 
             <div class="form-actions">
-                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModal()">Cancelar</button>
-                <button type="submit" class="cyber-btn cyber-btn-glow" id="btn-submit-cita" disabled>Confirmar Cita</button>
+                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModal()">{% trans "Cancelar" %}</button>
+                <button type="submit" class="cyber-btn cyber-btn-glow" id="btn-submit-cita" disabled>{% trans "Confirmar Cita" %}</button>
             </div>
         </form>
     </div>

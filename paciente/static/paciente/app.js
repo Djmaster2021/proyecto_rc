@@ -42,7 +42,42 @@ document.addEventListener("DOMContentLoaded", () => {
   // ------------------------------
   const body = document.body;
   const themeToggle = document.getElementById("theme-toggle");
+  const lang = (body.dataset.lang || document.documentElement.lang || "es").slice(0, 2);
   const THEME_KEY = "paciente-theme";
+  const STR = {
+    selectDate: lang === "en" ? "Select a date to see times." : "Selecciona fecha para ver horarios.",
+    selectOtherDate: lang === "en" ? "Select another date." : "Selecciona otra fecha.",
+    selectServiceDate: lang === "en" ? "Select service and date to see times." : "Selecciona servicio y fecha para ver horarios.",
+    noSundays: lang === "en" ? "We don't work on Sundays. Please choose another date." : "No atendemos domingos. Elige otra fecha.",
+    titleNew: lang === "en" ? "Book Appointment" : "Agendar Cita",
+    titleReschedule: lang === "en" ? "Reschedule Appointment" : "Reprogramar Cita",
+    swalLimitTitle: lang === "en" ? "Reschedule limit reached" : "Límite de reprogramación alcanzado",
+    swalLimitText: lang === "en"
+      ? "You can only reschedule once. For more changes, contact the clinic."
+      : "Solo puedes reprogramar una vez. Para más cambios, contacta al consultorio.",
+    swalReprogTitle: lang === "en" ? "Do you want to reschedule?" : "¿Deseas reprogramar?",
+    swalReprogText1: lang === "en"
+      ? "You can reschedule only <b>1 time</b>."
+      : "Solamente se puede reprogramar <b>1 sola vez</b>.",
+    swalReprogText2: lang === "en"
+      ? "For further changes, ask your dentist to do it."
+      : "Para volver a cancelar o reprogramar, avisa a tu dentista para que él lo haga.",
+    swalReprogConfirm: lang === "en" ? "Continue and reschedule" : "Continuar y reprogramar",
+    swalReprogCancel: lang === "en" ? "Cancel" : "Cancelar",
+    swalCancelTitle: lang === "en" ? "Are you sure you want to cancel?" : "¿Seguro que deseas cancelar?",
+    swalCancelText1: lang === "en"
+      ? "You can cancel only <b>1 time</b>."
+      : "Solamente se puede cancelar <b>1 sola vez</b>.",
+    swalCancelText2: lang === "en"
+      ? "Please do it with <b>1 day in advance</b>."
+      : "Recuerda hacerlo con <b>1 día de anticipación</b>.",
+    swalCancelWarning: lang === "en"
+      ? "<strong>If you cancel now, you will lose your spot.</strong>"
+      : "<strong>Si cancelas ahora, perderás tu lugar.</strong>",
+    swalCancelConfirm: lang === "en" ? "Yes, cancel" : "Sí, cancelar",
+    swalCancelCancel: lang === "en" ? "Cancel" : "Cancelar",
+    noSlots: lang === "en" ? "No available times. Try another day." : "Sin horarios libres. Intenta otro día.",
+  };
 
   function applyTheme(theme) {
     body.classList.remove("dark-mode", "light-mode");
@@ -94,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ------------------------------------------- */
     if (typeof flatpickr !== "undefined" && fecha) {
         window.citaCalendar = flatpickr("#cita-fecha", {
-            locale: "es",
+            locale: lang === "en" ? "en" : "es",
             minDate: "today",
             maxDate: new Date().fp_incr(60),
             dateFormat: "Y-m-d",
@@ -130,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         servicio.addEventListener("change", () => {
             fecha.value = "";
-            resetHoras("Selecciona fecha para ver horarios.");
+            resetHoras(STR.selectDate);
             btnSubmit.disabled = true;
             if (window.citaCalendar) {
                 window.citaCalendar.clear();
@@ -141,9 +176,9 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!fecha.value || !servicio.value) return;
             const f = new Date(fecha.value + "T00:00:00");
             if (f.getDay() === 0) {
-                showToast("No atendemos domingos. Elige otra fecha.", "danger");
+                showToast(STR.noSundays, "danger");
                 fecha.value = "";
-                resetHoras("Selecciona otra fecha.");
+                resetHoras(STR.selectOtherDate);
                 btnSubmit.disabled = true;
                 return;
             }
@@ -198,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Título del modal
         const title = modalCita.querySelector(".modal-header h3");
         if (title) {
-            title.innerHTML = '<i class="ph-duotone ph-calendar-plus"></i> Agendar Cita';
+            title.innerHTML = `<i class="ph-duotone ph-calendar-plus"></i> ${STR.titleNew}`;
         }
   
         // Reset de formulario
@@ -212,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (fecha) {
             fecha.value = "";
         }
-        resetHoras("Selecciona servicio y fecha para ver horarios.");
+        resetHoras(STR.selectServiceDate);
         if (horaSelect) {
             horaSelect.value = "";
         }
@@ -251,8 +286,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (veces >= 1) {
             Swal.fire({
-                title: "Límite de reprogramación alcanzado",
-                text: "Solo puedes reprogramar una vez. Para más cambios, contacta al consultorio.",
+                title: STR.swalLimitTitle,
+                text: STR.swalLimitText,
                 icon: "info",
                 confirmButtonColor: "#00d4ff",
                 background: "#18212f",
@@ -262,19 +297,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         Swal.fire({
-            title: "¿Deseas reprogramar?",
+            title: STR.swalReprogTitle,
             html: `
                 <div class="alert-icon">
                     <span>!</span>
                 </div>
-                <p>Solamente se puede reprogramar <b>1 sola vez</b>.</p>
-                <p>Para volver a cancelar o reprogramar, avisa a tu dentista para que él lo haga.</p>
+                <p>${STR.swalReprogText1}</p>
+                <p>${STR.swalReprogText2}</p>
             `,
             icon: null,
             showCancelButton: true,
-            confirmButtonText: "Continuar y reprogramar",
+            confirmButtonText: STR.swalReprogConfirm,
             confirmButtonColor: "#00d4ff",
-            cancelButtonText: "Cancelar",
+            cancelButtonText: STR.swalReprogCancel,
             cancelButtonColor: "#94a3b8",
             background: "rgba(8,13,23,0.95)",
             color: "#e8eef7",
@@ -296,7 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
         const title = modalCita.querySelector(".modal-header h3");
         if (title) {
-            title.innerHTML = '<i class="ph-duotone ph-calendar-plus"></i> Reprogramar Cita';
+            title.innerHTML = `<i class="ph-duotone ph-calendar-plus"></i> ${STR.titleReschedule}`;
         }
   
         // Se usa la URL CORRECTA: /paciente/citas/reprogramar/<id>/
@@ -317,7 +352,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
   
         // Limpiar horarios y deshabilitar botón hasta elegir fecha
-        resetHoras("Selecciona fecha para ver horarios.");
+        resetHoras(STR.selectDate);
         if (horaSelect) {
             horaSelect.value = "";
         }
@@ -341,20 +376,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         Swal.fire({
-            title: "¿Seguro que deseas cancelar?",
+            title: STR.swalCancelTitle,
             html: `
                 <div class="alert-icon">
                     <span>!</span>
                 </div>
-                <p>Solamente se puede cancelar <b>1 sola vez</b>.</p>
-                <p>Recuerda hacerlo con <b>1 día de anticipación</b>.</p>
-                <p style="color:#f87171;"><strong>Si cancelas ahora, perderás tu lugar.</strong></p>
+                <p>${STR.swalCancelText1}</p>
+                <p>${STR.swalCancelText2}</p>
+                <p style="color:#f87171;">${STR.swalCancelWarning}</p>
             `,
             icon: null,
             showCancelButton: true,
-            confirmButtonText: "Sí, cancelar",
+            confirmButtonText: STR.swalCancelConfirm,
             confirmButtonColor: "#ef4444",
-            cancelButtonText: "Cancelar",
+            cancelButtonText: STR.swalCancelCancel,
             cancelButtonColor: "#94a3b8",
             background: "rgba(8,13,23,0.95)",
             color: "#e8eef7",
@@ -458,7 +493,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 horaHelp.style.display = "none";
             }
         } else {
-            resetHoras("Sin horarios libres. Intenta otro día.");
+            resetHoras(STR.noSlots);
         }
     }
 

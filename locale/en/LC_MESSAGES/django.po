@@ -331,3 +331,35 @@ msgstr "Primary Doctor"
 
 msgid "Contactar"
 msgstr "Contact"
+
+# Modal agendar cita (paciente)
+
+msgid "Agendar Cita"
+msgstr "Book Appointment"
+
+msgid "Tratamiento"
+msgstr "Treatment"
+
+msgid "Selecciona"
+msgstr "Select"
+
+msgid "No hay servicios activos"
+msgstr "No active services"
+
+msgid "Fecha Deseada"
+msgstr "Desired Date"
+
+msgid "Horario Disponible"
+msgstr "Available Time"
+
+msgid "Primero selecciona fecha"
+msgstr "Select a date first"
+
+msgid "Buscando horarios..."
+msgstr "Searching time slots..."
+
+msgid "Cancelar"
+msgstr "Cancel"
+
+msgid "Confirmar Cita"
+msgstr "Confirm Appointment"
