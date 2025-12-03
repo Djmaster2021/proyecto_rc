@@ -106,23 +106,13 @@
                 {% for field, error_list in form.errors.items %}
                   {% if field == '__all__' or field == 'username' or field == 'password' %}
                     {% for error in error_list %}
-                      <li>{{ error }}</li>
+                      <li aria-live="polite">{{ error }}</li>
                     {% endfor %}
                   {% endif %}
                 {% endfor %}
               </ul>
             {% endif %}
 
-            {% if messages %}
-            <div class="messages">
-              {% for message in messages %}
-                {% if 'error' in message.tags %}
-                   <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-                {% endif %}
-              {% endfor %}
-            </div>
-            {% endif %}
-          
           </form>
         </div>
       </div>
