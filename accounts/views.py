@@ -3,7 +3,7 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.models import Group
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordResetView
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
@@ -62,6 +62,30 @@ class CustomLoginView(LoginView):
     def form_invalid(self, form):
         messages.error(self.request, "Usuario o contraseña incorrectos. Intenta de nuevo.")
         return super().form_invalid(form)
+
+
+class CustomPasswordResetView(PasswordResetView):
+    """
+    Password reset con logs sencillos y from_email explícito.
+    """
+    template_name = "accounts/password_reset_form.html"
+    email_template_name = "accounts/password_reset_email.html"
+    html_email_template_name = "accounts/password_reset_email.html"
+    subject_template_name = "accounts/password_reset_subject.txt"
+    success_url = "/accounts/password_reset/done/"
+
+    def get_from_email(self):
+        return settings.DEFAULT_FROM_EMAIL or settings.EMAIL_HOST_USER
+
+    def form_valid(self, form):
+        if not getattr(settings, "SEND_EMAILS", True):
+            print("[PASSWORD RESET] SEND_EMAILS=False; no se envió correo.")
+        try:
+            return super().form_valid(form)
+        except Exception as exc:
+            messages.error(self.request, "No pudimos enviar el correo. Intenta de nuevo en unos minutos.")
+            print(f"[PASSWORD RESET] Error enviando correo: {exc}")
+            return self.form_invalid(form)
 
 
 # ==============================

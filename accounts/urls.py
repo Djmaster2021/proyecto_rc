@@ -7,7 +7,7 @@ app_name = "accounts"
 
 urlpatterns = [
     # 1. Login personalizado (usa la clase que definimos en views.py)
-    path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
+    path('login/', views.CustomLoginView.as_view(), name='login'),
 
     # 2. Logout (usa la vista nativa de Django)
     path(
@@ -24,13 +24,7 @@ urlpatterns = [
     # --- RECUPERACIÓN DE CONTRASEÑA ---
 
 # 1. El formulario donde pones el correo
-    path('password_reset/', auth_views.PasswordResetView.as_view(
-        template_name='accounts/password_reset_form.html',
-        email_template_name='accounts/password_reset_email.html',
-        html_email_template_name='accounts/password_reset_email.html',
-        subject_template_name='accounts/password_reset_subject.txt',
-        success_url='/accounts/password_reset/done/'
-    ), name='password_reset'),
+    path('password_reset/', views.CustomPasswordResetView.as_view(), name='password_reset'),
 
     # 2. Mensaje de "Te hemos enviado un correo"
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(
