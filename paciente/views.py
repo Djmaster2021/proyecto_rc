@@ -539,6 +539,10 @@ def mp_webhook(request):
     except json.JSONDecodeError:
         return JsonResponse({"detail": "JSON inválido"}, status=400)
 
+    topic = payload.get("type") or payload.get("action")
+    if topic and "payment" not in str(topic):
+        return JsonResponse({"detail": "Evento no manejado"}, status=400)
+
     payment_id = payload.get("data", {}).get("id") or payload.get("id")
     if not payment_id:
         return JsonResponse({"detail": "Sin payment_id"}, status=400)

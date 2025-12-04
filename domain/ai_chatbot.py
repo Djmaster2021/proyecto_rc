@@ -17,6 +17,7 @@ from django.conf import settings
 
 BASE_DIR = Path(settings.BASE_DIR)  # type: ignore
 KNOWLEDGE_PATH = BASE_DIR / "docs" / "chatbot_knowledge.yaml"
+CONOCIMIENTO_CARGADO = False
 
 
 def _tokenizar(texto: str) -> List[str]:
@@ -25,10 +26,12 @@ def _tokenizar(texto: str) -> List[str]:
 
 @lru_cache(maxsize=1)
 def cargar_conocimiento() -> List[Dict[str, str]]:
+    global CONOCIMIENTO_CARGADO
     if KNOWLEDGE_PATH.exists():
         try:
             with KNOWLEDGE_PATH.open("r", encoding="utf-8") as f:
                 data = yaml.safe_load(f) or []
+                CONOCIMIENTO_CARGADO = True
                 return [
                     {"title": item.get("title", ""), "answer": item.get("answer", "")}
                     for item in data
@@ -36,6 +39,7 @@ def cargar_conocimiento() -> List[Dict[str, str]]:
                 ]
         except Exception as exc:
             print(f"[CHATBOT] No se pudo cargar knowledge base: {exc}")
+    CONOCIMIENTO_CARGADO = False
     # Fallback mínimo
     return [
         {
@@ -163,13 +167,23 @@ def responder_chatbot(
 
     if getattr(settings, "CHATBOT_IA_ENABLED", False):
         try:
-            return {"message": _respuesta_gemini(pregunta, contextos), "source": "ia"}
+            payload = {"message": _respuesta_gemini(pregunta, contextos), "source": "ia"}
         except Exception as exc:
             print(f"[CHATBOT] Fallback local por error IA: {exc}")
-            return {
+            payload = {
                 "message": _respuesta_local(pregunta, lang=lang_code or "es"),
                 "source": "local",
                 "source_detail": str(exc)[:180],
             }
+    else:
+        payload = {"message": _respuesta_local(pregunta, lang=lang_code or "es"), "source": "local"}
 
-    return {"message": _respuesta_local(pregunta, lang=lang_code or "es"), "source": "local"}
+    if not CONOCIMIENTO_CARGADO:
+        # Señalamos modo básico (sin knowledge base)
+        payload.setdefault("source_detail", "kb_basic")
+        if lang_code.startswith("en"):
+            payload["message"] += " (Basic mode: limited knowledge base loaded.)"
+        else:
+            payload["message"] += " (Modo básico: base de conocimiento limitada.)"
+
+    return payload
