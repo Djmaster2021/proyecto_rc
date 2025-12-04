@@ -61,10 +61,12 @@ def chatbot_api(request):
     provided_secret = request.headers.get("X-CHATBOT-SECRET") or request.GET.get("secret")
     same_origin = False
     try:
-        referer = request.META.get("HTTP_REFERER", "")
+        referer = request.META.get("HTTP_REFERER", "") or ""
+        origin = request.META.get("HTTP_ORIGIN", "") or ""
         proto = "https" if request.is_secure() else "http"
         host = request.get_host()
-        same_origin = referer.startswith(f"{proto}://{host}")
+        base = f"{proto}://{host}"
+        same_origin = referer.startswith(base) or origin.startswith(base)
     except Exception:
         same_origin = False
 
