@@ -567,9 +567,16 @@ def mp_webhook(request):
     previo = pago.estado
     # Validar monto contra el pago registrado
     mp_amount = response.get("transaction_amount")
-    if mp_amount is not None and float(mp_amount) != float(pago.monto):
-        print(f"[MP] Monto inconsistente: MP {mp_amount} vs Pago {pago.monto} (cita {ext_ref})")
-        return JsonResponse({"detail": "Monto inconsistente"}, status=400)
+    if mp_amount is not None:
+        try:
+            mp_val = Decimal(str(mp_amount))
+            pago_val = Decimal(str(pago.monto))
+            # Permitimos pequeñas variaciones (< $0.05) por redondeos/impuestos
+            if abs(mp_val - pago_val) > Decimal("0.05"):
+                return JsonResponse({"detail": "Monto inconsistente"}, status=400)
+        except Exception:
+            if settings.DEBUG:
+                print(f"[MP] No se pudo validar monto de MP={mp_amount} contra pago={pago.monto}")
 
     if mp_status in ("approved", "authorized"):
         pago.estado = "COMPLETADO"

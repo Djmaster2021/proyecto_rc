@@ -57,7 +57,9 @@ def chatbot_api(request):
     ip = request.META.get("REMOTE_ADDR", "anon")
     key = f"chatbot:rate:{ip}"
     hits = cache.get(key, 0)
-    if hits >= 30:
+    max_hits = 20  # más conservador
+    if hits >= max_hits:
+        print(f"[CHATBOT] Throttle IP {ip} ({hits} req/min)")
         return JsonResponse({"message": "⏳ Demasiadas peticiones, espera un minuto."}, status=429)
     cache.set(key, hits + 1, timeout=60)
 
