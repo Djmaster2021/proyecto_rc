@@ -567,14 +567,15 @@ def servicios(request):
     
     # Fallback de descripciones breves para mostrar algo útil aunque el campo esté vacío
     fallback_desc = {
-        "limpieza": "Profilaxis con ultrasonido y pulido para remover placa y sarro.",
-        "consulta": "Evaluación clínica inicial y plan de tratamiento personalizado.",
-        "control": "Revisión de seguimiento para ajustar o confirmar tratamiento.",
-        "extracción": "Extracción dental simple bajo anestesia local.",
-        "blanqueamiento": "Aclarado dental profesional con agente oxidante.",
-        "resina": "Resina compuesta para restaurar cavidades o fracturas pequeñas.",
-        "endodoncia": "Tratamiento de conducto para eliminar infección y conservar la pieza.",
-        "ortodoncia": "Alineación dental con brackets o alineadores según plan.",
+        "limpieza": "Profilaxis corta con ultrasonido y pulido.",
+        "consulta": "Evaluación inicial y plan de tratamiento.",
+        "control": "Revisión de seguimiento y ajustes.",
+        "extracción": "Extracción simple con anestesia local.",
+        "blanqueamiento": "Aclarado dental con gel profesional.",
+        "resina": "Restauración con resina compuesta.",
+        "endodoncia": "Tratamiento de conducto para salvar la pieza.",
+        "ortodoncia": "Alineación con brackets o alineadores.",
+        "alineador": "Férula transparente removible para mover dientes.",
     }
     for s in qs:
         if not s.descripcion:
