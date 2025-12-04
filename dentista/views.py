@@ -565,6 +565,24 @@ def servicios(request):
     if q:
         qs = qs.filter(Q(nombre__icontains=q) | Q(descripcion__icontains=q))
     
+    # Fallback de descripciones breves para mostrar algo útil aunque el campo esté vacío
+    fallback_desc = {
+        "limpieza": "Profilaxis con ultrasonido y pulido para remover placa y sarro.",
+        "consulta": "Evaluación clínica inicial y plan de tratamiento personalizado.",
+        "control": "Revisión de seguimiento para ajustar o confirmar tratamiento.",
+        "extracción": "Extracción dental simple bajo anestesia local.",
+        "blanqueamiento": "Aclarado dental profesional con agente oxidante.",
+        "resina": "Resina compuesta para restaurar cavidades o fracturas pequeñas.",
+        "endodoncia": "Tratamiento de conducto para eliminar infección y conservar la pieza.",
+        "ortodoncia": "Alineación dental con brackets o alineadores según plan.",
+    }
+    for s in qs:
+        if not s.descripcion:
+            key = (s.nombre or "").strip().lower()
+            s.descripcion_fallback = fallback_desc.get(key, f"{s.nombre} — agrega una breve descripción (objetivo, materiales, alcance).")
+        else:
+            s.descripcion_fallback = s.descripcion
+
     return render(request, "dentista/servicios.html", {
         "dentista": dentista, "servicios": qs, "query": q, "total": qs.count()
     })
