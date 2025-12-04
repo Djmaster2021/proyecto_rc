@@ -180,7 +180,8 @@
 
 <!-- Chat flotante -->
 <div id="rc-chat-toggle" class="rc-chat-toggle">
-  <span>💬</span>
+  <i class="ph-bold ph-sparkle"></i>
+  <span class="rc-pulse-dot"></span>
 </div>
 <div id="rc-chatbox" class="rc-chatbox"
   data-greeting="{% trans '¡Hola! Soy tu asistente RC. Pregunta por horarios, pagos o penalizaciones.' %}"
@@ -188,16 +189,25 @@
   data-subtitle="{% trans 'Horarios, pagos y citas' %}"
   data-error="{% trans 'Error al conectar. Intenta de nuevo.' %}">
   <div class="rc-chat-header">
-    <div>
-      <strong>{% trans "Asistente RC" %}</strong>
-      <div class="rc-chat-sub">{% trans "Horarios, pagos y citas" %}</div>
+    <div class="rc-head-left">
+      <div class="rc-avatar">RC</div>
+      <div>
+        <div class="rc-head-title">{% trans "Asistente RC" %}</div>
+        <div class="rc-head-sub"><span class="rc-dot online"></span> {% trans "Horarios · Pagos · Citas" %}</div>
+      </div>
     </div>
-    <button id="rc-chat-close" class="rc-chat-close" aria-label="Cerrar chat">×</button>
+    <button id="rc-chat-close" class="rc-chat-close" aria-label="Cerrar chat"><i class="ph-bold ph-x"></i></button>
   </div>
   <div id="rc-chat-messages" class="rc-chat-messages"></div>
+  <div class="rc-quick-replies" id="rc-quick-replies">
+    <button class="rc-chip" data-msg="{% trans 'Quiero agendar una cita' %}">🗓️ {% trans "Agendar" %}</button>
+    <button class="rc-chip" data-msg="{% trans '¿Cómo pagar mi penalización?' %}">💳 {% trans "Penalización" %}</button>
+    <button class="rc-chip" data-msg="{% trans '¿Cuáles son los horarios disponibles?' %}">⏰ {% trans "Horarios" %}</button>
+    <button class="rc-chip" data-msg="{% trans 'Ubicación del consultorio' %}">📍 {% trans "Ubicación" %}</button>
+  </div>
   <form id="rc-chat-form" class="rc-chat-form">
     <input id="rc-chat-input" type="text" placeholder="{% trans 'Escribe tu pregunta...' %}" autocomplete="off" required />
-    <button type="submit">{% trans "Enviar" %}</button>
+    <button type="submit" aria-label="{% trans 'Enviar' %}"><i class="ph-bold ph-paper-plane-tilt"></i></button>
   </form>
 </div>
 
@@ -208,33 +218,49 @@
   .rc-chat-toggle {
     position: fixed; bottom: 24px; right: 24px; z-index: 1200;
     background: linear-gradient(135deg, #22c55e, #0ea5e9);
-    color: #fff; width: 56px; height: 56px; border-radius: 50%;
+    color: #0a0f1f; width: 64px; height: 64px; border-radius: 18px;
     display: grid; place-items: center; font-size: 24px; cursor: pointer;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    box-shadow: 0 16px 40px rgba(14,165,233,0.35), 0 0 0 1px rgba(255,255,255,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
+  .rc-chat-toggle:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 22px 50px rgba(34,197,94,0.35), 0 0 0 1px rgba(255,255,255,0.08); }
+  .rc-pulse-dot { position: absolute; width: 10px; height: 10px; background: #22c55e; border-radius: 999px; top: 8px; right: 8px; box-shadow: 0 0 0 0 rgba(34,197,94,0.5); animation: pulse 2s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); } 70% { box-shadow: 0 0 0 12px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
   .rc-chatbox {
-    position: fixed; bottom: 96px; right: 24px; width: 320px; max-height: 70vh;
-    background: #0b1220; color: #f8fafc; border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    position: fixed; bottom: 96px; right: 24px; width: 360px; max-height: 75vh;
+    background: radial-gradient(circle at 20% 20%, rgba(34,197,94,0.1), transparent 45%), rgba(7, 12, 24, 0.94);
+    color: #f8fafc; border-radius: 20px;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06);
     display: none; flex-direction: column; overflow: hidden; z-index: 1200;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px);
   }
   .rc-chat-header {
-    padding: 12px 14px; background: linear-gradient(135deg, #0ea5e9, #2563eb);
-    color: #fff; display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; background: linear-gradient(135deg, #0ea5e9, #22c55e);
+    color: #0a0f1f; display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.25);
   }
-  .rc-chat-sub { font-size: 12px; opacity: 0.85; }
-  .rc-chat-close { background: transparent; border: none; color: #fff; font-size: 20px; cursor: pointer; }
-  .rc-chat-messages { padding: 12px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; }
-  .rc-bubble { padding: 10px 12px; border-radius: 12px; max-width: 90%; font-size: 14px; line_height: 1.4; position: relative; }
-  .rc-bubble.user { background: #1f2937; margin-left: auto; }
-  .rc-bubble.bot { background: #111827; border: 1px solid rgba(255,255,255,0.06); }
-  .rc-badge { position: absolute; top: -8px; right: -8px; font-size: 10px; padding: 3px 6px; border-radius: 999px; }
-  .rc-badge.ia { background: #22c55e; color: #0b1220; }
-  .rc-badge.local { background: #475569; color: #e2e8f0; }
-  .rc-chat-form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid rgba(255,255,255,0.08); background: #0f172a; }
-  .rc-chat-form input { flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid #1f2937; background: #0b1220; color: #e2e8f0; }
-  .rc-chat-form button { background: #22c55e; color: #0b1220; border: none; border-radius: 10px; padding: 10px 14px; cursor: pointer; font-weight: 600; }
+  .rc-head-left { display: flex; align-items: center; gap: 12px; }
+  .rc-avatar { width: 44px; height: 44px; border-radius: 14px; background: rgba(255,255,255,0.82); color: #0a0f1f; display: grid; place-items: center; font-weight: 800; letter-spacing: 0.5px; }
+  .rc-head-title { font-weight: 800; font-size: 1rem; }
+  .rc-head-sub { font-size: 12px; opacity: 0.85; display: flex; align-items: center; gap: 6px; }
+  .rc-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
+  .rc-dot.online { background: #16a34a; box-shadow: 0 0 0 6px rgba(22,163,74,0.18); }
+  .rc-chat-close { background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.2); color: #0a0f1f; width: 38px; height: 38px; border-radius: 12px; cursor: pointer; display: grid; place-items: center; transition: transform 0.2s; }
+  .rc-chat-close:hover { transform: translateY(-2px); }
+  .rc-chat-messages { padding: 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .rc-bubble { padding: 12px 14px; border-radius: 14px; max-width: 90%; font-size: 14px; line-height: 1.5; position: relative; border: 1px solid transparent; }
+  .rc-bubble.user { background: linear-gradient(135deg, #22c55e, #0ea5e9); color: #0a0f1f; margin-left: auto; font-weight: 700; box-shadow: 0 12px 30px rgba(14,165,233,0.25); }
+  .rc-bubble.bot { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+  .rc-badge { position: absolute; bottom: -10px; left: 12px; font-size: 10px; padding: 3px 6px; border-radius: 999px; background: rgba(255,255,255,0.08); color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.4px; }
+  .rc-bubble.ia .rc-badge { background: #22c55e; color: #0a0f1f; }
+  .rc-quick-replies { padding: 10px 14px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; background: rgba(255,255,255,0.02); }
+  .rc-quick-replies::-webkit-scrollbar { display: none; }
+  .rc-chip { border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #e2e8f0; padding: 8px 12px; border-radius: 12px; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .rc-chip:hover { background: rgba(34,197,94,0.2); color: #0a0f1f; border-color: rgba(34,197,94,0.4); }
+  .rc-chat-form { display: flex; gap: 10px; padding: 12px 14px; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(7,12,24,0.9); }
+  .rc-chat-form input { flex: 1; padding: 12px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #e2e8f0; }
+  .rc-chat-form input:focus { outline: none; border-color: rgba(14,165,233,0.6); box-shadow: 0 0 0 4px rgba(14,165,233,0.16); }
+  .rc-chat-form button { background: linear-gradient(135deg, #22c55e, #0ea5e9); color: #0a0f1f; border: none; border-radius: 12px; padding: 0 14px; cursor: pointer; font-weight: 700; width: 46px; display: grid; place-items: center; box-shadow: 0 12px 26px rgba(34,197,94,0.28); }
   @media (max-width: 640px) {
     .rc-chatbox { right: 12px; left: 12px; width: auto; }
     .rc-chat-toggle { right: 12px; }
@@ -248,6 +274,7 @@
     const form = document.getElementById("rc-chat-form");
     const input = document.getElementById("rc-chat-input");
     const messages = document.getElementById("rc-chat-messages");
+    const quicks = document.querySelectorAll("#rc-quick-replies .rc-chip");
     const endpoint = "/api/chatbot/";
     const t = {
       greeting: chat?.dataset.greeting || "Hello! I'm your RC assistant.",
@@ -257,18 +284,20 @@
 
     if (input && t.placeholder) input.placeholder = t.placeholder;
 
-    const append = (text, role, source) => {
+    const append = (text, role, source, isLoading=false) => {
       const div = document.createElement("div");
       div.className = `rc-bubble ${role}`;
-      div.textContent = text;
+      if (source) div.classList.add(source);
+      div.textContent = isLoading ? "..." : text;
       if (role === "bot" && source) {
         const badge = document.createElement("span");
-        badge.className = `rc-badge ${source === "ia" ? "ia" : "local"}`;
+        badge.className = "rc-badge";
         badge.textContent = source.toUpperCase();
         div.appendChild(badge);
       }
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
+      return div;
     };
 
     toggle.addEventListener("click", () => {
@@ -287,20 +316,29 @@
       if (!text) return;
       append(text, "user");
       input.value = "";
-      append("...", "bot");
+      const loader = append("...", "bot", null, true);
       try {
         const resp = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ query: text })
         });
-        const data = await resp.json();
-        messages.lastChild.remove(); // remove placeholder
+        const data = await resp.json().catch(() => ({}));
+        loader.remove();
         append(data.message || t.error, "bot", data.source);
       } catch (err) {
-        messages.lastChild.remove();
+        loader.remove();
         append(t.error, "bot");
       }
+    });
+
+    quicks.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const text = btn.dataset.msg || "";
+        if (!text) return;
+        input.value = text;
+        form.dispatchEvent(new Event("submit"));
+      });
     });
   })();
 </script>
