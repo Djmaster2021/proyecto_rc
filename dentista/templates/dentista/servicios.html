@@ -43,13 +43,11 @@
                         <td style="padding: 1rem;">
                             <strong style="color: #0f172a;">{{ s.nombre }}</strong>
                             <div style="font-size: 0.85rem; color: #64748b;">
-                                {% with desc=s.descripcion|default_if_none:""|trim %}
-                                    {% if desc %}
-                                        {{ desc|truncatechars:80 }}
-                                    {% else %}
-                                        {{ s.nombre }} — agrega una breve descripción (objetivo, materiales, alcance).
-                                    {% endif %}
-                                {% endwith %}
+                                {% if s.descripcion %}
+                                    {{ s.descripcion|truncatechars:80 }}
+                                {% else %}
+                                    {{ s.nombre }} — agrega una breve descripción (objetivo, materiales, alcance).
+                                {% endif %}
                             </div>
                         </td>
                         <td style="padding: 1rem; font-weight: 600;">${{ s.precio }}</td>
