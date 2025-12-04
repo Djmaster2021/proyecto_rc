@@ -59,9 +59,24 @@ def chatbot_api(request):
     # Token opcional para uso público controlado
     expected_secret = getattr(settings, "CHATBOT_API_SECRET", "")
     provided_secret = request.headers.get("X-CHATBOT-SECRET") or request.GET.get("secret")
-    if expected_secret and provided_secret != expected_secret:
-        print(f"[CHATBOT] Forbidden secret from IP {ip}")
-        return JsonResponse({"message": "Forbidden"}, status=403)
+    same_origin = False
+    try:
+        referer = request.META.get("HTTP_REFERER", "")
+        proto = "https" if request.is_secure() else "http"
+        host = request.get_host()
+        same_origin = referer.startswith(f"{proto}://{host}")
+    except Exception:
+        same_origin = False
+
+    if expected_secret:
+        if provided_secret == expected_secret:
+            pass  # OK, secret válido
+        elif same_origin:
+            # Permitimos llamadas desde el mismo origen aunque no manden el header (chat embebido)
+            pass
+        else:
+            print(f"[CHATBOT] Forbidden secret from IP {ip}")
+            return JsonResponse({"message": "Forbidden"}, status=403)
 
     # Freno simple por IP para evitar abuso.
     key = f"chatbot:rate:{ip}"

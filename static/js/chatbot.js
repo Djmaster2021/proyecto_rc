@@ -31,10 +31,10 @@ document.addEventListener("DOMContentLoaded", () => {
     async function enviarMensaje(texto) {
       const mensaje = texto.trim();
       if (!mensaje) return;
-  
+
       // Mostrar mensaje del usuario
       agregarMensaje(mensaje, "user");
-  
+
       try {
         const resp = await fetch("/api/chatbot/", {
           method: "POST",
@@ -44,9 +44,9 @@ document.addEventListener("DOMContentLoaded", () => {
           },
           body: JSON.stringify({ query: mensaje }), // la API espera "query"
         });
-  
-        const data = await resp.json();
-        const respuesta = data.message ?? "No pude procesar tu consulta en este momento.";
+
+        const data = await resp.json().catch(() => ({}));
+        const respuesta = data.message ?? (resp.ok ? "No pude procesar tu consulta en este momento." : "⚠️ Error al conectar. Intenta de nuevo.");
         agregarMensaje(respuesta, "bot");
       } catch (error) {
         console.error("Error en chatbot:", error);

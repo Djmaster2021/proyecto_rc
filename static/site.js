@@ -115,10 +115,10 @@ function initChatbot() {
                 body: JSON.stringify({ query: text })
             });
     
-            const data = await res.json();
+            const data = await res.json().catch(() => ({}));
             loader.remove();
     
-            const respuesta = data.message ?? 'No pude procesar tu consulta en este momento.';
+            const respuesta = data.message ?? (res.ok ? 'No pude procesar tu consulta en este momento.' : '⚠️ Error al conectar. Intenta de nuevo.');
             addMsg(respuesta, 'bot');
         } catch (err) {
             loader.remove();
