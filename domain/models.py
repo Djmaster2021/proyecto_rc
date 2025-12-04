@@ -126,6 +126,8 @@ class Pago(models.Model):
         ('EFECTIVO', 'Efectivo'),
         ('TRANSFERENCIA', 'Transferencia'),
         ('TARJETA', 'Tarjeta'),
+        ('MERCADOPAGO', 'MercadoPago'),
+        ('MERCADOPAGO_FAKE', 'MercadoPago (fake)'),
     ]
     ESTADOS_PAGO = [
         ('PENDIENTE', 'Pendiente'),

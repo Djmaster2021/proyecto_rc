@@ -20,7 +20,7 @@ from django.db.models import Q
 # Importamos modelos
 from domain.models import Paciente, Dentista, Cita, Pago, Servicio, Horario, PenalizacionLog, EncuestaSatisfaccion
 from domain.notifications import enviar_correo_confirmacion_cita
-from domain.ai_services import calcular_penalizacion_paciente
+from domain.ai_services import calcular_penalizacion_paciente, obtener_slots_disponibles
 from .mp_service import crear_preferencia_pago
 
 # Servicios auxiliares con fallback
@@ -29,6 +29,43 @@ try:
 except ImportError:
     def obtener_horarios_disponibles(*args): return []
     def crear_aviso_por_cita(*args): pass
+
+
+def _reactivar_paciente_si_penalizacion(pago):
+    """
+    Si el pago corresponde a una penalización (cita INASISTENCIA o monto >= $300),
+    reactiva la cuenta del paciente y deja un log.
+    """
+    cita = getattr(pago, "cita", None)
+    paciente = getattr(cita, "paciente", None)
+    user = getattr(paciente, "user", None)
+
+    if not cita or not paciente:
+        return
+
+    if cita.estado != "INASISTENCIA":
+        return
+
+    if user and not user.is_active:
+        user.is_active = True
+        user.save(update_fields=["is_active"])
+
+    try:
+        ultimo = (
+            PenalizacionLog.objects.filter(paciente=paciente, accion="REACTIVAR")
+            .order_by("-created_at")
+            .first()
+        )
+        if not ultimo or ultimo.created_at.date() < timezone.localdate():
+            PenalizacionLog.objects.create(
+                dentista=cita.dentista,
+                paciente=paciente,
+                accion="REACTIVAR",
+                motivo="Cuenta reactivada tras pago de penalización.",
+                monto=pago.monto,
+            )
+    except Exception as exc:
+        print(f"[WARN] No se pudo registrar reactivación: {exc}")
 
 # ========================================================
 # 1. COMPLETAR PERFIL
@@ -41,7 +78,10 @@ def completar_perfil_paciente(request):
 
     dentista_asignado = Dentista.objects.first()
     if not dentista_asignado:
-        messages.error(request, "Error crítico: No hay dentistas registrados.")
+        messages.error(
+            request,
+            "No hay un dentista configurado aún. Contacta al administrador para registrar uno antes de continuar.",
+        )
         return redirect('home')
 
     # Si llega aquí sin perfil de paciente, lo creamos automáticamente con los datos del usuario
@@ -208,6 +248,26 @@ def agendar_cita(request):
 
                 inicio_dt = datetime.combine(fecha_obj, hora_inicio)
                 fin_dt = inicio_dt + timedelta(minutes=servicio.duracion_estimada or 30)
+
+                # Evita agendar en horas ya pasadas el mismo día
+                now_local = timezone.localtime()
+                if fecha_obj == now_local.date() and hora_inicio <= now_local.time():
+                    messages.error(request, "No puedes agendar en una hora que ya pasó.")
+                    return redirect('paciente:dashboard')
+
+                # Validar que el horario esté disponible para ese servicio/dentista
+                slots_libres = set(
+                    obtener_slots_disponibles(
+                        dentista_especialista,
+                        fecha_obj,
+                        servicio,
+                        minutos_bloque=15,
+                    )
+                )
+                slot_key = hora_inicio.strftime("%H:%M")
+                if slot_key not in slots_libres:
+                    messages.error(request, "Ese horario ya no está disponible. Elige otro.")
+                    return redirect('paciente:dashboard')
                 
                 # Creamos la cita con el especialista correcto
                 nueva_cita = Cita.objects.create(
@@ -372,6 +432,7 @@ def iniciar_pago(request, cita_id):
         pago.estado = "COMPLETADO"
         pago.metodo = pago.metodo or "MERCADOPAGO_FAKE"
         pago.save(update_fields=["estado", "metodo"])
+        _reactivar_paciente_si_penalizacion(pago)
         try:
             crear_aviso_por_cita(
                 pago.cita,
@@ -425,6 +486,7 @@ def pago_exitoso(request):
         pago.estado = "COMPLETADO"
         pago.metodo = pago.metodo or "MERCADOPAGO"
         pago.save(update_fields=["estado", "metodo"])
+        _reactivar_paciente_si_penalizacion(pago)
         if previo != "COMPLETADO":
             try:
                 crear_aviso_por_cita(
@@ -513,6 +575,7 @@ def mp_webhook(request):
         pago.estado = "COMPLETADO"
         pago.metodo = "MERCADOPAGO"
         pago.save(update_fields=["estado", "metodo"])
+        _reactivar_paciente_si_penalizacion(pago)
         if previo != "COMPLETADO":
             try:
                 crear_aviso_por_cita(
@@ -562,17 +625,12 @@ def pagar_penalizacion(request):
             penal_pendiente.estado = "COMPLETADO"
             penal_pendiente.save(update_fields=["estado"])
 
-        PenalizacionLog.objects.create(
-            dentista=paciente.dentista,
-            paciente=paciente,
-            accion="REACTIVAR",
-            motivo="Pago de penalización registrado por el paciente.",
-            monto=penal_pendiente.monto if penal_pendiente else Decimal("300.00"),
-        )
+        if penal_pendiente:
+            _reactivar_paciente_si_penalizacion(penal_pendiente)
 
         messages.success(
             request,
-            "Pago registrado. Si tu cuenta estaba suspendida, solicita al consultorio que la reactive.",
+            "Pago registrado. Si tu cuenta estaba suspendida por penalización, se reactivó automáticamente.",
         )
         return redirect("paciente:dashboard")
 
@@ -894,6 +952,28 @@ def reprogramar_cita(request, cita_id):
     inicio_dt = datetime.combine(fecha_obj, hora_inicio)
     fin_dt = inicio_dt + timedelta(minutes=cita.servicio.duracion_estimada or 30)
 
+    now_local = timezone.localtime()
+    if fecha_obj == now_local.date() and hora_inicio <= now_local.time():
+        messages.error(request, "No puedes reprogramar a una hora que ya pasó.")
+        return redirect("paciente:dashboard")
+
+    # Validar disponibilidad (permitimos el mismo slot original para evitar bloquear reprogramar sin cambios)
+    slots_libres = set(
+        obtener_slots_disponibles(
+            cita.dentista,
+            fecha_obj,
+            cita.servicio,
+            minutos_bloque=15,
+        )
+    )
+    slot_key = hora_inicio.strftime("%H:%M")
+    slot_actual = cita.hora_inicio.strftime("%H:%M")
+    if slot_key not in slots_libres and not (
+        cita.fecha == fecha_obj and slot_key == slot_actual
+    ):
+        messages.error(request, "Ese horario ya no está disponible. Elige otro.")
+        return redirect("paciente:dashboard")
+
     cita.fecha = fecha_obj
     cita.hora_inicio = hora_inicio
     cita.hora_fin = fin_dt.time()
@@ -956,12 +1036,8 @@ def api_slots(request):
     if not horarios:
         return JsonResponse({"slots": [], "msg": "Día no laboral"})
 
-    ocupados = [
-        (datetime.combine(fecha, c.hora_inicio), datetime.combine(fecha, c.hora_fin))
-        for c in Cita.objects.filter(
-            dentista=dentista, fecha=fecha
-        ).exclude(estado__in=["CANCELADA", "INASISTENCIA"])
-    ]
+    # Usamos la misma lógica centralizada de domain.ai_services para calcular libres
+    libres = set(obtener_slots_disponibles(dentista, fecha, servicio, minutos_bloque=15))
 
     slots = []
     ahora = timezone.localtime()
@@ -970,12 +1046,11 @@ def api_slots(request):
         cursor = datetime.combine(fecha, h.hora_inicio)
         fin = datetime.combine(fecha, h.hora_fin)
         while cursor + timedelta(minutes=duracion) <= fin:
-            fin_slot = cursor + timedelta(minutes=duracion)
-            ocupado = any(cursor < o_fin and fin_slot > o_ini for o_ini, o_fin in ocupados)
+            label = cursor.strftime("%H:%M")
             if fecha > hoy or cursor.time() > ahora.time():
                 slots.append({
-                    "hora": cursor.strftime("%H:%M"),
-                    "estado": "ocupado" if ocupado else "libre",
+                    "hora": label,
+                    "estado": "libre" if label in libres else "ocupado",
                     "recomendado": False
                 })
             cursor += timedelta(minutes=15)

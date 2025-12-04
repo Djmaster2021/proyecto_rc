@@ -24,7 +24,8 @@ def obtener_turnos_dentista_en_fecha(dentista, fecha):
     # CORRECCIÓN: Usamos el modelo Horario
     return Horario.objects.filter(
         dentista=dentista,
-        dia_semana=fecha.weekday()
+        # isoweekday() => lunes=1 ... domingo=7 (match con modelo)
+        dia_semana=fecha.isoweekday()
     ).order_by("hora_inicio")
 
 

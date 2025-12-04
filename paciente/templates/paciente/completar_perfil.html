@@ -1,0 +1,43 @@
+{% extends "paciente/base.html" %}
+{% load i18n %}
+
+{% block ptitle %}{% trans "Perfil del paciente" %}{% endblock %}
+
+{% block header_title %}
+    {% if es_edicion %}{% trans "Editar perfil" %}{% else %}{% trans "Completar perfil" %}{% endif %}
+{% endblock %}
+
+{% block pcontent %}
+<section class="card glass" style="max-width: 720px; margin: 0 auto;">
+  <div class="card-body">
+    <p class="muted">
+      {% trans "Actualiza tus datos básicos para que el consultorio pueda contactarte y agendar citas." %}
+    </p>
+    <form method="post" action="">
+      {% csrf_token %}
+      <div class="grid-2" style="gap: 1rem;">
+        <label class="form-field">
+          <span class="form-label">{% trans "Nombre completo" %}</span>
+          <input type="text" name="nombre" class="input" required
+                 value="{{ paciente.nombre|default:nombre_google }}">
+        </label>
+        <label class="form-field">
+          <span class="form-label">{% trans "Fecha de nacimiento" %}</span>
+          <input type="date" name="fecha_nacimiento" class="input"
+                 value="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}">
+        </label>
+      </div>
+
+      <label class="form-field" style="margin-top: 1rem;">
+        <span class="form-label">{% trans "Dirección" %}</span>
+        <textarea name="direccion" rows="3" class="textarea" placeholder="{% trans 'Calle, número, colonia, ciudad' %}">{{ paciente.direccion }}</textarea>
+      </label>
+
+      <div class="form-actions" style="margin-top: 1.25rem; display:flex; gap:0.75rem;">
+        <button type="submit" class="btn btn-primary">{% trans "Guardar" %}</button>
+        <a class="btn btn-secondary" href="{% url 'paciente:dashboard' %}">{% trans "Cancelar" %}</a>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
