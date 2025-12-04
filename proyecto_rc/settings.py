@@ -288,6 +288,8 @@ if _CHATBOT_FLAG is None:
     CHATBOT_IA_ENABLED = bool(GEMINI_API_KEY)
 else:
     CHATBOT_IA_ENABLED = _CHATBOT_FLAG.lower() in ("1", "true", "yes")
+# API Chatbot (opcional): si se define, exige header X-CHATBOT-SECRET
+CHATBOT_API_SECRET = os.getenv("CHATBOT_API_SECRET", "")
 
 # ====================================
 # 13. SEGURIDAD HTTP (opcional)

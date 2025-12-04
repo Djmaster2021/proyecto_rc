@@ -53,8 +53,17 @@ def chatbot_api(request):
     Espera JSON: {"query": "texto del usuario"}
     Responde: {"message": "respuesta del bot"}
     """
+    # IP real (respeta X-Forwarded-For si existe)
+    ip = (request.META.get("HTTP_X_FORWARDED_FOR") or "").split(",")[0].strip() or request.META.get("REMOTE_ADDR", "anon")
+
+    # Token opcional para uso público controlado
+    expected_secret = getattr(settings, "CHATBOT_API_SECRET", "")
+    provided_secret = request.headers.get("X-CHATBOT-SECRET") or request.GET.get("secret")
+    if expected_secret and provided_secret != expected_secret:
+        print(f"[CHATBOT] Forbidden secret from IP {ip}")
+        return JsonResponse({"message": "Forbidden"}, status=403)
+
     # Freno simple por IP para evitar abuso.
-    ip = request.META.get("REMOTE_ADDR", "anon")
     key = f"chatbot:rate:{ip}"
     hits = cache.get(key, 0)
     max_hits = 20  # más conservador
@@ -108,6 +117,8 @@ def chatbot_api(request):
         resp_payload = {"message": respuesta, "source": source}
         if source_detail:
             resp_payload["source_detail"] = source_detail
+        # Log ligero sin datos sensibles
+        print(f"[CHATBOT] ip={ip} source={source} hits={hits+1}")
         return JsonResponse(resp_payload)
 
     except json.JSONDecodeError:
