@@ -60,6 +60,7 @@ def chatbot_api(request):
     expected_secret = getattr(settings, "CHATBOT_API_SECRET", "")
     provided_secret = request.headers.get("X-CHATBOT-SECRET") or request.GET.get("secret")
     same_origin = False
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     try:
         referer = request.META.get("HTTP_REFERER", "") or ""
         origin = request.META.get("HTTP_ORIGIN", "") or ""
@@ -71,12 +72,7 @@ def chatbot_api(request):
         same_origin = False
 
     if expected_secret:
-        if provided_secret == expected_secret:
-            pass  # OK, secret válido
-        elif same_origin:
-            # Permitimos llamadas desde el mismo origen aunque no manden el header (chat embebido)
-            pass
-        else:
+        if not (provided_secret == expected_secret or same_origin or is_ajax):
             print(f"[CHATBOT] Forbidden secret from IP {ip}")
             return JsonResponse({"message": "Forbidden"}, status=403)
 
