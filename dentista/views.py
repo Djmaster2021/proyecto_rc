@@ -579,11 +579,12 @@ def servicios(request):
     }
     for s in qs:
         key = (s.nombre or "").strip().lower()
+        desc = (s.descripcion or "").strip()
         texto_base = standard_desc.get(key)
         if texto_base:
             s.descripcion_mostrar = texto_base
-        elif s.descripcion:
-            s.descripcion_mostrar = s.descripcion
+        elif desc:
+            s.descripcion_mostrar = desc
         else:
             s.descripcion_mostrar = f"{s.nombre} — agrega una breve descripción (objetivo, materiales, alcance)."
 
