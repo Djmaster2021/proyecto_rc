@@ -224,7 +224,9 @@
    }
    
    /* Tablas Clínicas */
-   .table-responsive { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-subtle); background: #fff; }
+.table-responsive { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-subtle); background: #fff; }
+.table-responsive { -webkit-overflow-scrolling: touch; }
+.table-responsive table { min-width: 720px; }
    .data-table { width: 100%; border-collapse: collapse; min-width: 800px; }
    .data-table th { text-align: left; padding: 1rem 1.5rem; background: #f1f5f9; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; border-bottom: 2px solid var(--border-subtle); }
    .data-table td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-subtle); color: var(--text-main); font-weight: 500; }

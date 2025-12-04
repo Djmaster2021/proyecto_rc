@@ -53,6 +53,39 @@ def _guardar_aviso(dentista, mensaje):
     except Exception as exc:
         print(f"[WARN] Aviso no guardado: {exc}")
 
+
+def _reactivar_paciente_por_pago(pago_obj):
+    """
+    Reactiva cuenta cuando se registra pago ligado a una cita INASISTENCIA (penalización).
+    """
+    cita = getattr(pago_obj, "cita", None)
+    paciente = getattr(cita, "paciente", None)
+    user = getattr(paciente, "user", None)
+
+    if not cita or not paciente or cita.estado != "INASISTENCIA":
+        return
+
+    if user and not user.is_active:
+        user.is_active = True
+        user.save(update_fields=["is_active"])
+
+    try:
+        ultimo = (
+            PenalizacionLog.objects.filter(paciente=paciente, accion="REACTIVAR")
+            .order_by("-created_at")
+            .first()
+        )
+        if not ultimo or ultimo.created_at.date() < timezone.localdate():
+            PenalizacionLog.objects.create(
+                dentista=cita.dentista,
+                paciente=paciente,
+                accion="REACTIVAR",
+                motivo="Reactivación automática tras pago de penalización.",
+                monto=pago_obj.monto,
+            )
+    except Exception as exc:
+        print(f"[WARN] No se pudo registrar reactivación automática: {exc}")
+
 def _build_weeks(dentista, start_date, end_date, hoy, hora_actual):
     """
     Construye una lista de semanas (listas de días) desde start_date hasta end_date (inclusive),
@@ -934,6 +967,7 @@ def registrar_pago(request):
             cita_obj = Cita.objects.create(dentista=dentista, paciente=paciente_gen, servicio=servicio_gen, fecha=date.today(), hora_inicio=timezone.localtime().time(), hora_fin=timezone.localtime().time(), estado="COMPLETADA", notas=concepto)
 
         pago_obj, _ = Pago.objects.update_or_create(cita=cita_obj, defaults={"monto": monto_decimal, "metodo": metodo, "estado": "COMPLETADO"})
+        _reactivar_paciente_por_pago(pago_obj)
         
         if cita_obj.estado != "COMPLETADA":
             cita_obj.estado = "COMPLETADA"

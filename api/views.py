@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.http import JsonResponse
 from django.utils.dateparse import parse_date
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_http_methods
 from rest_framework import generics, permissions, serializers
@@ -152,6 +153,15 @@ def api_slots_disponibles(request):
             status=400,
         )
 
+    hoy = timezone.localdate()
+    limite = hoy + timezone.timedelta(days=60)
+    if fecha < hoy:
+        return JsonResponse({"detail": "No se permiten fechas pasadas."}, status=400)
+    if fecha > limite:
+        return JsonResponse({"detail": "Fuera de rango (60 días)."}, status=400)
+    if fecha.isoweekday() == 7:
+        return JsonResponse({"detail": "No se atiende los domingos."}, status=400)
+
     # ---------------- Resolver dentista ----------------
     if dentista_id:
         # CORRECCIÓN AQUÍ:
@@ -190,6 +200,8 @@ def api_slots_disponibles(request):
     # Esta función debe venir de tu 'domain/ai_services.py'
     try:
         slots = obtener_slots_disponibles(dentista, fecha, servicio)
+        if not slots:
+            return JsonResponse({"slots": [], "detail": "Sin horarios disponibles para esa fecha."})
         return JsonResponse({"slots": slots})
     except Exception as e:
         print(f"Error calculando slots: {e}")
