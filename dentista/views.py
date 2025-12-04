@@ -578,12 +578,14 @@ def servicios(request):
         "alineador": "Férula transparente removible para mover dientes.",
     }
     for s in qs:
-        if not s.descripcion:
-            key = (s.nombre or "").strip().lower()
-            s.descripcion_fallback = standard_desc.get(key, f"{s.nombre} — agrega una breve descripción (objetivo, materiales, alcance).")
+        key = (s.nombre or "").strip().lower()
+        texto_base = standard_desc.get(key)
+        if texto_base:
+            s.descripcion_mostrar = texto_base
+        elif s.descripcion:
+            s.descripcion_mostrar = s.descripcion
         else:
-            key = (s.nombre or "").strip().lower()
-            s.descripcion_fallback = standard_desc.get(key, s.descripcion)
+            s.descripcion_mostrar = f"{s.nombre} — agrega una breve descripción (objetivo, materiales, alcance)."
 
     return render(request, "dentista/servicios.html", {
         "dentista": dentista, "servicios": qs, "query": q, "total": qs.count()
