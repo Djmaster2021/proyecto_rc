@@ -5,6 +5,7 @@
 import json
 import csv
 from datetime import date, datetime, timedelta
+import re
 from decimal import Decimal
 import os
 from io import StringIO, BytesIO
@@ -16,6 +17,7 @@ from django.utils.html import strip_tags
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.models import User
 from django.db.models import Sum, Q, Count
 from django.http import HttpResponse, JsonResponse, FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -36,9 +38,10 @@ from domain.models import (
     Diente,
     TicketSoporte,
 )
-from domain.ai_services import procesar_inasistencia
+from domain.ai_services import calcular_penalizacion_paciente, procesar_inasistencia
 from domain.notifications import (
     enviar_correo_confirmacion_cita,
+    enviar_correo_penalizacion,
     enviar_correo_ticket_soporte,
     registrar_aviso_dentista,
 )
@@ -60,7 +63,7 @@ def _build_weeks(dentista, start_date, end_date, hoy, hora_actual):
 
     for offset in range(total_dias):
         fecha = start_date + timedelta(days=offset)
-        citas_dia = Cita.objects.filter(dentista=dentista, fecha=fecha).order_by("hora_inicio")
+        citas_dia = Cita.objects.filter(dentista=dentista, fecha=fecha).exclude(estado="CANCELADA").order_by("hora_inicio")
 
         citas_info = []
         for c in citas_dia:
@@ -82,7 +85,11 @@ def _build_weeks(dentista, start_date, end_date, hoy, hora_actual):
     return semanas
 
 def _build_resumenes(dentista, hoy, hora_actual):
-    citas_hoy = Cita.objects.filter(dentista=dentista, fecha=hoy).order_by("hora_inicio")
+    citas_hoy = (
+        Cita.objects.filter(dentista=dentista, fecha=hoy)
+        .exclude(estado="CANCELADA")
+        .order_by("hora_inicio")
+    )
     en_curso = citas_hoy.filter(hora_inicio__lte=hora_actual, hora_fin__gt=hora_actual).first()
     siguiente = citas_hoy.filter(hora_inicio__gt=hora_actual).first()
     resumen_agenda = {
@@ -109,6 +116,12 @@ def _build_resumenes(dentista, hoy, hora_actual):
 # ============================================================
 #  1. SISTEMA DE CORREOS INTELIGENTE
 # ============================================================
+
+def _validar_telefono_10d(telefono):
+    """Normaliza a dígitos y valida exactamente 10."""
+    telefono = re.sub(r"\D", "", (telefono or ""))
+    return telefono if len(telefono) == 10 else None
+
 
 def _get_paciente_email(paciente):
     """Recupera el email desde el usuario vinculado al paciente."""
@@ -245,7 +258,10 @@ def optimizar_agenda(citas_dia):
 
 @login_required
 def dashboard_dentista(request):
-    dentista = get_object_or_404(Dentista, user=request.user)
+    dentista = Dentista.objects.filter(user=request.user).first()
+    if not dentista:
+        # Si el usuario no es dentista, redirige a su panel de paciente
+        return redirect("paciente:dashboard")
     hoy = date.today()
     hora_actual = timezone.localtime().time()
 
@@ -280,6 +296,7 @@ def dashboard_dentista(request):
         f = start_date + timedelta(days=i)
         cs = (
             Cita.objects.filter(dentista=dentista, fecha=f)
+            .exclude(estado="CANCELADA")
             .select_related("paciente", "servicio")
             .order_by("hora_inicio")
         )
@@ -405,13 +422,33 @@ def crear_cita_manual(request):
         s_id = request.POST.get("servicio")
         f_str = request.POST.get("fecha")
         h_str = request.POST.get("hora")
+        metodo_pago = request.POST.get("metodo_pago", "EFECTIVO").upper()
+        monto_raw = request.POST.get("monto", "").strip()
         
         if p_id and s_id and f_str and h_str:
             try:
                 f = datetime.strptime(f_str, "%Y-%m-%d").date()
                 h = datetime.strptime(h_str, "%H:%M").time()
+                hoy = date.today()
+                if f < hoy:
+                    messages.error(request, "No puedes agendar en fecha pasada.")
+                    return redirect("dentista:crear_cita_manual")
+
                 s = Servicio.objects.get(id=s_id)
+                if s.dentista_id != dentista.id:
+                    messages.error(request, "Debes elegir un servicio del propio consultorio.")
+                    return redirect("dentista:crear_cita_manual")
                 paciente_obj = get_object_or_404(Paciente, id=p_id, dentista=dentista)
+
+                # Validar monto manual (opcional)
+                try:
+                    monto_decimal = Decimal(monto_raw) if monto_raw else s.precio
+                except Exception:
+                    messages.error(request, "Monto inválido.")
+                    return redirect("dentista:crear_cita_manual")
+
+                if metodo_pago not in ["EFECTIVO", "TRANSFERENCIA", "TARJETA", "MERCADOPAGO"]:
+                    metodo_pago = "EFECTIVO"
                 
                 # Crear la cita
                 nueva_cita = Cita.objects.create(
@@ -428,8 +465,8 @@ def crear_cita_manual(request):
                     Pago.objects.get_or_create(
                         cita=nueva_cita,
                         defaults={
-                            "monto": s.precio,
-                            "metodo": "MERCADOPAGO",
+                            "monto": monto_decimal,
+                            "metodo": metodo_pago,
                             "estado": "PENDIENTE",
                         },
                     )
@@ -524,12 +561,17 @@ def obtener_slots_disponibles(request):
     dentista = get_object_or_404(Dentista, user=request.user)
     fecha_str, s_id = request.GET.get('fecha'), request.GET.get('servicio_id')
     
-    if not fecha_str or not s_id: return JsonResponse({'slots': []})
+    if not fecha_str or not s_id:
+        return JsonResponse({'slots': []})
 
     try:
         fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
-        duracion = Servicio.objects.get(id=s_id).duracion_estimada
-    except: return JsonResponse({'slots': []})
+        servicio = Servicio.objects.get(id=s_id, dentista=dentista)
+        duracion = servicio.duracion_estimada
+    except Servicio.DoesNotExist:
+        return JsonResponse({'slots': []})
+    except Exception:
+        return JsonResponse({'slots': []})
 
     horarios = Horario.objects.filter(dentista=dentista, dia_semana=fecha.isoweekday())
     if not horarios: return JsonResponse({'slots': [], 'mensaje': 'Día no laboral'})
@@ -669,34 +711,45 @@ def registrar_paciente(request):
         email = request.POST.get("email", "").strip().lower()
         password = request.POST.get("password", "").strip()
         nombre = request.POST.get("nombre", "").strip()
+        telefono = request.POST.get("telefono", "").strip()
         
         # 2. Validaciones básicas
         if not email or not password or not nombre:
             messages.error(request, "Correo, contraseña y nombre son obligatorios.")
             return render(request, "dentista/registrar_paciente.html", {"dentista": dentista})
+        if not (telefono_validado := _validar_telefono_10d(telefono)):
+            messages.error(request, "El teléfono debe tener exactamente 10 dígitos numéricos.")
+            return render(request, "dentista/registrar_paciente.html", {"dentista": dentista})
+        if Paciente.objects.filter(dentista=dentista, telefono=telefono_validado).exists():
+            messages.error(request, "Ya existe un paciente con este teléfono.")
+            return render(request, "dentista/registrar_paciente.html", {"dentista": dentista})
+        if Paciente.objects.filter(dentista=dentista, nombre__iexact=nombre).exists():
+            messages.error(request, "Ya existe un paciente con ese nombre.")
+            return render(request, "dentista/registrar_paciente.html", {"dentista": dentista})
             
         # 3. Verificar si el correo ya existe
-        if User.objects.filter(email=email).exists():
+        usuarios_email = User.objects.filter(email=email)
+        if usuarios_email.exists():
             messages.error(request, "Este correo ya está registrado en el sistema.")
             return render(request, "dentista/registrar_paciente.html", {"dentista": dentista})
-
         try:
-            # 4. Crear el Usuario de Django (Login)
-            # Usamos el email como username para facilitar el login
             nuevo_usuario = User.objects.create_user(
                 username=email, 
                 email=email, 
                 password=password,
                 first_name=nombre
             )
+        except Exception as e:
+            messages.error(request, f"No se pudo crear el usuario: {e}")
+            return render(request, "dentista/registrar_paciente.html", {"dentista": dentista})
 
-            # 5. Crear el Paciente (Perfil Clínico)
+        try:
+            # 4. Crear el Paciente (Perfil Clínico)
             paciente = Paciente(
                 user=nuevo_usuario,  # VINCULAMOS AL USUARIO CREADO
                 dentista=dentista,
                 nombre=nombre,
-                email=email, # Guardamos copia del email en el modelo paciente también
-                telefono=request.POST.get("telefono", ""),
+                telefono=telefono_validado,
                 direccion=request.POST.get("direccion", ""),
                 antecedentes=request.POST.get("antecedentes", "")
             )
@@ -725,12 +778,40 @@ def registrar_paciente(request):
 def editar_paciente(request, id):
     p = get_object_or_404(Paciente, id=id, dentista__user=request.user)
     if request.method == "POST":
-        p.nombre = request.POST.get("nombre")
-        p.telefono = request.POST.get("telefono")
-        p.direccion = request.POST.get("direccion")
-        p.antecedentes = request.POST.get("antecedentes")
-        if f := request.POST.get("fecha_nacimiento"): 
-            p.fecha_nacimiento = datetime.strptime(f, "%Y-%m-%d").date()
+        nombre = request.POST.get("nombre", "").strip()
+        telefono = request.POST.get("telefono", "").strip()
+        direccion = request.POST.get("direccion", "").strip()
+        antecedentes = request.POST.get("antecedentes", "")
+        fecha_nacimiento_raw = request.POST.get("fecha_nacimiento")
+
+        if not (telefono_validado := _validar_telefono_10d(telefono)):
+            messages.error(request, "El teléfono debe tener exactamente 10 dígitos numéricos.")
+            p.nombre = nombre
+            p.telefono = telefono
+            p.direccion = direccion
+            p.antecedentes = antecedentes
+            return render(request, "dentista/editar_paciente.html", {"dentista": request.user.dentista, "paciente": p})
+        if Paciente.objects.filter(dentista=request.user.dentista, telefono=telefono_validado).exclude(id=p.id).exists():
+            messages.error(request, "Ya existe otro paciente con este teléfono.")
+            p.nombre = nombre
+            p.telefono = telefono
+            p.direccion = direccion
+            p.antecedentes = antecedentes
+            return render(request, "dentista/editar_paciente.html", {"dentista": request.user.dentista, "paciente": p})
+        if Paciente.objects.filter(dentista=request.user.dentista, nombre__iexact=nombre).exclude(id=p.id).exists():
+            messages.error(request, "Ya existe otro paciente con ese nombre.")
+            p.nombre = nombre
+            p.telefono = telefono
+            p.direccion = direccion
+            p.antecedentes = antecedentes
+            return render(request, "dentista/editar_paciente.html", {"dentista": request.user.dentista, "paciente": p})
+
+        p.nombre = nombre
+        p.telefono = telefono_validado
+        p.direccion = direccion
+        p.antecedentes = antecedentes
+        if fecha_nacimiento_raw: 
+            p.fecha_nacimiento = datetime.strptime(fecha_nacimiento_raw, "%Y-%m-%d").date()
         if request.FILES.get("imagen"): 
             p.imagen = request.FILES.get("imagen")
         p.save()
@@ -797,8 +878,8 @@ def pagos(request):
     if request.method == "POST": return redirect("dentista:registrar_pago")
 
     qs = Pago.objects.filter(cita__dentista=dentista).order_by("-created_at")
-    inicio_mes = date.today().replace(day=1)
-    hoy = date.today()
+    hoy = timezone.localdate()
+    inicio_mes = hoy.replace(day=1)
     
     kpi_mes = qs.filter(created_at__date__gte=inicio_mes, estado="COMPLETADO").aggregate(Sum("monto"))["monto__sum"] or 0
     kpi_hoy = qs.filter(created_at__date=hoy, estado="COMPLETADO").aggregate(Sum("monto"))["monto__sum"] or 0
@@ -816,7 +897,15 @@ def pagos(request):
 @login_required
 def registrar_pago(request):
     dentista = get_object_or_404(Dentista, user=request.user)
-    citas_pendientes = Cita.objects.filter(dentista=dentista, estado__in=["PENDIENTE", "CONFIRMADA"]).order_by("fecha")
+    cita_preseleccionada = request.GET.get("cita_id") or request.POST.get("cita_id")
+    base_citas = Cita.objects.filter(dentista=dentista)
+    citas_pendientes = (
+        base_citas.filter(
+            Q(estado__in=["PENDIENTE", "CONFIRMADA"])
+            | Q(pago_relacionado__estado="PENDIENTE")
+        )
+        | (base_citas.filter(id=cita_preseleccionada) if cita_preseleccionada else base_citas.none())
+    ).distinct().order_by("fecha")
 
     if request.method == "POST":
         cita_id = request.POST.get("cita_id", "").strip()
@@ -871,7 +960,11 @@ def registrar_pago(request):
         messages.success(request, "Pago registrado.")
         return redirect("dentista:pagos")
 
-    return render(request, "dentista/registrar_pago.html", {"dentista": dentista, "citas": citas_pendientes})
+    return render(request, "dentista/registrar_pago.html", {
+        "dentista": dentista,
+        "citas": citas_pendientes,
+        "cita_preseleccionada": cita_preseleccionada,
+    })
 
 @login_required
 def descargar_comprobante(request, pago_id):
@@ -1102,55 +1195,217 @@ def penalizaciones(request):
     # Lógica para mostrar logs de penalización si existen
     logs = PenalizacionLog.objects.filter(paciente__dentista=dentista).order_by("-created_at")[:20]
     pendientes = Pago.objects.filter(cita__dentista=dentista, estado="PENDIENTE")
-    pacientes = Paciente.objects.filter(dentista=dentista).order_by("nombre")
+    pacientes = Paciente.objects.filter(dentista=dentista).select_related("user").order_by("nombre")
+
+    # Clasificamos pacientes por estado de penalización
+    estado_grupos = {"penalizadas": [], "advertidas": [], "inhabilitadas": [], "activas": []}
+    for p in pacientes:
+        info = calcular_penalizacion_paciente(p, dentista)
+        estado = info.get("estado")
+        if not getattr(getattr(p, "user", None), "is_active", True) or estado == "disabled":
+            grupo = "inhabilitadas"
+        elif estado == "pending":
+            # Tratamos pendiente (manual o automática) como advertida para mantenerla en esa columna
+            grupo = "advertidas"
+        elif estado == "warning":
+            grupo = "advertidas"
+        else:
+            # Si tiene una advertencia manual, mantener en advertidas
+            ultima_advertencia = (
+                PenalizacionLog.objects.filter(paciente=p, accion="ADVERTENCIA")
+                .order_by("-created_at")
+                .first()
+            )
+            if ultima_advertencia:
+                grupo = "advertidas"
+            else:
+                grupo = "activas"
+
+        estado_grupos[grupo].append({"paciente": p, "info": info})
     
     # Procesar acciones manuales si se envían
     if request.method == "POST":
         accion = request.POST.get("accion")
-        q_paciente = request.POST.get("paciente_query")
-        if accion == "penalizar":
-            pid = request.POST.get("paciente_id")
+        pid = request.POST.get("paciente_id")
+
+        if accion in ("penalizar", "suspender", "reactivar", "advertencia"):
             if not pid:
-                messages.error(request, "Indica el ID del paciente para penalizar.")
-            else:
-                try:
-                    paciente = Paciente.objects.get(id=pid, dentista=dentista)
-                except Paciente.DoesNotExist:
-                    messages.error(request, "Paciente no encontrado para este dentista.")
+                messages.error(request, "Indica el ID del paciente.")
+                return redirect("dentista:penalizaciones")
+
+            try:
+                paciente = Paciente.objects.get(id=pid, dentista=dentista)
+            except Paciente.DoesNotExist:
+                messages.error(request, "Paciente no encontrado para este dentista.")
+                return redirect("dentista:penalizaciones")
+
+            if accion == "penalizar":
+                cita = Cita.objects.filter(paciente=paciente).order_by("-fecha", "-hora_inicio").first()
+                if not cita:
+                    messages.error(request, "El paciente no tiene citas para registrar inasistencia.")
                 else:
-                    cita = Cita.objects.filter(paciente=paciente).order_by("-fecha", "-hora_inicio").first()
-                    if not cita:
-                        messages.error(request, "El paciente no tiene citas para registrar inasistencia.")
-                    else:
-                        msg = procesar_inasistencia(cita)
-                        messages.success(request, f"Penalización aplicada a {paciente.nombre}. {msg}")
+                    msg = procesar_inasistencia(cita) or "Inasistencia registrada."
+                    messages.success(request, f"Penalización aplicada a {paciente.nombre}. {msg}")
+
+            elif accion == "suspender":
+                usuario = getattr(paciente, "user", None)
+                if not usuario:
+                    messages.error(request, "El paciente no tiene usuario vinculado para suspender.")
+                else:
+                    if usuario.is_active:
+                        usuario.is_active = False
+                        usuario.save(update_fields=["is_active"])
+                    PenalizacionLog.objects.create(
+                        dentista=dentista,
+                        paciente=paciente,
+                        accion="SUSPENDER",
+                        motivo="Suspensión manual aplicada por el dentista.",
+                        monto=Decimal("0"),
+                    )
+                    messages.success(request, f"Cuenta de {paciente.nombre} suspendida.")
+
+            elif accion == "reactivar":
+                usuario = getattr(paciente, "user", None)
+                if not usuario:
+                    messages.error(request, "El paciente no tiene usuario vinculado para reactivar.")
+                else:
+                    if not usuario.is_active:
+                        usuario.is_active = True
+                        usuario.save(update_fields=["is_active"])
+                    PenalizacionLog.objects.create(
+                        dentista=dentista,
+                        paciente=paciente,
+                        accion="REACTIVAR",
+                        motivo="Reactivación manual aplicada por el dentista.",
+                        monto=Decimal("0"),
+                    )
+                    messages.success(request, f"Cuenta de {paciente.nombre} reactivada.")
+
+            elif accion == "advertencia":
+                # Generamos pago pendiente de penalización ($300) y mantenemos en advertidas
+                cita = (
+                    Cita.objects.filter(paciente=paciente)
+                    .order_by("-fecha", "-hora_inicio")
+                    .first()
+                )
+                if not cita:
+                    servicio_base = (
+                        Servicio.objects.filter(dentista=dentista)
+                        .order_by("id")
+                        .first()
+                    )
+                    if not servicio_base:
+                        messages.error(request, "Configura al menos un servicio para aplicar advertencias.")
+                        return redirect("dentista:penalizaciones")
+                    ahora = timezone.localtime()
+                    cita = Cita.objects.create(
+                        dentista=dentista,
+                        paciente=paciente,
+                        servicio=servicio_base,
+                        fecha=ahora.date(),
+                        hora_inicio=ahora.time(),
+                        hora_fin=(ahora + timedelta(minutes=30)).time(),
+                        estado="INASISTENCIA",
+                        notas="Penalización manual: advertencia con cargo.",
+                    )
+                else:
+                    if cita.estado != "INASISTENCIA":
+                        cita.estado = "INASISTENCIA"
+                        cita.save(update_fields=["estado"])
+
+                pago_penal, creado = Pago.objects.get_or_create(
+                    cita=cita,
+                    defaults={
+                        "monto": Decimal("300.00"),
+                        "metodo": "EFECTIVO",
+                        "estado": "PENDIENTE",
+                    },
+                )
+                if not creado and pago_penal.estado != "COMPLETADO":
+                    pago_penal.monto = Decimal("300.00")
+                    pago_penal.estado = "PENDIENTE"
+                    pago_penal.save(update_fields=["monto", "estado"])
+
+                PenalizacionLog.objects.create(
+                    dentista=dentista,
+                    paciente=paciente,
+                    accion="ADVERTENCIA",
+                    motivo="Advertencia aplicada: debe pagar $300 para reactivar citas.",
+                    monto=Decimal("300.00"),
+                )
+                # Notificar al paciente por correo si tiene email
+                correo_paciente = getattr(getattr(paciente, "user", None), "email", None)
+                if correo_paciente:
+                    try:
+                        enviar_correo_penalizacion(
+                            email_destino=correo_paciente,
+                            nombre_paciente=paciente.nombre,
+                            motivo="Advertencia aplicada: debes cubrir $300 para reactivar tus citas.",
+                            recargo=300,
+                            dias_limite=5,
+                        )
+                    except Exception as exc:
+                        print(f"[WARN] No se pudo enviar correo de advertencia: {exc}")
+                # Si acumula 2 o más advertencias, desactivar cuenta automáticamente
+                advert_count = PenalizacionLog.objects.filter(paciente=paciente, accion="ADVERTENCIA").count()
+                if advert_count >= 2:
+                    usuario = getattr(paciente, "user", None)
+                    if usuario and usuario.is_active:
+                        usuario.is_active = False
+                        usuario.save(update_fields=["is_active"])
+                    PenalizacionLog.objects.create(
+                        dentista=dentista,
+                        paciente=paciente,
+                        accion="SUSPENDER",
+                        motivo="Cuenta inhabilitada automáticamente por reincidencia de advertencias.",
+                        monto=Decimal("0"),
+                    )
+                    messages.warning(
+                        request,
+                        f"{paciente.nombre} alcanzó {advert_count} advertencias y fue inhabilitado automáticamente.",
+                    )
+                else:
+                    messages.success(
+                        request,
+                        f"Advertencia registrada para {paciente.nombre}. Pago pendiente de $300 y agenda bloqueada.",
+                    )
+
             return redirect("dentista:penalizaciones")
-        else:
-            messages.info(request, f"Acción {accion} registrada para búsqueda: {q_paciente}")
+
+        messages.info(request, "Acción no reconocida.")
 
     return render(request, "dentista/penalizaciones.html", {
         "dentista": dentista,
         "logs": logs,
         "pendientes": pendientes,
         "pacientes": pacientes,
+        "estado_grupos": estado_grupos,
     })
 
 @login_required
 def reportes(request):
     dentista = get_object_or_404(Dentista, user=request.user)
-    fi = datetime.strptime(request.GET.get("inicio") or (date.today()-timedelta(30)).strftime("%Y-%m-%d"), "%Y-%m-%d").date()
-    ff = datetime.strptime(request.GET.get("fin") or date.today().strftime("%Y-%m-%d"), "%Y-%m-%d").date()
+    hoy = timezone.localdate()
+    fi = datetime.strptime(request.GET.get("inicio") or (hoy - timedelta(30)).strftime("%Y-%m-%d"), "%Y-%m-%d").date()
+    ff = datetime.strptime(request.GET.get("fin") or hoy.strftime("%Y-%m-%d"), "%Y-%m-%d").date()
     citas = (
         Cita.objects.filter(dentista=dentista, fecha__range=(fi, ff))
         .select_related("paciente", "servicio")
         .prefetch_related("encuestasatisfaccion_set")
         .order_by("-fecha")
     )
+    pagos = (
+        Pago.objects.filter(cita__dentista=dentista, created_at__date__range=(fi, ff))
+        .select_related("cita", "cita__paciente", "cita__servicio")
+        .order_by("-created_at")
+    )
+    total_cobrado = pagos.filter(estado="COMPLETADO").aggregate(Sum("monto"))["monto__sum"] or 0
     return render(request, "dentista/reportes.html", {
         "dentista": dentista, "citas": citas, "fecha_inicio": fi, "fecha_fin": ff,
-        "total_monto": Pago.objects.filter(cita__in=citas, estado="COMPLETADO").aggregate(Sum("monto"))["monto__sum"] or 0,
+        "total_monto": total_cobrado,
         "total_citas": citas.count(),
         "total_pacientes": citas.values("paciente_id").distinct().count(),
+        "pagos": pagos,
     })
 
 @login_required
@@ -1169,12 +1424,13 @@ def reporte_csv(request):
 @login_required
 def reporte_pdf(request):
     dentista = get_object_or_404(Dentista, user=request.user)
+    hoy = timezone.localdate()
     fi = datetime.strptime(
-        request.GET.get("inicio") or (date.today() - timedelta(30)).strftime("%Y-%m-%d"),
+        request.GET.get("inicio") or (hoy - timedelta(30)).strftime("%Y-%m-%d"),
         "%Y-%m-%d",
     ).date()
     ff = datetime.strptime(
-        request.GET.get("fin") or date.today().strftime("%Y-%m-%d"),
+        request.GET.get("fin") or hoy.strftime("%Y-%m-%d"),
         "%Y-%m-%d",
     ).date()
     citas = (
@@ -1182,12 +1438,14 @@ def reporte_pdf(request):
         .select_related("paciente", "servicio")
         .order_by("fecha", "hora_inicio")
     )
-
-    total_monto = (
-        Pago.objects.filter(cita__in=citas, estado="COMPLETADO")
-        .aggregate(Sum("monto"))["monto__sum"]
-        or 0
+    pagos = (
+        Pago.objects.filter(cita__dentista=dentista, created_at__date__range=(fi, ff))
+        .select_related("cita", "cita__paciente", "cita__servicio")
+        .order_by("-created_at")
     )
+
+    total_monto = pagos.filter(estado="COMPLETADO").aggregate(Sum("monto"))["monto__sum"] or 0
+    total_pendiente = pagos.filter(estado="PENDIENTE").aggregate(Sum("monto"))["monto__sum"] or 0
     total_citas = citas.count()
     total_pacientes = citas.values("paciente_id").distinct().count()
 
@@ -1224,12 +1482,13 @@ def reporte_pdf(request):
     # Header
     header_h = 120
     contenido += rect(margin + 8, height - margin - header_h, width - 2 * margin - 16, header_h - 12, fill=(0.2, 0.4, 0.82), stroke=(0.2, 0.4, 0.82))
-    contenido += text(margin + 22, height - margin - 40, "Reporte de citas", 18)
+    contenido += text(margin + 22, height - margin - 40, "Reporte de citas y pagos", 18)
     contenido += text(margin + 22, height - margin - 62, f"Dentista: {dentista.nombre}", 12)
     contenido += text(margin + 22, height - margin - 82, f"Rango: {fi.strftime('%d/%m/%Y')} - {ff.strftime('%d/%m/%Y')}", 12)
     contenido += text(width - margin - 160, height - margin - 40, f"Citas: {total_citas}", 12)
     contenido += text(width - margin - 160, height - margin - 58, f"Pacientes: {total_pacientes}", 12)
-    contenido += text(width - margin - 160, height - margin - 76, f"Total: ${total_monto:.2f}", 12)
+    contenido += text(width - margin - 160, height - margin - 76, f"Cobrado: ${total_monto:.2f}", 12)
+    contenido += text(width - margin - 160, height - margin - 94, f"Pendiente: ${total_pendiente:.2f}", 12)
 
     # Subheader tabla
     table_top = height - margin - header_h - 30
@@ -1246,7 +1505,7 @@ def reporte_pdf(request):
 
     # Filas
     y = table_top - 40
-    max_rows = 32
+    max_rows = 20
     row = 0
     for c in citas:
         if row >= max_rows:
@@ -1260,6 +1519,34 @@ def reporte_pdf(request):
         contenido += text(width - margin - 90, y, monto_txt, 10)
         y -= 18
         row += 1
+
+    # Espacio y tabla de pagos
+    y -= 20
+    contenido += rect(margin + 8, y, width - 2 * margin - 16, 24, fill=(0.9, 0.95, 1), stroke=(0.75, 0.84, 0.95))
+    contenido += text(margin + 16, y + 6, "PAGOS (incluye pendientes)", 11)
+    y -= 18
+
+    pagos_headers = [
+        ("FECHA", margin + 16),
+        ("PACIENTE", margin + 110),
+        ("MÉTODO", margin + 280),
+        ("ESTADO", margin + 370),
+        ("MONTO", width - margin - 90),
+    ]
+    for label, hx in pagos_headers:
+        contenido += text(hx, y, label, 11)
+    y -= 16
+
+    max_pagos = 14
+    for p in pagos[:max_pagos]:
+        if y < margin + 40:
+            break
+        contenido += text(margin + 16, y, p.created_at.strftime("%d/%m/%Y"), 10)
+        contenido += text(margin + 110, y, p.cita.paciente.nombre[:26], 10)
+        contenido += text(margin + 280, y, p.metodo[:14], 10)
+        contenido += text(margin + 370, y, p.estado[:12], 10)
+        contenido += text(width - margin - 90, y, f"${p.monto:.2f}", 10)
+        y -= 16
 
     # Nota pie
     contenido += text(margin + 4, margin + 28, "Generado automáticamente por RC Dental. Para detalles completos exporta el CSV.", 10)

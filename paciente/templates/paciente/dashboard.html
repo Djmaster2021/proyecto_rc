@@ -20,10 +20,10 @@
 
 {% if penal_info and penal_info.estado != "sin_penalizacion" %}
 <div class="card-modern" style="background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; margin-bottom: 1rem;">
-    {% if penal_info.estado == "warning" %}
-        <strong>Advertencia:</strong> Registramos una inasistencia. Si vuelves a faltar se generará un cargo de $300 MXN y no podrás agendar hasta pagarlo.
+    {% if penal_info.estado == "warning" and penal_info.recargo|floatformat:0 == "0" %}
+        <strong>Advertencia:</strong> Registramos una falta. Si vuelves a faltar se generará una penalización y bloqueo de agenda.
     {% else %}
-        <strong>Penalización activa:</strong> Debes cubrir ${{ penal_info.recargo|floatformat:0 }} MXN para reactivar tus citas. <a href="{% url 'paciente:pagar_penalizacion' %}" style="color:#9a3412; text-decoration:underline;">Pagar penalización</a>
+        <strong>Advertencia activa:</strong> Tienes una advertencia por faltar a tu cita dental. Debes pagar tu cuota de ${{ penal_info.recargo|default:300|floatformat:0 }} MXN para poder agendar tu cita nuevamente. <a href="{% url 'paciente:mis_pagos' %}" style="color:#9a3412; text-decoration:underline;">Pagar ahora</a>
     {% endif %}
 </div>
 {% endif %}
@@ -70,7 +70,7 @@
                 <div class="empty-state">
                     <i class="ph-duotone ph-calendar-x empty-icon"></i>
                     <p>{% trans "No tienes citas próximas." %}</p>
-                    <button onclick="abrirModalAgendar()" class="cyber-btn cyber-btn-glow" style="margin-top: 0.3rem;" {% if penal_info.estado == "pending" or penal_info.estado == "disabled" %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>
+                    <button onclick="abrirModalAgendar()" class="cyber-btn cyber-btn-glow {% if penal_info.estado == 'pending' or penal_info.estado == 'disabled' %}btn-disabled{% endif %}" style="margin-top: 0.3rem;" {% if penal_info.estado == "pending" or penal_info.estado == "disabled" %}disabled{% endif %}>
                         {% trans "Agendar una cita" %}
                     </button>
                 </div>
@@ -151,8 +151,13 @@
                     {% for pago in pagos_pendientes %}
                         <div class="payment-item">
                             <div>
-                                <strong>{{ pago.cita.servicio.nombre }}</strong><br>
-                                <small>Con Dr. {{ pago.cita.dentista.nombre }} — {{ pago.cita.fecha|date:"d/m/Y" }} {{ pago.cita.hora_inicio|time:"H:i" }}</small>
+                                {% if pago.cita.estado == "INASISTENCIA" and pago.monto|floatformat:0 == "300" %}
+                                  <strong>Penalización (${{ pago.monto }})</strong><br>
+                                  <small>Bloqueo por inasistencia</small>
+                                {% else %}
+                                  <strong>{{ pago.cita.servicio.nombre }}</strong><br>
+                                  <small>Con Dr. {{ pago.cita.dentista.nombre }} — {{ pago.cita.fecha|date:"d/m/Y" }} {{ pago.cita.hora_inicio|time:"H:i" }}</small>
+                                {% endif %}
                             </div>
                             <div class="payment-amount">${{ pago.monto }}</div>
                         </div>

@@ -1,17 +1,21 @@
 import json
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.http import JsonResponse
 from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.http import require_GET, require_http_methods
 from rest_framework import generics, permissions, serializers
 
 # IMPORTANTE: Importamos los modelos correctos desde 'domain'
 # Agregamos 'Dentista' para poder buscarlo por ID
 from domain.models import Servicio, Horario, Dentista
 
-# Asumimos que estos archivos existen en tu proyecto (si no, coméntalos temporalmente)
-from .chatbot_logic import obtener_respuesta_bot
+# Chatbot IA / fallback
+try:
+    from domain.ai_chatbot import responder_chatbot
+except Exception:
+    responder_chatbot = None
 from domain.ai_services import obtener_slots_disponibles
 
 
@@ -41,22 +45,67 @@ class ServicioListAPIView(generics.ListAPIView):
 # Chatbot
 # ---------------------------------------------------------
 @csrf_exempt
-@require_POST
+@require_http_methods(["GET", "POST"])
 def chatbot_api(request):
     """
     API que recibe mensajes del chat y devuelve respuestas.
     Espera JSON: {"query": "texto del usuario"}
     Responde: {"message": "respuesta del bot"}
     """
+    # Freno simple por IP para evitar abuso.
+    ip = request.META.get("REMOTE_ADDR", "anon")
+    key = f"chatbot:rate:{ip}"
+    hits = cache.get(key, 0)
+    if hits >= 30:
+        return JsonResponse({"message": "⏳ Demasiadas peticiones, espera un minuto."}, status=429)
+    cache.set(key, hits + 1, timeout=60)
+
     try:
-        data = json.loads(request.body)
-        mensaje = data.get("query", "").strip()
+        if request.method == "GET":
+            mensaje = (request.GET.get("query") or "").strip()
+            if not mensaje:
+                return JsonResponse(
+                    {"message": "Usa POST con JSON {'query': '...'} o GET ?query=texto."},
+                    status=200,
+                )
+        else:
+            data = json.loads(request.body)
+            mensaje = data.get("query", "").strip()
 
-        if not mensaje:
-            return JsonResponse({"message": "🤔 No escribiste nada."}, status=400)
+            if not mensaje:
+                return JsonResponse({"message": "🤔 No escribiste nada."}, status=400)
 
-        respuesta = obtener_respuesta_bot(mensaje)
-        return JsonResponse({"message": respuesta})
+        # Historial breve por sesión (anónimo o logueado).
+        history = []
+        try:
+            history = request.session.get("chatbot_history", []) or []
+        except Exception:
+            history = []
+
+        lang = getattr(request, "LANGUAGE_CODE", "es") or "es"
+        if responder_chatbot:
+            payload = responder_chatbot(mensaje, history=history, lang_code=lang)
+            respuesta = payload.get("message")
+            source = payload.get("source", "local")
+            source_detail = payload.get("source_detail")
+        else:
+            # Fallback mínimo si el módulo no está disponible
+            respuesta = "Soy el asistente RC. Puedo ayudarte con horarios, pagos y penalizaciones. Cuéntame tu duda."
+            source = "local"
+            source_detail = None
+
+        # Guardar historial (máx 6 mensajes combinados User/Bot)
+        try:
+            history.append(f"Usuario: {mensaje}")
+            history.append(f"Asistente: {respuesta}")
+            request.session["chatbot_history"] = history[-6:]
+            request.session.modified = True
+        except Exception:
+            pass
+        resp_payload = {"message": respuesta, "source": source}
+        if source_detail:
+            resp_payload["source_detail"] = source_detail
+        return JsonResponse(resp_payload)
 
     except json.JSONDecodeError:
         return JsonResponse({"message": "Error de formato JSON."}, status=400)

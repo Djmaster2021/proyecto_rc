@@ -32,7 +32,7 @@
                 <select name="servicio" id="servicioSelect" class="form-control" required onchange="cargarSlots()">
                     <option value="">Selecciona servicio...</option>
                     {% for s in servicios %}
-                    <option value="{{ s.id }}">{{ s.nombre }} ({{ s.duracion_estimada }} min)</option>
+                    <option value="{{ s.id }}" data-precio="{{ s.precio }}">{{ s.nombre }} ({{ s.duracion_estimada }} min)</option>
                     {% endfor %}
                 </select>
             </div>
@@ -45,6 +45,23 @@
         </div>
 
         <hr style="border-color: #eee; margin: 2rem 0;">
+
+        <div class="row-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1rem;">
+            <div class="form-group">
+                <label class="form-label"><i class="ph-bold ph-credit-card"></i> Método de pago</label>
+                <select name="metodo_pago" id="metodoPago" class="form-control" required>
+                    <option value="EFECTIVO">Efectivo</option>
+                    <option value="TARJETA">Tarjeta</option>
+                    <option value="TRANSFERENCIA">Transferencia</option>
+                    <option value="MERCADOPAGO">MercadoPago</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label"><i class="ph-bold ph-currency-dollar"></i> Monto</label>
+                <input type="number" name="monto" id="montoInput" class="form-control" step="0.01" min="0" placeholder="Ej. 500.00">
+                <small style="color:#64748b;">Se precarga con el precio del servicio, puedes ajustarlo.</small>
+            </div>
+        </div>
 
         <div class="form-group">
             <label class="form-label" style="display: flex; justify-content: space-between;">
@@ -97,10 +114,19 @@
         const fecha = document.getElementById('fechaInput').value;
         const container = document.getElementById('slots-container');
         const loader = document.getElementById('loading-badge');
+        const montoInput = document.getElementById('montoInput');
         
         // Limpiar previo
         document.getElementById('horaSelected').value = "";
         document.getElementById('btnSubmit').disabled = true;
+
+        // Prefill monto con el precio del servicio seleccionado
+        const selectedOpt = document.querySelector(`#servicioSelect option[value="${servicioId}"]`);
+        if (selectedOpt && selectedOpt.dataset.precio) {
+            montoInput.value = selectedOpt.dataset.precio;
+        } else {
+            montoInput.value = "";
+        }
 
         if (!servicioId || !fecha) return;
 

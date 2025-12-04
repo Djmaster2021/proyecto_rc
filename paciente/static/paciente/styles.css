@@ -1296,3 +1296,10 @@ select option {
   gap: 6px;
   font-weight: 600;
 }
+
+.btn-disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  filter: grayscale(0.85);
+  pointer-events: none;
+}

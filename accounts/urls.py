@@ -9,6 +9,7 @@ urlpatterns = [
     # 1. Login personalizado (usa la clase que definimos en views.py)
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('redirect-by-role/', views.redirect_by_role, name='redirect_by_role'),
+    path('post-login/', views.redirect_by_role, name='post_login'),  # alias seguro
 
     # 2. Logout (usa la vista nativa de Django)
     path(
@@ -17,8 +18,6 @@ urlpatterns = [
         name="logout",
     ),
     
-    path("post-login/", views.post_login, name="post_login"),
-
     # 3. Registro (usa la función register de views.py)
     path("register/", views.register, name="register"),
 

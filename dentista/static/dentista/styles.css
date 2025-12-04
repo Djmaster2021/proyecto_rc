@@ -4396,3 +4396,10 @@ html {
     .dashboard-grid { grid-template-columns: 1fr !important; }
     .action-buttons-grid { grid-template-columns: 1fr; }
 }
+
+/* Avisos más grandes con scroll */
+.notif-card { max-height: 320px; }
+.notif-scroll { max-height: 240px; overflow-y: auto; padding-right: 8px; }
+.notif-item { padding: 12px 10px; border: 1px solid var(--border-subtle); border-radius: 10px; margin-bottom: 10px; background: #f8fafc; box-shadow: var(--shadow-card); }
+.notif-item p { font-size: 0.95rem; line-height: 1.5; }
+.notif-item small { color: var(--text-muted); }

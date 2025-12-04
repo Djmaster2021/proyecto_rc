@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -9,16 +9,6 @@
   <link rel="stylesheet" href="{% static 'accounts/styles.css' %}">
 </head>
 <body class="register-page">
-  <header class="site-topbar">
-    <a class="brand" href="#" aria-label="Rodolfo Castellón">RC</a>
-    <div class="theme-toggle" id="themeToggle">
-      <input type="radio" name="t" id="t-light" value="light" checked>
-      <label class="toggle-chip" for="t-light">Claro</label>
-      <input type="radio" name="t" id="t-dark" value="dark">
-      <label class="toggle-chip" for="t-dark">Oscuro</label>
-    </div>
-  </header>
-
   <main class="site-main">
     <section class="auth-hero">
       <div class="glow-card">
@@ -81,6 +71,15 @@
             </div>
 
             <div class="field">
+              <label for="id_email" class="muted">Correo</label>
+              <input id="id_email" class="input" type="email" name="email"
+                     autocomplete="email" placeholder="ej. juan@correo.com" value="{{ form.email.value|default:'' }}">
+              {% for error in form.email.errors %}
+                <span class="error-text">{{ error }}</span>
+              {% endfor %}
+            </div>
+
+            <div class="field">
               <label for="id_telefono" class="muted">Teléfono</label>
               <input id="id_telefono" class="input" type="text" name="telefono"
                      required
@@ -93,15 +92,6 @@
                   <span class="error-text">{{ error }}</span>
                 {% endfor %}
               {% endif %}
-            </div>
-
-            <div class="field">
-              <label for="id_email" class="muted">Correo</label>
-              <input id="id_email" class="input" type="email" name="email"
-                     autocomplete="email" placeholder="ej. juan@correo.com" value="{{ form.email.value|default:'' }}">
-              {% for error in form.email.errors %}
-                <span class="error-text">{{ error }}</span>
-              {% endfor %}
             </div>
 
             <div class="field">

@@ -22,7 +22,7 @@
                 <select name="cita_id" id="citaSelect" class="form-control">
                     <option value="">Pago directo (sin cita)</option>
                     {% for c in citas %}
-                        <option value="{{ c.id }}" data-monto="{{ c.servicio.precio }}" data-concepto="{{ c.servicio.nombre }} - {{ c.paciente.nombre }}">
+                        <option value="{{ c.id }}" data-monto="{{ c.servicio.precio }}" data-concepto="{{ c.servicio.nombre }} - {{ c.paciente.nombre }}" {% if c.id|stringformat:"s" == cita_preseleccionada %}selected{% endif %}>
                             {{ c.paciente.nombre }} · {{ c.servicio.nombre }} · {{ c.fecha }} {{ c.hora_inicio|time:"H:i" }} · ${{ c.servicio.precio }}
                         </option>
                     {% endfor %}
@@ -63,6 +63,7 @@
     const citaSelect = document.getElementById('citaSelect');
     const montoInput = document.getElementById('montoInput');
     const conceptoInput = document.getElementById('conceptoInput');
+    const preselected = "{{ cita_preseleccionada|default:'' }}";
 
     citaSelect.addEventListener('change', () => {
         const opt = citaSelect.options[citaSelect.selectedIndex];
@@ -75,5 +76,10 @@
             conceptoInput.value = "";
         }
     });
+
+    if (preselected) {
+        citaSelect.value = preselected;
+        citaSelect.dispatchEvent(new Event('change'));
+    }
 </script>
 {% endblock %}

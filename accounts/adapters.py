@@ -29,40 +29,33 @@ class MyAccountAdapter(DefaultAccountAdapter):
         # =======================
         # DENTISTA
         # =======================
-        if hasattr(user, "dentista"):
+        dentista_obj = Dentista.objects.filter(user=user).first()
+        if dentista_obj:
             return reverse("dentista:dashboard")
 
         # =======================
         # PACIENTE
         # =======================
-        # 1) Si ya tiene perfil_paciente, lo usamos
+        paciente = None
         if hasattr(user, "paciente_perfil"):
             paciente = user.paciente_perfil
         else:
-            # 2) Si NO tiene, lo creamos automáticamente
             nombre = user.get_full_name() or (user.email.split("@")[0] if user.email else user.username)
-            from domain.models import Dentista
             dentista_default = Dentista.objects.first()
-            if dentista_default is None:
-                # No hay dentista registrado; mandamos al home con mensaje genérico
-                return reverse("home")
-            paciente, _ = Paciente.objects.get_or_create(
-                user=user,
-                defaults={
-                    "nombre": nombre,
-                    "dentista": dentista_default,
-                },
-            )
+            if dentista_default:
+                paciente, _ = Paciente.objects.get_or_create(
+                    user=user,
+                    defaults={
+                        "nombre": nombre,
+                        "dentista": dentista_default,
+                    },
+                )
 
-        # Ahora estamos seguros de que "paciente" existe
+        # Si no pudimos crear paciente (no hay dentistas), mejor ir al home
+        if not paciente:
+            return reverse("home")
 
-        telefono = (paciente.telefono or "").strip()
-
-        # Si NO tiene teléfono, lo mandamos primero a completar el perfil
-        if not telefono:
-            return reverse("paciente:completar_perfil")
-
-        # Si ya tiene teléfono, directo al dashboard del paciente
+        # Redirigimos siempre al dashboard del paciente (teléfono ya se captura en el registro)
         return reverse("paciente:dashboard")
 
 

@@ -260,6 +260,17 @@ def calcular_penalizacion_paciente(paciente, dentista=None):
         .first()
     )
 
+    penalizacion_pagada = (
+        Pago.objects.filter(
+            cita__paciente=paciente,
+            cita__estado="INASISTENCIA",
+            estado="COMPLETADO",
+            monto__gte=Decimal("300"),
+        )
+        .order_by("-created_at")
+        .first()
+    )
+
     if penalizacion:
         recargo = float(penalizacion.monto)
         fecha_penal = penalizacion.created_at.date()
@@ -276,6 +287,23 @@ def calcular_penalizacion_paciente(paciente, dentista=None):
         estado = "pending"
         recargo = 300
         dias_restantes = 5
+
+    # Advertencia manual con cargo: trata como pendiente para bloquear agenda y mostrar monto
+    advert_manual = (
+        PenalizacionLog.objects.filter(paciente=paciente, accion="ADVERTENCIA", monto__gte=Decimal("300"))
+        .order_by("-created_at")
+        .first()
+    )
+    if advert_manual and estado not in ("pending", "disabled"):
+        estado = "pending"
+        recargo = 300
+        dias_restantes = None
+
+    # Si ya pagó la penalización más reciente, liberar bloqueo
+    if penalizacion_pagada and (not penalizacion or penalizacion_pagada.created_at >= penalizacion.created_at):
+        estado = "sin_penalizacion"
+        recargo = 0
+        dias_restantes = None
 
     return {
         "estado": estado,

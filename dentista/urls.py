@@ -19,6 +19,7 @@ urlpatterns = [
     
     # API para obtener horas libres (AJAX)
     path("api/slots/", views.obtener_slots_disponibles, name="obtener_slots"),
+    path("api/get-slots/", views.obtener_slots_disponibles, name="get_slots"),
 
     # ==========================
     # CONSULTA MÉDICA

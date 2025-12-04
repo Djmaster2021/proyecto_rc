@@ -177,4 +177,131 @@
     </div>
   </section>
 </main>
+
+<!-- Chat flotante -->
+<div id="rc-chat-toggle" class="rc-chat-toggle">
+  <span>💬</span>
+</div>
+<div id="rc-chatbox" class="rc-chatbox"
+  data-greeting="{% trans '¡Hola! Soy tu asistente RC. Pregunta por horarios, pagos o penalizaciones.' %}"
+  data-placeholder="{% trans 'Escribe tu pregunta...' %}"
+  data-subtitle="{% trans 'Horarios, pagos y citas' %}"
+  data-error="{% trans 'Error al conectar. Intenta de nuevo.' %}">
+  <div class="rc-chat-header">
+    <div>
+      <strong>{% trans "Asistente RC" %}</strong>
+      <div class="rc-chat-sub">{% trans "Horarios, pagos y citas" %}</div>
+    </div>
+    <button id="rc-chat-close" class="rc-chat-close" aria-label="Cerrar chat">×</button>
+  </div>
+  <div id="rc-chat-messages" class="rc-chat-messages"></div>
+  <form id="rc-chat-form" class="rc-chat-form">
+    <input id="rc-chat-input" type="text" placeholder="{% trans 'Escribe tu pregunta...' %}" autocomplete="off" required />
+    <button type="submit">{% trans "Enviar" %}</button>
+  </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<style>
+  .rc-chat-toggle {
+    position: fixed; bottom: 24px; right: 24px; z-index: 1200;
+    background: linear-gradient(135deg, #22c55e, #0ea5e9);
+    color: #fff; width: 56px; height: 56px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 24px; cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
+  .rc-chatbox {
+    position: fixed; bottom: 96px; right: 24px; width: 320px; max-height: 70vh;
+    background: #0b1220; color: #f8fafc; border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    display: none; flex-direction: column; overflow: hidden; z-index: 1200;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .rc-chat-header {
+    padding: 12px 14px; background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #fff; display: flex; align-items: center; justify-content: space-between;
+  }
+  .rc-chat-sub { font-size: 12px; opacity: 0.85; }
+  .rc-chat-close { background: transparent; border: none; color: #fff; font-size: 20px; cursor: pointer; }
+  .rc-chat-messages { padding: 12px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .rc-bubble { padding: 10px 12px; border-radius: 12px; max-width: 90%; font-size: 14px; line_height: 1.4; position: relative; }
+  .rc-bubble.user { background: #1f2937; margin-left: auto; }
+  .rc-bubble.bot { background: #111827; border: 1px solid rgba(255,255,255,0.06); }
+  .rc-badge { position: absolute; top: -8px; right: -8px; font-size: 10px; padding: 3px 6px; border-radius: 999px; }
+  .rc-badge.ia { background: #22c55e; color: #0b1220; }
+  .rc-badge.local { background: #475569; color: #e2e8f0; }
+  .rc-chat-form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid rgba(255,255,255,0.08); background: #0f172a; }
+  .rc-chat-form input { flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid #1f2937; background: #0b1220; color: #e2e8f0; }
+  .rc-chat-form button { background: #22c55e; color: #0b1220; border: none; border-radius: 10px; padding: 10px 14px; cursor: pointer; font-weight: 600; }
+  @media (max-width: 640px) {
+    .rc-chatbox { right: 12px; left: 12px; width: auto; }
+    .rc-chat-toggle { right: 12px; }
+  }
+</style>
+<script>
+  (function() {
+    const toggle = document.getElementById("rc-chat-toggle");
+    const chat = document.getElementById("rc-chatbox");
+    const closeBtn = document.getElementById("rc-chat-close");
+    const form = document.getElementById("rc-chat-form");
+    const input = document.getElementById("rc-chat-input");
+    const messages = document.getElementById("rc-chat-messages");
+    const endpoint = "/api/chatbot/";
+    const t = {
+      greeting: chat?.dataset.greeting || "Hello! I'm your RC assistant.",
+      placeholder: chat?.dataset.placeholder || "Type your question...",
+      error: chat?.dataset.error || "Connection error. Try again.",
+    };
+
+    if (input && t.placeholder) input.placeholder = t.placeholder;
+
+    const append = (text, role, source) => {
+      const div = document.createElement("div");
+      div.className = `rc-bubble ${role}`;
+      div.textContent = text;
+      if (role === "bot" && source) {
+        const badge = document.createElement("span");
+        badge.className = `rc-badge ${source === "ia" ? "ia" : "local"}`;
+        badge.textContent = source.toUpperCase();
+        div.appendChild(badge);
+      }
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    };
+
+    toggle.addEventListener("click", () => {
+      chat.style.display = "flex";
+      input.focus();
+      if (!messages.dataset.seeded) {
+        append(t.greeting, "bot");
+        messages.dataset.seeded = "1";
+      }
+    });
+    closeBtn.addEventListener("click", () => chat.style.display = "none");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      append(text, "user");
+      input.value = "";
+      append("...", "bot");
+      try {
+        const resp = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: text })
+        });
+        const data = await resp.json();
+        messages.lastChild.remove(); // remove placeholder
+        append(data.message || t.error, "bot", data.source);
+      } catch (err) {
+        messages.lastChild.remove();
+        append(t.error, "bot");
+      }
+    });
+  })();
+</script>
 {% endblock %}

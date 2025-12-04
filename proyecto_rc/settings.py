@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
 
     # Tus aplicaciones
-    "accounts",
+    "accounts.apps.AccountsConfig",
     "api",
     "dentista",
     "domain",
@@ -168,8 +168,12 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 # Toggle global para evitar envíos reales en desarrollo
-SEND_EMAILS = os.getenv("DJANGO_SEND_EMAILS", "true").lower() == "true"
+SEND_EMAILS = os.getenv(
+    "DJANGO_SEND_EMAILS",
+    "false" if DEBUG else "true",
+).lower() == "true"
 SITE_BASE_URL = os.getenv("SITE_BASE_URL", "http://127.0.0.1:8000")
+SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "")
 
 # Remitente por defecto
 # ====================================
@@ -212,7 +216,7 @@ AUTHENTICATION_BACKENDS = [
 # Redirecciones
 LOGIN_URL = "/accounts/login/"
 # Cambia esto si quieres que al loguearse vayan directo al dashboard
-LOGIN_REDIRECT_URL = "/dentista/dashboard/" 
+LOGIN_REDIRECT_URL = "/accounts/redirect-by-role/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 # Allauth (ajustado para evitar deprecations y exigir verificación)
@@ -245,6 +249,10 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    # Solo autenticados por defecto; abre endpoints puntuales con AllowAny.
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
     # Limitamos llamadas básicas para evitar abuso en endpoints abiertos (chatbot/slots).
     "DEFAULT_THROTTLE_CLASSES": (
         "rest_framework.throttling.AnonRateThrottle",
@@ -262,12 +270,27 @@ MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN", "")
 MERCADOPAGO_TEST_PAYER_EMAIL = os.getenv("MERCADOPAGO_TEST_PAYER_EMAIL", "")
 # Si está en '1'/'true', simula pago exitoso (solo sandbox/desarrollo)
 MERCADOPAGO_FAKE_SUCCESS = os.getenv("MERCADOPAGO_FAKE_SUCCESS", "0").lower() in ("1", "true", "yes")
+# Desactiva el fake en pruebas automatizadas para no romper asserts
+if "test" in sys.argv:
+    MERCADOPAGO_FAKE_SUCCESS = False
+MERCADOPAGO_WEBHOOK_SECRET = os.getenv("MERCADOPAGO_WEBHOOK_SECRET", "")
 
 # Google Calendar API
 GOOGLE_CALENDAR_SCOPES = ["https://www.googleapis.com/auth/calendar"]
 GOOGLE_CALENDAR_CLIENT_CONFIG_FILE = BASE_DIR / "google_credentials" / "credentials.json"
 GOOGLE_CALENDAR_TOKEN_FILE = BASE_DIR / "google_credentials" / "token.json"
 GOOGLE_CALENDAR_ID = os.getenv("GOOGLE_CALENDAR_ID", "")
+
+# Chatbot IA (Gemini opcional)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL_NAME", "gemini-1.5-flash")
+CHATBOT_MAX_CONTEXT = int(os.getenv("CHATBOT_MAX_CONTEXT", "3"))
+# Auto-enciende IA si hay API key, a menos que el flag explícito diga lo contrario.
+_CHATBOT_FLAG = os.getenv("CHATBOT_IA_ENABLED")
+if _CHATBOT_FLAG is None:
+    CHATBOT_IA_ENABLED = bool(GEMINI_API_KEY)
+else:
+    CHATBOT_IA_ENABLED = _CHATBOT_FLAG.lower() in ("1", "true", "yes")
 
 # ====================================
 # 13. SEGURIDAD HTTP (opcional)

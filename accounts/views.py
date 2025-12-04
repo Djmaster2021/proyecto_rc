@@ -34,20 +34,28 @@ def redirect_by_role(request):
         # Nombre de la URL de login (definida en urls.py como account_login)
         return redirect("account_login")
 
+    from domain.models import Dentista, Paciente
+    dentista_obj = Dentista.objects.filter(user=user).first()
+    tiene_dentista = dentista_obj is not None
+    tiene_paciente = Paciente.objects.filter(user=user).exists()
+
     # 1. Admin / staff -> panel de Django
     if user.is_superuser or user.is_staff or user.groups.filter(name="Administrador").exists():
         return redirect("/admin/")
 
-    # 2. Dentista -> dashboard dentista
-    if user.groups.filter(name="Dentista").exists() or hasattr(user, "dentista"):
+    # 2. Dentista -> dashboard dentista (solo si existe perfil)
+    if dentista_obj:
         return redirect("dentista:dashboard")
 
-    # 3. Paciente -> dashboard paciente
-    if user.groups.filter(name="Paciente").exists():
-        return redirect("paciente:dashboard")
-
-    # 4. Sin rol -> home
-    return redirect("home")
+    # 3. Paciente -> dashboard paciente (por defecto)
+    if not tiene_paciente:
+        dentista_default = Dentista.objects.first()
+        if dentista_default:
+            Paciente.objects.get_or_create(
+                user=user,
+                defaults={"nombre": user.get_full_name() or user.username, "dentista": dentista_default},
+            )
+    return redirect("paciente:dashboard")
 
 
 # ==============================
@@ -130,9 +138,9 @@ class CustomPasswordResetView(PasswordResetView):
 
 def register(request):
     """
-    Registro de dentistas con teléfono obligatorio.
+    Registro de pacientes (self-service).
     """
-    FormClass = DentistaRegisterForm
+    FormClass = PacienteRegisterForm
 
     if request.method == "POST":
         form = FormClass(request.POST)
@@ -144,33 +152,13 @@ def register(request):
                 "Tu cuenta ha sido creada correctamente. ¡Bienvenido!",
             )
 
-            # Login directo y redirección al dashboard dentista
+            # Login directo y redirección al dashboard paciente
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-            return redirect("dentista:dashboard")
+            return redirect("paciente:dashboard")
     else:
         form = FormClass()
 
     return render(request, "accounts/register.html", {"form": form})
 
 
-@login_required
-def post_login(request):
-    user = request.user
-
-    # Si es paciente
-    if hasattr(user, "perfil_paciente"):
-        paciente = user.perfil_paciente
-
-        # Si NO tiene teléfono, mandamos primero a completar perfil
-        if not paciente.telefono:
-            return redirect("paciente:completar_perfil")
-
-        # Si ya está completo, directo al dashboard del paciente
-        return redirect("paciente:dashboard")
-
-    # Si es dentista
-    if hasattr(user, "perfil_dentista"):
-        return redirect("dentista:dashboard")
-
-    # Cualquier otro caso
-    return redirect("home")
+# Nota: post_login queda obsoleto; redirect_by_role cubre los flujos.

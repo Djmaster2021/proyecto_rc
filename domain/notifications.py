@@ -146,7 +146,10 @@ def enviar_correo_ticket_soporte(dentista, asunto: str, mensaje: str):
     """
     Envía un correo al buzón de soporte interno cuando se crea un ticket.
     """
-    destino = "diegomag2996@gmail.com"
+    destino = getattr(settings, "SUPPORT_EMAIL", "") or "diegomag2996@gmail.com"
+    if not destino:
+        print("[EMAIL] SUPPORT_EMAIL no configurado; ticket no enviado.")
+        return
     subject = f"[Soporte] {asunto} – {getattr(dentista, 'nombre', 'Dentista')}"
     contexto = {
         "dentista": dentista,

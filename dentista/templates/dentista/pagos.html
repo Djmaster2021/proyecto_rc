@@ -86,12 +86,22 @@
                         <td>
                             {% if p.metodo == 'EFECTIVO' %}
                                 <span class="badge-pill green"><i class="ph-bold ph-money"></i> EFECTIVO</span>
-                            {% else %}
+                            {% elif p.metodo == 'TRANSFERENCIA' %}
+                                <span class="badge-pill blue"><i class="ph-bold ph-arrows-left-right"></i> TRANSFERENCIA</span>
+                            {% elif p.metodo == 'TARJETA' %}
                                 <span class="badge-pill blue"><i class="ph-bold ph-credit-card"></i> TARJETA</span>
+                            {% else %}
+                                <span class="badge-pill blue"><i class="ph-bold ph-bank"></i> {{ p.metodo }}</span>
                             {% endif %}
                         </td>
                         <td>
-                            <span class="badge-dot green">● PAGADO</span>
+                            {% if p.estado == 'COMPLETADO' %}
+                                <span class="badge-dot green">● PAGADO</span>
+                            {% elif p.estado == 'PENDIENTE' %}
+                                <span class="badge-dot yellow">● PENDIENTE</span>
+                            {% else %}
+                                <span class="badge-dot gray">● {{ p.estado }}</span>
+                            {% endif %}
                         </td>
                         <td class="ft-amount">${{ p.monto|floatformat:2 }}</td>
                         <td style="text-align:center;">

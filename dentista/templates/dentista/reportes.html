@@ -36,8 +36,9 @@
   <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
     <span><strong>Total citas:</strong> {{ total_citas }}</span>
     <span><strong>Pacientes:</strong> {{ total_pacientes }}</span>
-    <span><strong>Ingresos:</strong> ${{ total_monto|floatformat:2 }}</span>
+    <span><strong>Ingresos cobrados:</strong> ${{ total_monto|floatformat:2 }}</span>
   </div>
+  <h4 style="margin-top:0; margin-bottom:8px;">Citas</h4>
   <div class="table-responsive">
     <table class="finance-table">
       <thead>
@@ -62,16 +63,53 @@
             </span>
           </td>
           <td style="text-align:right;">
-            {% if pago and pago.estado == "COMPLETADO" %}
-              ${{ pago.monto|floatformat:2 }}
+            {% if pago %}
+              <span style="display:block; font-weight:700;">${{ pago.monto|floatformat:2 }}</span>
+              <small style="color:#94a3b8;">{{ pago.metodo }} | {{ pago.estado }}</small>
             {% else %}
-              -
+              <small style="color:#94a3b8;">Sin pago</small>
             {% endif %}
           </td>
         </tr>
         {% endwith %}
         {% empty %}
         <tr><td colspan="5" style="text-align:center; padding:20px; color:#94a3b8;">No hay datos en el rango.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="cyber-card" style="padding: 1rem; margin-top: 1rem;">
+  <h4 style="margin-top:0; margin-bottom:8px;">Pagos (incluye pendientes)</h4>
+  <div class="table-responsive">
+    <table class="finance-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Paciente</th>
+          <th>Servicio</th>
+          <th>Método</th>
+          <th>Estado</th>
+          <th style="text-align:right;">Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in pagos %}
+        <tr>
+          <td>{{ p.created_at|date:"d/m/Y" }}<br><small style="color:#94a3b8;">{{ p.created_at|time:"H:i" }}</small></td>
+          <td>{{ p.cita.paciente.nombre }}</td>
+          <td>{{ p.cita.servicio.nombre }}</td>
+          <td>{{ p.metodo }}</td>
+          <td>
+            <span class="badge-pill {% if p.estado == 'COMPLETADO' %}green{% elif p.estado == 'PENDIENTE' %}yellow{% else %}blue{% endif %}">
+              {{ p.estado }}
+            </span>
+          </td>
+          <td style="text-align:right;">${{ p.monto|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center; padding:20px; color:#94a3b8;">Sin pagos en el rango.</td></tr>
         {% endfor %}
       </tbody>
     </table>

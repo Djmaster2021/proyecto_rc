@@ -28,10 +28,11 @@ Plataforma integral para el Consultorio Dental **Rodolfo Castellón**: agenda, p
 ## Variables de entorno (referencia)
 - `DJANGO_DEBUG`, `DJANGO_SECRET_KEY`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`.
 - `MYSQL_DB_NAME`, `MYSQL_DB_USER`, `MYSQL_DB_PASSWORD`, `MYSQL_DB_HOST`, `MYSQL_DB_PORT`, `MYSQL_ROOT_PASSWORD` (para Docker).
-- `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_FROM_EMAIL`.
-- `MERCADOPAGO_PUBLIC_KEY`, `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_TEST_PAYER_EMAIL` (email del comprador de prueba cuando uses token TEST-).
+- `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_FROM_EMAIL`, `DJANGO_SEND_EMAILS` (en dev viene desactivado por defecto), `SUPPORT_EMAIL`.
+- `MERCADOPAGO_PUBLIC_KEY`, `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_TEST_PAYER_EMAIL` (email del comprador de prueba cuando uses token TEST-), `MERCADOPAGO_WEBHOOK_SECRET`.
 - `MERCADOPAGO_FAKE_SUCCESS`: si `1/true`, en sandbox marca el pago como completado sin ir a MercadoPago (útil para desarrollar cuando el checkout de prueba falla).
 - `GOOGLE_CALENDAR_ID` y archivos en `google_credentials/credentials.json` + `token.json`.
+- Chatbot IA (opcional Gemini): `GEMINI_API_KEY` (si está presente se enciende automáticamente), `CHATBOT_IA_ENABLED` (`auto/true/false`), `GEMINI_MODEL_NAME`, `CHATBOT_MAX_CONTEXT`.
 
 ### Integración Google Calendar (opcional, desactivada)
 - La app funciona sin credenciales ni sincronización. Si no quieres usar Calendar, no necesitas crear `google_credentials/`.
@@ -48,7 +49,7 @@ Plataforma integral para el Consultorio Dental **Rodolfo Castellón**: agenda, p
 - Correo de prueba SMTP: `python manage.py enviar_correo_prueba --to tu_correo@example.com` (respeta `SEND_EMAILS`; usa `--force` para ignorarlo).  
 - Generar token OAuth de Google: `python google_oauth_setup.py` tras colocar `google_credentials/credentials.json`.  
 - Colección de estáticos para producción: `python manage.py collectstatic --no-input`.  
-- Reiniciar datos locales (desarrollo): `python reset_tablas.py` (lee antes el script).
+- Reiniciar datos locales (desarrollo): `python reset_tablas.py` (pide confirmación; usa `--force` si sabes lo que haces).
 - Webhook MercadoPago (prod): configura la URL pública a `/paciente/pagos/webhook/`.
 - Cron sugerido para recordatorios (ejemplo): `0 * * * * cd /home/diego/Escritorio/proyecto_rc/proyecto_rc && .venv/bin/python manage.py enviar_recordatorios_citas >> /var/log/rc_recordatorios.log 2>&1` (plantilla en `ops/cron_recordatorios.example`).
 - Flags de seguridad configurables en `.env`: `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`, `SECURE_HSTS_SECONDS`, `SECURE_HSTS_INCLUDE_SUBDOMAINS`, `SECURE_HSTS_PRELOAD`, `SECURE_PROXY_SSL_HEADER`, `DRF_THROTTLE_ANON`, `DRF_THROTTLE_USER`.

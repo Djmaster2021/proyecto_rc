@@ -266,10 +266,22 @@
           {% for pago in pagos_pendientes %}
           <div class="pay-item">
             <div class="row">
-              <span class="pill pending">{% trans "Pendiente" %}</span>
+              <span class="pill pending">
+                {% if pago.cita.estado == "INASISTENCIA" and pago.monto|floatformat:0 == "300" %}
+                  {% trans "Penalización" %}
+                {% else %}
+                  {% trans "Pendiente" %}
+                {% endif %}
+              </span>
               <span class="amount">${{ pago.monto }} MXN</span>
             </div>
-            <div class="meta">{{ pago.cita.servicio.nombre }} • {{ pago.cita.fecha|date:"d/m/Y" }} {{ pago.cita.hora_inicio|time:"H:i" }}</div>
+            <div class="meta">
+              {% if pago.cita.estado == "INASISTENCIA" and pago.monto|floatformat:0 == "300" %}
+                {% trans "Cargo por inasistencia" %}
+              {% else %}
+                {{ pago.cita.servicio.nombre }} • {{ pago.cita.fecha|date:"d/m/Y" }} {{ pago.cita.hora_inicio|time:"H:i" }}
+              {% endif %}
+            </div>
             <div class="meta">{% trans "Cita" %} #{{ pago.cita.id }} • {% trans "Dr." %} {{ pago.cita.dentista.nombre }}</div>
             <div class="meta">{% trans "Método" %}: {{ pago.metodo|default:_("No especificado") }}</div>
             <div class="actions">

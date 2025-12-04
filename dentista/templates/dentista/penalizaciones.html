@@ -49,48 +49,116 @@
     </div>
   </div>
 
+</div>
+
+<div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
   <div class="cyber-card">
-    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 1.5rem;">
-      <div style="background: #e2e8f0; padding: 10px; border-radius: 10px;">
-        <i class="ph-duotone ph-sliders-horizontal" style="font-size: 1.5rem; color: #475569;"></i>
-      </div>
-      <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Control Manual</h3>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
+      <h3 style="margin:0;font-size:1rem;color:#1e293b;">Penalizadas (con recargo)</h3>
+      <span class="badge-pill badge-danger">{{ estado_grupos.penalizadas|length }}</span>
     </div>
-
-    <form method="POST" action="." class="manual-control-form">
-      {% csrf_token %}
-      <label style="display: block; font-weight: 500; color: #475569; margin-bottom: 0.5rem;">Buscar paciente por nombre o ID</label>
-      <div class="search-input-group" style="margin-bottom: 1.5rem;">
-        <i class="ph-bold ph-magnifying-glass"></i>
-        <input type="text" name="paciente_query" placeholder="Ej. Diego Magaña..." class="form-control" style="width: 100%;">
+    <p style="color:#64748b;font-size:0.9rem;margin:0 0 0.8rem;">Tienen cargo pendiente ($300) y bloqueo temporal.</p>
+    <div class="timeline-feed">
+      {% for item in estado_grupos.penalizadas %}
+      <div class="feed-item">
+        <div class="feed-icon danger"></div>
+        <div class="feed-content">
+          <p class="feed-title"><strong>{{ item.paciente.nombre }}</strong> — {{ item.info.recargo|floatformat:0 }} MXN</p>
+          <p class="feed-meta">Inasistencias: {{ item.info.inasistencias }}{% if item.info.dias_restantes %} • {{ item.info.dias_restantes }}d restantes{% endif %}</p>
+          <form method="POST" action="." style="margin-top:6px;display:inline-flex;gap:8px;">
+            {% csrf_token %}
+            <input type="hidden" name="paciente_id" value="{{ item.paciente.id }}">
+            <button type="submit" name="accion" value="suspender" class="btn-action danger" style="padding:6px 10px;">Desactivar</button>
+            <button type="submit" name="accion" value="reactivar" class="btn-action success" style="padding:6px 10px;">Reactivar</button>
+          </form>
+        </div>
       </div>
+      {% empty %}
+      <p style="color:#94a3b8;font-size:0.9rem;">Sin cuentas penalizadas.</p>
+      {% endfor %}
+    </div>
+  </div>
 
-      <div class="action-buttons-grid">
-        <button type="submit" name="accion" value="suspender" class="btn-action danger">
-          <i class="ph-bold ph-prohibit"></i> Suspender
-        </button>
-        <button type="submit" name="accion" value="reactivar" class="btn-action success">
-          <i class="ph-bold ph-check-circle"></i> Reactivar
-        </button>
-        <button type="submit" name="accion" value="advertencia" class="btn-action warning">
-          <i class="ph-bold ph-warning"></i> Advertir
-        </button>
+  <div class="cyber-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
+      <h3 style="margin:0;font-size:1rem;color:#1e293b;">Advertidas</h3>
+      <span class="badge-pill badge-warning">{{ estado_grupos.advertidas|length }}</span>
+    </div>
+    <p style="color:#64748b;font-size:0.9rem;margin:0 0 0.8rem;">Primera falta registrada; la siguiente genera penalización.</p>
+    <div class="timeline-feed">
+      {% for item in estado_grupos.advertidas %}
+      <div class="feed-item">
+        <div class="feed-icon warning"></div>
+          <div class="feed-content">
+          <p class="feed-title"><strong>{{ item.paciente.nombre }}</strong></p>
+          <p class="feed-meta">Inasistencias: {{ item.info.inasistencias }}</p>
+          <form method="POST" action="." style="margin-top:6px;display:inline-flex;gap:8px;">
+            {% csrf_token %}
+            <input type="hidden" name="paciente_id" value="{{ item.paciente.id }}">
+            <button type="submit" name="accion" value="penalizar" class="btn-action danger" style="padding:6px 10px;">Aplicar penalización</button>
+            <button type="submit" name="accion" value="suspender" class="btn-action danger" style="padding:6px 10px;">Desactivar</button>
+          </form>
+        </div>
       </div>
+      {% empty %}
+      <p style="color:#94a3b8;font-size:0.9rem;">Sin advertencias activas.</p>
+      {% endfor %}
+    </div>
+  </div>
 
-      <div style="margin-top: 1.5rem;">
-        <label style="display: block; font-weight: 600; color: #475569; margin-bottom: 0.4rem;">Penalizar manual (ID paciente)</label>
-        <select name="paciente_id" class="form-control" style="width: 100%; margin-bottom: 0.6rem;" required>
-          <option value="" disabled selected>Selecciona paciente</option>
-          {% for p in pacientes %}
-            <option value="{{ p.id }}">#{{ p.id }} — {{ p.nombre }}</option>
-          {% endfor %}
-        </select>
-        <button type="submit" name="accion" value="penalizar" class="btn-action danger" style="width: 100%;">
-          <i class="ph-bold ph-warning-octagon"></i> Generar penalización ($300)
-        </button>
-        <small style="color:#64748b;">Usa el ID del paciente: 1ra falta = advertencia, 2da = cargo $300 y bloqueo hasta pagar.</small>
+  <div class="cyber-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
+      <h3 style="margin:0;font-size:1rem;color:#1e293b;">Inhabilitadas</h3>
+      <span class="badge-pill badge-gray">{{ estado_grupos.inhabilitadas|length }}</span>
+    </div>
+    <p style="color:#64748b;font-size:0.9rem;margin:0 0 0.8rem;">Cuenta bloqueada (manual o por penalización vencida).</p>
+    <div class="timeline-feed">
+      {% for item in estado_grupos.inhabilitadas %}
+      <div class="feed-item">
+        <div class="feed-icon danger"></div>
+        <div class="feed-content">
+          <p class="feed-title"><strong>{{ item.paciente.nombre }}</strong></p>
+          <p class="feed-meta">
+            {% if item.info.estado == 'disabled' %}Penalización vencida{% else %}Cuenta desactivada{% endif %}
+          </p>
+          <form method="POST" action="." style="margin-top:6px;">
+            {% csrf_token %}
+            <input type="hidden" name="paciente_id" value="{{ item.paciente.id }}">
+            <button type="submit" name="accion" value="reactivar" class="btn-action success" style="padding:6px 10px;">Reactivar cuenta</button>
+          </form>
+        </div>
       </div>
-    </form>
+      {% empty %}
+      <p style="color:#94a3b8;font-size:0.9rem;">Sin cuentas inhabilitadas.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="cyber-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
+      <h3 style="margin:0;font-size:1rem;color:#1e293b;">Activas</h3>
+      <span class="badge-pill badge-green">{{ estado_grupos.activas|length }}</span>
+    </div>
+    <p style="color:#64748b;font-size:0.9rem;margin:0 0 0.8rem;">Sin penalización ni bloqueos.</p>
+    <div class="timeline-feed">
+      {% for item in estado_grupos.activas %}
+      <div class="feed-item">
+        <div class="feed-icon success"></div>
+        <div class="feed-content">
+          <p class="feed-title"><strong>{{ item.paciente.nombre }}</strong></p>
+          <p class="feed-meta">Inasistencias: {{ item.info.inasistencias }}</p>
+          <form method="POST" action="." style="margin-top:6px;display:inline-flex;gap:8px;flex-wrap:wrap;">
+            {% csrf_token %}
+            <input type="hidden" name="paciente_id" value="{{ item.paciente.id }}">
+            <button type="submit" name="accion" value="advertencia" class="btn-action warning" style="padding:6px 10px;">Advertir</button>
+            <button type="submit" name="accion" value="suspender" class="btn-action danger" style="padding:6px 10px;">Desactivar</button>
+          </form>
+        </div>
+      </div>
+      {% empty %}
+      <p style="color:#94a3b8;font-size:0.9rem;">Aún no hay pacientes activos.</p>
+      {% endfor %}
+    </div>
   </div>
 </div>
 

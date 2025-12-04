@@ -56,10 +56,17 @@ class PacienteRegisterForm(UserCreationForm):
         required=False,
         widget=forms.EmailInput(attrs={'placeholder': 'ej. juan@correo.com'})
     )
+    telefono = forms.CharField(
+        label="Teléfono",
+        min_length=10,
+        max_length=10,
+        validators=[telefono_validator],
+        widget=forms.TextInput(attrs={'placeholder': '10 dígitos'})
+    )
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ('username', 'first_name', 'email')
+        fields = ('username', 'first_name', 'email', 'telefono')
 
     @transaction.atomic
     def save(self, commit=True):
@@ -75,7 +82,7 @@ class PacienteRegisterForm(UserCreationForm):
 
         # 2. Asigna el grupo (sin cambios)
         try:
-            grupo_pacientes = Group.objects.get(name='Pacientes')
+            grupo_pacientes, _ = Group.objects.get_or_create(name='Pacientes')
             user.groups.add(grupo_pacientes)
         except Group.DoesNotExist:
             pass 
@@ -92,7 +99,7 @@ class PacienteRegisterForm(UserCreationForm):
                 # Usamos los campos del User para poblar el perfil del Paciente
                 nombre=user.first_name,
                 dentista=dentista_default,
-                telefono="",  # No se solicita en el registro breve
+                telefono=self.cleaned_data.get("telefono", ""),
             )
         except Exception as e:
             # ¡CAMBIO CLAVE!
@@ -187,13 +194,13 @@ class UsernameOrEmailAuthenticationForm(AuthenticationForm):
     def clean(self):
         username = self.cleaned_data.get('username')
         if username and '@' in username:
-            try:
-                user_obj = User.objects.get(email__iexact=username.strip())
-                # Sustituimos por el username real antes de la validación base
+            email_lookup = username.strip()
+            user_qs = User.objects.filter(email__iexact=email_lookup).order_by("-last_login", "-date_joined", "-id")
+            if user_qs.count() > 1:
+                raise ValidationError("Hay más de una cuenta con este correo. Contacta a soporte para unificarla.")
+            if user_qs.exists():
+                user_obj = user_qs.first()
                 self.cleaned_data['username'] = user_obj.get_username()
-            except User.DoesNotExist:
-                # Si no existe, dejamos que el flujo original genere el error
-                pass
         return super().clean()
 
 

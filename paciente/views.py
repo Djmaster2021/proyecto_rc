@@ -44,34 +44,17 @@ def completar_perfil_paciente(request):
         messages.error(request, "Error crítico: No hay dentistas registrados.")
         return redirect('home')
 
-    if request.method == 'POST':
-        try:
-            nombre = request.POST.get('nombre', '').strip() or f"{user.first_name} {user.last_name}"
-            telefono = request.POST.get('telefono', '').strip()
-            
-            if not telefono:
-                messages.error(request, "El teléfono es obligatorio.")
-                return render(request, 'paciente/completar_perfil.html', {'nombre_google': nombre})
-            if len(telefono) != 8 or not telefono.isdigit():
-                messages.error(request, "El teléfono debe tener exactamente 8 dígitos.")
-                return render(request, 'paciente/completar_perfil.html', {'nombre_google': nombre})
-
-            Paciente.objects.create(
-                user=user,
-                dentista=dentista_asignado, 
-                nombre=nombre,
-                telefono=telefono,
-                fecha_nacimiento=request.POST.get('fecha_nacimiento') or None,
-                direccion=request.POST.get('direccion', '').strip()
-            )
-            messages.success(request, "¡Perfil creado con éxito!")
-            return redirect('paciente:dashboard')
-        except Exception as e:
-            print(f"Error: {e}")
-            messages.error(request, "Error al guardar datos.")
-
-    nombre_pre = f"{user.first_name} {user.last_name}".strip() or user.username
-    return render(request, 'paciente/completar_perfil.html', {'nombre_google': nombre_pre})
+    # Si llega aquí sin perfil de paciente, lo creamos automáticamente con los datos del usuario
+    nombre = f"{user.first_name} {user.last_name}".strip() or (user.email.split("@")[0] if user.email else user.username)
+    telefono_registro = getattr(user, "telefono", "") or ""
+    paciente = Paciente.objects.create(
+        user=user,
+        dentista=dentista_asignado,
+        nombre=nombre,
+        telefono=telefono_registro,
+    )
+    messages.info(request, "Perfil creado automáticamente. Completa tus datos desde tu perfil si lo necesitas.")
+    return redirect('paciente:dashboard')
 
 
 # ========================================================
@@ -130,6 +113,12 @@ def dashboard(request):
         estado="PENDIENTE"
     ).select_related("cita", "cita__servicio").order_by("-created_at")[:3]
 
+    advertencia_manual = (
+        PenalizacionLog.objects.filter(paciente=paciente, accion="ADVERTENCIA")
+        .order_by("-created_at")
+        .first()
+    )
+
     context = {
         'paciente': paciente,
         'proxima_cita': proxima_cita,
@@ -140,6 +129,7 @@ def dashboard(request):
         'penal_info': penal_info,
         'cancel_used_month': cancel_used_month,
         'reprogram_used_month': reprogram_used_month,
+        'advertencia_manual': advertencia_manual,
     }
     return render(request, 'paciente/dashboard.html', context)
 
@@ -183,7 +173,7 @@ def agendar_cita(request):
     penal_info = calcular_penalizacion_paciente(paciente)
     if penal_info.get("estado") in ["pending", "disabled"]:
         messages.error(request, "No puedes agendar citas hasta cubrir la penalización pendiente ($300).")
-        return redirect("paciente:mis_pagos")
+        return redirect("paciente:dashboard")
 
     if request.method == 'POST':
         servicio_id = request.POST.get('servicio')
@@ -286,10 +276,71 @@ def mis_pagos(request):
         paciente = request.user.paciente_perfil
     except:
         return redirect('paciente:completar_perfil')
-    pagos = Pago.objects.filter(cita__paciente=paciente).select_related("cita", "cita__servicio").order_by('-created_at')
+
+    # Evita repetir banners de pago_ok tras cambiar idioma o recargar
+    if request.GET.get("pago_ok"):
+        messages.success(request, "Pago registrado correctamente.")
+        return redirect("paciente:mis_pagos")
+
+    penal_info = calcular_penalizacion_paciente(paciente)
+
+    # Aseguramos que exista un pago pendiente para la penalización si el estado es pending
+    penal_pago = (
+        Pago.objects.filter(
+            cita__paciente=paciente,
+            estado="PENDIENTE",
+            cita__estado="INASISTENCIA",
+            monto__gte=Decimal("300"),
+        )
+        .order_by("-created_at")
+        .first()
+    )
+    if penal_info.get("estado") == "pending" and not penal_pago:
+        cita = (
+            Cita.objects.filter(paciente=paciente)
+            .order_by("-fecha", "-hora_inicio")
+            .first()
+        )
+        if not cita:
+            servicio = (
+                Servicio.objects.filter(dentista=paciente.dentista)
+                .order_by("id")
+                .first()
+            )
+            if servicio:
+                ahora = timezone.localtime()
+                cita = Cita.objects.create(
+                    dentista=paciente.dentista,
+                    paciente=paciente,
+                    servicio=servicio,
+                    fecha=ahora.date(),
+                    hora_inicio=ahora.time(),
+                    hora_fin=(ahora + timedelta(minutes=30)).time(),
+                    estado="INASISTENCIA",
+                    notas="Penalización generada para pago en línea.",
+                )
+        if cita:
+            penal_pago, creado = Pago.objects.get_or_create(
+                cita=cita,
+                defaults={
+                    "monto": Decimal("300.00"),
+                    "metodo": "EFECTIVO",
+                    "estado": "PENDIENTE",
+                },
+            )
+            if not creado and penal_pago.estado != "COMPLETADO":
+                penal_pago.monto = Decimal("300.00")
+                penal_pago.estado = "PENDIENTE"
+                penal_pago.save(update_fields=["monto", "estado"])
+
+    pagos = (
+        Pago.objects.filter(cita__paciente=paciente)
+        .select_related("cita", "cita__servicio")
+        .order_by("-created_at")
+    )
     pagos_pendientes = [p for p in pagos if p.estado == "PENDIENTE"]
     pagos_completados = [p for p in pagos if p.estado == "COMPLETADO"]
-    penal_info = calcular_penalizacion_paciente(paciente)
+
     return render(request, 'paciente/pagos.html', {
         'pagos_pendientes': pagos_pendientes,
         'pagos_completados': pagos_completados,
@@ -415,6 +466,12 @@ def mp_webhook(request):
     if request.method != "POST":
         return JsonResponse({"detail": "Método no permitido"}, status=405)
 
+    # Token sencillo para descartar llamadas anónimas.
+    expected_secret = getattr(settings, "MERCADOPAGO_WEBHOOK_SECRET", "")
+    provided_secret = request.headers.get("X-WEBHOOK-SECRET") or request.GET.get("secret")
+    if expected_secret and provided_secret != expected_secret:
+        return JsonResponse({"detail": "Forbidden"}, status=403)
+
     try:
         payload = json.loads(request.body.decode("utf-8"))
     except json.JSONDecodeError:
@@ -505,12 +562,6 @@ def pagar_penalizacion(request):
             penal_pendiente.estado = "COMPLETADO"
             penal_pendiente.save(update_fields=["estado"])
 
-        # Reactivar cuenta si estaba suspendida
-        user = request.user
-        if not user.is_active:
-            user.is_active = True
-            user.save(update_fields=["is_active"])
-
         PenalizacionLog.objects.create(
             dentista=paciente.dentista,
             paciente=paciente,
@@ -519,7 +570,10 @@ def pagar_penalizacion(request):
             monto=penal_pendiente.monto if penal_pendiente else Decimal("300.00"),
         )
 
-        messages.success(request, "Pago registrado. Tu cuenta ha sido reactivada.")
+        messages.success(
+            request,
+            "Pago registrado. Si tu cuenta estaba suspendida, solicita al consultorio que la reactive.",
+        )
         return redirect("paciente:dashboard")
 
     return render(

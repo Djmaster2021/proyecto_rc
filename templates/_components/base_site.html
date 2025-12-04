@@ -30,47 +30,7 @@
   
   {% include "_components/footer.html" %}
 
-  <!-- Widget del chatbot -->
-  <div id="rc-chatbot" class="chat-hidden" data-quick-replies='[
-      {"label":"Agendar","value":"agendar","icon":"🗓️"},
-      {"label":"Horarios","value":"horarios","icon":"🕒"},
-      {"label":"Pagar","value":"pago","icon":"💳"},
-      {"label":"Ubicación","value":"ubicacion","icon":"📍"},
-      {"label":"Precios","value":"precios","icon":"💲"},
-      {"label":"Urgencia","value":"urgencia","icon":"⏱️"}
-  ]'>
-      <div class="chat-header">
-          <div class="chat-brand">
-              <i class="ph-duotone ph-robot brand-logo"></i>
-              <span>Asistente RC</span>
-          </div>
-          <button id="chat-close" aria-label="Cerrar">
-              <i class="ph-bold ph-x"></i>
-          </button>
-      </div>
-
-      <div class="chat-body" id="chat-messages">
-          <div class="chat-msg bot">
-              ¡Hola! 👋 Soy tu asistente virtual. ¿En qué puedo ayudarte hoy?
-          </div>
-      </div>
-
-      <div class="chat-quick-replies" id="chat-quick-replies"></div>
-
-      <form class="chat-footer" id="chat-form">
-          <input type="text" id="chat-input" placeholder="Escribe aquí..." autocomplete="off">
-          <button type="submit" id="chat-send">
-              <i class="ph-fill ph-paper-plane-right"></i>
-          </button>
-      </form>
-  </div>
-
-  <!-- Botón flotante que abre el chat -->
-  <button id="chat-trigger" aria-label="Abrir asistente">
-      <i class="ph-fill ph-chat-teardrop-text"></i>
-  </button>
-
-  <!-- JS general del sitio (incluye el chatbot) -->
+  <!-- JS general del sitio -->
   <script src="{% static 'site.js' %}?v=FINAL_FUTURISTA" defer></script>
   {% block extra_js %}{% endblock %}
 </body>

@@ -4,7 +4,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 from django.shortcuts import redirect
 
 # --- IMPORTS PARA JWT (API) ---
@@ -40,6 +40,24 @@ def redireccionar_usuario(request):
 #  RUTAS TÉCNICAS (NO IDIOMA)
 # ===============================
 urlpatterns = [
+    # Vista personalizada para cuentas inactivas (sobre escribe la de allauth)
+    path(
+        "social/inactive/",
+        TemplateView.as_view(template_name="account/account_inactive.html"),
+        name="account_inactive",
+    ),
+    # Redirige login/signup de allauth a las rutas locales de accounts
+    path(
+        "social/login/",
+        RedirectView.as_view(pattern_name="accounts:login", permanent=False),
+        name="social_login_redirect",
+    ),
+    path(
+        "social/signup/",
+        RedirectView.as_view(pattern_name="accounts:register", permanent=False),
+        name="social_signup_redirect",
+    ),
+
     # Cambio de idioma
     path("i18n/", include("django.conf.urls.i18n")),
 

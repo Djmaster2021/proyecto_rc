@@ -1,0 +1,41 @@
+# Conocimiento base para el chatbot del consultorio RC.
+# Cada entrada tiene un título y respuesta enfocada al consultorio.
+- title: servicios
+  answer: |
+    Consultorio Dental Rodolfo Castellón (RC): limpieza, control, resina, endodoncia, blanqueamiento y consultas de valoración. Los precios y duración se muestran al agendar; para un costo exacto, agenda valoración breve.
+
+- title: horarios
+  answer: |
+    Atendemos de lunes a sábado según el horario del dentista. Si no ves horarios libres, prueba otra fecha u horario; si es urgente, escribe o llama para buscarte un espacio adicional.
+
+- title: ubicacion
+  answer: |
+    Estamos en la clínica RC (tu dentista confirma la dirección). En el correo de confirmación aparece el mapa; si no lo tienes, pide la ubicación al equipo.
+
+- title: pagos
+  answer: |
+    Métodos: efectivo, tarjeta, transferencia y MercadoPago. Penalizaciones por inasistencia se pagan antes de agendar nuevas citas. Si debes un cargo, solicita el enlace de pago.
+
+- title: cancelacion
+  answer: |
+    Cada mes puedes cancelar/reprogramar una vez sin costo si avisas con al menos 24h. Inasistencias generan penalización. Para cambios de último minuto, contacta al consultorio.
+
+- title: recordatorios
+  answer: |
+    Enviamos confirmación y recordatorio 24h antes. Revisa spam. Si no llegan, actualiza tu correo en tu perfil o avisa para que revisemos.
+
+- title: emergencia
+  answer: |
+    Dolor intenso, sangrado o urgencia: agenda el primer espacio disponible y deja nota. Llama o escribe para priorizar; si es grave, acude a urgencias médicas.
+
+- title: datos
+  answer: |
+    No compartas datos sensibles en el chat. Para privacidad o correcciones de datos, contáctanos; seguimos la política interna del consultorio.
+
+- title: penalizacion
+  answer: |
+    Inasistencias generan penalización (~$300). Debe pagarse para reactivar citas. Pide el enlace de pago o paga en clínica; guarda tu comprobante.
+
+- title: reprogramacion
+  answer: |
+    Puedes reprogramar una vez por mes sin costo si avisas con 24h. Si ya usaste tu cambio, habla con el consultorio para evaluar opciones.
