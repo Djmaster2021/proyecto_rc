@@ -566,7 +566,7 @@ def servicios(request):
         qs = qs.filter(Q(nombre__icontains=q) | Q(descripcion__icontains=q))
     
     # Fallback de descripciones breves para mostrar algo útil aunque el campo esté vacío
-    fallback_desc = {
+    standard_desc = {
         "limpieza": "Profilaxis corta con ultrasonido y pulido.",
         "consulta": "Evaluación inicial y plan de tratamiento.",
         "control": "Revisión de seguimiento y ajustes.",
@@ -580,9 +580,10 @@ def servicios(request):
     for s in qs:
         if not s.descripcion:
             key = (s.nombre or "").strip().lower()
-            s.descripcion_fallback = fallback_desc.get(key, f"{s.nombre} — agrega una breve descripción (objetivo, materiales, alcance).")
+            s.descripcion_fallback = standard_desc.get(key, f"{s.nombre} — agrega una breve descripción (objetivo, materiales, alcance).")
         else:
-            s.descripcion_fallback = s.descripcion
+            key = (s.nombre or "").strip().lower()
+            s.descripcion_fallback = standard_desc.get(key, s.descripcion)
 
     return render(request, "dentista/servicios.html", {
         "dentista": dentista, "servicios": qs, "query": q, "total": qs.count()
