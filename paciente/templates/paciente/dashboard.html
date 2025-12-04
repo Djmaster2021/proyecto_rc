@@ -176,14 +176,14 @@
         </div>
         <div class="card-modern" style="padding: 2rem;">
             <div>
-                <p style="color: var(--muted); font-size: 0.9rem; text-transform: uppercase;">{% trans "Dentista" %}</p>
-                <h3 style="font-size: 1.8rem; margin-bottom: 5px; color: #fff;">
+                <p style="color: #000; font-size: 0.9rem; text-transform: uppercase;">{% trans "Dentista" %}</p>
+                <h3 style="font-size: 1.8rem; margin-bottom: 5px; color: #000;">
                     {% if paciente.dentista %}{{ paciente.dentista.nombre|upper }}{% else %}{% trans "Sin dentista asignado" %}{% endif %}
                 </h3>
-                <p style="color: var(--brand); font-weight: 600; margin-bottom: 8px;">
+                <p style="color: #000; font-weight: 600; margin-bottom: 8px;">
                     {% if paciente.dentista %}{{ paciente.dentista.especialidad|default:_("Médico general")|upper }}{% else %}{% trans "Especialidad no definida" %}{% endif %}
                 </p>
-                <p style="color: var(--text-dim); margin-bottom: 15px;">
+                <p style="color: #000; margin-bottom: 15px;">
                     <strong>{% trans "Tel:" %}</strong>
                     {% if paciente.dentista and paciente.dentista.telefono %}{{ paciente.dentista.telefono }}{% else %}{% trans "No disponible" %}{% endif %}
                 </p>
