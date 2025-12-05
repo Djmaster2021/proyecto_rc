@@ -31,6 +31,8 @@ if not SECRET_KEY:
         raise RuntimeError("Configura DJANGO_SECRET_KEY en el entorno para producción.")
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+if DEBUG and "0.0.0.0" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("0.0.0.0")
 
 CSRF_TRUSTED_ORIGINS = os.getenv(
     "DJANGO_CSRF_TRUSTED_ORIGINS", 
