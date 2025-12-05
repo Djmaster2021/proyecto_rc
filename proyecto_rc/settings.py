@@ -22,7 +22,13 @@ load_dotenv(BASE_DIR / ".env")
 # Si no encuentra la variable, por seguridad asume False en producción
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-key-default-change-me")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    # Evitar que el servidor arranque con una llave insegura en prod
+    if DEBUG:
+        SECRET_KEY = "django-insecure-key-default-change-me"
+    else:
+        raise RuntimeError("Configura DJANGO_SECRET_KEY en el entorno para producción.")
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
@@ -156,7 +162,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Usamos SMTP para enviar correos reales
 # Backend real para enviar correos
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+# Backend de correo: en desarrollo usamos consola para no enviar reales
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend" if DEBUG else "django.core.mail.backends.smtp.EmailBackend",
+)
 
 # Servidor de Gmail
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")

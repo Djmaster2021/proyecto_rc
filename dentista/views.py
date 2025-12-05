@@ -45,6 +45,7 @@ from domain.notifications import (
     enviar_correo_ticket_soporte,
     registrar_aviso_dentista,
 )
+from paciente.mp_service import crear_preferencia_pago
 
 def _guardar_aviso(dentista, mensaje):
     """Wrapper seguro para registrar avisos sin romper el flujo principal."""
@@ -861,7 +862,15 @@ def detalle_paciente(request, id):
 @login_required
 @require_POST
 def eliminar_paciente(request, id):
-    get_object_or_404(Paciente, id=id, dentista__user=request.user).delete()
+    paciente = get_object_or_404(Paciente, id=id, dentista__user=request.user)
+    usuario = paciente.user  # Guardamos referencia antes de borrar el perfil clínico
+
+    # Borramos el perfil del paciente y limpiamos también su cuenta de usuario
+    paciente.delete()
+    if usuario:
+        usuario.delete()
+
+    messages.success(request, "Paciente eliminado junto con su cuenta de acceso.")
     return redirect("dentista:pacientes")
 
 @login_required
@@ -944,7 +953,10 @@ def registrar_pago(request):
         cita_id = request.POST.get("cita_id", "").strip()
         monto_raw = request.POST.get("monto", "").strip()
         concepto = request.POST.get("concepto", "").strip()
-        metodo = request.POST.get("metodo", "EFECTIVO")
+        metodo = request.POST.get("metodo", "EFECTIVO").upper()
+        metodos_permitidos = {"EFECTIVO", "TRANSFERENCIA", "TARJETA", "MERCADOPAGO"}
+        if metodo not in metodos_permitidos:
+            metodo = "EFECTIVO"
         
         try:
             monto_decimal = Decimal(monto_raw) if monto_raw else None
@@ -966,7 +978,29 @@ def registrar_pago(request):
             servicio_gen, _ = Servicio.objects.get_or_create(dentista=dentista, nombre="Pago Directo", defaults={"precio": 0, "duracion_estimada": 15})
             cita_obj = Cita.objects.create(dentista=dentista, paciente=paciente_gen, servicio=servicio_gen, fecha=date.today(), hora_inicio=timezone.localtime().time(), hora_fin=timezone.localtime().time(), estado="COMPLETADA", notas=concepto)
 
-        pago_obj, _ = Pago.objects.update_or_create(cita=cita_obj, defaults={"monto": monto_decimal, "metodo": metodo, "estado": "COMPLETADO"})
+        # Flujo MercadoPago: requiere cita para enlazar external_reference
+        if metodo == "MERCADOPAGO":
+            if not cita_id:
+                messages.error(request, "Selecciona una cita para cobrar con MercadoPago.")
+                return redirect("dentista:registrar_pago")
+
+            pago_obj, _ = Pago.objects.update_or_create(
+                cita=cita_obj,
+                defaults={"monto": monto_decimal, "metodo": "MERCADOPAGO", "estado": "PENDIENTE"},
+            )
+            try:
+                pref_url = crear_preferencia_pago(cita_obj, request)
+                messages.info(request, "Redirigiendo a MercadoPago para completar el cobro.")
+                return redirect(pref_url)
+            except Exception as exc:
+                messages.error(request, f"No se pudo generar el cobro en MercadoPago: {exc}")
+                return redirect("dentista:registrar_pago")
+
+        # Flujo presencial/digital directo
+        pago_obj, _ = Pago.objects.update_or_create(
+            cita=cita_obj,
+            defaults={"monto": monto_decimal, "metodo": metodo, "estado": "COMPLETADO"},
+        )
         _reactivar_paciente_por_pago(pago_obj)
         
         if cita_obj.estado != "COMPLETADA":

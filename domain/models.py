@@ -43,7 +43,7 @@ class Paciente(models.Model):
     dentista = models.ForeignKey(Dentista, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='paciente_perfil')
     nombre = models.CharField(max_length=200)
-    telefono = models.CharField(max_length=10, blank=True)
+    telefono = models.CharField(max_length=10, blank=True, null=True)
     direccion = models.TextField(blank=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
     antecedentes = models.TextField(blank=True, help_text="Alergias o enfermedades")
@@ -63,6 +63,18 @@ class Paciente(models.Model):
         from datetime import date
         today = date.today()
         return today.year - self.fecha_nacimiento.year - ((today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["dentista", "telefono"],
+                name="uniq_paciente_telefono_por_dentista",
+            ),
+            models.UniqueConstraint(
+                fields=["dentista", "nombre"],
+                name="uniq_paciente_nombre_por_dentista",
+            )
+        ]
 
 # ============================================================
 # 4. HORARIOS DE TRABAJO
