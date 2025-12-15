@@ -66,3 +66,4 @@ Plataforma integral para el Consultorio Dental **Rodolfo Castellón**: agenda, p
 ## Producción
 - `DEBUG=False`, configure `ALLOWED_HOSTS` y `CSRF_TRUSTED_ORIGINS`.
 - Revisa permisos de escritura en `MEDIA_ROOT` y `STATIC_ROOT`, y activa HTTPS en el servidor frontal (Nginx/Apache).
+- Usa `ops/env.prod.example` como plantilla para tu `.env` de producción y arranca con `bash ops/run_prod.sh` (gunicorn en 0.0.0.0:8000). Coloca un proxy reverso (Nginx) al frente.

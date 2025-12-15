@@ -16,6 +16,7 @@ from io import BytesIO
 from urllib.parse import urlencode
 from django.urls import reverse
 from django.db.models import Q
+from django.core.cache import cache
 
 # Importamos modelos
 from domain.models import Paciente, Dentista, Cita, Pago, Servicio, Horario, PenalizacionLog, EncuestaSatisfaccion
@@ -427,27 +428,6 @@ def iniciar_pago(request, cita_id):
         messages.error(request, "Acción no permitida.")
         return redirect("paciente:mis_pagos")
 
-    # Fallback para desarrollo/sandbox: marcar pago como completado sin ir a MP
-    if getattr(settings, "MERCADOPAGO_FAKE_SUCCESS", False):
-        pago.estado = "COMPLETADO"
-        pago.metodo = pago.metodo or "MERCADOPAGO_FAKE"
-        pago.save(update_fields=["estado", "metodo"])
-        _reactivar_paciente_si_penalizacion(pago)
-        try:
-            crear_aviso_por_cita(
-                pago.cita,
-                "PAGO",
-                f"Pago completado por el paciente (${pago.monto}) via {pago.metodo}",
-            )
-        except Exception as exc:
-            print(f"[WARN] Aviso de pago (fake) no guardado: {exc}")
-        params = urlencode({
-            "pago_ok": 1,
-            "servicio": pago.cita.servicio.nombre,
-            "monto": str(pago.monto),
-        })
-        return redirect(f"{reverse('paciente:mis_pagos')}?{params}")
-
     try:
         init_point = crear_preferencia_pago(pago.cita, request)
         # Guardamos método para saber que salió hacia MP
@@ -456,7 +436,7 @@ def iniciar_pago(request, cita_id):
         return redirect(init_point)
     except Exception as exc:
         print(f"[MP] Error creando preferencia: {exc}")
-        messages.error(request, "No se pudo iniciar el pago en línea. Intenta más tarde.")
+        messages.error(request, "No se pudo iniciar el pago en línea. Revisa que tus credenciales de MercadoPago sean válidas y vuelve a intentar.")
         return redirect("paciente:mis_pagos")
 
 
@@ -531,6 +511,8 @@ def mp_webhook(request):
     # Token sencillo para descartar llamadas anónimas.
     expected_secret = getattr(settings, "MERCADOPAGO_WEBHOOK_SECRET", "")
     provided_secret = request.headers.get("X-WEBHOOK-SECRET") or request.GET.get("secret")
+    if (not settings.DEBUG) and not expected_secret:
+        return JsonResponse({"detail": "Webhook no configurado con secreto"}, status=403)
     if expected_secret and provided_secret != expected_secret:
         return JsonResponse({"detail": "Forbidden"}, status=403)
 
@@ -540,12 +522,19 @@ def mp_webhook(request):
         return JsonResponse({"detail": "JSON inválido"}, status=400)
 
     topic = payload.get("type") or payload.get("action")
-    if topic and "payment" not in str(topic):
+    if topic and "payment" not in str(topic).lower():
         return JsonResponse({"detail": "Evento no manejado"}, status=400)
 
     payment_id = payload.get("data", {}).get("id") or payload.get("id")
     if not payment_id:
         return JsonResponse({"detail": "Sin payment_id"}, status=400)
+
+    if not getattr(settings, "MERCADOPAGO_ACCESS_TOKEN", ""):
+        return JsonResponse({"detail": "Access token no configurado"}, status=500)
+
+    cache_key = f"mp:payment:{payment_id}"
+    if cache.get(cache_key):
+        return JsonResponse({"detail": "Evento ya procesado"}, status=200)
 
     sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
     try:
@@ -563,8 +552,12 @@ def mp_webhook(request):
     ext_ref = response.get("external_reference")
     if not ext_ref:
         return JsonResponse({"detail": "Sin external_reference"}, status=400)
+    try:
+        ext_ref_int = int(ext_ref)
+    except Exception:
+        return JsonResponse({"detail": "external_reference inválido"}, status=400)
 
-    pago = Pago.objects.filter(cita__id=ext_ref).first()
+    pago = Pago.objects.filter(cita__id=ext_ref_int).first()
     if not pago:
         return JsonResponse({"detail": "Pago no encontrado"}, status=404)
 
@@ -586,6 +579,7 @@ def mp_webhook(request):
         pago.estado = "COMPLETADO"
         pago.metodo = "MERCADOPAGO"
         pago.save(update_fields=["estado", "metodo"])
+        cache.set(cache_key, True, timeout=3600)
         _reactivar_paciente_si_penalizacion(pago)
         if previo != "COMPLETADO":
             try:
@@ -603,6 +597,7 @@ def mp_webhook(request):
         pago.estado = "PENDIENTE"
         pago.metodo = "MERCADOPAGO"
         pago.save(update_fields=["estado", "metodo"])
+        cache.set(cache_key, True, timeout=900)
         return JsonResponse({"detail": "Pago en proceso"}, status=202)
 
     return JsonResponse({"detail": f"Estado no aprobado: {mp_status}"}, status=200)

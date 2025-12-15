@@ -1,24 +1,41 @@
 import json
-from django.contrib.auth.decorators import login_required
+from datetime import datetime, timedelta
 from django.core.cache import cache
 from django.http import JsonResponse
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_GET, require_http_methods
+from django.views.decorators.http import require_http_methods
 from django.conf import settings
+from django.db import models
 from rest_framework import generics, permissions, serializers
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 # IMPORTANTE: Importamos los modelos correctos desde 'domain'
 # Agregamos 'Dentista' para poder buscarlo por ID
 from domain.models import Servicio, Horario, Dentista
+from domain.notifications import enviar_correo_confirmacion_cita
+from domain.ai_services import (
+    obtener_slots_disponibles,
+    calcular_penalizacion_paciente,
+)
+from domain.models import Cita, Pago
+
+# Servicios auxiliares con fallback
+try:
+    from paciente.services import crear_aviso_por_cita
+except Exception:
+    def crear_aviso_por_cita(*args, **kwargs):
+        return None
 
 # Chatbot IA / fallback
 try:
     from domain.ai_chatbot import responder_chatbot
 except Exception:
     responder_chatbot = None
-from domain.ai_services import obtener_slots_disponibles
 
 
 # ---------------------------------------------------------
@@ -145,8 +162,9 @@ def chatbot_api(request):
 # ---------------------------------------------------------
 # Slots disponibles para una fecha / servicio
 # ---------------------------------------------------------
-@login_required
-@require_GET
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([permissions.IsAuthenticated])
 def api_slots_disponibles(request):
     """
     Endpoint para obtener slots de agenda disponibles.
@@ -204,10 +222,7 @@ def api_slots_disponibles(request):
         # Intentamos obtener el dentista del usuario logueado
         # Nota: En tu modelo Dentista la relación es 'dentista' (related_name='dentista' o 'perfil_dentista')
         # Ajusta según tu models.py. Usaré lo común:
-        try:
-            dentista = request.user.dentista 
-        except AttributeError:
-            dentista = None
+        dentista = getattr(request.user, "dentista", None)
 
         if dentista is None:
             return JsonResponse(
@@ -233,3 +248,322 @@ def api_slots_disponibles(request):
     except Exception as e:
         print(f"Error calculando slots: {e}")
         return JsonResponse({"slots": []})
+
+
+# ---------------------------------------------------------
+# Crear cita (API móvil)
+# ---------------------------------------------------------
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def api_crear_cita(request):
+    """
+    Crea una cita para el paciente autenticado.
+    Espera JSON:
+      {
+        "servicio_id": 1,
+        "fecha": "2025-01-15",
+        "hora": "09:30"
+      }
+    Responde 201 con info básica de la cita.
+    """
+    user = request.user
+    if not hasattr(user, "paciente_perfil"):
+        return Response({"detail": "Perfil de paciente requerido."}, status=status.HTTP_400_BAD_REQUEST)
+
+    data = request.data or {}
+    servicio_id = data.get("servicio_id")
+    fecha_str = data.get("fecha")
+    hora_str = data.get("hora")
+
+    if not (servicio_id and fecha_str and hora_str):
+        return Response({"detail": "servicio_id, fecha y hora son obligatorios."}, status=status.HTTP_400_BAD_REQUEST)
+
+    paciente = user.paciente_perfil
+    penal_info = calcular_penalizacion_paciente(paciente)
+    if penal_info.get("estado") in ["pending", "disabled"]:
+        return Response(
+            {"detail": "No puedes agendar hasta cubrir la penalización pendiente ($300)."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    servicio = Servicio.objects.filter(id=servicio_id, activo=True).first()
+    if not servicio:
+        return Response({"detail": "Servicio no encontrado o inactivo."}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        fecha_obj = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+    except ValueError:
+        return Response({"detail": "Fecha inválida (YYYY-MM-DD)."}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        hora_inicio = datetime.strptime(hora_str, "%H:%M").time()
+    except ValueError:
+        return Response({"detail": "Hora inválida (HH:MM)."}, status=status.HTTP_400_BAD_REQUEST)
+
+    hoy = timezone.localdate()
+    limite = hoy + timedelta(days=60)
+    if fecha_obj < hoy:
+        return Response({"detail": "No se permiten fechas pasadas."}, status=status.HTTP_400_BAD_REQUEST)
+    if fecha_obj > limite:
+        return Response({"detail": "Solo se permite agendar 60 días hacia adelante."}, status=status.HTTP_400_BAD_REQUEST)
+    if fecha_obj.weekday() == 6:
+        return Response({"detail": "No se atiende los domingos."}, status=status.HTTP_400_BAD_REQUEST)
+
+    now_local = timezone.localtime()
+    if fecha_obj == now_local.date() and hora_inicio <= now_local.time():
+        return Response({"detail": "No puedes agendar en una hora que ya pasó."}, status=status.HTTP_400_BAD_REQUEST)
+
+    dentista = servicio.dentista
+    duracion = servicio.duracion_estimada or 30
+    fin_dt = datetime.combine(fecha_obj, hora_inicio) + timedelta(minutes=duracion)
+
+    slots_libres = set(
+        obtener_slots_disponibles(
+            dentista,
+            fecha_obj,
+            servicio,
+            minutos_bloque=15,
+        )
+    )
+    slot_key = hora_inicio.strftime("%H:%M")
+    if slot_key not in slots_libres:
+        return Response({"detail": "Ese horario ya no está disponible."}, status=status.HTTP_409_CONFLICT)
+
+    cita = paciente.cita_set.create(
+        dentista=dentista,
+        servicio=servicio,
+        fecha=fecha_obj,
+        hora_inicio=hora_inicio,
+        hora_fin=fin_dt.time(),
+        estado="PENDIENTE",
+    )
+
+    try:
+        Pago.objects.get_or_create(
+            cita=cita,
+            defaults={
+                "monto": servicio.precio,
+                "metodo": "MERCADOPAGO",
+                "estado": "PENDIENTE",
+            },
+        )
+    except Exception as exc:
+        print(f"[WARN] No se pudo crear pago pendiente: {exc}")
+
+    try:
+        enviar_correo_confirmacion_cita(cita)
+    except Exception as exc:
+        print(f"[WARN] No se pudo enviar correo de confirmación: {exc}")
+
+    try:
+        crear_aviso_por_cita(
+            cita,
+            "NUEVA_CITA",
+            f"Cita solicitada desde la app móvil: {servicio.nombre}",
+        )
+    except Exception as exc:
+        print(f"[WARN] No se pudo crear aviso: {exc}")
+
+    return Response(
+        {
+            "id": cita.id,
+            "servicio": {"id": servicio.id, "nombre": servicio.nombre},
+            "fecha": fecha_obj.isoformat(),
+            "hora": slot_key,
+            "estado": cita.estado,
+            "dentista": {"id": dentista.id, "nombre": dentista.nombre},
+        },
+        status=status.HTTP_201_CREATED,
+    )
+
+
+# ---------------------------------------------------------
+# Listar citas (próximas e historial)
+# ---------------------------------------------------------
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def api_listar_citas(request):
+    """
+    Devuelve próximas citas (PENDIENTE/CONFIRMADA futuras) e historial (pasadas/canceladas).
+    """
+    user = request.user
+    if not hasattr(user, "paciente_perfil"):
+        return Response({"detail": "Perfil de paciente requerido."}, status=status.HTTP_400_BAD_REQUEST)
+
+    paciente = user.paciente_perfil
+    hoy = timezone.localdate()
+    now_time = timezone.localtime().time()
+
+    proximas_qs = (
+        Cita.objects.filter(
+            paciente=paciente,
+            estado__in=["PENDIENTE", "CONFIRMADA"]
+        )
+        .filter(models.Q(fecha__gt=hoy) | models.Q(fecha=hoy, hora_inicio__gte=now_time))
+        .select_related("servicio", "dentista")
+        .order_by("fecha", "hora_inicio")
+    )
+
+    historial_qs = (
+        Cita.objects.filter(paciente=paciente)
+        .exclude(id__in=proximas_qs.values_list("id", flat=True))
+        .select_related("servicio", "dentista")
+        .order_by("-fecha", "-hora_inicio")[:10]
+    )
+
+    def serialize_cita(c):
+        return {
+            "id": c.id,
+            "servicio": {"id": c.servicio_id, "nombre": c.servicio.nombre},
+            "fecha": c.fecha.isoformat(),
+            "hora": c.hora_inicio.strftime("%H:%M"),
+            "estado": c.estado,
+            "dentista": {"id": c.dentista_id, "nombre": c.dentista.nombre},
+            "puede_reprogramar": c.estado in ["PENDIENTE", "CONFIRMADA"],
+            "puede_cancelar": c.estado in ["PENDIENTE", "CONFIRMADA"],
+        }
+
+    return Response(
+        {
+            "proximas": [serialize_cita(c) for c in proximas_qs],
+            "historial": [serialize_cita(c) for c in historial_qs],
+        }
+    )
+
+
+# ---------------------------------------------------------
+# Cancelar cita
+# ---------------------------------------------------------
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def api_cancelar_cita(request, cita_id: int):
+    user = request.user
+    if not hasattr(user, "paciente_perfil"):
+        return Response({"detail": "Perfil de paciente requerido."}, status=status.HTTP_400_BAD_REQUEST)
+
+    paciente = user.paciente_perfil
+    cita = Cita.objects.filter(id=cita_id, paciente=paciente).select_related("servicio", "dentista").first()
+    if not cita:
+        return Response({"detail": "Cita no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+
+    if cita.estado not in ["PENDIENTE", "CONFIRMADA"]:
+        return Response({"detail": "La cita no puede cancelarse."}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Penalizaciones y reglas simples: no permitir cancelar si es misma hora
+    ahora = timezone.localtime()
+    if cita.fecha == ahora.date() and cita.hora_inicio <= ahora.time():
+        return Response({"detail": "No puedes cancelar una cita que ya inició o pasó."}, status=status.HTTP_400_BAD_REQUEST)
+
+    cita.estado = "CANCELADA"
+    cita.save(update_fields=["estado"])
+
+    try:
+        crear_aviso_por_cita(cita, "CANCELADA", "Cita cancelada desde la app móvil.")
+    except Exception as exc:
+        print(f"[WARN] No se pudo crear aviso cancelación: {exc}")
+
+    return Response(
+        {
+            "id": cita.id,
+            "estado": cita.estado,
+            "servicio": {"id": cita.servicio_id, "nombre": cita.servicio.nombre},
+            "fecha": cita.fecha.isoformat(),
+            "hora": cita.hora_inicio.strftime("%H:%M"),
+        }
+    )
+
+
+# ---------------------------------------------------------
+# Reprogramar cita
+# ---------------------------------------------------------
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([permissions.IsAuthenticated])
+def api_reprogramar_cita(request, cita_id: int):
+    """
+    Requiere JSON: {"fecha": "YYYY-MM-DD", "hora": "HH:MM"}
+    """
+    user = request.user
+    if not hasattr(user, "paciente_perfil"):
+        return Response({"detail": "Perfil de paciente requerido."}, status=status.HTTP_400_BAD_REQUEST)
+
+    paciente = user.paciente_perfil
+    cita = Cita.objects.filter(id=cita_id, paciente=paciente).select_related("servicio", "dentista").first()
+    if not cita:
+        return Response({"detail": "Cita no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+
+    if cita.estado not in ["PENDIENTE", "CONFIRMADA"]:
+        return Response({"detail": "La cita no puede reprogramarse."}, status=status.HTTP_400_BAD_REQUEST)
+
+    data = request.data or {}
+    fecha_str = data.get("fecha")
+    hora_str = data.get("hora")
+    if not (fecha_str and hora_str):
+        return Response({"detail": "fecha y hora son obligatorias."}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        nueva_fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+        nueva_hora = datetime.strptime(hora_str, "%H:%M").time()
+    except ValueError:
+        return Response({"detail": "Formato de fecha u hora inválido."}, status=status.HTTP_400_BAD_REQUEST)
+
+    hoy = timezone.localdate()
+    limite = hoy + timedelta(days=60)
+    if nueva_fecha < hoy:
+        return Response({"detail": "No se permiten fechas pasadas."}, status=status.HTTP_400_BAD_REQUEST)
+    if nueva_fecha > limite:
+        return Response({"detail": "Fuera de rango (60 días)."}, status=status.HTTP_400_BAD_REQUEST)
+    if nueva_fecha.weekday() == 6:
+        return Response({"detail": "No se atiende domingos."}, status=status.HTTP_400_BAD_REQUEST)
+
+    now_local = timezone.localtime()
+    if nueva_fecha == now_local.date() and nueva_hora <= now_local.time():
+        return Response({"detail": "No puedes reprogramar a una hora pasada."}, status=status.HTTP_400_BAD_REQUEST)
+
+    servicio = cita.servicio
+    dentista = cita.dentista
+    duracion = servicio.duracion_estimada or 30
+    fin_dt = datetime.combine(nueva_fecha, nueva_hora) + timedelta(minutes=duracion)
+
+    slots_libres = set(
+        obtener_slots_disponibles(
+            dentista,
+            nueva_fecha,
+            servicio,
+            minutos_bloque=15,
+        )
+    )
+    slot_key = nueva_hora.strftime("%H:%M")
+    if slot_key not in slots_libres:
+        return Response({"detail": "Ese horario ya no está disponible."}, status=status.HTTP_409_CONFLICT)
+
+    cita.fecha = nueva_fecha
+    cita.hora_inicio = nueva_hora
+    cita.hora_fin = fin_dt.time()
+    cita.estado = "PENDIENTE"
+    cita.veces_reprogramada = (cita.veces_reprogramada or 0) + 1
+    cita.save(update_fields=["fecha", "hora_inicio", "hora_fin", "estado", "veces_reprogramada"])
+
+    try:
+        enviar_correo_confirmacion_cita(cita)
+    except Exception as exc:
+        print(f"[WARN] No se pudo enviar correo de reprogramación: {exc}")
+
+    try:
+        crear_aviso_por_cita(cita, "REPROGRAMADA", "Cita reprogramada desde la app móvil.")
+    except Exception as exc:
+        print(f"[WARN] No se pudo crear aviso reprogramación: {exc}")
+
+    return Response(
+        {
+            "id": cita.id,
+            "servicio": {"id": servicio.id, "nombre": servicio.nombre},
+            "fecha": cita.fecha.isoformat(),
+            "hora": slot_key,
+            "estado": cita.estado,
+            "dentista": {"id": dentista.id, "nombre": dentista.nombre},
+        }
+    )

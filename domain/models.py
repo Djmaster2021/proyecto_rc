@@ -130,6 +130,12 @@ class Cita(models.Model):
     def fecha_hora_inicio(self):
         return datetime.combine(self.fecha, self.hora_inicio)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["dentista", "fecha", "hora_inicio"]),
+            models.Index(fields=["paciente", "fecha"]),
+        ]
+
 # ============================================================
 # 6. PAGOS
 # ============================================================
@@ -154,6 +160,12 @@ class Pago(models.Model):
 
     def __str__(self):
         return f"Pago ${self.monto} - {self.cita}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["estado", "created_at"]),
+            models.Index(fields=["metodo", "estado"]),
+        ]
 
 # ============================================================
 # 7. COMPROBANTE DE PAGO

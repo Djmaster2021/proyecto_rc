@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -9,6 +9,7 @@ from django.conf import settings
 from domain.models import Dentista, Paciente, Cita, Pago, Servicio
 
 
+@override_settings(MERCADOPAGO_WEBHOOK_SECRET="testsecret", MERCADOPAGO_ACCESS_TOKEN="tokentest", DEBUG=False)
 class PagoMercadoPagoTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="pac3", password="pwd")
@@ -55,7 +56,12 @@ class PagoMercadoPagoTests(TestCase):
 
         url = reverse("paciente:mp_webhook")
         payload = {"data": {"id": "123"}}
-        resp = self.client.post(url, data=payload, content_type="application/json")
+        resp = self.client.post(
+            url,
+            data=payload,
+            content_type="application/json",
+            HTTP_X_WEBHOOK_SECRET="testsecret",
+        )
 
         self.assertEqual(resp.status_code, 200)
         self.pago.refresh_from_db()
@@ -76,8 +82,19 @@ class PagoMercadoPagoTests(TestCase):
 
         url = reverse("paciente:mp_webhook")
         payload = {"data": {"id": "999"}}
-        resp = self.client.post(url, data=payload, content_type="application/json")
+        resp = self.client.post(
+            url,
+            data=payload,
+            content_type="application/json",
+            HTTP_X_WEBHOOK_SECRET="testsecret",
+        )
 
         self.assertEqual(resp.status_code, 400)
         self.pago.refresh_from_db()
         self.assertEqual(self.pago.estado, "PENDIENTE")
+
+    def test_webhook_sin_secreto_es_rechazado(self):
+        url = reverse("paciente:mp_webhook")
+        payload = {"data": {"id": "999"}}
+        resp = self.client.post(url, data=payload, content_type="application/json")
+        self.assertEqual(resp.status_code, 403)

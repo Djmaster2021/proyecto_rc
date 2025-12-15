@@ -1,7 +1,12 @@
+import logging
+import time
+from urllib.parse import urljoin
+
 import mercadopago
 from django.conf import settings
 from django.urls import reverse
-import time
+
+logger = logging.getLogger(__name__)
 
 def crear_preferencia_pago(cita, request):
     token = settings.MERCADOPAGO_ACCESS_TOKEN
@@ -18,17 +23,17 @@ def crear_preferencia_pago(cita, request):
             or f"paciente_{cita.paciente.id or int(time.time())}@example.com"
         )
 
-    print(f"\n🔑 LLAVE ACTUAL EN MEMORIA: {token[:15]}...\n") 
-    if is_test_token:
-        print(f"🧪 Modo test MP activo. Email de pagador usado: {payer_email}")
+    logger.info("Creando preferencia MercadoPago para cita %s (sandbox=%s)", cita.id, is_test_token)
 
     # 1. Configurar SDK
     sdk = mercadopago.SDK(token)
 
     # 2. URLs de retorno
-    back_url_success = request.build_absolute_uri(reverse('paciente:pago_exitoso'))
-    back_url_failure = request.build_absolute_uri(reverse('paciente:pago_fallido'))
-    back_url_pending = request.build_absolute_uri(reverse('paciente:pago_pendiente'))
+    base_url = (getattr(settings, "SITE_BASE_URL", "") or request.build_absolute_uri("/")).rstrip("/")
+    # Construimos back_urls explícitas para evitar hosts "testserver"
+    back_url_success = f"{base_url}{reverse('paciente:pago_exitoso')}"
+    back_url_failure = f"{base_url}{reverse('paciente:pago_fallido')}"
+    back_url_pending = f"{base_url}{reverse('paciente:pago_pendiente')}"
 
     # 3. Datos de la Preferencia
     payer_name = cita.paciente.user.first_name or "Test"
@@ -36,6 +41,13 @@ def crear_preferencia_pago(cita, request):
     # Para sandbox usa DNI/12345678 (recomendado por MP para tarjetas APRO)
     payer_id_type = "DNI"
     payer_id_number = "12345678"
+
+    # Webhook con secreto en querystring para MP; si hay host público, úsalo.
+    webhook_url = request.build_absolute_uri(reverse("paciente:mp_webhook"))
+    secret = getattr(settings, "MERCADOPAGO_WEBHOOK_SECRET", "")
+    if secret:
+        sep = "&" if "?" in webhook_url else "?"
+        webhook_url = f"{webhook_url}{sep}secret={secret}"
 
     preference_data = {
         "items": [
@@ -70,24 +82,52 @@ def crear_preferencia_pago(cita, request):
             "installments": 1,
             "default_installments": 1,
         },
-        "back_urls": {
-            "success": back_url_success,
-            "failure": back_url_failure,
-            "pending": back_url_pending
-        }, 
-        # "auto_return": "approved",
         "external_reference": str(cita.id),
         "statement_descriptor": "DENTAL RC",
     }
 
-    # 4. Crear la preferencia
-    print(f"🔵 Enviando datos a MP con email: {payer_email}")
-    preference_response = sdk.preference().create(preference_data)
-    print("🟡 Respuesta de MercadoPago:", preference_response)
-    
-    # 5. Validar respuesta
-    if preference_response["status"] == 201:
-        # En test, devuelve sandbox_init_point; en prod, init_point
-        return preference_response["response"].get("sandbox_init_point") or preference_response["response"].get("init_point")
+    preference_data["back_urls"] = {
+        "success": back_url_success,
+        "failure": back_url_failure,
+        "pending": back_url_pending,
+    }
+    preference_data["auto_return"] = "approved"
+
+    # Para desarrollo local (localhost/127.0.0.1), MercadoPago puede rechazar notification_url/auto_return.
+    is_local = any(h in base_url for h in ("127.0.0.1", "localhost"))
+    if not is_local:
+        preference_data["notification_url"] = webhook_url
     else:
-        raise Exception(f"MP Error {preference_response['status']}: {preference_response.get('response', 'Sin detalle')}")
+        logger.info("Entorno local detectado, omitiendo notification_url.")
+        preference_data.pop("auto_return", None)
+
+    # Log de diagnóstico explícito
+    print("[MP] back_urls usadas:", preference_data["back_urls"])
+    print("[MP] notification_url:", preference_data.get("notification_url"))
+    print("[MP] SITE_BASE_URL:", getattr(settings, "SITE_BASE_URL", ""))
+    logger.info(
+        "Creando preferencia MP cita=%s back_urls=%s",
+        cita.id,
+        preference_data["back_urls"],
+    )
+
+    # 4. Crear la preferencia (con reintento si falla auto_return)
+    preference_response = sdk.preference().create(preference_data)
+    logger.debug("Respuesta de MercadoPago status=%s", preference_response.get("status"))
+
+    if preference_response["status"] != 201:
+        # Si MP rechaza auto_return/back_urls, reintenta sin auto_return
+        error_msg = str(preference_response.get("response", ""))
+        if "auto_return invalid" in error_msg or "back_url" in error_msg:
+            fallback_data = dict(preference_data)
+            fallback_data.pop("auto_return", None)
+            fallback_data.pop("notification_url", None)
+            logger.warning("Reintentando preferencia sin auto_return por error MP: %s", error_msg)
+            preference_response = sdk.preference().create(fallback_data)
+        else:
+            raise Exception(f"MP Error {preference_response['status']}: {preference_response.get('response', 'Sin detalle')}")
+
+    # 5. Validar respuesta final
+    if preference_response["status"] == 201:
+        return preference_response["response"].get("sandbox_init_point") or preference_response["response"].get("init_point")
+    raise Exception(f"MP Error {preference_response['status']}: {preference_response.get('response', 'Sin detalle')}")
