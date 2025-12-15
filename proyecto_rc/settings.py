@@ -30,9 +30,11 @@ if not SECRET_KEY:
     else:
         raise RuntimeError("Configura DJANGO_SECRET_KEY en el entorno para producción.")
 
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
-if DEBUG and "0.0.0.0" not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append("0.0.0.0")
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,10.0.2.2").split(",")
+if DEBUG:
+    for host in ("0.0.0.0", "10.0.2.2"):
+        if host not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(host)
 
 CSRF_TRUSTED_ORIGINS = os.getenv(
     "DJANGO_CSRF_TRUSTED_ORIGINS", 
@@ -316,3 +318,14 @@ SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "0"))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = _env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", False)
 SECURE_HSTS_PRELOAD = _env_bool("SECURE_HSTS_PRELOAD", False)
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https") if _env_bool("SECURE_PROXY_SSL_HEADER", False) else None
+
+# ====================================
+# 14. CACHE (para throttling y webhooks)
+# ====================================
+# En prod usa Redis/Memcached; aquí dejamos LocMem por defecto.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "proyecto-rc-cache",
+    }
+}
