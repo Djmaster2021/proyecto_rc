@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
 from django.views.generic import TemplateView, RedirectView
 from django.shortcuts import redirect
+from django.http import HttpResponse
 
 # --- IMPORTS PARA JWT (API) ---
 from rest_framework_simplejwt.views import (
@@ -40,6 +41,11 @@ def redireccionar_usuario(request):
 #  RUTAS TÉCNICAS (NO IDIOMA)
 # ===============================
 urlpatterns = [
+    # Verificación de dominio para Google Search Console
+    path(
+        "google0c7f6f52abc015a8.html",
+        lambda request: HttpResponse("google-site-verification: google0c7f6f52abc015a8.html"),
+    ),
     # Vista personalizada para cuentas inactivas (sobre escribe la de allauth)
     path(
         "social/inactive/",

@@ -65,6 +65,18 @@ class MySocialAccountAdapter(DefaultSocialAccountAdapter):
     Reutiliza la lógica de MyAccountAdapter para decidir la redirección final.
     """
 
+    def get_callback_url(self, request, app):
+        """
+        Fuerza la URL de callback a usar SITE_BASE_URL (https/ngrok) para evitar
+        que allauth genere el redirect con IP privada si el request entra por ahí.
+        """
+        base = getattr(settings, "SITE_BASE_URL", "").rstrip("/")
+        # Fallback a super si no hay base configurada
+        if not base:
+            return super().get_callback_url(request, app)
+        path = f"/accounts/{app.provider}/login/callback/"
+        return f"{base}{path}"
+
     def get_login_redirect_url(self, request, sociallogin):
         adapter = MyAccountAdapter()
         return adapter.get_login_redirect_url(request)

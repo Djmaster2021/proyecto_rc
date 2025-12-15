@@ -3,6 +3,7 @@ import os
 import sys
 from dotenv import load_dotenv
 from django.utils.translation import gettext_lazy as _
+from urllib.parse import urlparse
 
 # ====================================
 # 1. CARGA DE ENTORNO
@@ -35,6 +36,14 @@ if DEBUG:
     for host in ("0.0.0.0", "10.0.2.2"):
         if host not in ALLOWED_HOSTS:
             ALLOWED_HOSTS.append(host)
+# Añadimos el host derivado de SITE_BASE_URL para evitar errores DisallowedHost
+site_base = os.getenv("SITE_BASE_URL")
+if site_base:
+    netloc = urlparse(site_base).netloc or site_base
+    host_only = netloc.split(":")[0]
+    for h in (netloc, host_only):
+        if h and h not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(h)
 
 CSRF_TRUSTED_ORIGINS = os.getenv(
     "DJANGO_CSRF_TRUSTED_ORIGINS", 
@@ -73,6 +82,7 @@ INSTALLED_APPS = [
 ]
 
 SITE_ID = 1
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
 # ====================================
 # 4. MIDDLEWARE
@@ -318,6 +328,7 @@ SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "0"))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = _env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", False)
 SECURE_HSTS_PRELOAD = _env_bool("SECURE_HSTS_PRELOAD", False)
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https") if _env_bool("SECURE_PROXY_SSL_HEADER", False) else None
+USE_X_FORWARDED_HOST = _env_bool("USE_X_FORWARDED_HOST", False)
 
 # ====================================
 # 14. CACHE (para throttling y webhooks)

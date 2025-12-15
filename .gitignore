@@ -44,3 +44,15 @@ build/
 # ======================================
 google_credentials/token.json
 google_credentials/credentials.json
+
+# ======================================
+# ANDROID (mobile/)
+# ======================================
+*.iml
+*.hprof
+.gradle/
+local.properties
+mobile/**/.idea/
+mobile/**/build/
+mobile/**/.cxx/
+mobile/**/.externalNativeBuild/
