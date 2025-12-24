@@ -3,6 +3,9 @@
 # ======================================
 .env
 *.env
+.env.private
+secrets/
+*.jks
 .venv/
 venv/
 
@@ -56,3 +59,4 @@ mobile/**/.idea/
 mobile/**/build/
 mobile/**/.cxx/
 mobile/**/.externalNativeBuild/
+mobile/ConsultorioDentalRC/keystore.properties

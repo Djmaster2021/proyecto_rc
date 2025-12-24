@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -9,6 +10,16 @@ android {
     namespace = "com.example.consultoriodentalrc"
     compileSdk = 36
 
+    val keystoreProps = Properties().apply {
+        val file = rootProject.file("keystore.properties")
+        if (file.exists()) {
+            file.inputStream().use { load(it) }
+        }
+    }
+
+    fun prop(name: String): String? =
+        providers.gradleProperty(name).orNull ?: keystoreProps.getProperty(name)
+
     defaultConfig {
         applicationId = "com.example.consultoriodentalrc"
         minSdk = 24
@@ -18,7 +29,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val baseUrl: String = gradleLocalProperties(rootDir)
+        val baseUrl: String = gradleLocalProperties(rootDir, providers)
             .getProperty("BASE_URL")
             ?: "http://10.0.2.2:8000/"
 
@@ -29,6 +40,21 @@ android {
         )
     }
 
+    val keystorePath: String? = prop("CONSULTORIO_STORE_FILE")
+    val keystorePassword: String? = prop("CONSULTORIO_STORE_PASSWORD")
+    val keyAlias: String? = prop("CONSULTORIO_KEY_ALIAS")
+    val keyPassword: String? = prop("CONSULTORIO_KEY_PASSWORD")
+
+    signingConfigs {
+        create("release") {
+            // Fails fast if any credential is missing.
+            storeFile = keystorePath?.let { file(it) } ?: error("CONSULTORIO_STORE_FILE no configurado")
+            storePassword = keystorePassword ?: error("CONSULTORIO_STORE_PASSWORD no configurado")
+            this.keyAlias = keyAlias ?: error("CONSULTORIO_KEY_ALIAS no configurado")
+            this.keyPassword = keyPassword ?: error("CONSULTORIO_KEY_PASSWORD no configurado")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -36,6 +62,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -64,6 +91,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.datastore.preferences)
     implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.androidx.browser)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -12,9 +12,10 @@ from urllib.parse import urlparse
 # Construye las rutas dentro del proyecto: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Cargar variables de entorno desde el archivo .env
-# Esto es vital para que lea tu contraseña de correo
-load_dotenv(BASE_DIR / ".env")
+# Cargar variables de entorno: primero secrets/.env.private si existe, si no .env
+private_env = BASE_DIR / "secrets" / ".env.private"
+env_file = private_env if private_env.exists() else BASE_DIR / ".env"
+load_dotenv(env_file)
 
 # ====================================
 # 2. SEGURIDAD Y DEBUG
