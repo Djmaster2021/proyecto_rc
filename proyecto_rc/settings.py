@@ -99,6 +99,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "proyecto_rc.middleware.HostLoggingMiddleware",
 ]
 
 ROOT_URLCONF = "proyecto_rc.urls"

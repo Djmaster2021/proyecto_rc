@@ -32,6 +32,7 @@ Plataforma integral para el Consultorio Dental **Rodolfo Castellón**: agenda, p
 - `MERCADOPAGO_PUBLIC_KEY`, `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_TEST_PAYER_EMAIL` (email del comprador de prueba cuando uses token TEST-), `MERCADOPAGO_WEBHOOK_SECRET`.
 - `MERCADOPAGO_FAKE_SUCCESS`: si `1/true`, en sandbox marca el pago como completado sin ir a MercadoPago (útil para desarrollar cuando el checkout de prueba falla).
 - `GOOGLE_CALENDAR_ID` y archivos en `google_credentials/credentials.json` + `token.json`.
+- OAuth Google (allauth): `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` (usa cliente tipo “Aplicación web”).
 - Chatbot IA (opcional Gemini): `GEMINI_API_KEY` (si está presente se enciende automáticamente), `CHATBOT_IA_ENABLED` (`auto/true/false`), `GEMINI_MODEL_NAME`, `CHATBOT_MAX_CONTEXT`.
 
 ### Integración Google Calendar (opcional, desactivada)
@@ -50,6 +51,7 @@ Plataforma integral para el Consultorio Dental **Rodolfo Castellón**: agenda, p
 - Generar token OAuth de Google: `python google_oauth_setup.py` tras colocar `google_credentials/credentials.json`.  
 - Colección de estáticos para producción: `python manage.py collectstatic --no-input`.  
 - Reiniciar datos locales (desarrollo): `python reset_tablas.py` (pide confirmación; usa `--force` si sabes lo que haces).
+- Healthcheck: `GET /api/health/` (sin auth) devuelve host/SITE_BASE_URL y estado.
 - Crear dentista por defecto (si la BD está vacía): `python manage.py seed_default_dentist` (usa envs `DEFAULT_DENTISTA_*` opcionales).
 - Webhook MercadoPago (prod): configura la URL pública a `/paciente/pagos/webhook/`.
 - Cron sugerido para recordatorios (ejemplo): `0 * * * * cd /home/diego/Escritorio/proyecto_rc/proyecto_rc && .venv/bin/python manage.py enviar_recordatorios_citas >> /var/log/rc_recordatorios.log 2>&1` (plantilla en `ops/cron_recordatorios.example`).
@@ -62,6 +64,9 @@ Plataforma integral para el Consultorio Dental **Rodolfo Castellón**: agenda, p
 
 ## Tests
 - Ejecuta `python manage.py test` (recomendable usar una base separada o SQLite en local para no tocar datos reales).
+
+## Arranque rápido con túnel
+- `bash ops/dev_up.sh`: levanta `docker compose up -d db`, inicia `cloudflared tunnel run consultoriorc` si está instalado y ejecuta `runserver` en `0.0.0.0:8001`.
 
 ## Producción
 - `DEBUG=False`, configure `ALLOWED_HOSTS` y `CSRF_TRUSTED_ORIGINS`.

@@ -41,11 +41,20 @@ def redireccionar_usuario(request):
 #  RUTAS TÉCNICAS (NO IDIOMA)
 # ===============================
 urlpatterns = [
+    # Alias de callback antiguo (por si Google está configurado a /accounts/google/login/callback)
+    path(
+        "accounts/google/login/callback/",
+        RedirectView.as_view(url="/social/google/login/callback/", permanent=False),
+        name="google_callback_alias",
+    ),
+
     # Verificación de dominio para Google Search Console
     path(
         "google0c7f6f52abc015a8.html",
         lambda request: HttpResponse("google-site-verification: google0c7f6f52abc015a8.html"),
     ),
+    # Favicon estándar (redirige al PNG del proyecto para evitar 404)
+    path("favicon.ico", RedirectView.as_view(url="/static/img/favicon.png", permanent=False)),
     # Vista personalizada para cuentas inactivas (sobre escribe la de allauth)
     path(
         "social/inactive/",

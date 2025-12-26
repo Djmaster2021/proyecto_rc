@@ -1,11 +1,15 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.views.generic import RedirectView
 from . import views
 
 # Es importante que app_name coincida con el namespace en el urls.py principal
 app_name = "accounts"
 
 urlpatterns = [
+    # Raíz de accounts -> redirige al login
+    path("", RedirectView.as_view(pattern_name="accounts:login", permanent=False)),
+
     # 1. Login personalizado (usa la clase que definimos en views.py)
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('redirect-by-role/', views.redirect_by_role, name='redirect_by_role'),

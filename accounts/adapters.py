@@ -74,7 +74,8 @@ class MySocialAccountAdapter(DefaultSocialAccountAdapter):
         # Fallback a super si no hay base configurada
         if not base:
             return super().get_callback_url(request, app)
-        path = f"/accounts/{app.provider}/login/callback/"
+        # Los endpoints de allauth están montados en /social/, ajustamos el callback.
+        path = f"/social/{app.provider}/login/callback/"
         return f"{base}{path}"
 
     def get_login_redirect_url(self, request, sociallogin):

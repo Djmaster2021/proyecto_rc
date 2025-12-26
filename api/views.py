@@ -39,6 +39,24 @@ except Exception:
 
 
 # ---------------------------------------------------------
+# Healthcheck simple
+# ---------------------------------------------------------
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([permissions.AllowAny])
+def health_check(request):
+    """Devuelve estado básico y contexto de host para diagnósticos rápidos."""
+    payload = {
+        "status": "ok",
+        "host": request.get_host(),
+        "site_base_url": getattr(settings, "SITE_BASE_URL", ""),
+        "debug": settings.DEBUG,
+        "time": timezone.now().isoformat(),
+    }
+    return Response(payload)
+
+
+# ---------------------------------------------------------
 # Serializer DRF para Servicio (para la API de servicios)
 # ---------------------------------------------------------
 class ServicioSerializer(serializers.ModelSerializer):

@@ -2,6 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # Healthcheck (sin auth)
+    path('health/', views.health_check, name='api_health'),
+
     # API para obtener lista de servicios (opcional)
     path('servicios/', views.ServicioListAPIView.as_view(), name='api_servicios'),
 

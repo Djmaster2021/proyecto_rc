@@ -219,6 +219,8 @@
   
   /* Responsive */
   @media (max-width:560px){
+    .site-main{ display:block; padding:26px 16px; }
+    .auth-hero{ max-width:640px; }
     .login-card{ padding:22px; border-radius:18px }
     .roles{ grid-template-columns:1fr; }
   }
