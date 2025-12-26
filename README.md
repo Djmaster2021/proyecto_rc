@@ -64,6 +64,7 @@ Plataforma integral para el Consultorio Dental **Rodolfo Castellón**: agenda, p
 
 ## Tests
 - Ejecuta `python manage.py test` (recomendable usar una base separada o SQLite en local para no tocar datos reales).
+- CI: GitHub Actions (`.github/workflows/ci.yml`) ejecuta los tests de Django (accounts, api).
 
 ## Arranque rápido con túnel
 - `bash ops/dev_up.sh`: levanta `docker compose up -d db`, inicia `cloudflared tunnel run consultoriorc` si está instalado y ejecuta `runserver` en `0.0.0.0:8001`.

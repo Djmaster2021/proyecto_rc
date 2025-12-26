@@ -15,6 +15,14 @@
         android:textAppearance="?attr/textAppearanceBodyMedium"
         android:paddingBottom="12dp" />
 
+    <TextView
+        android:id="@+id/healthStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Comprobando conexión..."
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:paddingBottom="12dp" />
+
     <LinearLayout
         android:id="@+id/urlBar"
         android:layout_width="match_parent"

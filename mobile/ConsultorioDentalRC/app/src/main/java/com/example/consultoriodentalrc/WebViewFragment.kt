@@ -8,8 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.consultoriodentalrc.BuildConfig.BASE_URL
 import com.example.consultoriodentalrc.databinding.FragmentWebviewBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 class WebViewFragment : Fragment() {
 
@@ -24,6 +30,7 @@ class WebViewFragment : Fragment() {
         requireContext().getSharedPreferences(prefsName, Context.MODE_PRIVATE)
     }
     private var currentUrl: String = defaultUrl
+    private val httpClient by lazy { OkHttpClient() }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,6 +45,9 @@ class WebViewFragment : Fragment() {
 
         // Abre la página principal del sitio
         launchCustomTab(currentUrl)
+
+        // Verifica salud del backend sin bloquear UI
+        checkHealth(currentUrl)
 
         binding.btnApplyUrl.setOnClickListener {
             val url = binding.inputUrl.text?.toString()?.trim().orEmpty()
@@ -61,6 +71,28 @@ class WebViewFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun checkHealth(base: String) {
+        binding.healthStatus.text = "Comprobando conexión..."
+        val healthUrl = base.ensureTrailingSlash() + "api/health/"
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                try {
+                    val req = Request.Builder().url(healthUrl).get().build()
+                    httpClient.newCall(req).execute().use { resp ->
+                        if (resp.isSuccessful) {
+                            "Conectado (\u2714)"
+                        } else {
+                            "No disponible (${resp.code})"
+                        }
+                    }
+                } catch (e: Exception) {
+                    "No se pudo conectar"
+                }
+            }
+            binding.healthStatus.text = result
+        }
     }
 
     private fun launchCustomTab(url: String) {

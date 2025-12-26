@@ -9,6 +9,15 @@ from rest_framework.test import APIClient
 from domain.models import Dentista, Paciente, Servicio, Horario, Cita, Pago
 
 
+class HealthCheckTests(TestCase):
+    def test_health_endpoint_ok(self):
+        client = APIClient()
+        resp = client.get(reverse("api_health"))
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        self.assertEqual(body.get("status"), "ok")
+
+
 class CitasAPITests(TestCase):
     def setUp(self):
         self.client = APIClient()

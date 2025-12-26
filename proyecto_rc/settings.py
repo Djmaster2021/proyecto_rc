@@ -322,15 +322,19 @@ CHATBOT_API_SECRET = os.getenv("CHATBOT_API_SECRET", "")
 # ====================================
 
 def _env_bool(name, default=False):
-    return os.getenv(name, str(default)).lower() in ("1", "true", "yes")
+    raw = os.getenv(name)
+    if raw is None:
+        return bool(default)
+    return raw.lower() in ("1", "true", "yes")
 
-SESSION_COOKIE_SECURE = _env_bool("SESSION_COOKIE_SECURE", False)
-CSRF_COOKIE_SECURE = _env_bool("CSRF_COOKIE_SECURE", False)
-SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "0"))
-SECURE_HSTS_INCLUDE_SUBDOMAINS = _env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", False)
-SECURE_HSTS_PRELOAD = _env_bool("SECURE_HSTS_PRELOAD", False)
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https") if _env_bool("SECURE_PROXY_SSL_HEADER", False) else None
-USE_X_FORWARDED_HOST = _env_bool("USE_X_FORWARDED_HOST", False)
+_secure_default = not DEBUG
+SESSION_COOKIE_SECURE = _env_bool("SESSION_COOKIE_SECURE", _secure_default)
+CSRF_COOKIE_SECURE = _env_bool("CSRF_COOKIE_SECURE", _secure_default)
+SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000" if _secure_default else "0"))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = _env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", _secure_default)
+SECURE_HSTS_PRELOAD = _env_bool("SECURE_HSTS_PRELOAD", False if DEBUG else True)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https") if _env_bool("SECURE_PROXY_SSL_HEADER", _secure_default) else None
+USE_X_FORWARDED_HOST = _env_bool("USE_X_FORWARDED_HOST", _secure_default)
 
 # ====================================
 # 14. CACHE (para throttling y webhooks)
