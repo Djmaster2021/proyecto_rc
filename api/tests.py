@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta, time
+import os
+from unittest import mock
 
 from django.test import TestCase
 from django.urls import reverse
@@ -16,6 +18,14 @@ class HealthCheckTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         body = resp.json()
         self.assertEqual(body.get("status"), "ok")
+
+    def test_health_endpoint_extended_with_token(self):
+        client = APIClient()
+        with mock.patch.dict(os.environ, {"HEALTH_TOKEN": "secret"}):
+            resp = client.get(reverse("api_health"), HTTP_X_HEALTH_TOKEN="secret")
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        self.assertIn("allowed_hosts", body)
 
 
 class CitasAPITests(TestCase):
@@ -116,3 +126,46 @@ class CitasAPITests(TestCase):
         self.assertEqual(resp.status_code, 200, resp.content)
         body = resp.json()
         self.assertIn("slots", body)
+
+    def test_slots_rechaza_fecha_pasada(self):
+        url = reverse("api_slots")
+        resp = self.client.get(
+            url,
+            {
+                "fecha": (self.fecha - timedelta(days=2)).isoformat(),
+                "servicio_id": self.servicio.id,
+                "dentista_id": self.dentista.id,
+            },
+        )
+        self.assertEqual(resp.status_code, 400)
+
+    def test_cancelar_cita_permiso(self):
+        cita = Cita.objects.create(
+            dentista=self.dentista,
+            paciente=self.paciente,
+            servicio=self.servicio,
+            fecha=self.fecha,
+            hora_inicio=time(10, 0),
+            hora_fin=time(10, 30),
+            estado="PENDIENTE",
+        )
+        url = reverse("api_cancelar_cita", args=[cita.id])
+        resp = self.client.post(url)
+        self.assertEqual(resp.status_code, 200)
+        cita.refresh_from_db()
+        self.assertEqual(cita.estado, "CANCELADA")
+
+    def test_cancelar_cita_sin_auth(self):
+        cita = Cita.objects.create(
+            dentista=self.dentista,
+            paciente=self.paciente,
+            servicio=self.servicio,
+            fecha=self.fecha,
+            hora_inicio=time(11, 0),
+            hora_fin=time(11, 30),
+            estado="PENDIENTE",
+        )
+        anon = APIClient()
+        url = reverse("api_cancelar_cita", args=[cita.id])
+        resp = anon.post(url)
+        self.assertEqual(resp.status_code, 401)

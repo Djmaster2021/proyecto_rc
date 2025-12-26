@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime, timedelta
 from django.core.cache import cache
 from django.http import JsonResponse
@@ -45,7 +46,9 @@ except Exception:
 @authentication_classes([])
 @permission_classes([permissions.AllowAny])
 def health_check(request):
-    """Devuelve estado básico y contexto de host para diagnósticos rápidos."""
+    """Devuelve estado básico y, si se proporciona token, info extendida."""
+    token = request.headers.get("X-HEALTH-TOKEN") or request.GET.get("token")
+    expected = os.getenv("HEALTH_TOKEN")
     payload = {
         "status": "ok",
         "host": request.get_host(),
@@ -53,6 +56,10 @@ def health_check(request):
         "debug": settings.DEBUG,
         "time": timezone.now().isoformat(),
     }
+    if expected and token == expected:
+        payload["cache_backend"] = settings.CACHES["default"]["BACKEND"]
+        payload["allowed_hosts"] = settings.ALLOWED_HOSTS
+        payload["secure_proxy_ssl_header"] = settings.SECURE_PROXY_SSL_HEADER
     return Response(payload)
 
 

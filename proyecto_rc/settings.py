@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import sys
+import importlib.util
 from dotenv import load_dotenv
 from django.utils.translation import gettext_lazy as _
 from urllib.parse import urlparse
@@ -345,4 +346,52 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "proyecto-rc-cache",
     }
+}
+
+# ====================================
+# 15. LOGGING
+# ====================================
+
+_use_json_logs = _env_bool("LOG_JSON", not DEBUG)
+_has_jsonlogger = importlib.util.find_spec("pythonjsonlogger") is not None
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        **(
+            {
+                "json": {
+                    "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+                    "fmt": "%(asctime)s %(levelname)s %(name)s %(message)s",
+                }
+            }
+            if _has_jsonlogger
+            else {}
+        ),
+        "verbose": {
+            "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "json" if (_use_json_logs and _has_jsonlogger) else "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+    "loggers": {
+        "django.request": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "proyecto_rc.requests": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+    },
 }
