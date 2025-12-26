@@ -96,3 +96,23 @@ class CitasAPITests(TestCase):
 
         self.assertEqual(resp.status_code, 403)
         self.assertEqual(Cita.objects.filter(estado="PENDIENTE").count(), 0)
+
+    def test_slots_disponibles_requiere_auth(self):
+        anon = APIClient()
+        url = reverse("api_slots")
+        resp = anon.get(url)
+        self.assertEqual(resp.status_code, 401)
+
+    def test_slots_disponibles_ok(self):
+        url = reverse("api_slots")
+        resp = self.client.get(
+            url,
+            {
+                "fecha": self.fecha.isoformat(),
+                "servicio_id": self.servicio.id,
+                "dentista_id": self.dentista.id,
+            },
+        )
+        self.assertEqual(resp.status_code, 200, resp.content)
+        body = resp.json()
+        self.assertIn("slots", body)

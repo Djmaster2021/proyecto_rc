@@ -1,0 +1,27 @@
+name: Android
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-and-assemble:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile/ConsultorioDentalRC
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Gradle cache
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: wrapper
+      - name: Run lint
+        run: ./gradlew lint --no-daemon
+      - name: Assemble Debug
+        run: ./gradlew assembleDebug --no-daemon

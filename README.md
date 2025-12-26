@@ -68,6 +68,7 @@ Plataforma integral para el Consultorio Dental **Rodolfo Castellón**: agenda, p
 
 ## Arranque rápido con túnel
 - `bash ops/dev_up.sh`: levanta `docker compose up -d db`, inicia `cloudflared tunnel run consultoriorc` si está instalado y ejecuta `runserver` en `0.0.0.0:8001`.
+- `bash ops/dev_down.sh`: detiene `cloudflared` (si lo inició dev_up) y el contenedor `db`.
 
 ## Producción
 - `DEBUG=False`, configure `ALLOWED_HOSTS` y `CSRF_TRUSTED_ORIGINS`.
