@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
+from rest_framework import status
 
 from domain.models import Dentista, Paciente, Servicio, Horario, Cita, Pago
 
@@ -151,7 +152,7 @@ class CitasAPITests(TestCase):
         )
         url = reverse("api_cancelar_cita", args=[cita.id])
         resp = self.client.post(url)
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         cita.refresh_from_db()
         self.assertEqual(cita.estado, "CANCELADA")
 
@@ -168,4 +169,4 @@ class CitasAPITests(TestCase):
         anon = APIClient()
         url = reverse("api_cancelar_cita", args=[cita.id])
         resp = anon.post(url)
-        self.assertEqual(resp.status_code, 401)
+        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
