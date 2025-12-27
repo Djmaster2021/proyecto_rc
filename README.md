@@ -4,6 +4,8 @@
 
 Plataforma integral para el Consultorio Dental **Rodolfo Castellón**: agenda, pagos, recordatorios, chatbot y sincronización con Google Calendar.
 
+**Autor / Tutor del proyecto:** Diego Adrian Aceves Magaña (Ingeniero en Computación, Jr)
+
 ## Características
 - Panel del dentista con agenda diaria/semana/mes, reportes y gestión de pacientes.
 - Flujos del paciente: agendar/reprogramar/cancelar, pagar penalizaciones, completar perfil.
