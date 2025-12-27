@@ -6,7 +6,7 @@
 
 {% block extra_head %}
 <link rel="preload" href="{% static 'img/fondodentista1.jpg' %}" as="image">
-<link rel="stylesheet" href="{% static 'site.css' %}?v=FINAL_SEPARADO">
+<link rel="stylesheet" href="{% static 'site.css' %}?v=FINAL_ROBOTIC">
 {% endblock %}
 
 {% block content %}
@@ -179,32 +179,34 @@
 </main>
 
 <!-- Chat flotante -->
+<div id="rc-chat-scrim" class="rc-chat-scrim"></div>
 <div id="rc-chat-toggle" class="rc-chat-toggle">
-  <i class="ph-bold ph-sparkle"></i>
+  <i class="ph-bold ph-robot"></i>
   <span class="rc-pulse-dot"></span>
 </div>
 <div id="rc-chatbox" class="rc-chatbox"
-  data-greeting="{% trans '¡Hola! Soy tu asistente RC. Pregunta por horarios, pagos o penalizaciones.' %}"
-  data-placeholder="{% trans 'Escribe tu pregunta...' %}"
-  data-subtitle="{% trans 'Horarios, pagos y citas' %}"
+  data-greeting="{% trans 'Hola 👋 Bienvenido/a. Puedo ayudarte a agendar una cita, consultar servicios y precios, o atender una urgencia. Elige una opción para comenzar.' %}"
+  data-placeholder="{% trans 'Elige una opción o escribe tu duda...' %}"
+  data-subtitle="{% trans 'Agenda · Precios · Urgencias · Ubicación · Pagos' %}"
   data-error="{% trans 'Error al conectar. Intenta de nuevo.' %}">
   <div class="rc-chat-header">
     <div class="rc-head-left">
-      <div class="rc-avatar">RC</div>
-      <div>
-        <div class="rc-head-title">{% trans "Asistente RC" %}</div>
-        <div class="rc-head-sub"><span class="rc-dot online"></span> {% trans "Horarios · Pagos · Citas" %}</div>
+      <div class="chat-head-meta">
+        <div class="chat-status-row"><span class="chat-dot"></span><span class="chat-status-text">{% trans "En línea" %}</span></div>
+        <div class="chat-title">RC/AI Core</div>
+        <div class="chat-desc">{% trans "Entrenado en agenda, pagos y penalizaciones" %}</div>
       </div>
     </div>
     <button id="rc-chat-close" class="rc-chat-close" aria-label="Cerrar chat"><i class="ph-bold ph-x"></i></button>
   </div>
   <div id="rc-chat-messages" class="rc-chat-messages"></div>
   <div class="rc-quick-replies" id="rc-quick-replies">
-    <button class="rc-chip" data-msg="{% trans 'Quiero agendar una cita' %}">🗓️ {% trans "Agendar" %}</button>
+    <button class="rc-chip" data-msg="{% trans 'Quiero agendar una cita' %}">🤖 {% trans "Agendar (IA)" %}</button>
     <button class="rc-chip" data-msg="{% trans '¿Cómo pagar mi penalización?' %}">💳 {% trans "Penalización" %}</button>
     <button class="rc-chip" data-msg="{% trans '¿Cuáles son los horarios disponibles?' %}">⏰ {% trans "Horarios" %}</button>
     <button class="rc-chip" data-msg="{% trans 'Ubicación del consultorio' %}">📍 {% trans "Ubicación" %}</button>
   </div>
+  <div class="rc-legal">Este asistente no sustituye una consulta. Para urgencias graves, acude a un servicio médico.</div>
   <form id="rc-chat-form" class="rc-chat-form">
     <input id="rc-chat-input" type="text" placeholder="{% trans 'Escribe tu pregunta...' %}" autocomplete="off" required />
     <button type="submit" aria-label="{% trans 'Enviar' %}"><i class="ph-bold ph-paper-plane-tilt"></i></button>
@@ -215,52 +217,88 @@
 
 {% block extra_js %}
 <style>
+  .rc-chat-scrim { position: fixed; inset: 0; background: linear-gradient(180deg, rgba(3,6,12,0.55), rgba(3,6,12,0.75)); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 1150; }
   .rc-chat-toggle {
-    position: fixed; bottom: 24px; right: 24px; z-index: 1200;
-    background: linear-gradient(135deg, #22c55e, #0ea5e9);
-    color: #0a0f1f; width: 64px; height: 64px; border-radius: 18px;
-    display: grid; place-items: center; font-size: 24px; cursor: pointer;
-    box-shadow: 0 16px 40px rgba(14,165,233,0.35), 0 0 0 1px rgba(255,255,255,0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: fixed; bottom: 22px; right: 22px; z-index: 1200;
+    background: conic-gradient(from 210deg, #12d2ae, #6dcffb, #16c4a7);
+    color: #06111f; width: 70px; height: 70px; border-radius: 20px;
+    display: grid; place-items: center; font-size: 26px; cursor: pointer;
+    box-shadow: 0 24px 60px -22px rgba(0,0,0,0.75), 0 0 0 6px rgba(18,210,174,0.12), 0 18px 46px -18px rgba(109,207,251,0.45);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    overflow: hidden;
   }
-  .rc-chat-toggle:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 22px 50px rgba(34,197,94,0.35), 0 0 0 1px rgba(255,255,255,0.08); }
-  .rc-pulse-dot { position: absolute; width: 10px; height: 10px; background: #22c55e; border-radius: 999px; top: 8px; right: 8px; box-shadow: 0 0 0 0 rgba(34,197,94,0.5); animation: pulse 2s infinite; }
-  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); } 70% { box-shadow: 0 0 0 12px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
+  .rc-chat-toggle::after {
+    content: ""; position: absolute; inset: 10px; border-radius: 14px;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.32), transparent 42%);
+    opacity: 0.85; pointer-events: none; filter: blur(1.5px);
+  }
+  .rc-chat-toggle:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 30px 70px -22px rgba(0,0,0,0.8), 0 0 0 8px rgba(109,207,251,0.14), 0 20px 48px -18px rgba(18,210,174,0.28); }
+  .rc-pulse-dot { position: absolute; width: 10px; height: 10px; background: #3ef3c5; border-radius: 999px; top: 10px; right: 10px; box-shadow: 0 0 0 0 rgba(62,243,197,0.45); animation: pulse 2s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(62,243,197,0.45); } 70% { box-shadow: 0 0 0 12px rgba(62,243,197,0); } 100% { box-shadow: 0 0 0 0 rgba(62,243,197,0); } }
   .rc-chatbox {
-    position: fixed; bottom: 96px; right: 24px; width: 360px; max-height: 75vh;
-    background: radial-gradient(circle at 20% 20%, rgba(34,197,94,0.1), transparent 45%), rgba(7, 12, 24, 0.94);
-    color: #f8fafc; border-radius: 20px;
-    box-shadow: 0 24px 70px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06);
+    position: fixed; bottom: 94px; right: 16px; width: 340px; max-height: 78vh;
+    background:
+      linear-gradient(155deg, rgba(4, 8, 16, 0.94), rgba(5, 10, 18, 0.96)),
+      radial-gradient(circle at 18% 12%, rgba(62,243,197,0.12), transparent 36%),
+      radial-gradient(circle at 82% 4%, rgba(125,211,252,0.12), transparent 32%),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.04) 1px, transparent 1px, transparent 22px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.04), rgba(255,255,255,0.04) 1px, transparent 1px, transparent 22px);
+    color: #e6eefc; border-radius: 22px;
+    box-shadow: 0 32px 90px rgba(0,0,0,0.82), 0 0 0 1px rgba(255,255,255,0.05);
     display: none; flex-direction: column; overflow: hidden; z-index: 1200;
     border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px);
   }
-  .rc-chat-header {
-    padding: 14px 16px; background: linear-gradient(135deg, #0ea5e9, #22c55e);
-    color: #0a0f1f; display: flex; align-items: center; justify-content: space-between;
-    box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+  .rc-chatbox::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(120deg, rgba(62,243,197,0.12), transparent 40%, rgba(125,211,252,0.08));
+    mask-image: linear-gradient(180deg, rgba(255,255,255,0.85), transparent 90%);
   }
-  .rc-head-left { display: flex; align-items: center; gap: 12px; }
-  .rc-avatar { width: 44px; height: 44px; border-radius: 14px; background: rgba(255,255,255,0.82); color: #0a0f1f; display: grid; place-items: center; font-weight: 800; letter-spacing: 0.5px; }
-  .rc-head-title { font-weight: 800; font-size: 1rem; }
-  .rc-head-sub { font-size: 12px; opacity: 0.85; display: flex; align-items: center; gap: 6px; }
-  .rc-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
-  .rc-dot.online { background: #16a34a; box-shadow: 0 0 0 6px rgba(22,163,74,0.18); }
-  .rc-chat-close { background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.2); color: #0a0f1f; width: 38px; height: 38px; border-radius: 12px; cursor: pointer; display: grid; place-items: center; transition: transform 0.2s; }
-  .rc-chat-close:hover { transform: translateY(-2px); }
-  .rc-chat-messages { padding: 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; }
-  .rc-bubble { padding: 12px 14px; border-radius: 14px; max-width: 90%; font-size: 14px; line-height: 1.5; position: relative; border: 1px solid transparent; }
-  .rc-bubble.user { background: linear-gradient(135deg, #22c55e, #0ea5e9); color: #0a0f1f; margin-left: auto; font-weight: 700; box-shadow: 0 12px 30px rgba(14,165,233,0.25); }
-  .rc-bubble.bot { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
-  .rc-badge { position: absolute; bottom: -10px; left: 12px; font-size: 10px; padding: 3px 6px; border-radius: 999px; background: rgba(255,255,255,0.08); color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.4px; }
-  .rc-bubble.ia .rc-badge { background: #22c55e; color: #0a0f1f; }
-  .rc-quick-replies { padding: 10px 14px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; background: rgba(255,255,255,0.02); }
+  .rc-chat-header {
+    padding: 16px 18px; background: linear-gradient(120deg, rgba(62,243,197,0.18), rgba(125,211,252,0.14));
+    color: #e6eefc; display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.32); border-bottom: 1px solid rgba(255,255,255,0.08);
+    gap: 12px;
+  }
+  .rc-head-left { display: flex; align-items: flex-start; gap: 10px; }
+  .chat-head-meta { display: flex; flex-direction: column; gap: 6px; }
+  .chat-status-row { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 700; color: #b4ddff; }
+  .chat-status-text { white-space: nowrap; }
+  .chat-dot { width: 10px; height: 10px; border-radius: 999px; background: #3ef3c5; box-shadow: 0 0 0 8px rgba(62,243,197,0.12); }
+  .chat-title { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.01em; line-height: 1.2; max-width: 240px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .chat-desc { font-size: 0.88rem; color: #adc6e6; opacity: 0.92; max-width: 260px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .rc-robot-chip { display: grid; grid-template-columns: repeat(2, 10px); align-items: center; gap: 8px; padding: 8px 12px; border-radius: 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 10px 22px -16px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+  .rc-robot-chip::after { content: "AI"; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; letter-spacing: 0.08em; color: #b4ddff; opacity: 0.7; }
+  .rc-robot-chip .rc-eye { width: 10px; height: 10px; border-radius: 50%; background: #3ef3c5; box-shadow: 0 0 0 6px rgba(62,243,197,0.12); animation: blink 4s infinite; }
+  .rc-robot-chip .rc-eye.right { animation-delay: 1s; }
+  .rc-robot-chip .rc-wave { grid-column: 1 / span 2; height: 2px; width: 100%; background: linear-gradient(90deg, transparent, #3ef3c5, transparent); animation: sweep 2.6s linear infinite; opacity: 0.8; }
+  @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 94% { transform: scaleY(0.1); } }
+  @keyframes sweep { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+  .rc-chat-close { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); color: #e6eefc; width: 40px; height: 40px; border-radius: 14px; cursor: pointer; display: grid; place-items: center; transition: transform 0.2s, background 0.2s; }
+  .rc-chat-close:hover { transform: translateY(-2px); background: rgba(255,255,255,0.15); }
+  .rc-chat-messages { padding: 18px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 14px; background: linear-gradient(180deg, rgba(255,255,255,0.012), transparent 55%), radial-gradient(circle at 16% 18%, rgba(62,243,197,0.06), transparent 40%), repeating-linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 1px, transparent 1px, transparent 20px), repeating-linear-gradient(0deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 1px, transparent 1px, transparent 20px); }
+  .rc-bubble { padding: 13px 15px; border-radius: 16px; max-width: 92%; font-size: 14px; line-height: 1.55; position: relative; border: 1px solid transparent; backdrop-filter: blur(3px); }
+  .rc-bubble.user { background: linear-gradient(135deg, #e8fff8, #e2f4ff); color: #0a1424; margin-left: auto; font-weight: 750; box-shadow: 0 16px 32px -18px rgba(88,199,255,0.5), 0 12px 28px -18px rgba(33,214,178,0.45); border-color: rgba(88,199,255,0.2); }
+  .rc-bubble.bot { background: rgba(255,255,255,0.05); border: 1px solid rgba(62,243,197,0.18); box-shadow: 0 18px 42px -26px rgba(0,0,0,0.78); }
+  .rc-bubble.bot::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+    background: linear-gradient(135deg, rgba(62,243,197,0.24), rgba(125,211,252,0.16));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+  }
+  .rc-badge { position: absolute; bottom: -10px; left: 12px; font-size: 10px; padding: 3px 6px; border-radius: 999px; background: rgba(62,243,197,0.16); color: #cde7ff; text-transform: uppercase; letter-spacing: 0.4px; }
+  .rc-bubble.ia .rc-badge { background: #3ef3c5; color: #05101d; }
+  .rc-quick-replies { position: relative; padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; background: rgba(255,255,255,0.02); backdrop-filter: blur(10px); flex-wrap: wrap; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
   .rc-quick-replies::-webkit-scrollbar { display: none; }
-  .rc-chip { border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #e2e8f0; padding: 8px 12px; border-radius: 12px; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-  .rc-chip:hover { background: rgba(34,197,94,0.2); color: #0a0f1f; border-color: rgba(34,197,94,0.4); }
-  .rc-chat-form { display: flex; gap: 10px; padding: 12px 14px; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(7,12,24,0.9); }
-  .rc-chat-form input { flex: 1; padding: 12px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #e2e8f0; }
-  .rc-chat-form input:focus { outline: none; border-color: rgba(14,165,233,0.6); box-shadow: 0 0 0 4px rgba(14,165,233,0.16); }
-  .rc-chat-form button { background: linear-gradient(135deg, #22c55e, #0ea5e9); color: #0a0f1f; border: none; border-radius: 12px; padding: 0 14px; cursor: pointer; font-weight: 700; width: 46px; display: grid; place-items: center; box-shadow: 0 12px 26px rgba(34,197,94,0.28); }
+  .rc-quick-replies::before,
+  .rc-quick-replies::after { content: ""; position: absolute; top: 0; bottom: 0; width: 24px; pointer-events: none; background: linear-gradient(90deg, rgba(4,8,16,0.85), transparent); z-index: 1; }
+  .rc-quick-replies::after { right: 0; left: auto; transform: scaleX(-1); }
+  .rc-chip { border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.07); color: #e6eefc; padding: 10px 14px; border-radius: 16px; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: normal; box-shadow: 0 12px 26px -20px rgba(0,0,0,0.6); min-width: 120px; line-height: 1.4; text-align: left; scroll-snap-align: start; }
+  .rc-chip:hover { background: linear-gradient(135deg, #3ef3c5, #7dd3fc); color: #05101d; border-color: rgba(255,255,255,0.2); }
+  .rc-legal { font-size: 11px; color: #9fb6d1; padding: 8px 16px 4px; border-top: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); }
+  .rc-chat-form { display: flex; gap: 10px; padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(5,9,16,0.92); }
+  .rc-chat-form input { flex: 1; padding: 13px 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); color: #e2e8f0; box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); }
+  .rc-chat-form input:focus { outline: none; border-color: #3ef3c5; box-shadow: 0 0 0 4px rgba(62,243,197,0.14); }
+  .rc-chat-form button { background: linear-gradient(135deg, #3ef3c5, #7dd3fc); color: #05101d; border: 1px solid rgba(255,255,255,0.14); border-radius: 15px; padding: 0 14px; cursor: pointer; font-weight: 800; width: 50px; display: grid; place-items: center; box-shadow: 0 14px 26px -16px rgba(62,243,197,0.5); }
   @media (max-width: 640px) {
     .rc-chatbox { right: 12px; left: 12px; width: auto; }
     .rc-chat-toggle { right: 12px; }
@@ -270,6 +308,7 @@
   (function() {
     const toggle = document.getElementById("rc-chat-toggle");
     const chat = document.getElementById("rc-chatbox");
+    const scrim = document.getElementById("rc-chat-scrim");
     const closeBtn = document.getElementById("rc-chat-close");
     const form = document.getElementById("rc-chat-form");
     const input = document.getElementById("rc-chat-input");
@@ -277,45 +316,329 @@
     const quicks = document.querySelectorAll("#rc-quick-replies .rc-chip");
     const endpoint = "/api/chatbot/";
     const t = {
-      greeting: chat?.dataset.greeting || "Hello! I'm your RC assistant.",
-      placeholder: chat?.dataset.placeholder || "Type your question...",
-      error: chat?.dataset.error || "Connection error. Try again.",
+      greeting: chat?.dataset.greeting || "Hola, soy el asistente de la clínica. ¿En qué te ayudo?",
+      placeholder: chat?.dataset.placeholder || "Elige una opción o escribe tu duda...",
+      error: chat?.dataset.error || "Error al conectar. Intenta de nuevo.",
     };
 
     if (input && t.placeholder) input.placeholder = t.placeholder;
 
-    const append = (text, role, source, isLoading=false) => {
-      const div = document.createElement("div");
-      div.className = `rc-bubble ${role}`;
-      if (source) div.classList.add(source);
-      div.textContent = isLoading ? "..." : text;
-      if (role === "bot" && source) {
-        const badge = document.createElement("span");
-        badge.className = "rc-badge";
-        badge.textContent = source.toUpperCase();
-        div.appendChild(badge);
-      }
-      messages.appendChild(div);
-      messages.scrollTop = messages.scrollHeight;
-      return div;
+    const sanitize = (text) => {
+      if (!text) return text;
+      return text
+        .replace(/0\.0\.0\.0:\d+/g, "consultoriorc.com")
+        .replace(/LOCAL:?/gi, "")
+        .trim();
     };
 
-    toggle.addEventListener("click", () => {
-      chat.style.display = "flex";
-      input.focus();
-      if (!messages.dataset.seeded) {
-        append(t.greeting, "bot");
-        messages.dataset.seeded = "1";
-      }
-    });
-    closeBtn.addEventListener("click", () => chat.style.display = "none");
+    const append = (text, role, source, isLoader=false) => {
+      const lastGroup = messages.querySelector(".chat-group:last-child");
+      const lastRole = lastGroup ? (lastGroup.classList.contains("bot") ? "bot" : "user") : null;
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const text = input.value.trim();
-      if (!text) return;
-      append(text, "user");
-      input.value = "";
+      let group = lastGroup;
+      if (lastRole !== role) {
+        group = document.createElement("div");
+        group.className = `chat-group ${role}`;
+        if (role === "bot") {
+          const avatar = document.createElement("div");
+          avatar.className = "chat-avatar";
+          avatar.textContent = "RC";
+          group.appendChild(avatar);
+        } else {
+          group.style.gridTemplateColumns = "1fr";
+        }
+        const block = document.createElement("div");
+        block.className = "chat-block";
+        group.appendChild(block);
+        messages.appendChild(group);
+      }
+
+      const block = group.querySelector(".chat-block");
+      const bubble = document.createElement("div");
+      bubble.className = `rc-bubble chat-msg ${role}`;
+      bubble.textContent = isLoader ? "..." : sanitize(text);
+      block.appendChild(bubble);
+      messages.scrollTop = messages.scrollHeight;
+      return bubble;
+    };
+
+    const state = { flow: null, step: 0, data: {} };
+
+    const mainMenu = [
+      { label: "📅 Agendar cita", value: "agendar", flow: "agendar" },
+      { label: "🦷 Servicios y precios", value: "servicios", flow: "servicios" },
+      { label: "🚨 ¿Es una urgencia?", value: "urgencias", flow: "urgencias" },
+      { label: "📍 Ubicación y horarios", value: "ubicacion", flow: "ubicacion" },
+      { label: "💳 Pagos y facturación", value: "pagos", flow: "pagos" },
+      { label: "👩‍⚕️ Hablar con recepción", value: "humano", flow: "humano" },
+    ];
+
+    const renderQuickReplies = (items) => {
+      const wrap = document.getElementById("rc-quick-replies");
+      if (!wrap) return;
+      wrap.innerHTML = "";
+      items.forEach(item => {
+        const btn = document.createElement("button");
+        btn.className = "rc-chip";
+        btn.textContent = item.label;
+        btn.dataset.msg = item.value;
+        if (item.flow) btn.dataset.flow = item.flow;
+        wrap.appendChild(btn);
+      });
+    };
+
+    const setMenu = () => renderQuickReplies(mainMenu);
+    setMenu();
+
+    const resetFlow = () => { state.flow = null; state.step = 0; state.data = {}; setMenu(); };
+    const genFolio = () => `RC-${Math.random().toString(36).slice(2,6).toUpperCase()}${Date.now().toString().slice(-2)}`;
+    const isMenuCommand = (txt) => ["menu","menú","inicio","volver","reiniciar"].includes(txt.toLowerCase());
+
+    const handleFlow = (text) => {
+      const normalized = text.trim();
+      const flow = state.flow;
+
+      if (flow === "agendar") {
+        if (state.step === 0) {
+          state.data.paciente = normalized;
+          state.step = 1;
+          renderQuickReplies([
+            { label: "Limpieza", value: "Limpieza" },
+            { label: "Resina", value: "Resina" },
+            { label: "Extracción", value: "Extracción" },
+            { label: "Endodoncia", value: "Endodoncia" },
+            { label: "Brackets", value: "Brackets" },
+            { label: "Blanqueamiento", value: "Blanqueamiento" },
+            { label: "Dolor/Urgencia", value: "Dolor/Urgencia" },
+            { label: "Otro", value: "Otro" },
+          ]);
+          append("¿Qué servicio necesitas o qué problema tienes?", "bot", "rc/ai");
+          return;
+        }
+        if (state.step === 1) {
+          state.data.servicio = normalized;
+          state.step = 2;
+          renderQuickReplies([
+            { label: "Hoy", value: "Hoy" },
+            { label: "Mañana", value: "Mañana" },
+            { label: "Esta semana", value: "Esta semana" },
+            { label: "Fecha específica", value: "Fecha específica" },
+          ]);
+          append("¿Qué día prefieres? (puedes escribir YYYY-MM-DD)", "bot", "rc/ai");
+          return;
+        }
+        if (state.step === 2) {
+          state.data.fecha = normalized;
+          state.step = 3;
+          renderQuickReplies([
+            { label: "09:00 – 09:30", value: "09:00 – 09:30" },
+            { label: "09:30 – 10:00", value: "09:30 – 10:00" },
+            { label: "11:00 – 11:30", value: "11:00 – 11:30" },
+            { label: "16:00 – 16:30", value: "16:00 – 16:30" },
+            { label: "17:00 – 17:30", value: "17:00 – 17:30" },
+          ]);
+          append("Estos son los horarios base (se confirman en recepción). Elige uno o escribe tu preferido:", "bot", "rc/ai");
+          return;
+        }
+        if (state.step === 3) {
+          state.data.hora = normalized;
+          state.step = 4;
+          renderQuickReplies([]);
+          append("Comparte nombre y teléfono (WhatsApp) en un mensaje, ejemplo: Juan Pérez, 55 1234 5678", "bot", "rc/ai");
+          return;
+        }
+        if (state.step === 4) {
+          const [nombre, telefono] = normalized.split(",").map(x => x?.trim()).filter(Boolean);
+          state.data.nombre = nombre || normalized;
+          state.data.telefono = telefono || "";
+          state.step = 5;
+          const folio = genFolio();
+          state.data.folio = folio;
+          append(`Confirma tu cita:\nServicio: ${state.data.servicio || "N/D"}\nPaciente: ${state.data.paciente || "N/D"}\nFecha: ${state.data.fecha || "N/D"}\nHora: ${state.data.hora || "N/D"}\nNombre: ${state.data.nombre || "N/D"}\nTel: ${state.data.telefono || "N/D"}\nFolio: ${folio}`, "bot", "rc/ai");
+          renderQuickReplies([
+            { label: "✅ Confirmar", value: "Confirmar" },
+            { label: "↩️ Cambiar", value: "Cambiar" },
+            { label: "Menú", value: "menú" },
+          ]);
+          return;
+        }
+        if (state.step === 5) {
+          if (normalized.toLowerCase().includes("confirm")) {
+            append("Cita registrada ✅. Recepción confirmará en breve. ¿Te ayudo con algo más?", "bot", "rc/ai");
+            resetFlow();
+            return;
+          }
+          if (normalized.toLowerCase().includes("cambiar")) {
+            state.step = 0;
+            renderQuickReplies([
+              { label: "Nuevo", value: "Nuevo" },
+              { label: "Ya soy paciente", value: "Ya soy paciente" },
+            ]);
+            append("Reiniciemos el registro. ¿Eres paciente nuevo o ya te atendiste con nosotros?", "bot", "rc/ai");
+            return;
+          }
+        }
+      }
+
+      if (flow === "servicios") {
+        if (state.step === 0) {
+          state.data.servicio = normalized;
+          const rangos = {
+            Limpieza: "$800 - $1,200 (incluye revisión)",
+            Resina: "$1,200 - $2,000 por pieza",
+            Extracción: "$1,500 - $3,000 (según complejidad)",
+            Endodoncia: "$3,500 - $5,500 por molar",
+            Brackets: "$8,000 - $15,000 inicial",
+            Blanqueamiento: "$2,500 - $4,000",
+            Dolor: "Valoración prioritaria (se cotiza en consulta)",
+            Otro: "Se cotiza en valoración",
+          };
+          const rango = rangos[state.data.servicio] || "Te doy el rango en valoración";
+          append(`Estimado aproximado para ${state.data.servicio}: ${rango}.\nEsto es un estimado, se confirma en consulta. ¿Quieres agendar una valoración?`, "bot", "rc/ai");
+          renderQuickReplies([
+            { label: "Sí, agendar", value: "Sí, agendar" },
+            { label: "No por ahora", value: "No por ahora" },
+            { label: "Menú", value: "menú" },
+          ]);
+          state.step = 1;
+          return;
+        }
+        if (state.step === 1) {
+          if (normalized.toLowerCase().includes("sí")) {
+            append("Perfecto, vamos a agendar.", "bot", "rc/ai");
+            state.flow = "agendar";
+            state.step = 0;
+            renderQuickReplies([
+              { label: "Nuevo", value: "Nuevo" },
+              { label: "Ya soy paciente", value: "Ya soy paciente" },
+            ]);
+            append("¿Eres paciente nuevo o ya te atendiste con nosotros?", "bot", "rc/ai");
+            return;
+          }
+          append("Entendido. Si necesitas algo más, dime.", "bot", "rc/ai");
+          resetFlow();
+          return;
+        }
+      }
+
+      if (flow === "urgencias") {
+        if (state.step === 0) {
+          state.data.resp1 = normalized;
+          state.step = 1;
+          append("¿Hay sangrado que no se detiene?", "bot", "rc/ai");
+          return;
+        }
+        if (state.step === 1) {
+          state.data.resp2 = normalized;
+          state.step = 2;
+          append("¿Fue un golpe o trauma dental reciente?", "bot", "rc/ai");
+          return;
+        }
+        if (state.step === 2) {
+          append("Podría ser urgente. Te recomiendo contactar a recepción ahora.", "bot", "rc/ai");
+          append("Si hay fiebre alta o dificultad para respirar, acude a urgencias médicas.", "bot", "rc/ai");
+          renderQuickReplies([
+            { label: "WhatsApp", value: "https://wa.me/523228892558" },
+            { label: "Llamar", value: "tel:+523228892558" },
+            { label: "Agendar valoración", value: "Agendar valoración" },
+            { label: "Menú", value: "menú" },
+          ]);
+          state.step = 3;
+          return;
+        }
+        if (state.step === 3) {
+          if (normalized.toLowerCase().includes("agenda")) {
+            state.flow = "agendar";
+            state.step = 0;
+            renderQuickReplies([
+              { label: "Nuevo", value: "Nuevo" },
+              { label: "Ya soy paciente", value: "Ya soy paciente" },
+            ]);
+            append("¿Eres paciente nuevo o ya te atendiste con nosotros?", "bot", "rc/ai");
+            return;
+          }
+          resetFlow();
+          return;
+        }
+      }
+
+      if (flow === "ubicacion") {
+        append("📍 Calle Guatemala #125, El Pitillal, Puerto Vallarta\n🕒 Horario: Lunes 7am-7pm, Sábado 9am-2pm\n➡️ Google Maps: https://www.google.com/maps?q=Calle%20Guatemala%20125%20El%20Pitillal%20Puerto%20Vallarta", "bot", "rc/ai");
+        resetFlow();
+        return;
+      }
+
+      if (flow === "pagos") {
+        append("💳 Pagos: efectivo, transferencia y tarjeta.\n🧾 Facturación: disponible, solicitaremos RFC, correo y uso de CFDI.\n¿Necesitas agendar o más detalles?", "bot", "rc/ai");
+        resetFlow();
+        return;
+      }
+
+      if (flow === "humano") {
+        if (state.step === 0) {
+          state.step = 1;
+          append("Claro, te paso con recepción. Comparte tu nombre y teléfono:", "bot", "rc/ai");
+          renderQuickReplies([]);
+          return;
+        }
+        if (state.step === 1) {
+          append("Listo ✅ Recepción te contactará lo antes posible.", "bot", "rc/ai");
+          resetFlow();
+          return;
+        }
+      }
+    };
+
+    const startFlow = (flow) => {
+      state.flow = flow;
+      state.step = 0;
+      state.data = {};
+      if (flow === "agendar") {
+        renderQuickReplies([
+          { label: "Nuevo", value: "Nuevo" },
+          { label: "Ya soy paciente", value: "Ya soy paciente" },
+        ]);
+        append("¿Eres paciente nuevo o ya te atendiste con nosotros?", "bot", "rc/ai");
+        return;
+      }
+      if (flow === "servicios") {
+        renderQuickReplies([
+          { label: "Limpieza", value: "Limpieza" },
+          { label: "Resina", value: "Resina" },
+          { label: "Extracción", value: "Extracción" },
+          { label: "Endodoncia", value: "Endodoncia" },
+          { label: "Brackets", value: "Brackets" },
+          { label: "Blanqueamiento", value: "Blanqueamiento" },
+          { label: "Dolor/Urgencia", value: "Dolor/Urgencia" },
+          { label: "Otro", value: "Otro" },
+        ]);
+        append("Te puedo dar un rango aproximado. El precio final depende de valoración. ¿Qué servicio te interesa?", "bot", "rc/ai");
+        return;
+      }
+      if (flow === "urgencias") {
+        append("¿Tienes hinchazón o dolor muy fuerte (8/10)?", "bot", "rc/ai");
+        state.step = 0;
+        renderQuickReplies([
+          { label: "Sí", value: "Sí" },
+          { label: "No", value: "No" },
+        ]);
+        return;
+      }
+      if (flow === "ubicacion") {
+        handleFlow("");
+        return;
+      }
+      if (flow === "pagos") {
+        handleFlow("");
+        return;
+      }
+      if (flow === "humano") {
+        handleFlow("");
+        return;
+      }
+    };
+
+    const sendToBackend = async (text) => {
       const loader = append("...", "bot", null, true);
       try {
         const resp = await fetch(endpoint, {
@@ -325,10 +648,70 @@
         });
         const data = await resp.json().catch(() => ({}));
         loader.remove();
-        append(data.message || t.error, "bot", data.source);
+        const mensajes = Array.isArray(data.messages) && data.messages.length
+          ? data.messages
+          : [data.message || t.error];
+        mensajes.forEach(msg => append(msg, "bot", data.source));
       } catch (err) {
         loader.remove();
         append(t.error, "bot");
+      }
+    };
+
+    const handleInput = (text) => {
+      if (!text.trim()) return;
+      if (isMenuCommand(text)) {
+        resetFlow();
+        append("Menú principal listo. ¿Qué necesitas hoy?", "bot", "rc/ai");
+        return;
+      }
+      append(text, "user");
+
+      if (state.flow) {
+        handleFlow(text);
+      } else {
+        sendToBackend(text);
+      }
+    };
+
+    const openChat = () => {
+      chat.style.display = "flex";
+      if (scrim) { scrim.style.opacity = "1"; scrim.style.pointerEvents = "auto"; }
+      input.focus();
+      if (!messages.dataset.seeded) {
+        append(t.greeting, "bot", "rc/ai");
+        append("Selecciona una opción para avanzar más rápido:", "bot", "rc/ai");
+        setMenu();
+        messages.dataset.seeded = "1";
+      }
+    };
+    const closeChat = () => {
+      chat.style.display = "none";
+      if (scrim) { scrim.style.opacity = "0"; scrim.style.pointerEvents = "none"; }
+    };
+
+    toggle.addEventListener("click", openChat);
+    if (scrim) scrim.addEventListener("click", closeChat);
+    closeBtn.addEventListener("click", closeChat);
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      input.value = "";
+      handleInput(text);
+    });
+
+    document.getElementById("rc-quick-replies").addEventListener("click", (e) => {
+      if (e.target && e.target.classList.contains("rc-chip")) {
+        const flow = e.target.dataset.flow;
+        const msg = e.target.dataset.msg || e.target.textContent;
+        if (flow) {
+          startFlow(flow);
+        } else if (msg.startsWith("http")) {
+          window.open(msg, "_blank");
+        } else {
+          handleInput(msg);
+        }
       }
     });
 
@@ -336,8 +719,7 @@
       btn.addEventListener("click", () => {
         const text = btn.dataset.msg || "";
         if (!text) return;
-        input.value = text;
-        form.dispatchEvent(new Event("submit"));
+        handleInput(text);
       });
     });
   })();

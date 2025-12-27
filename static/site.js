@@ -87,11 +87,20 @@ function initChatbot() {
     }
 
     // Función para añadir burbujas de mensaje
+    const cleanBotText = (text) => {
+        if (!text) return text;
+        return text
+            .replace(/0\.0\.0\.0:\d+/g, 'consultoriorc.com')
+            .replace(/LOCAL:?/gi, '')
+            .trim();
+    };
+
     const addMsg = (text, type, isLoader = false) => {
         const div = document.createElement('div');
         div.className = `chat-msg ${type}`;
         if (isLoader) div.id = 'bot-loader';
-        div.innerHTML = isLoader ? '<i class="ph-bold ph-dots-three ph-beat"></i>' : text;
+        const safe = isLoader ? '<i class="ph-bold ph-dots-three ph-beat"></i>' : cleanBotText(text);
+        div.innerHTML = safe;
         el.msgs.appendChild(div);
         el.msgs.scrollTop = el.msgs.scrollHeight; // Auto-scroll al fondo
         return div;
@@ -105,21 +114,23 @@ function initChatbot() {
         const loader = addMsg('', 'bot', true);
     
         try {
-            const res = await fetch('/api/chatbot/', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                    // Si usas CSRF token en headers, agrégalo aquí
-                },
-                body: JSON.stringify({ query: text })
-            });
-    
+        const res = await fetch('/api/chatbot/', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+                // Si usas CSRF token en headers, agrégalo aquí
+            },
+            body: JSON.stringify({ query: text })
+        });
+
             const data = await res.json().catch(() => ({}));
             loader.remove();
-    
-            const respuesta = data.message ?? (res.ok ? 'No pude procesar tu consulta en este momento.' : '⚠️ Error al conectar. Intenta de nuevo.');
-            addMsg(respuesta, 'bot');
+
+            const respuestas = Array.isArray(data.messages) && data.messages.length
+                ? data.messages
+                : [data.message ?? (res.ok ? 'No pude procesar tu consulta en este momento.' : '⚠️ Error al conectar. Intenta de nuevo.')];
+            respuestas.forEach(msg => addMsg(msg, 'bot'));
         } catch (err) {
             loader.remove();
             addMsg('⚠️ Error de conexión. Intenta de nuevo.', 'bot');
