@@ -45,15 +45,16 @@ android {
     val keystorePassword: String? = prop("CONSULTORIO_STORE_PASSWORD")
     val keyAlias: String? = prop("CONSULTORIO_KEY_ALIAS")
     val keyPassword: String? = prop("CONSULTORIO_KEY_PASSWORD")
+    val hasReleaseSigning = listOf(keystorePath, keystorePassword, keyAlias, keyPassword).all { !it.isNullOrBlank() }
 
     signingConfigs {
-        create("release") {
-            val debugKeystore = File(System.getProperty("user.home"), ".android/debug.keystore")
-            // Fallback seguro: si faltan credenciales, usa debug keystore.
-            storeFile = keystorePath?.takeIf { it.isNotBlank() }?.let { file(it) } ?: debugKeystore
-            storePassword = keystorePassword ?: "android"
-            this.keyAlias = keyAlias ?: "androiddebugkey"
-            this.keyPassword = keyPassword ?: "android"
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(keystorePath!!)
+                storePassword = keystorePassword
+                this.keyAlias = keyAlias
+                this.keyPassword = keyPassword
+            }
         }
     }
 
@@ -64,7 +65,12 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = if (hasReleaseSigning) {
+                signingConfigs.getByName("release")
+            } else {
+                // En CI/dev, firma con el keystore debug que genera Android por defecto.
+                signingConfigs.getByName("debug")
+            }
         }
     }
     compileOptions {
