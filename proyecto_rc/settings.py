@@ -336,6 +336,10 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = _env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", _se
 SECURE_HSTS_PRELOAD = _env_bool("SECURE_HSTS_PRELOAD", False if DEBUG else True)
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https") if _env_bool("SECURE_PROXY_SSL_HEADER", _secure_default) else None
 USE_X_FORWARDED_HOST = _env_bool("USE_X_FORWARDED_HOST", _secure_default)
+SECURE_CONTENT_TYPE_NOSNIFF = _env_bool("SECURE_CONTENT_TYPE_NOSNIFF", True)
+SECURE_REFERRER_POLICY = os.getenv("SECURE_REFERRER_POLICY", "same-origin")
+X_FRAME_OPTIONS = os.getenv("X_FRAME_OPTIONS", "DENY")
+CSRF_COOKIE_HTTPONLY = _env_bool("CSRF_COOKIE_HTTPONLY", True)
 
 # ====================================
 # 14. CACHE (para throttling y webhooks)
