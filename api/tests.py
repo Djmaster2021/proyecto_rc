@@ -156,6 +156,25 @@ class CitasAPITests(TestCase):
         cita.refresh_from_db()
         self.assertEqual(cita.estado, "CANCELADA")
 
+    def test_cancelar_cita_de_otro_paciente_forbidden(self):
+        otro_user = User.objects.create_user(username="otro", password="pass")
+        otro_paciente = Paciente.objects.create(user=otro_user, dentista=self.dentista, nombre="Otro Paciente")
+        cita = Cita.objects.create(
+            dentista=self.dentista,
+            paciente=otro_paciente,
+            servicio=self.servicio,
+            fecha=self.fecha,
+            hora_inicio=time(12, 0),
+            hora_fin=time(12, 30),
+            estado="PENDIENTE",
+        )
+        url = reverse("api_cancelar_cita", args=[cita.id])
+        resp = self.client.post(url)
+        # La API responde 404 si la cita no pertenece al paciente autenticado
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        cita.refresh_from_db()
+        self.assertEqual(cita.estado, "PENDIENTE")
+
     def test_cancelar_cita_sin_auth(self):
         cita = Cita.objects.create(
             dentista=self.dentista,
