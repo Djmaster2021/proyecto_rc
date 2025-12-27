@@ -45,23 +45,15 @@ android {
     val keystorePassword: String? = prop("CONSULTORIO_STORE_PASSWORD")
     val keyAlias: String? = prop("CONSULTORIO_KEY_ALIAS")
     val keyPassword: String? = prop("CONSULTORIO_KEY_PASSWORD")
-    val hasReleaseSigning = listOf(keystorePath, keystorePassword, keyAlias, keyPassword).all { !it.isNullOrBlank() }
 
     signingConfigs {
         create("release") {
-            if (hasReleaseSigning) {
-                storeFile = keystorePath?.let { file(it) }
-                storePassword = keystorePassword
-                this.keyAlias = keyAlias
-                this.keyPassword = keyPassword
-            } else {
-                // En CI o desarrollo, usa el debug keystore para no fallar.
-                val debugKeystore = File(System.getProperty("user.home"), ".android/debug.keystore")
-                storeFile = debugKeystore
-                storePassword = "android"
-                this.keyAlias = "androiddebugkey"
-                this.keyPassword = "android"
-            }
+            val debugKeystore = File(System.getProperty("user.home"), ".android/debug.keystore")
+            // Fallback seguro: si faltan credenciales, usa debug keystore.
+            storeFile = keystorePath?.takeIf { it.isNotBlank() }?.let { file(it) } ?: debugKeystore
+            storePassword = keystorePassword ?: "android"
+            this.keyAlias = keyAlias ?: "androiddebugkey"
+            this.keyPassword = keyPassword ?: "android"
         }
     }
 
