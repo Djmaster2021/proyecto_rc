@@ -182,8 +182,8 @@ section {
 }
 
 /* --- Hero Section --- */
-.hero { min-height: 86svh; padding-top: 90px; display: grid; place-items: center; position: relative; background: url("img/fondodentista1.jpg") center/cover no-repeat; }
-.hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,9,21,0.7) 0%, rgba(5,9,21,0.93) 94%), radial-gradient(circle at 18% 20%, rgba(33,214,178,0.14), transparent 26%), radial-gradient(circle at 78% 15%, rgba(88,199,255,0.14), transparent 24%); }
+.hero { min-height: 86svh; padding-top: 90px; display: grid; place-items: center; position: relative; background: url("img/fondodentista1.jpg") center/cover no-repeat; background-color: #050915; }
+.hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,9,21,0.6) 0%, rgba(5,9,21,0.9) 94%), radial-gradient(circle at 18% 20%, rgba(33,214,178,0.14), transparent 26%), radial-gradient(circle at 78% 15%, rgba(88,199,255,0.14), transparent 24%); }
 .hero-inner { position: relative; z-index: 2; padding: 4rem 1.5rem; text-align: center; }
 
 .hero-title { 
@@ -487,13 +487,25 @@ label { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; display: blo
 
 @media (max-width: 1024px) { 
     .rc-menu, .lang-simple { display: none !important; } 
+    .nav-actions .rc-btn,
+    .nav-actions .lang-switch { display: none !important; }
+    .nav-actions { gap: 0.4rem; }
     .rc-burger { display: block !important; } 
 }
-@media (max-width: 768px) { 
+@media (max-width: 1200px) {
+    .panel-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+}
+@media (max-width: 900px) {
     section { padding: 80px 0; } 
     .grid-2, .stats-grid { grid-template-columns: 1fr; } 
     .hero h1 { font-size: 3rem; } 
-    .hero-inner { padding: 2rem 1rem; }
+    .hero-inner { padding: 2.4rem 1.2rem; }
+    .panel-card { padding: 1.85rem; }
+    .pill-list { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+}
+@media (max-width: 640px) {
+    .panel-card { padding: 1.5rem; }
+    .hero { min-height: 78vh; background-position: center top; }
 }
 
 .rc-mobile-divider { width: 60%; opacity: 0.2; margin: 2rem 0; border-top: 1px solid #fff; }
