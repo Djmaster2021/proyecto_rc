@@ -1,6 +1,7 @@
 # accounts/adapters.py
 
 from django.conf import settings
+from django.db import IntegrityError
 from django.urls import reverse
 
 from allauth.account.adapter import DefaultAccountAdapter
@@ -40,16 +41,27 @@ class MyAccountAdapter(DefaultAccountAdapter):
         if hasattr(user, "paciente_perfil"):
             paciente = user.paciente_perfil
         else:
-            nombre = user.get_full_name() or (user.email.split("@")[0] if user.email else user.username)
+            nombre_base = user.get_full_name() or (user.email.split("@")[0] if user.email else user.username) or "Paciente"
             dentista_default = Dentista.objects.first()
             if dentista_default:
-                paciente, _ = Paciente.objects.get_or_create(
-                    user=user,
-                    defaults={
-                        "nombre": nombre,
-                        "dentista": dentista_default,
-                    },
-                )
+                nombre = nombre_base
+                if Paciente.objects.filter(dentista=dentista_default, nombre=nombre).exists():
+                    suffix = user.username or user.email or str(user.pk)
+                    nombre = f"{nombre_base} ({suffix})"
+                    i = 2
+                    while Paciente.objects.filter(dentista=dentista_default, nombre=nombre).exists():
+                        nombre = f"{nombre_base} ({suffix}-{i})"
+                        i += 1
+                try:
+                    paciente, _ = Paciente.objects.get_or_create(
+                        user=user,
+                        defaults={
+                            "nombre": nombre,
+                            "dentista": dentista_default,
+                        },
+                    )
+                except IntegrityError:
+                    paciente = Paciente.objects.filter(user=user).first()
 
         # Si no pudimos crear paciente (no hay dentistas), mejor ir al home
         if not paciente:

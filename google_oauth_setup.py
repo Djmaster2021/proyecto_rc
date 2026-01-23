@@ -28,7 +28,8 @@ def main():
                 str(CLIENT_CONFIG),
                 SCOPES,
             )
-            creds = flow.run_local_server(port=0)
+            # Usa un puerto fijo para que el redirect URI pueda registrarse en Google Cloud.
+            creds = flow.run_local_server(port=8000)
 
         # Guardamos el token autorizado
         TOKEN_FILE.write_text(creds.to_json(), encoding="utf-8")

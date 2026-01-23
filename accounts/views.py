@@ -1,6 +1,7 @@
 # accounts/views.py
 
 from django.contrib import messages
+from django.db import IntegrityError
 from django.contrib.auth import login
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import LoginView, PasswordResetView
@@ -51,10 +52,20 @@ def redirect_by_role(request):
     if not tiene_paciente:
         dentista_default = Dentista.objects.first()
         if dentista_default:
-            Paciente.objects.get_or_create(
-                user=user,
-                defaults={"nombre": user.get_full_name() or user.username, "dentista": dentista_default},
-            )
+            nombre_base = user.get_full_name() or user.username or "Paciente"
+            nombre = nombre_base
+            if Paciente.objects.filter(dentista=dentista_default, nombre=nombre).exists():
+                suffix = user.username or user.email or str(user.pk)
+                nombre = f"{nombre_base} ({suffix})"
+                i = 2
+                while Paciente.objects.filter(dentista=dentista_default, nombre=nombre).exists():
+                    nombre = f"{nombre_base} ({suffix}-{i})"
+                    i += 1
+            try:
+                Paciente.objects.create(user=user, dentista=dentista_default, nombre=nombre)
+            except IntegrityError:
+                # Si hay colision concurrente, evitamos romper el login.
+                pass
     return redirect("paciente:dashboard")
 
 
