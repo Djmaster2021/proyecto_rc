@@ -19,6 +19,7 @@ urlpatterns = [
     path('pagos/fallido/', views.pago_fallido, name='pago_fallido'),
     path('pagos/pendiente/', views.pago_pendiente, name='pago_pendiente'),
     path('pagos/webhook/', views.mp_webhook, name='mp_webhook'),
+    path('pagos/webhook/<str:webhook_key>/', views.mp_webhook, name='mp_webhook_key'),
     path('confirmar/<str:token>/', views.confirmar_por_email, name='confirmar_por_email'),
     path('recibo/<int:pago_id>/', views.recibo_pago_pdf, name='recibo_pago_pdf'),
     path('citas/<int:cita_id>/feedback/', views.feedback_cita, name='feedback_cita'),

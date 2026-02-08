@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, time
 import os
 from unittest import mock
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -27,6 +27,26 @@ class HealthCheckTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         body = resp.json()
         self.assertIn("allowed_hosts", body)
+
+
+class ChatbotSecurityTests(TestCase):
+    @override_settings(CHATBOT_REQUIRE_SECRET=True, CHATBOT_API_SECRET="abc123")
+    def test_chatbot_rechaza_sin_header_secret(self):
+        client = APIClient()
+        resp = client.post(reverse("chatbot_api"), {"query": "hola"}, format="json")
+        self.assertEqual(resp.status_code, 403)
+
+    @override_settings(CHATBOT_REQUIRE_SECRET=True, CHATBOT_API_SECRET="abc123")
+    def test_chatbot_rechaza_secret_en_querystring(self):
+        client = APIClient()
+        resp = client.post(f"{reverse('chatbot_api')}?secret=abc123", {"query": "hola"}, format="json")
+        self.assertEqual(resp.status_code, 403)
+
+    @override_settings(CHATBOT_REQUIRE_SECRET=True, CHATBOT_API_SECRET="abc123")
+    def test_chatbot_acepta_header_secret(self):
+        client = APIClient()
+        resp = client.post(reverse("chatbot_api"), {"query": "hola"}, format="json", HTTP_X_CHATBOT_SECRET="abc123")
+        self.assertEqual(resp.status_code, 200)
 
 
 class CitasAPITests(TestCase):

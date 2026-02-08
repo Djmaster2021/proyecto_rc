@@ -499,7 +499,7 @@ def pago_pendiente(request):
 
 
 @csrf_exempt
-def mp_webhook(request):
+def mp_webhook(request, webhook_key=None):
     """
     Webhook de MercadoPago para confirmar pagos.
     Valida el payment_id recibido y actualiza el Pago asociado a la cita (external_reference).
@@ -517,7 +517,9 @@ def mp_webhook(request):
     provided_secret = request.headers.get("X-WEBHOOK-SECRET")
     if (not settings.DEBUG) and not expected_secret:
         return JsonResponse({"detail": "Webhook no configurado con secreto"}, status=403)
-    if expected_secret and not (provided_secret and hmac.compare_digest(provided_secret, expected_secret)):
+    has_valid_header_secret = bool(provided_secret and hmac.compare_digest(provided_secret, expected_secret))
+    has_valid_path_secret = bool(webhook_key and hmac.compare_digest(webhook_key, expected_secret))
+    if expected_secret and not (has_valid_header_secret or has_valid_path_secret):
         return JsonResponse({"detail": "Forbidden"}, status=403)
 
     try:

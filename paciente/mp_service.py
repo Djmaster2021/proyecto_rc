@@ -42,12 +42,13 @@ def crear_preferencia_pago(cita, request):
     payer_id_type = "DNI"
     payer_id_number = "12345678"
 
-    # Webhook con secreto en querystring para MP; si hay host público, úsalo.
-    webhook_url = request.build_absolute_uri(reverse("paciente:mp_webhook"))
+    # Webhook sin querystring: usamos secreto por ruta cuando está configurado.
     secret = getattr(settings, "MERCADOPAGO_WEBHOOK_SECRET", "")
     if secret:
-        sep = "&" if "?" in webhook_url else "?"
-        webhook_url = f"{webhook_url}{sep}secret={secret}"
+        webhook_path = reverse("paciente:mp_webhook_key", args=[secret])
+    else:
+        webhook_path = reverse("paciente:mp_webhook")
+    webhook_url = request.build_absolute_uri(webhook_path)
 
     preference_data = {
         "items": [
@@ -101,10 +102,10 @@ def crear_preferencia_pago(cita, request):
         logger.info("Entorno local detectado, omitiendo notification_url.")
         preference_data.pop("auto_return", None)
 
-    # Log de diagnóstico explícito
-    print("[MP] back_urls usadas:", preference_data["back_urls"])
-    print("[MP] notification_url:", preference_data.get("notification_url"))
-    print("[MP] SITE_BASE_URL:", getattr(settings, "SITE_BASE_URL", ""))
+    # Log de diagnóstico en nivel debug (evita exponer detalles en stdout por defecto)
+    logger.debug("MP back_urls usadas: %s", preference_data["back_urls"])
+    logger.debug("MP notification_url: %s", preference_data.get("notification_url"))
+    logger.debug("MP SITE_BASE_URL: %s", getattr(settings, "SITE_BASE_URL", ""))
     logger.info(
         "Creando preferencia MP cita=%s back_urls=%s",
         cita.id,
