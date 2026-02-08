@@ -19,3 +19,17 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Retrofit / Gson metadata commonly required at runtime
+-keepattributes Signature,RuntimeVisibleAnnotations,RuntimeVisibleParameterAnnotations,AnnotationDefault,InnerClasses,EnclosingMethod
+-keep class retrofit2.** { *; }
+-keep class okhttp3.** { *; }
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-keep class com.google.gson.** { *; }
+-keep class * extends java.lang.Enum { *; }
+
+# Keep model fields used by Gson reflection
+-keepclassmembers class ** {
+    @com.google.gson.annotations.SerializedName <fields>;
+}

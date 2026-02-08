@@ -30,8 +30,8 @@
 
 6) Salud/monitoreo
 - Health básico: `GET https://app.consultoriorc.org/api/health/`.
-- Health extendido: añade header `X-HEALTH-TOKEN: <HEALTH_TOKEN>` para recibir `allowed_hosts` y configuración. Úsalo en monitores externos.
-- Monitor externo sugerido: usar UptimeRobot/BetterStack apuntando a `/api/health/?token=<HEALTH_TOKEN>` con alerta si status != 200.
+- Health extendido: añade header `X-HEALTH-TOKEN: <HEALTH_TOKEN>` para recibir `allowed_hosts` y configuración.
+- En producción evita enviar tokens por query string.
 
 7) Checklist rápido
 - ¿HTTPS activo? (Cloudflare proxy + certificado).
@@ -39,6 +39,7 @@
 - ¿`ALLOWED_HOSTS` y `CSRF_TRUSTED_ORIGINS` incluyen el dominio?
 - ¿`cloudflared` corriendo y apuntando al puerto correcto?
 - ¿Redirects de Google coinciden con `SITE_BASE_URL`?
+- ¿Nginx y firewall aplicados? Revisa `ops/security/nginx_proyecto_rc.conf` y `ops/security/server_hardening.md`.
 
 8) Apagar
 - `ops/dev_down.sh` puede parar DB de dev y túnel; en prod detén el servicio systemd/supervisor correspondiente (Gunicorn, cloudflared) de forma ordenada.

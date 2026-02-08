@@ -59,8 +59,18 @@ android {
     }
 
     buildTypes {
-        release {
+        debug {
+            manifestPlaceholders["usesCleartextTraffic"] = "true"
+            manifestPlaceholders["allowBackup"] = "true"
             isMinifyEnabled = false
+            isShrinkResources = false
+        }
+        release {
+            manifestPlaceholders["usesCleartextTraffic"] = "false"
+            manifestPlaceholders["allowBackup"] = "false"
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
