@@ -45,7 +45,8 @@ android {
     val keystorePassword: String? = prop("CONSULTORIO_STORE_PASSWORD")
     val keyAlias: String? = prop("CONSULTORIO_KEY_ALIAS")
     val keyPassword: String? = prop("CONSULTORIO_KEY_PASSWORD")
-    val hasReleaseSigning = listOf(keystorePath, keystorePassword, keyAlias, keyPassword).all { !it.isNullOrBlank() }
+    val hasReleaseSigning = listOf(keystorePath, keystorePassword, keyAlias, keyPassword).all { !it.isNullOrBlank() } &&
+        File(keystorePath!!).exists()
 
     signingConfigs {
         if (hasReleaseSigning) {
