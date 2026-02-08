@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from io import BytesIO
 from urllib.parse import urlencode
+import hmac
 from django.urls import reverse
 from django.db.models import Q
 from django.core.cache import cache
@@ -507,13 +508,16 @@ def mp_webhook(request):
 
     if request.method != "POST":
         return JsonResponse({"detail": "Método no permitido"}, status=405)
+    max_body = int(getattr(settings, "WEBHOOK_MAX_BODY_BYTES", 32768))
+    if len(request.body or b"") > max_body:
+        return JsonResponse({"detail": "Payload demasiado grande"}, status=413)
 
     # Token sencillo para descartar llamadas anónimas.
     expected_secret = getattr(settings, "MERCADOPAGO_WEBHOOK_SECRET", "")
-    provided_secret = request.headers.get("X-WEBHOOK-SECRET") or request.GET.get("secret")
+    provided_secret = request.headers.get("X-WEBHOOK-SECRET")
     if (not settings.DEBUG) and not expected_secret:
         return JsonResponse({"detail": "Webhook no configurado con secreto"}, status=403)
-    if expected_secret and provided_secret != expected_secret:
+    if expected_secret and not (provided_secret and hmac.compare_digest(provided_secret, expected_secret)):
         return JsonResponse({"detail": "Forbidden"}, status=403)
 
     try:

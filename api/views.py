@@ -1,5 +1,6 @@
 import json
 import os
+import hmac
 from datetime import datetime, timedelta
 from django.core.cache import cache
 from django.http import JsonResponse
@@ -47,16 +48,13 @@ except Exception:
 @permission_classes([permissions.AllowAny])
 def health_check(request):
     """Devuelve estado básico y, si se proporciona token, info extendida."""
-    token = request.headers.get("X-HEALTH-TOKEN") or request.GET.get("token")
+    token = request.headers.get("X-HEALTH-TOKEN")
     expected = os.getenv("HEALTH_TOKEN")
     payload = {
         "status": "ok",
-        "host": request.get_host(),
-        "site_base_url": getattr(settings, "SITE_BASE_URL", ""),
-        "debug": settings.DEBUG,
         "time": timezone.now().isoformat(),
     }
-    if expected and token == expected:
+    if expected and token and hmac.compare_digest(token, expected):
         payload["cache_backend"] = settings.CACHES["default"]["BACKEND"]
         payload["allowed_hosts"] = settings.ALLOWED_HOSTS
         payload["secure_proxy_ssl_header"] = settings.SECURE_PROXY_SSL_HEADER
@@ -101,32 +99,23 @@ def chatbot_api(request):
 
     # Token opcional para uso público controlado
     expected_secret = getattr(settings, "CHATBOT_API_SECRET", "")
-    provided_secret = request.headers.get("X-CHATBOT-SECRET") or request.GET.get("secret")
-    same_origin = False
-    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
-    try:
-        referer = request.META.get("HTTP_REFERER", "") or ""
-        origin = request.META.get("HTTP_ORIGIN", "") or ""
-        proto = "https" if request.is_secure() else "http"
-        host = request.get_host()
-        base = f"{proto}://{host}"
-        same_origin = referer.startswith(base) or origin.startswith(base)
-    except Exception:
-        same_origin = False
-
-    if expected_secret:
-        if not (provided_secret == expected_secret or same_origin or is_ajax):
-            print(f"[CHATBOT] Forbidden secret from IP {ip}")
-            return JsonResponse({"message": "Forbidden"}, status=403)
+    require_secret = bool(getattr(settings, "CHATBOT_REQUIRE_SECRET", not settings.DEBUG))
+    provided_secret = request.headers.get("X-CHATBOT-SECRET")
+    if require_secret and not expected_secret:
+        return JsonResponse({"message": "Service not configured"}, status=503)
+    if expected_secret and not (provided_secret and hmac.compare_digest(provided_secret, expected_secret)):
+        print(f"[CHATBOT] Forbidden secret from IP {ip}")
+        return JsonResponse({"message": "Forbidden"}, status=403)
 
     # Freno simple por IP para evitar abuso.
     key = f"chatbot:rate:{ip}"
     hits = cache.get(key, 0)
-    max_hits = 20  # más conservador
+    max_hits = int(getattr(settings, "CHATBOT_RATE_LIMIT_MAX", 20))
+    window = int(getattr(settings, "CHATBOT_RATE_LIMIT_WINDOW", 60))
     if hits >= max_hits:
         print(f"[CHATBOT] Throttle IP {ip} ({hits} req/min)")
-        return JsonResponse({"message": "⏳ Demasiadas peticiones, espera un minuto."}, status=429)
-    cache.set(key, hits + 1, timeout=60)
+        return JsonResponse({"message": "Too many requests. Try again later."}, status=429)
+    cache.set(key, hits + 1, timeout=window)
 
     try:
         if request.method == "GET":
@@ -141,7 +130,7 @@ def chatbot_api(request):
             mensaje = data.get("query", "").strip()
 
             if not mensaje:
-                return JsonResponse({"message": "🤔 No escribiste nada."}, status=400)
+                return JsonResponse({"message": "Request body requires 'query'."}, status=400)
 
         # Historial breve por sesión (anónimo o logueado).
         history = []
@@ -181,7 +170,7 @@ def chatbot_api(request):
         return JsonResponse({"message": "Error de formato JSON."}, status=400)
     except Exception as e:
         print(f"[chatbot_api] Error interno: {e}")
-        return JsonResponse({"message": "❌ Error de conexión."}, status=500)
+        return JsonResponse({"message": "Internal error."}, status=500)
 
 
 # ---------------------------------------------------------

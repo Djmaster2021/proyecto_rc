@@ -130,10 +130,8 @@ class CustomPasswordResetView(PasswordResetView):
             if not users:
                 print(f"[PASSWORD RESET] No hay usuarios con email/usuario: {email_destino}")
             for user in users:
-                uid = self.uidb64(user)
-                token = self.token_generator.make_token(user)
-                link = f"{base}{reverse('accounts:password_reset_confirm', args=[uid, token])}"
-                print(f"[PASSWORD RESET] Enlace generado para {user.get_username()}: {link}")
+                # No registrar enlaces ni tokens de recuperación en logs.
+                print(f"[PASSWORD RESET] Link emitido para usuario: {user.get_username()}")
 
             print(f"[PASSWORD RESET] Intento de envío a: {email_destino} (usuarios encontrados: {len(users)})")
             return HttpResponseRedirect(self.success_url)

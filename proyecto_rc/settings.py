@@ -333,14 +333,19 @@ def _env_bool(name, default=False):
 
 _secure_default = not DEBUG
 SESSION_COOKIE_SECURE = _env_bool("SESSION_COOKIE_SECURE", _secure_default)
+SESSION_COOKIE_HTTPONLY = _env_bool("SESSION_COOKIE_HTTPONLY", True)
+SESSION_COOKIE_SAMESITE = os.getenv("SESSION_COOKIE_SAMESITE", "Lax")
 CSRF_COOKIE_SECURE = _env_bool("CSRF_COOKIE_SECURE", _secure_default)
+CSRF_COOKIE_SAMESITE = os.getenv("CSRF_COOKIE_SAMESITE", "Lax")
 SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000" if _secure_default else "0"))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = _env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", _secure_default)
 SECURE_HSTS_PRELOAD = _env_bool("SECURE_HSTS_PRELOAD", False if DEBUG else True)
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https") if _env_bool("SECURE_PROXY_SSL_HEADER", _secure_default) else None
 USE_X_FORWARDED_HOST = _env_bool("USE_X_FORWARDED_HOST", _secure_default)
+SECURE_SSL_REDIRECT = _env_bool("SECURE_SSL_REDIRECT", _secure_default)
 SECURE_CONTENT_TYPE_NOSNIFF = _env_bool("SECURE_CONTENT_TYPE_NOSNIFF", True)
 SECURE_REFERRER_POLICY = os.getenv("SECURE_REFERRER_POLICY", "same-origin")
+SECURE_CROSS_ORIGIN_OPENER_POLICY = os.getenv("SECURE_CROSS_ORIGIN_OPENER_POLICY", "same-origin")
 X_FRAME_OPTIONS = os.getenv("X_FRAME_OPTIONS", "DENY")
 CSRF_COOKIE_HTTPONLY = _env_bool("CSRF_COOKIE_HTTPONLY", True)
 
@@ -402,3 +407,11 @@ LOGGING = {
         },
     },
 }
+
+# ====================================
+# 16. CONTROLES DE ENDPOINTS PUBLICOS
+# ====================================
+CHATBOT_REQUIRE_SECRET = _env_bool("CHATBOT_REQUIRE_SECRET", not DEBUG)
+CHATBOT_RATE_LIMIT_MAX = int(os.getenv("CHATBOT_RATE_LIMIT_MAX", "20"))
+CHATBOT_RATE_LIMIT_WINDOW = int(os.getenv("CHATBOT_RATE_LIMIT_WINDOW", "60"))
+WEBHOOK_MAX_BODY_BYTES = int(os.getenv("WEBHOOK_MAX_BODY_BYTES", "32768"))
