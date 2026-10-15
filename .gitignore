@@ -60,3 +60,6 @@ mobile/**/build/
 mobile/**/.cxx/
 mobile/**/.externalNativeBuild/
 mobile/ConsultorioDentalRC/keystore.properties
+
+# Respaldos locales de la base de datos (no subir)
+backups/
