@@ -62,6 +62,9 @@ urlpatterns = [
     path("configuracion/", views.configuracion, name="configuracion"),
     path("configuracion/horario/<int:id>/eliminar/", views.eliminar_horario, name="eliminar_horario"),
     path("soporte/", views.soporte, name="soporte"),
+    path("soporte/<int:id>/editar/", views.editar_ticket, name="editar_ticket"),
+    path("soporte/<int:id>/eliminar/", views.eliminar_ticket, name="eliminar_ticket"),
+    path("soporte/<int:id>/descargar/", views.descargar_ticket, name="descargar_ticket"),
     path("penalizaciones/", views.penalizaciones, name="penalizaciones"),
 
     # ==========================

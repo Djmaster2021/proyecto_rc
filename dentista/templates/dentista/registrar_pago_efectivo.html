@@ -1,4 +1,5 @@
 {% extends "dentista/base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block dtitle %}Terminal de Cobro | RC Pro{% endblock %}
@@ -7,12 +8,12 @@
 
 <div class="page-header">
     <div>
-        <h1 class="text-gradient">Registrar Cobro</h1>
-        <p class="welcome-subtitle">Seleccione una cita pendiente para procesar el pago.</p>
+        <h1 class="text-gradient">{% trans "Registrar Cobro" %}</h1>
+        <p class="welcome-subtitle">{% trans "Seleccione una cita pendiente para procesar el pago." %}</p>
     </div>
     <div class="header-actions">
         <a href="{% url 'dentista:pagos' %}" class="cyber-btn cyber-btn-secondary">
-            <i class="ph-bold ph-x"></i> Cancelar
+            <i class="ph-bold ph-x"></i> {% trans "Cancelar" %}
         </a>
     </div>
 </div>
@@ -26,7 +27,7 @@
         
         <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-muted); margin: 0;">CITAS PENDIENTES</h3>
+                <h3 style="font-size: 1rem; font-weight: 700; color:var(--text-muted); margin: 0;">{% trans "CITAS PENDIENTES" %}</h3>
                 <span class="status-badge status-active">{{ citas_disponibles|length }}</span>
             </div>
             
@@ -43,47 +44,47 @@
                         </div>
                     </div>
                 {% empty %}
-                    <div style="text-align: center; padding: 4rem; color: var(--text-muted); border: 2px dashed var(--border-subtle); border-radius: 12px;">
-                        <i class="ph-duotone ph-check-circle" style="font-size: 3rem; margin-bottom: 10px; color: var(--success);"></i>
-                        <p>¡Todo al día! No hay cobros pendientes.</p>
+                    <div style="text-align: center; padding: 4rem; color:var(--text-muted); border:2px dashed var(--border-subtle); border-radius:12px;">
+                        <i class="ph-duotone ph-check-circle" style="font-size: 3rem; margin-bottom: 10px; color:var(--success);"></i>
+                        <p>{% trans "¡Todo al día! No hay cobros pendientes." %}</p>
                     </div>
                 {% endfor %}
             </div>
         </div>
 
         <div class="checkout-panel">
-            <div style="border-bottom: 1px solid var(--bg-input); padding-bottom: 1rem; margin-bottom: 1.5rem; text-align: center;">
-                <span style="color: var(--brand); font-size: 0.8rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">
-                    <i class="ph-fill ph-receipt"></i> Resumen de Venta
+            <div style="border-bottom:1px solid var(--bg-input); padding-bottom: 1rem; margin-bottom: 1.5rem; text-align: center;">
+                <span style="color:var(--brand); font-size: 0.8rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">
+                    <i class="ph-fill ph-receipt"></i> {% trans "Resumen de Venta" %}
                 </span>
             </div>
 
             <div style="margin-bottom: 2rem;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.9rem;">
-                    <span style="color:var(--text-muted);">Paciente:</span>
+                    <span style="color:var(--text-muted);">{% trans "Paciente:" %}</span>
                     <span style="color:var(--text-main); font-weight:600; text-align: right;" id="summaryPatient">---</span>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.9rem;">
-                    <span style="color:var(--text-muted);">Servicio:</span>
+                    <span style="color:var(--text-muted);">{% trans "Servicio:" %}</span>
                     <span style="color:var(--text-main); text-align: right;" id="summaryService">---</span>
                 </div>
             </div>
 
-            <div class="lbl-total">Total a Pagar</div>
+            <div class="lbl-total">{% trans "Total a Pagar" %}</div>
             <div class="big-total" id="displayTotal">$0.00</div>
 
             <div class="form-group">
-                <label style="font-size:0.75rem; font-weight: 700; color:var(--text-muted); text-transform: uppercase;">Monto Recibido</label>
+                <label style="font-size:0.75rem; font-weight: 700; color:var(--text-muted); text-transform: uppercase;">{% trans "Monto Recibido" %}</label>
                 <input type="number" step="0.01" name="monto" id="inputMonto" class="cyber-input" style="text-align: center; font-size: 1.2rem; font-weight: bold; height: 50px;" required>
             </div>
 
             <div class="form-group">
-                <label style="font-size:0.75rem; font-weight: 700; color:var(--text-muted); text-transform: uppercase;">Notas (Opcional)</label>
-                <input type="text" name="notas" class="cyber-input" placeholder="Ej. Billete de $500...">
+                <label style="font-size:0.75rem; font-weight: 700; color:var(--text-muted); text-transform: uppercase;">{% trans "Notas (Opcional)" %}</label>
+                <input type="text" name="notas" class="cyber-input" placeholder="{% trans 'Ej. Billete de $500...' %}">
             </div>
 
             <button type="submit" id="btnCobrar" class="cyber-btn cyber-btn-glow w-100" style="margin-top: 1.5rem; padding: 1rem; justify-content: center;" disabled>
-                <i class="ph-bold ph-cash-register"></i> Confirmar Cobro
+                <i class="ph-bold ph-cash-register"></i> {% trans "Confirmar Cobro" %}
             </button>
         </div>
 

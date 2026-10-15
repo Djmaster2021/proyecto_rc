@@ -1,4 +1,5 @@
 {% extends "dentista/base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block dtitle %}Nuevo ingreso | RC{% endblock %}
@@ -7,10 +8,10 @@
 <div class="main-container">
     <div class="page-header compact" style="margin-bottom: 1.5rem;">
         <div>
-            <h1 class="text-gradient">Registrar ingreso</h1>
-            <p class="subtitle">Cobro manual. Se crea un comprobante ligado a “Pago Directo”.</p>
+            <h1 class="text-gradient">{% trans "Registrar ingreso" %}</h1>
+            <p class="subtitle">{% trans "Cobro manual. Se crea un comprobante ligado a “Pago Directo”." %}</p>
         </div>
-        <a href="{% url 'dentista:pagos' %}" class="cyber-btn">Volver a caja</a>
+        <a href="{% url 'dentista:pagos' %}" class="cyber-btn">{% trans "Volver a caja" %}</a>
     </div>
 
     <div class="cyber-card" style="max-width: 720px; margin: 0 auto;">
@@ -18,45 +19,45 @@
             {% csrf_token %}
 
             <div>
-                <label class="form-label"><i class="ph-bold ph-calendar-check"></i> Cita pendiente (opcional)</label>
+                <label class="form-label"><i class="ph-bold ph-calendar-check"></i> {% trans "Cita pendiente (opcional)" %}</label>
                 <select name="cita_id" id="citaSelect" class="form-control">
-                    <option value="">Pago directo (sin cita)</option>
+                    <option value="">{% trans "Pago directo (sin cita)" %}</option>
                     {% for c in citas %}
                         <option value="{{ c.id }}" data-monto="{{ c.servicio.precio }}" data-concepto="{{ c.servicio.nombre }} - {{ c.paciente.nombre }}" {% if c.id|stringformat:"s" == cita_preseleccionada %}selected{% endif %}>
                             {{ c.paciente.nombre }} · {{ c.servicio.nombre }} · {{ c.fecha }} {{ c.hora_inicio|time:"H:i" }} · ${{ c.servicio.precio }}
                         </option>
                     {% endfor %}
                 </select>
-                <p style="font-size:0.8rem; color:#94a3b8; margin-top:6px;">Si eliges una cita, se llena monto y concepto automáticamente.</p>
+                <p style="font-size:0.8rem; color:var(--dk-tx-94a3b8, #94a3b8); margin-top:6px;">{% trans "Si eliges una cita, se llena monto y concepto automáticamente." %}</p>
             </div>
 
             <div>
-                <label class="form-label"><i class="ph-bold ph-currency-dollar"></i> Monto</label>
+                <label class="form-label"><i class="ph-bold ph-currency-dollar"></i> {% trans "Monto" %}</label>
                 <input type="number" name="monto" id="montoInput" step="0.01" class="form-control" required placeholder="0.00">
             </div>
 
             <div>
-                <label class="form-label"><i class="ph-bold ph-note"></i> Concepto / nota</label>
-                <input type="text" name="concepto" id="conceptoInput" class="form-control" required placeholder="Ej. Pago en mostrador - Juan Perez, Limpieza">
+                <label class="form-label"><i class="ph-bold ph-note"></i> {% trans "Concepto / nota" %}</label>
+                <input type="text" name="concepto" id="conceptoInput" class="form-control" required placeholder="{% trans 'Ej. Pago en mostrador - Juan Perez, Limpieza' %}">
             </div>
 
             <div>
-                <label class="form-label"><i class="ph-bold ph-credit-card"></i> Método</label>
+                <label class="form-label"><i class="ph-bold ph-credit-card"></i> {% trans "Método" %}</label>
                 <select name="metodo" class="form-control">
-                    <option value="EFECTIVO">Efectivo</option>
-                    <option value="TRANSFERENCIA">Transferencia</option>
-                    <option value="TARJETA">Tarjeta</option>
-                    <option value="MERCADOPAGO">MercadoPago (link de pago)</option>
+                    <option value="EFECTIVO">{% trans "Efectivo" %}</option>
+                    <option value="TRANSFERENCIA">{% trans "Transferencia" %}</option>
+                    <option value="TARJETA">{% trans "Tarjeta" %}</option>
+                    <option value="MERCADOPAGO">{% trans "MercadoPago (link de pago)" %}</option>
                 </select>
             </div>
 
-            <p style="font-size:0.85rem; color:#64748b; margin-top:-4px;">
-                * Si no eliges cita, se usa el paciente genérico “Venta Mostrador / Rápida” y servicio “Pago Directo”.
+            <p style="font-size:0.85rem; color:var(--dk-tx-64748b, #64748b); margin-top:-4px;">
+                {% trans "* Si no eliges cita, se usa el paciente genérico “Venta Mostrador / Rápida” y servicio “Pago Directo”." %}
             </p>
 
             <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
-                <a href="{% url 'dentista:pagos' %}" class="cyber-btn cyber-btn-secondary">Cancelar</a>
-                <button type="submit" class="cyber-btn cyber-btn-glow">Guardar cobro</button>
+                <a href="{% url 'dentista:pagos' %}" class="cyber-btn cyber-btn-secondary">{% trans "Cancelar" %}</a>
+                <button type="submit" class="cyber-btn cyber-btn-glow">{% trans "Guardar cobro" %}</button>
             </div>
         </form>
     </div>

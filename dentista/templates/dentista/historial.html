@@ -1,24 +1,25 @@
+{% load i18n %}
 <!DOCTYPE html>
 {% load static %}
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Reporte Financiero RC</title>
+    <title>{% trans "Reporte Financiero RC" %}</title>
   </head>
   <body>
   
       <table class="header-table">
           <tr>
               <td width="60%" valign="bottom">
-                  <div class="brand-title">CONSULTORIO RC</div>
-                  <div class="brand-sub">Reporte Oficial de Actividades</div>
+                  <div class="brand-title">{% trans "CONSULTORIO RC" %}</div>
+                  <div class="brand-sub">{% trans "Reporte Oficial de Actividades" %}</div>
               </td>
               <td width="40%" class="meta-info" valign="bottom">
-                  <div style="font-size: 14px; color: #0f172a; margin-bottom: 5px; font-weight: bold;">
+                  <div style="font-size: 14px; color:var(--dk-tx-0f172a, #0f172a); margin-bottom: 5px; font-weight: bold;">
                       Dr. {{ dentista.nombre }}
                   </div>
-                  <strong>Periodo:</strong> {{ fecha_inicio }} — {{ fecha_fin }}<br>
-                  <strong>Generado:</strong> {% now "d/m/Y H:i" %}
+                  <strong>{% trans "Periodo:" %}</strong> {{ fecha_inicio }} — {{ fecha_fin }}<br>
+                  <strong>{% trans "Generado:" %}</strong> {% now "d/m/Y H:i" %}
               </td>
           </tr>
       </table>
@@ -26,21 +27,21 @@
       <table class="data-table">
           <thead>
               <tr>
-                  <th width="15%">Fecha</th>
-                  <th width="30%">Paciente</th>
-                  <th width="25%">Tratamiento</th>
-                  <th width="15%">Estado</th>
-                  <th width="15%" align="right">Monto</th>
+                  <th width="15%">{% trans "Fecha" %}</th>
+                  <th width="30%">{% trans "Paciente" %}</th>
+                  <th width="25%">{% trans "Tratamiento" %}</th>
+                  <th width="15%">{% trans "Estado" %}</th>
+                  <th width="15%" align="right">{% trans "Monto" %}</th>
               </tr>
           </thead>
           <tbody>
               {% for cita in citas %}
               <tr class="{% cycle '' 'row-odd' %}">
                   <td>
-                      <b style="color:#0f172a;">{{ cita.fecha_hora_inicio|date:"d/m/Y" }}</b><br>
-                      <span style="color:#64748b; font-size:9px;">{{ cita.fecha_hora_inicio|time:"H:i" }}</span>
+                      <b style="color:var(--dk-tx-0f172a, #0f172a);">{{ cita.fecha_hora_inicio|date:"d/m/Y" }}</b><br>
+                      <span style="color:var(--dk-tx-64748b, #64748b); font-size:9px;">{{ cita.fecha_hora_inicio|time:"H:i" }}</span>
                   </td>
-                  <td style="font-weight:bold; color:#334155;">{{ cita.paciente.nombre }}</td>
+                  <td style="font-weight:bold; color:var(--dk-tx-334155, #334155);">{{ cita.paciente.nombre }}</td>
                   <td>{{ cita.servicio.nombre }}</td>
                   <td>
                       <span class="status 
@@ -51,29 +52,29 @@
                           {{ cita.get_estado_display|upper }}
                       </span>
                       {% if cita.pago_relacionado and cita.pago_relacionado.estado == "COMPLETADO" %}
-                        <span class="status st-conf" style="background:#ecfdf3; color:#065f46; border-color:#bbf7d0; margin-left:4px;">
-                          PAGADO EN LÍNEA
+                        <span class="status st-conf" style="background:var(--dk-bg-ecfdf3, #ecfdf3); color:var(--dk-tx-065f46, #065f46); border-color:var(--dk-bd-bbf7d0, #bbf7d0); margin-left:4px;">
+                          {% trans "PAGADO EN LÍNEA" %}
                         </span>
                       {% endif %}
                   </td>
                   <td align="right">
                       {% if cita.pago_relacionado %}
-                          <span style="color:#0f172a; font-weight:bold;">${{ cita.pago_relacionado.monto|floatformat:2 }}</span>
+                          <span style="color:var(--dk-tx-0f172a, #0f172a); font-weight:bold;">${{ cita.pago_relacionado.monto|floatformat:2 }}</span>
                       {% else %}
-                          <span style="color:#94a3b8;">-</span>
+                          <span style="color:var(--dk-tx-94a3b8, #94a3b8);">-</span>
                       {% endif %}
                   </td>
               </tr>
               {% with feedback=cita.encuestasatisfaccion_set.all|first %}
               {% if feedback %}
-              <tr style="background:#f8fafc;">
-                  <td colspan="2" style="font-size:0.92rem; color:#0f172a;">
-                      <strong>Feedback:</strong> {{ feedback.comentario|default:"Sin comentarios" }}
+              <tr style="background:var(--dk-bg-f8fafc, #f8fafc);">
+                  <td colspan="2" style="font-size:0.92rem; color:var(--dk-tx-0f172a, #0f172a);">
+                      <strong>{% trans "Feedback:" %}</strong> {{ feedback.comentario|default:"Sin comentarios" }}
                   </td>
-                  <td colspan="2" style="font-size:0.92rem; color:#0f172a;">
-                      <strong>Puntuación:</strong> {{ feedback.puntuacion }}/5
+                  <td colspan="2" style="font-size:0.92rem; color:var(--dk-tx-0f172a, #0f172a);">
+                      <strong>{% trans "Puntuación:" %}</strong> {{ feedback.puntuacion }}/5
                   </td>
-                  <td align="right" style="color:#64748b; font-size:0.85rem;">
+                  <td align="right" style="color:var(--dk-tx-64748b, #64748b); font-size:0.85rem;">
                       {{ feedback.created_at|date:"d/m/Y H:i" }}
                   </td>
               </tr>
@@ -81,8 +82,8 @@
               {% endwith %}
               {% empty %}
               <tr>
-                  <td colspan="5" align="center" style="padding:30px; color:#64748b; background-color: #fff;">
-                      No se encontraron registros financieros en este periodo.
+                  <td colspan="5" align="center" style="padding:30px; color:var(--dk-tx-64748b, #64748b); background-color:var(--dk-bg-fff, #fff);">
+                      {% trans "No se encontraron registros financieros en este periodo." %}
                   </td>
               </tr>
               {% endfor %}
@@ -96,8 +97,8 @@
                   <div class="qr-box">
                       <img src="data:image/png;base64,{{ qr_code_base64 }}" width="65" height="65">
                   </div>
-                  <div style="font-size:9px; color:#64748b; margin-top:4px; width:70px; text-align:center;">
-                      Validación
+                  <div style="font-size:9px; color:var(--dk-tx-64748b, #64748b); margin-top:4px; width:70px; text-align:center;">
+                      {% trans "Validación" %}
                   </div>
                   {% endif %}
               </td>
@@ -105,15 +106,15 @@
               <td width="50%" valign="top" align="right">
                   <div class="summary-box">
                       <div class="sum-row">
-                          Citas Realizadas: 
+                          {% trans "Citas Realizadas:" %} 
                           <span class="sum-val">{{ total_citas }}</span>
                       </div>
                       <div class="sum-row">
-                          Pacientes Atendidos: 
+                          {% trans "Pacientes Atendidos:" %} 
                           <span class="sum-val">{{ citas|length }}</span>
                       </div>
                       <div class="grand-total">
-                          TOTAL: ${{ total_ingresos|floatformat:2 }}
+                          {% trans "TOTAL" %}: ${{ total_ingresos|floatformat:2 }}
                       </div>
                   </div>
               </td>
@@ -121,8 +122,8 @@
       </table>
   
       <div class="disclaimer">
-          Este documento es un reporte interno generado automáticamente por Dental Suite Pro. <br>
-          Para fines fiscales oficiales, por favor consulte las facturas emitidas ante el SAT.
+          {% trans "Este documento es un reporte interno generado automáticamente por Dental Suite Pro." %} <br>
+          {% trans "Para fines fiscales oficiales, por favor consulte las facturas emitidas ante el SAT." %}
       </div>
   
   </body>

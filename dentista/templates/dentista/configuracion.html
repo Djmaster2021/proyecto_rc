@@ -1,4 +1,5 @@
 {% extends "dentista/base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block dtitle %}Configuración | RC Pro{% endblock %}
@@ -7,64 +8,82 @@
 
 <div class="page-header">
     <div>
-        <h1 class="text-gradient">Configuración del Sistema</h1>
-        <p class="welcome-subtitle">Gestiona tu perfil profesional y horarios de atención.</p>
+        <h1 class="text-gradient">{% trans "Configuración del Sistema" %}</h1>
+        <p class="welcome-subtitle">{% trans "Gestiona tu perfil profesional y horarios de atención." %}</p>
     </div>
 </div>
 
 <div class="config-grid-pro">
     
     <div class="profile-card-full">
-        <div class="profile-cover"></div> <div class="profile-body-center">
+        <div class="profile-cover">
+            <div class="profile-cover-pattern"></div>
+        </div>
+        <div class="profile-body-center">
             <div class="avatar-uploader">
                 {% if dentista.foto_perfil %}
-                    <img src="{{ dentista.foto_perfil.url }}" class="avatar-img" alt="Perfil">
+                    <img src="{{ dentista.foto_perfil.url }}" class="avatar-img" alt="{% trans 'Perfil' %}">
                 {% else %}
                     <div class="avatar-placeholder">{{ dentista.nombre|slice:":2"|upper }}</div>
                 {% endif %}
-                
-                <button type="button" class="btn-upload-trigger" onclick="openProfileModal()">
+
+                <button type="button" class="btn-upload-trigger" onclick="openProfileModal()" title="{% trans 'Cambiar foto' %}">
                     <i class="ph-bold ph-camera"></i>
                 </button>
             </div>
 
             <h2 class="profile-name" style="font-size: 1.4rem;">Dr. {{ dentista.nombre }}</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">{{ dentista.especialidad|default:"Odontología General" }}</p>
-            
+            <p style="color:var(--text-muted); font-size: 0.9rem;">{{ dentista.especialidad|default:"Odontología General" }}</p>
+
             <div style="margin-top: 10px;">
-                <span class="status-badge status-active"><i class="ph-fill ph-seal-check"></i> Verificado</span>
+                <span class="status-badge status-active"><i class="ph-fill ph-seal-check"></i> {% trans "Verificado" %}</span>
             </div>
         </div>
 
     <div class="profile-details-list">
             <div class="detail-row">
-                <span class="lbl"><i class="ph-bold ph-envelope"></i> Email</span>
-                <span class="val">{{ user.email }}</span>
+                <span class="detail-icon"><i class="ph-bold ph-envelope"></i></span>
+                <div class="detail-text">
+                    <span class="lbl">Email</span>
+                    <span class="val">{{ user.email }}</span>
+                </div>
             </div>
             <div class="detail-row">
-                <span class="lbl"><i class="ph-bold ph-phone"></i> Teléfono</span>
-                <span class="val">{{ dentista.telefono|default:"--" }}</span>
+                <span class="detail-icon"><i class="ph-bold ph-phone"></i></span>
+                <div class="detail-text">
+                    <span class="lbl">{% trans "Teléfono" %}</span>
+                    <span class="val">{{ dentista.telefono|default:"--" }}</span>
+                </div>
             </div>
             <div class="detail-row">
-                <span class="lbl"><i class="ph-bold ph-identification-card"></i> Cédula</span>
-                <span class="val">{{ dentista.licencia|default:"--" }}</span>
+                <span class="detail-icon"><i class="ph-bold ph-identification-card"></i></span>
+                <div class="detail-text">
+                    <span class="lbl">{% trans "Cédula" %}</span>
+                    <span class="val">{{ dentista.licencia|default:"--" }}</span>
+                </div>
             </div>
             <div class="detail-row">
-                <span class="lbl"><i class="ph-bold ph-stethoscope"></i> Especialidad</span>
-                <span class="val">{{ dentista.especialidad|default:"Odontología General" }}</span>
+                <span class="detail-icon"><i class="ph-bold ph-stethoscope"></i></span>
+                <div class="detail-text">
+                    <span class="lbl">{% trans "Especialidad" %}</span>
+                    <span class="val">{{ dentista.especialidad|default:"Odontología General" }}</span>
+                </div>
             </div>
             <div class="detail-row">
-                <span class="lbl"><i class="ph-bold ph-map-pin"></i> Dirección</span>
-                <span class="val">{{ dentista.direccion|default:"--" }}</span>
+                <span class="detail-icon"><i class="ph-bold ph-map-pin"></i></span>
+                <div class="detail-text">
+                    <span class="lbl">{% trans "Dirección" %}</span>
+                    <span class="val">{{ dentista.direccion|default:"--" }}</span>
+                </div>
             </div>
     </div>
 
         <div class="profile-actions-footer">
             <button type="button" class="cyber-btn cyber-btn-sm w-100 js-open-modal" data-target="profileModal" style="justify-content: center;">
-                <i class="ph-bold ph-pencil-simple"></i> Editar Datos
+                <i class="ph-bold ph-pencil-simple"></i> {% trans "Editar Datos" %}
             </button>
             <button type="button" class="cyber-btn cyber-btn-sm cyber-btn-secondary w-100 js-open-modal" data-target="passwordModal" style="justify-content: center;">
-                <i class="ph-bold ph-lock-key"></i> Seguridad
+                <i class="ph-bold ph-lock-key"></i> {% trans "Seguridad" %}
             </button>
         </div>
     </div>
@@ -72,62 +91,77 @@
     <div class="schedule-column">
         
         <div class="add-schedule-panel">
-            <div style="margin-bottom: 1.5rem;">
-                <h3 style="margin:0; font-size:1.2rem;">Nuevo Bloque de Horario</h3>
-                <p style="margin:5px 0 0; font-size:0.85rem; opacity: 0.8;">Define tu disponibilidad para la agenda automática.</p>
+            <div class="add-schedule-head">
+                <div class="add-schedule-icon"><i class="ph-fill ph-calendar-plus"></i></div>
+                <div>
+                    <h3 style="margin:0; font-size:1.2rem;">{% trans "Nuevo Bloque de Horario" %}</h3>
+                    <p style="margin:3px 0 0; font-size:0.85rem; opacity: 0.8;">{% trans "Define tu disponibilidad para la agenda automática." %}</p>
+                </div>
             </div>
 
-            <form method="post" action="{% url 'dentista:configuracion' %}">
+            <form method="post" action="{% url 'dentista:configuracion' %}"
+                  data-confirm-title="{% trans '¿Agregar este bloque de horario?' %}"
+                  data-confirm-text="{% trans 'Quedará disponible para que se agenden citas en ese horario.' %}"
+                  data-confirm-icon="question"
+                  data-confirm-button="{% trans 'Agregar' %}">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="add_schedule">
-                
+
                 <div class="schedule-form-inline">
                     <div class="form-group-inline">
-                        <label>Día</label>
+                        <label><i class="ph-bold ph-calendar"></i> {% trans "Día" %}</label>
                         <select name="dia" class="cyber-input" required>
                             {% for val, name in dias_semana %}
-                                <option value="{{ val }}" style="color: #000;">{{ name }}</option>
+                                <option value="{{ val }}">{{ name }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="form-group-inline">
-                        <label>Inicio</label>
-                        <input type="time" name="hora_inicio" class="cyber-input" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;" required>
+                        <label><i class="ph-bold ph-sun"></i> {% trans "Inicio" context "hora" %}</label>
+                        <input type="time" name="hora_inicio" class="cyber-input" required>
                     </div>
                     <div class="form-group-inline">
-                        <label>Fin</label>
-                        <input type="time" name="hora_fin" class="cyber-input" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;" required>
+                        <label><i class="ph-bold ph-moon-stars"></i> {% trans "Fin" %}</label>
+                        <input type="time" name="hora_fin" class="cyber-input" required>
                     </div>
-                    <button type="submit" class="cyber-btn cyber-btn-glow" style="height: 45px;">
-                        <i class="ph-bold ph-plus"></i> Agregar
+                    <button type="submit" class="cyber-btn cyber-btn-glow">
+                        <i class="ph-bold ph-plus"></i> {% trans "Agregar" %}
                     </button>
                 </div>
             </form>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h4 style="margin:0; font-size:1rem; font-weight:700; color:var(--text-muted);">HORARIOS ACTIVOS</h4>
-            <span class="status-badge status-active">{{ horarios.count }} bloques</span>
+        <div class="week-sched-head">
+            <h4><i class="ph-bold ph-calendar-check"></i> {% trans "Horarios Activos" %}</h4>
+            <span class="status-badge status-active">{% blocktrans count n=horarios.count %}{{ n }} bloque{% plural %}{{ n }} bloques{% endblocktrans %}</span>
         </div>
 
-        <div class="schedule-grid">
-            {% for h in horarios %}
-            <div class="schedule-item-card">
-                <div style="display:flex; align-items:center;">
-                    <div class="sch-icon"><i class="ph-fill ph-calendar-blank"></i></div>
-                    <div>
-                        <span class="sch-day">{{ h.get_dia_semana_display }}</span>
-                        <span class="sch-time">{{ h.hora_inicio|time:"H:i" }} - {{ h.hora_fin|time:"H:i" }}</span>
-                    </div>
+        <div class="week-sched-grid">
+            {% for dia in calendario_semana %}
+            <div class="week-day-card {% if dia.horarios %}is-active{% else %}is-off{% endif %}">
+                <div class="week-day-top">
+                    <span class="week-day-name">{{ dia.nombre }}</span>
                 </div>
-                <a href="{% url 'dentista:eliminar_horario' h.id %}" class="btn-delete-sch" title="Eliminar Bloque" data-dia="{{ h.get_dia_semana_display }}" data-hora="{{ h.hora_inicio|time:'H:i' }} - {{ h.hora_fin|time:'H:i' }}">
-                    <i class="ph-bold ph-trash"></i>
-                </a>
-            </div>
-            {% empty %}
-            <div style="grid-column: 1/-1; text-align: center; padding: 3rem; border: 2px dashed var(--border-subtle); border-radius: 12px; color: var(--text-muted);">
-                <i class="ph-duotone ph-calendar-x" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                <p>No has configurado horarios de trabajo.</p>
+
+                {% if dia.horarios %}
+                    <div class="week-day-blocks">
+                        {% for h in dia.horarios %}
+                            <div class="week-day-time">
+                                <i class="ph-bold ph-clock"></i>
+                                <span title="{{ h.hora_inicio|time:'g:i A' }} - {{ h.hora_fin|time:'g:i A' }}">{{ h.hora_inicio|time:"g:i A" }} - {{ h.hora_fin|time:"g:i A" }}</span>
+                                <a href="{% url 'dentista:eliminar_horario' h.id %}" class="btn-delete-sch" title="{% trans 'Eliminar bloque' %}" data-dia="{{ dia.nombre }}" data-hora="{{ h.hora_inicio|time:'g:i A' }} - {{ h.hora_fin|time:'g:i A' }}">
+                                    <i class="ph-bold ph-trash"></i>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <span class="week-day-tag">{% trans "Disponible" %}</span>
+                {% else %}
+                    <div class="week-day-rest">
+                        <i class="ph-duotone ph-moon-stars"></i>
+                        <span>{% trans "Descanso" %}</span>
+                    </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
@@ -138,56 +172,60 @@
 <div id="profileModal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 style="margin:0; color:var(--text-main);">Editar Perfil</h3>
+            <h3 style="margin:0; color:var(--text-main);">{% trans "Editar Perfil" %}</h3>
             <button onclick="closeModals()" class="btn-icon" style="background:transparent; color:var(--text-muted);"><i class="ph-bold ph-x"></i></button>
         </div>
         
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data"
+              data-confirm-title="{% trans '¿Guardar los cambios del perfil?' %}"
+              data-confirm-text="{% trans 'Se actualizará tu información profesional y de contacto.' %}"
+              data-confirm-icon="question"
+              data-confirm-button="{% trans 'Guardar cambios' %}">
             {% csrf_token %}
             <input type="hidden" name="action" value="update_profile">
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                     <div class="form-group">
-                        <label>Nombre Completo</label>
+                        <label>{% trans "Nombre Completo" %}</label>
                         <input type="text" name="nombre" class="cyber-input" value="{{ dentista.nombre }}" required>
                     </div>
                     <div class="form-group">
-                        <label>Teléfono</label>
+                        <label>{% trans "Teléfono" %}</label>
                         <input type="text" name="telefono" class="cyber-input" value="{{ dentista.telefono }}">
                     </div>
                 </div>
 
             <div class="form-group">
-                <label>Email (Login)</label>
+                <label>{% trans "Email (Login)" %}</label>
                 <input type="email" name="email" class="cyber-input" value="{{ user.email }}" required>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div class="form-group" style="margin-bottom:0;">
-                    <label>Especialidad</label>
+                    <label>{% trans "Especialidad" %}</label>
                     <input type="text" name="especialidad" class="cyber-input" value="{{ dentista.especialidad }}">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
-                    <label>Cédula / Licencia</label>
+                    <label>{% trans "Cédula / Licencia" %}</label>
                     <input type="text" name="licencia" class="cyber-input" value="{{ dentista.licencia }}">
                 </div>
             </div>
 
             <div class="form-group">
-                <label>Dirección</label>
+                <label>{% trans "Dirección" %}</label>
                 <input type="text" name="direccion" class="cyber-input" value="{{ dentista.direccion }}">
             </div>
 
             <div class="form-group" style="margin-top: 1.5rem;">
-                <label style="display:block; margin-bottom: 8px;">Foto de Perfil</label>
+                <label style="display:block; margin-bottom: 8px;">{% trans "Foto de Perfil" %}</label>
                 
                 <div class="file-upload-container">
                     <input type="file" name="foto_perfil" id="profileFileInput" class="input-file-hidden" onchange="updateProfileFileText()">
                     
                     <label for="profileFileInput" class="btn-file-custom">
-                        <i class="ph-bold ph-camera" style="font-size: 2rem; color: var(--border-subtle);"></i>
-                        <span style="font-weight: 600; color: var(--text-main);">Click para subir nueva foto</span>
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">JPG, PNG (Max 2MB)</span>
+                        <i class="ph-bold ph-camera" style="font-size: 2rem; color:var(--border-subtle);"></i>
+                        <span style="font-weight: 600; color:var(--text-main);">{% trans "Click para subir nueva foto" %}</span>
+                        <span style="font-size: 0.8rem; color:var(--text-muted);">{% trans "JPG, PNG (Max 2MB)" %}</span>
                     </label>
                     
                     <span id="profileFileText" class="file-name-display"></span>
@@ -195,8 +233,8 @@
             </div>
 
             <div class="form-actions">
-                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="closeModals()">Cancelar</button>
-                <button type="submit" class="cyber-btn cyber-btn-glow">Guardar Cambios</button>
+                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="closeModals()">{% trans "Cancelar" %}</button>
+                <button type="submit" class="cyber-btn cyber-btn-glow">{% trans "Guardar Cambios" %}</button>
             </div>
         </form>
     </div>
@@ -205,32 +243,36 @@
 <div id="passwordModal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 style="margin:0; color:var(--text-main);">Seguridad</h3>
+            <h3 style="margin:0; color:var(--text-main);">{% trans "Seguridad" %}</h3>
             <button onclick="closeModals()" class="btn-icon" style="background:transparent; color:var(--text-muted);"><i class="ph-bold ph-x"></i></button>
         </div>
 
-        <form method="post">
+        <form method="post"
+              data-confirm-title="{% trans '¿Actualizar tu contraseña?' %}"
+              data-confirm-text="{% trans 'Tendrás que usar la nueva contraseña la próxima vez que inicies sesión.' %}"
+              data-confirm-icon="warning"
+              data-confirm-button="{% trans 'Actualizar' %}">
             {% csrf_token %}
             <input type="hidden" name="action" value="change_password">
 
             <div class="form-group">
-                <label>Contraseña Actual</label>
+                <label>{% trans "Contraseña Actual" %}</label>
                 <input type="password" name="old_password" class="cyber-input" required>
             </div>
             
             <div class="form-group">
-                <label>Nueva Contraseña</label>
+                <label>{% trans "Nueva Contraseña" %}</label>
                 <input type="password" name="new_password" class="cyber-input" required>
             </div>
             
             <div class="form-group">
-                <label>Confirmar Nueva</label>
+                <label>{% trans "Confirmar Nueva" %}</label>
                 <input type="password" name="confirm_password" class="cyber-input" required>
             </div>
 
             <div class="form-actions">
-                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="closeModals()">Cancelar</button>
-                <button type="submit" class="cyber-btn cyber-btn-glow">Actualizar</button>
+                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="closeModals()">{% trans "Cancelar" %}</button>
+                <button type="submit" class="cyber-btn cyber-btn-glow">{% trans "Actualizar" %}</button>
             </div>
         </form>
     </div>

@@ -1,4 +1,5 @@
 {% extends "dentista/base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block dtitle %}Agenda Clínica | RC{% endblock %}
@@ -8,7 +9,7 @@
 /* Layout shell */
 .agenda-shell {
     padding: 18px 10px 48px;
-    background: radial-gradient(circle at 10% 20%, #e9f7ff 0%, #f6fbff 30%, #f5f7f8 70%);
+    background: radial-gradient(circle at 10% 20%, var(--dk-bg-e9f7ff, #e9f7ff) 0%, var(--dk-bg-f6fbff, #f6fbff) 30%, var(--dk-bg-f5f7f8, #f5f7f8) 70%);
     position: relative;
 }
 .agenda-shell::before {
@@ -33,26 +34,27 @@
 .agenda-head h1 {
     margin: 0 0 6px;
     font-weight: 800;
-    color: #0c2c3b;
+    color: var(--dk-tx-0c2c3b, #0c2c3b);
 }
 .agenda-eyebrow {
     letter-spacing: .08em;
     font-size: 12px;
     text-transform: uppercase;
-    color: #7ea0b3;
+    color: var(--dk-tx-7ea0b3, #7ea0b3);
     font-weight: 800;
 }
 .agenda-head p {
     margin: 0;
-    color: #4e5f6d;
+    color: var(--dk-tx-4e5f6d, #4e5f6d);
 }
 .agenda-head-actions {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
 }
 .pill-switch {
-    background: #d8e6ec;
+    background: var(--dk-bg-d8e6ec, #d8e6ec);
     border-radius: 16px;
     padding: 4px;
     display: inline-flex;
@@ -62,7 +64,7 @@
     font-size: 13px;
     padding: 8px 12px;
     border-radius: 12px;
-    color: #2c3f4b;
+    color: var(--dk-tx-2c3f4b, #2c3f4b);
     text-decoration: none;
     font-weight: 700;
 }
@@ -96,42 +98,52 @@
     .agenda-grid-shell { grid-template-columns: 1fr; }
 }
 
+@media (max-width: 640px) {
+    /* El encabezado (título + switch Hoy/Semana/Mes + botón Nueva Cita)
+       no cabía en una sola fila en móvil: el botón quedaba cortado fuera
+       de la pantalla, casi invisible. Lo apilamos debajo del título. */
+    .agenda-head { flex-wrap: wrap; }
+    .agenda-head-actions { width: 100%; }
+    .pill-switch { flex: 1; justify-content: center; }
+    .cta-btn { width: 100%; justify-content: center; }
+}
+
 .side-stack {
     display: grid;
     gap: 12px;
 }
 .card-slab {
-    background: radial-gradient(circle at 20% 15%, rgba(15, 183, 160, 0.12), transparent 45%), #fff;
+    background: radial-gradient(circle at 20% 15%, rgba(15, 183, 160, 0.12), transparent 45%), var(--dk-bg-fff, #fff);
     border-radius: 16px;
     padding: 16px;
     box-shadow: 0 12px 32px rgba(31, 41, 51, 0.08);
-    border: 1px solid #e3ebf0;
+    border: 1px solid var(--dk-bd-e3ebf0, #e3ebf0);
 }
 .card-slab h4 {
     margin: 0 0 6px;
     font-size: 13px;
     text-transform: uppercase;
     letter-spacing: .08em;
-    color: #7a8e9c;
+    color: var(--dk-tx-7a8e9c, #7a8e9c);
     font-weight: 800;
 }
-.card-slab .muted { color: #5d6a75; font-size: 13px; margin: 4px 0 0; }
+.card-slab .muted { color: var(--dk-tx-5d6a75, #5d6a75); font-size: 13px; margin: 4px 0 0; }
 .status-chip {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 6px 10px;
     border-radius: 999px;
-    background: #ffe9e7;
+    background: var(--dk-bg-ffe9e7, #ffe9e7);
     color: #b5433f;
     font-weight: 800;
     font-size: 12px;
 }
-.status-chip.green { background: #e7fff6; color: #0f9474; }
+.status-chip.green { background: var(--dk-bg-e7fff6, #e7fff6); color: var(--dk-tx-0f9474, #0f9474); }
 .big-number {
     font-size: 32px;
     font-weight: 900;
-    color: #0c2c3b;
+    color: var(--dk-tx-0c2c3b, #0c2c3b);
 }
 .month-card {
     display: flex;
@@ -159,7 +171,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #4b5c69;
+    color: var(--dk-tx-4b5c69, #4b5c69);
     font-weight: 700;
 }
 .dot {
@@ -175,10 +187,10 @@
 
 /* Agenda board */
 .agenda-board {
-    background: #fff;
+    background: var(--dk-bg-fff, #fff);
     border-radius: 16px;
     padding: 14px;
-    border: 1px solid #e5ebf0;
+    border: 1px solid var(--dk-bd-e5ebf0, #e5ebf0);
     box-shadow: 0 16px 40px rgba(31, 41, 51, 0.08);
 }
 .days-grid {
@@ -187,8 +199,8 @@
     gap: 12px;
 }
 .day-card {
-    background: linear-gradient(180deg, #f8fbfc 0%, #ffffff 100%);
-    border: 1px solid #e2e8ed;
+    background: linear-gradient(180deg, var(--dk-bg-f8fbfc, #f8fbfc) 0%, var(--dk-bg-ffffff, #ffffff) 100%);
+    border: 1px solid var(--dk-bd-e2e8ed, #e2e8ed);
     border-radius: 14px;
     padding: 12px;
     display: flex;
@@ -207,7 +219,7 @@
 }
 .day-card > * { position: relative; z-index: 1; }
 .day-card.today { box-shadow: 0 0 0 2px #0f9474 inset, 0 12px 24px rgba(15, 148, 116, 0.15); }
-.day-card.off { background: #fbfcfd; opacity: 0.9; }
+.day-card.off { background: var(--dk-bg-fbfcfd, #fbfcfd); opacity: 0.9; }
 .day-header {
     display: flex;
     justify-content: space-between;
@@ -222,17 +234,17 @@
 .day-label .weekday {
     font-size: 12px;
     letter-spacing: .05em;
-    color: #7c90a0;
+    color: var(--dk-tx-7c90a0, #7c90a0);
     text-transform: uppercase;
 }
 .day-label .day-number {
     font-size: 22px;
     font-weight: 900;
-    color: #0c2c3b;
+    color: var(--dk-tx-0c2c3b, #0c2c3b);
 }
 .day-count {
-    background: #e5f5f0;
-    color: #0f9474;
+    background: var(--dk-bg-e5f5f0, #e5f5f0);
+    color: var(--dk-tx-0f9474, #0f9474);
     padding: 6px 10px;
     border-radius: 12px;
     font-weight: 800;
@@ -246,10 +258,10 @@
     padding-right: 6px;
 }
 .cita-card {
-    border: 1px solid #e0e7ec;
+    border: 1px solid var(--dk-bd-e0e7ec, #e0e7ec);
     border-radius: 12px;
     padding: 10px;
-    background: #fff;
+    background: var(--dk-bg-fff, #fff);
     box-shadow: 0 6px 14px rgba(31, 41, 51, 0.04);
     display: grid;
     grid-template-columns: auto 1fr auto;
@@ -271,7 +283,7 @@
 }
 .cita-card .time {
     font-weight: 800;
-    color: #0f9474;
+    color: var(--dk-tx-0f9474, #0f9474);
     font-size: 13px;
     display: inline-flex;
     gap: 6px;
@@ -280,12 +292,12 @@
 .cita-card .patient {
     margin: 0;
     font-weight: 800;
-    color: #0c2c3b;
+    color: var(--dk-tx-0c2c3b, #0c2c3b);
 }
 .cita-card .service {
     margin: 0;
     font-size: 12px;
-    color: #5f6c75;
+    color: var(--dk-tx-5f6c75, #5f6c75);
 }
 .card-actions {
     display: grid;
@@ -294,9 +306,9 @@
 }
 .card-actions a,
 .card-actions button {
-    background: #eef3f6;
+    background: var(--dk-bg-eef3f6, #eef3f6);
     border: none;
-    color: #415362;
+    color: var(--dk-tx-415362, #415362);
     padding: 6px;
     border-radius: 10px;
     cursor: pointer;
@@ -313,10 +325,10 @@
 }
 .empty-day {
     padding: 14px;
-    border: 1px dashed #d1d9df;
+    border: 1px dashed var(--dk-bd-d1d9df, #d1d9df);
     border-radius: 12px;
     text-align: center;
-    color: #7c8c99;
+    color: var(--dk-tx-7c8c99, #7c8c99);
     font-weight: 700;
 }
 .add-link {
@@ -324,7 +336,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: #0f9474;
+    color: var(--dk-tx-0f9474, #0f9474);
     font-weight: 800;
     font-size: 13px;
     text-decoration: none;
@@ -336,46 +348,46 @@
 <div class="agenda-shell">
     <div class="agenda-head">
         <div>
-            <div class="agenda-eyebrow">Agenda Clínica</div>
-            <h1>Agenda Clínica</h1>
-            <p>Vista operativa de alta densidad.</p>
+            <div class="agenda-eyebrow">{% trans "Agenda Clínica" %}</div>
+            <h1>{% trans "Agenda Clínica" %}</h1>
+            <p>{% trans "Vista operativa de alta densidad." %}</p>
         </div>
         <div class="agenda-head-actions">
             <div class="pill-switch">
-                <a href="{% url 'dentista:agenda_modo' 'dia' %}" class="{% if modo == 'dia' %}active{% endif %}">Hoy</a>
-                <a href="{% url 'dentista:agenda_modo' 'semana' %}" class="{% if modo == 'semana' %}active{% endif %}">Semana</a>
-                <a href="{% url 'dentista:agenda_modo' 'mes' %}" class="{% if modo == 'mes' %}active{% endif %}">Mes</a>
-                <a href="{% url 'dentista:agenda' %}" class="{% if modo == 'todo' %}active{% endif %}">Todo</a>
+                <a href="{% url 'dentista:agenda_modo' 'dia' %}" class="{% if modo == 'dia' %}active{% endif %}">{% trans "Hoy" %}</a>
+                <a href="{% url 'dentista:agenda_modo' 'semana' %}" class="{% if modo == 'semana' %}active{% endif %}">{% trans "Semana" %}</a>
+                <a href="{% url 'dentista:agenda_modo' 'mes' %}" class="{% if modo == 'mes' %}active{% endif %}">{% trans "Mes" %}</a>
+                <a href="{% url 'dentista:agenda' %}" class="{% if modo == 'todo' %}active{% endif %}">{% trans "Todo" %}</a>
             </div>
-            <a class="cta-btn" href="{% url 'dentista:crear_cita_manual' %}"><i class="ph-bold ph-plus"></i> Nueva Cita</a>
+            <a class="cta-btn" href="{% url 'dentista:crear_cita_manual' %}"><i class="ph-bold ph-plus"></i> {% trans "Nueva Cita" %}</a>
         </div>
     </div>
 
     <div class="agenda-grid-shell">
         <div class="side-stack">
             <div class="card-slab">
-                <h4>En curso / siguiente</h4>
+                <h4>{% trans "En curso / siguiente" %}</h4>
                 <div class="status-chip {% if resumen_agenda.estado == 'libre' %}{% else %}green{% endif %}">
-                    {% if resumen_agenda.estado == 'libre' %}Libre{% else %}{{ resumen_agenda.label }}{% endif %}
+                    {% if resumen_agenda.estado == 'libre' %}{% trans "Libre" %}{% else %}{{ resumen_agenda.label }}{% endif %}
                 </div>
                 {% if resumen_agenda.paciente %}
                     <p class="muted">{{ resumen_agenda.paciente }} — {{ resumen_agenda.servicio }}</p>
                     <p class="muted" style="font-weight:700;">{{ resumen_agenda.horario }}</p>
                 {% else %}
-                    <p class="muted">Agenda libre por ahora.</p>
+                    <p class="muted">{% trans "Agenda libre por ahora." %}</p>
                 {% endif %}
             </div>
 
             <div class="card-slab">
-                <h4>Vistos hoy</h4>
+                <h4>{% trans "Vistos hoy" %}</h4>
                 <div class="big-number">{{ resumen_hoy.finalizadas|default:0 }}</div>
-                <p class="muted">de {{ resumen_hoy.total|default:"0" }} pacientes.</p>
+                <p class="muted">{% blocktrans with total=resumen_hoy.total|default:"0" %}de {{ total }} pacientes.{% endblocktrans %}</p>
             </div>
 
             <div class="card-slab month-card">
                 <div>
                     <h4>{{ fecha_actual|date:"F Y"|upper }}</h4>
-                    <span class="muted">Reloj {{ fecha_actual|date:"l" }}</span>
+                    <span class="muted">{% blocktrans with dia=fecha_actual|date:"l" %}Reloj {{ dia }}{% endblocktrans %}</span>
                 </div>
                 <div class="today-chip">
                     {{ fecha_actual|date:"d" }}<br><small style="font-weight:700;">{% now "H:i" %}</small>
@@ -383,12 +395,12 @@
             </div>
 
             <div class="card-slab">
-                <h4>Estados</h4>
+                <h4>{% trans "Estados" %}</h4>
                 <ul class="legend-list">
-                    <li class="legend-row"><span class="dot green"></span> Confirmada <strong>{{ estado_counts.confirmada|default:0 }}</strong></li>
-                    <li class="legend-row"><span class="dot amber"></span> Pendiente <strong>{{ estado_counts.pendiente|default:0 }}</strong></li>
-                    <li class="legend-row"><span class="dot blue"></span> Finalizada <strong>{{ estado_counts.completada|default:0 }}</strong></li>
-                    <li class="legend-row"><span class="dot red"></span> Cancelada <strong>{{ estado_counts.cancelada|default:0 }}</strong></li>
+                    <li class="legend-row"><span class="dot green"></span> {% trans "Confirmada" %} <strong>{{ estado_counts.confirmada|default:0 }}</strong></li>
+                    <li class="legend-row"><span class="dot amber"></span> {% trans "Pendiente" %} <strong>{{ estado_counts.pendiente|default:0 }}</strong></li>
+                    <li class="legend-row"><span class="dot blue"></span> {% trans "Finalizada" %} <strong>{{ estado_counts.completada|default:0 }}</strong></li>
+                    <li class="legend-row"><span class="dot red"></span> {% trans "Cancelada" %} <strong>{{ estado_counts.cancelada|default:0 }}</strong></li>
                 </ul>
             </div>
         </div>
@@ -403,17 +415,17 @@
                                     <span class="weekday">{{ dia.fecha|date:"l"|upper }}</span>
                                     <span class="day-number">{{ dia.fecha|date:"d" }}</span>
                                 </div>
-                                <span class="day-count">{{ dia.citas|length }} citas</span>
+                                <span class="day-count">{% blocktrans count n=dia.citas|length %}{{ n }} cita{% plural %}{{ n }} citas{% endblocktrans %}</span>
                             </div>
 
                             <div class="citas-stack">
                                 {% if dia.tipo_dia != 'laboral' and not dia.citas %}
-                                    <div class="empty-day">Descanso</div>
+                                    <div class="empty-day">{% trans "Descanso" %}</div>
                                 {% elif dia.citas %}
                                     {% for item in dia.citas %}
                                         {% with c=item.obj %}
                                             <div class="cita-card">
-                                                <a class="avatar" href="{% url 'dentista:consulta' c.id %}" title="Abrir expediente">
+                                                <a class="avatar" href="{% url 'dentista:consulta' c.id %}" title="{% trans 'Abrir expediente' %}">
                                                     {{ c.paciente.nombre|slice:":1"|upper }}
                                                 </a>
                                                 <div>
@@ -422,15 +434,15 @@
                                                     <p class="service">{{ c.servicio.nombre|truncatechars:40 }}</p>
                                                 </div>
                                                 <div class="card-actions">
-                                                    <a href="{% url 'dentista:consulta' c.id %}" title="Ver expediente">
+                                                    <a href="{% url 'dentista:consulta' c.id %}" title="{% trans 'Ver expediente' %}">
                                                         <i class="ph-bold ph-file-text"></i>
                                                     </a>
-                                                    <a href="{% url 'dentista:crear_cita_manual' %}?paciente={{ c.paciente.id }}&fecha={{ c.fecha|date:'Y-m-d' }}" title="Modificar">
+                                                    <a href="{% url 'dentista:crear_cita_manual' %}?paciente={{ c.paciente.id }}&fecha={{ c.fecha|date:'Y-m-d' }}" title="{% trans 'Modificar' %}">
                                                         <i class="ph-bold ph-pencil-simple"></i>
                                                     </a>
                                                     <form method="post" action="{% url 'dentista:eliminar_cita' c.id %}" class="js-delete-form" style="margin:0;">
                                                         {% csrf_token %}
-                                                        <button type="button" data-nombre="{{ c.paciente.nombre }}" title="Eliminar">
+                                                        <button type="button" data-nombre="{{ c.paciente.nombre }}" title="{% trans 'Eliminar' %}">
                                                             <i class="ph-bold ph-trash"></i>
                                                         </button>
                                                     </form>
@@ -439,12 +451,12 @@
                                         {% endwith %}
                                     {% endfor %}
                                 {% else %}
-                                    <div class="empty-day">Sin citas</div>
+                                    <div class="empty-day">{% trans "Sin citas" %}</div>
                                 {% endif %}
                             </div>
 
                             {% if dia.tipo_dia == 'laboral' %}
-                                <a class="add-link" href="{% url 'dentista:crear_cita_manual' %}?fecha={{ dia.fecha|date:'Y-m-d' }}"><i class="ph-bold ph-plus-circle"></i> Agendar</a>
+                                <a class="add-link" href="{% url 'dentista:crear_cita_manual' %}?fecha={{ dia.fecha|date:'Y-m-d' }}"><i class="ph-bold ph-plus-circle"></i> {% trans "Agendar" %}</a>
                             {% endif %}
                         </div>
                     {% endfor %}
@@ -462,14 +474,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const form = this.closest('form');
             const nombre = this.dataset.nombre || 'la cita';
             Swal.fire({
-                title: '¿Eliminar cita?',
+                title: '{% filter escapejs %}{% trans "¿Eliminar cita?" %}{% endfilter %}',
                 text: `Se eliminará la cita de ${nombre}`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 cancelButtonColor: '#334155',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
+                confirmButtonText: '{% filter escapejs %}{% trans "Sí, eliminar" %}{% endfilter %}',
+                cancelButtonText: '{% filter escapejs %}{% trans "Cancelar" %}{% endfilter %}'
             }).then((result) => {
                 if (result.isConfirmed) {
                     form.submit();

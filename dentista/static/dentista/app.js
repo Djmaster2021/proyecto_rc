@@ -13,6 +13,54 @@
       - Alertas (SweetAlert)
    ========================================================================== */
 
+/* ---------------------------------------------------------
+   TRADUCCIÓN DE TEXTOS DE LA INTERFAZ (es -> en según <html lang>)
+   rcT("texto en español", {var: valor}) devuelve el texto en el idioma activo.
+   --------------------------------------------------------- */
+var RC_LANG_EN = (document.documentElement.lang || "es").slice(0, 2) === "en";
+var RC_EN = {
+  "¿Eliminar Cita?": "Delete appointment?",
+  "¿Eliminar cita?": "Delete appointment?",
+  "Estás a punto de borrar la cita de <strong>{n}</strong>.<br>Esta acción no se puede deshacer.": "You are about to delete <strong>{n}</strong>'s appointment.<br>This action cannot be undone.",
+  "Sí, eliminar": "Yes, delete",
+  "Cancelar": "Cancel",
+  "¿Eliminar Expediente?": "Delete patient record?",
+  "Estás a punto de eliminar a <strong>{n}</strong> y TODO su historial clínico.<br><br><span style=\"color:#ef4444; font-weight:bold;\">⚠️ Esta acción es irreversible.</span>": "You are about to delete <strong>{n}</strong> and ALL of their clinical history.<br><br><span style=\"color:#ef4444; font-weight:bold;\">⚠️ This action is irreversible.</span>",
+  "Nuevo Servicio": "New service",
+  "Editar Servicio": "Edit service",
+  "¿Eliminar Servicio?": "Delete service?",
+  "¿Eliminar servicio?": "Delete service?",
+  "Se eliminará \"{n}\" del catálogo.": "\"{n}\" will be removed from the catalog.",
+  "¿Cancelar esta consulta?": "Cancel this consultation?",
+  "La cita se marcará como cancelada y volverás al inicio.": "The appointment will be marked as cancelled and you'll return to the dashboard.",
+  "Sí, cancelar": "Yes, cancel",
+  "Continuar editando": "Keep editing",
+  "Buscar paciente por nombre...": "Search patient by name...",
+  "Buscar paciente...": "Search patient...",
+  "Cargando...": "Loading...",
+  "No laborable / Descanso": "Non-working day / Day off",
+  "Selecciona hora inicio": "Select start time",
+  "Agenda llena este día": "Fully booked this day",
+  "¿Eliminar horario?": "Delete schedule?",
+  "este día": "this day",
+  "Vas a eliminar el bloque {d} {h}. No se podrá agendar en ese horario.": "You're about to delete the {d} {h} block. Appointments can't be booked in that time.",
+  "Se eliminará la cita de {n}": "{n}'s appointment will be deleted",
+  "Estás a punto de borrar el servicio \"{n}\". Esta acción no se puede deshacer.": "You are about to delete the service \"{n}\". This action cannot be undone.",
+  "este servicio": "this service",
+  "¿Inhabilitar servicio?": "Disable service?",
+  "¿Activar servicio?": "Enable service?",
+  "Sí, inhabilitar": "Yes, disable",
+  "Sí, activar": "Yes, enable",
+  "Estás a punto de inhabilitar \"{n}\". El servicio ya no podrá ser agendado por los pacientes.": "You are about to disable \"{n}\". Patients will no longer be able to book it.",
+  "Estás a punto de activar \"{n}\". El servicio volverá a estar disponible para agendar.": "You are about to enable \"{n}\". It will be available for booking again."
+};
+function rcT(es, vars) {
+  var s = (RC_LANG_EN && RC_EN[es]) || es;
+  if (vars) Object.keys(vars).forEach(function (k) { s = s.split("{" + k + "}").join(vars[k]); });
+  return s;
+}
+window.rcT = rcT;
+
    document.addEventListener("DOMContentLoaded", function () {
     
     /* ---------------------------------------------------------
@@ -225,16 +273,14 @@ window.filterAgenda = function(viewType) {
 // --- 2. ALERTAS (SweetAlert Tema Claro) ---
 window.confirmarEliminacion = function(btnElement, nombrePaciente) {
     Swal.fire({
-        title: '¿Eliminar Cita?',
-        html: `Estás a punto de borrar la cita de <strong>${nombrePaciente}</strong>.<br>Esta acción no se puede deshacer.`,
+        title: rcT('¿Eliminar Cita?'),
+        html: rcT('Estás a punto de borrar la cita de <strong>{n}</strong>.<br>Esta acción no se puede deshacer.', {n: nombrePaciente}),
         icon: 'warning',
-        background: '#ffffff',       // Fondo Blanco
-        color: '#0f172a',            // Texto Oscuro
         showCancelButton: true,
         confirmButtonColor: '#ef4444', // Rojo Peligro
         cancelButtonColor: '#cbd5e1',  // Gris Suave
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar',
+        confirmButtonText: rcT('Sí, eliminar'),
+        cancelButtonText: rcT('Cancelar'),
         cancelButtonColor: '#64748b',
         reverseButtons: true,
         customClass: {
@@ -410,16 +456,14 @@ window.updateTicket = function() {
 // --- 7. ELIMINAR PACIENTE (SweetAlert) ---
 window.confirmarEliminarPaciente = function(btnElement, nombrePaciente) {
     Swal.fire({
-        title: '¿Eliminar Expediente?',
-        html: `Estás a punto de eliminar a <strong>${nombrePaciente}</strong> y TODO su historial clínico.<br><br><span style="color:#ef4444; font-weight:bold;">⚠️ Esta acción es irreversible.</span>`,
+        title: rcT('¿Eliminar Expediente?'),
+        html: rcT('Estás a punto de eliminar a <strong>{n}</strong> y TODO su historial clínico.<br><br><span style="color:#ef4444; font-weight:bold;">⚠️ Esta acción es irreversible.</span>', {n: nombrePaciente}),
         icon: 'warning',
-        background: '#fff',
-        color: '#0f172a',
         showCancelButton: true,
         confirmButtonColor: '#ef4444',
         cancelButtonColor: '#cbd5e1',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar',
+        confirmButtonText: rcT('Sí, eliminar'),
+        cancelButtonText: rcT('Cancelar'),
         reverseButtons: true,
         customClass: { popup: 'swal-clean-popup' }
     }).then((result) => {
@@ -482,7 +526,7 @@ window.abrirModalServicio = function() {
     if(!modalServicio) return;
     
     // Limpiar formulario para crear nuevo
-    document.getElementById('modalTitle').innerText = "Nuevo Servicio";
+    document.getElementById('modalTitle').innerText = rcT('Nuevo Servicio');
     document.getElementById('servicio_id').value = "";
     document.getElementById('nombre').value = "";
     document.getElementById('precio').value = "";
@@ -497,7 +541,7 @@ window.editarServicio = function(id, nombre, precio, duracion, activo) {
     if(!modalServicio) return;
 
     // Llenar formulario con datos existentes
-    document.getElementById('modalTitle').innerText = "Editar Servicio";
+    document.getElementById('modalTitle').innerText = rcT('Editar Servicio');
     document.getElementById('servicio_id').value = id;
     document.getElementById('nombre').value = nombre;
     // Asegurar formato decimal con punto para el input number
@@ -519,13 +563,12 @@ window.cerrarModalServicio = function() {
 // Función SweetAlert para eliminar servicio (Consistente con Pacientes)
 window.confirmarEliminarServicio = function(btnElement, nombreServicio) {
     Swal.fire({
-        title: '¿Eliminar Servicio?',
-        text: `Se eliminará "${nombreServicio}" del catálogo.`,
+        title: rcT('¿Eliminar Servicio?'),
+        text: rcT('Se eliminará "{n}" del catálogo.', {n: nombreServicio}),
         icon: 'warning',
-        background: '#fff', color: '#0f172a',
-        showCancelButton: true,
+                showCancelButton: true,
         confirmButtonColor: '#ef4444', cancelButtonColor: '#cbd5e1',
-        confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar',
+        confirmButtonText: rcT('Sí, eliminar'), cancelButtonText: rcT('Cancelar'),
         reverseButtons: true,
         customClass: { popup: 'swal-clean-popup' }
     }).then((result) => {
@@ -596,15 +639,14 @@ document.addEventListener("DOMContentLoaded", function() {
 // --- 13. GESTIÓN DE CONSULTA ---
 window.cancelarCitaDesdeConsulta = function() {
     Swal.fire({
-        title: '¿Cancelar esta consulta?',
-        text: "La cita se marcará como cancelada y volverás al inicio.",
+        title: rcT('¿Cancelar esta consulta?'),
+        text: rcT("La cita se marcará como cancelada y volverás al inicio."),
         icon: 'warning',
-        background: '#fff', color: '#0f172a',
-        showCancelButton: true,
+                showCancelButton: true,
         confirmButtonColor: '#ef4444',
         cancelButtonColor: '#cbd5e1',
-        confirmButtonText: 'Sí, cancelar',
-        cancelButtonText: 'Continuar editando',
+        confirmButtonText: rcT('Sí, cancelar'),
+        cancelButtonText: rcT('Continuar editando'),
         reverseButtons: true,
         customClass: { popup: 'swal-clean-popup' }
     }).then((result) => {
@@ -642,7 +684,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Requiere jQuery cargado antes
     if (typeof $ !== 'undefined' && $('.select2-patient').length) {
         $('.select2-patient').select2({
-            placeholder: "Buscar paciente por nombre...",
+            placeholder: rcT("Buscar paciente por nombre..."),
             width: '100%',
             language: { noResults: () => "No encontrado" }
         });
@@ -706,7 +748,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // 1. Inicializar Select2
     if (typeof $ !== 'undefined' && $('.select2-patient').length) {
         $('.select2-patient').select2({
-            placeholder: "Buscar paciente...",
+            placeholder: rcT("Buscar paciente..."),
             width: '100%'
         });
     }
@@ -729,14 +771,14 @@ document.addEventListener("DOMContentLoaded", function() {
             const jsToDjangoDay = { 1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 0:7 }; 
             const diaDjango = jsToDjangoDay[diaSemana];
 
-            selectHora.innerHTML = '<option value="">Cargando...</option>';
+            selectHora.innerHTML = '<option value="">' + rcT('Cargando...') + '</option>';
             selectHora.disabled = true;
 
             // Verificar si trabaja ese día
             const horarioDia = horariosData[diaDjango]; // Busca en el JSON
             
             if (!horarioDia) {
-                selectHora.innerHTML = '<option value="">No laborable / Descanso</option>';
+                selectHora.innerHTML = '<option value="">' + rcT('No laborable / Descanso') + '</option>';
                 return;
             }
 
@@ -745,7 +787,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const citasEseDia = ocupadasData[fechaSeleccionada] || [];
 
             // Filtrar ocupados
-            selectHora.innerHTML = '<option value="" selected disabled>Selecciona hora inicio</option>';
+            selectHora.innerHTML = '<option value="" selected disabled>' + rcT('Selecciona hora inicio') + '</option>';
             
             let slotsDisponibles = 0;
             slots.forEach(hora => {
@@ -759,7 +801,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
 
             if (slotsDisponibles === 0) {
-                selectHora.innerHTML = '<option value="">Agenda llena este día</option>';
+                selectHora.innerHTML = '<option value="">' + rcT('Agenda llena este día') + '</option>';
             } else {
                 selectHora.disabled = false;
             }
@@ -923,7 +965,7 @@ function abrirModalServicio() {
     if (!modal) return;
 
     modal.style.display = 'flex';
-    document.getElementById('modalTitle').textContent = 'Nuevo Servicio';
+    document.getElementById('modalTitle').textContent = rcT('Nuevo Servicio');
     
     // Limpiar formulario
     document.getElementById('formId').value = '';
@@ -939,7 +981,7 @@ function editarServicio(id, nombre, precio, duracion, activo) {
     if (!modal) return;
 
     modal.style.display = 'flex';
-    document.getElementById('modalTitle').textContent = 'Editar Servicio';
+    document.getElementById('modalTitle').textContent = rcT('Editar Servicio');
     
     // Llenar formulario con datos
     document.getElementById('formId').value = id;
@@ -1198,18 +1240,18 @@ document.addEventListener("DOMContentLoaded", function () {
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         const href = btn.getAttribute("href");
-        const dia = btn.dataset.dia || "este día";
+        const dia = btn.dataset.dia || rcT("este día");
         const hora = btn.dataset.hora || "";
-        const texto = `Vas a eliminar el bloque ${dia} ${hora}. No se podrá agendar en ese horario.`;
+        const texto = rcT("Vas a eliminar el bloque {d} {h}. No se podrá agendar en ese horario.", {d: dia, h: hora});
 
         if (typeof Swal !== "undefined") {
           Swal.fire({
-            title: "¿Eliminar horario?",
+            title: rcT("¿Eliminar horario?"),
             text: texto,
             icon: "warning",
             showCancelButton: true,
-            confirmButtonText: "Sí, eliminar",
-            cancelButtonText: "Cancelar",
+            confirmButtonText: rcT('Sí, eliminar'),
+            cancelButtonText: rcT('Cancelar'),
             confirmButtonColor: "#ef4444",
             cancelButtonColor: "#94a3b8",
           }).then((result) => {
@@ -1347,14 +1389,14 @@ function seleccionarSlot(btnElement, hora) {
 // Confirmación de eliminación (SweetAlert)
 function confirmarEliminacion(btn, nombre) {
     Swal.fire({
-        title: '¿Eliminar cita?',
-        text: `Se eliminará la cita de ${nombre}`,
+        title: rcT('¿Eliminar cita?'),
+        text: rcT('Se eliminará la cita de {n}', {n: nombre}),
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#ef4444',
         cancelButtonColor: '#334155',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
+        confirmButtonText: rcT('Sí, eliminar'),
+        cancelButtonText: rcT('Cancelar')
     }).then((result) => {
         if (result.isConfirmed) {
             btn.closest('form').submit();
@@ -1557,7 +1599,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".btn-servicio-delete").forEach((btn) => {
       btn.addEventListener("click", () => {
         const id = btn.dataset.id;
-        const nombre = btn.dataset.nombre || "este servicio";
+        const nombre = btn.dataset.nombre || rcT("este servicio");
   
         if (typeof Swal === "undefined") {
           if (confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`)) {
@@ -1569,12 +1611,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
   
         Swal.fire({
-          title: "¿Eliminar servicio?",
-          text: `Estás a punto de borrar el servicio "${nombre}". Esta acción no se puede deshacer.`,
+          title: rcT("¿Eliminar servicio?"),
+          text: rcT('Estás a punto de borrar el servicio "{n}". Esta acción no se puede deshacer.', {n: nombre}),
           icon: "warning",
           showCancelButton: true,
-          confirmButtonText: "Sí, eliminar",
-          cancelButtonText: "Cancelar",
+          confirmButtonText: rcT('Sí, eliminar'),
+          cancelButtonText: rcT('Cancelar'),
         }).then((result) => {
           if (result.isConfirmed) {
             document
@@ -1589,7 +1631,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".btn-servicio-toggle").forEach((btn) => {
       btn.addEventListener("click", () => {
         const id = btn.dataset.id;
-        const nombre = btn.dataset.nombre || "este servicio";
+        const nombre = btn.dataset.nombre || rcT("este servicio");
         const activo = btn.dataset.activo === "true";
   
         const accion = activo ? "inhabilitar" : "activar";
@@ -1612,12 +1654,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
   
         Swal.fire({
-          title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} servicio?`,
-          text: `Estás a punto de ${accion} "${nombre}". El servicio ${descripcion}`,
+          title: activo ? rcT("¿Inhabilitar servicio?") : rcT("¿Activar servicio?"),
+          text: activo
+            ? rcT('Estás a punto de inhabilitar "{n}". El servicio ya no podrá ser agendado por los pacientes.', {n: nombre})
+            : rcT('Estás a punto de activar "{n}". El servicio volverá a estar disponible para agendar.', {n: nombre}),
           icon: "warning",
           showCancelButton: true,
-          confirmButtonText: `Sí, ${accion}`,
-          cancelButtonText: "Cancelar",
+          confirmButtonText: activo ? rcT("Sí, inhabilitar") : rcT("Sí, activar"),
+          cancelButtonText: rcT('Cancelar'),
         }).then((result) => {
           if (result.isConfirmed) {
             document

@@ -1,10 +1,11 @@
+{% load i18n %}
 {% load static %}
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Reporte | {{ dentista.nombre }}</title>
+  <title>{% trans "Reporte" %} | {{ dentista.nombre }}</title>
   <style>
     body { font-family: 'Inter', Arial, sans-serif; background:#0f172a; color:#e2e8f0; margin:0; padding:0; }
     .wrap { max-width: 1024px; margin: 0 auto; padding: 32px 24px 48px; }
@@ -34,13 +35,13 @@
   <div class="wrap">
     <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
       <div>
-        <h1>RC DENTAL</h1>
-        <div class="subtitle">Reporte oficial de actividades</div>
+        <h1>{% trans "RC DENTAL" %}</h1>
+        <div class="subtitle">{% trans "Reporte oficial de actividades" %}</div>
       </div>
       <div class="meta">
         <div>Dr(a). {{ dentista.nombre }}</div>
-        <div>Generado: {% now "d/m/Y H:i" %}</div>
-        <div>Periodo: {{ fecha_inicio|date:"d/m/Y" }} — {{ fecha_fin|date:"d/m/Y" }}</div>
+        <div>{% trans "Generado:" %} {% now "d/m/Y H:i" %}</div>
+        <div>{% trans "Periodo" %}: {{ fecha_inicio|date:"d/m/Y" }} — {{ fecha_fin|date:"d/m/Y" }}</div>
       </div>
     </div>
 
@@ -49,11 +50,11 @@
     <table>
       <thead>
         <tr>
-          <th>Fecha</th>
-          <th>Paciente</th>
-          <th>Tratamiento</th>
-          <th>Estado</th>
-          <th style="text-align:right;">Monto</th>
+          <th>{% trans "Fecha" %}</th>
+          <th>{% trans "Paciente" %}</th>
+          <th>{% trans "Tratamiento" %}</th>
+          <th>{% trans "Estado" %}</th>
+          <th style="text-align:right;">{% trans "Monto" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -65,11 +66,11 @@
           <td>{{ c.servicio.nombre }}</td>
           <td>
             {% if c.estado == "COMPLETADA" %}
-              <span class="pill pill-green">COMPLETADA</span>
+              <span class="pill pill-green">{% trans "COMPLETADA" %}</span>
             {% elif c.estado == "PENDIENTE" %}
-              <span class="pill pill-yellow">PENDIENTE</span>
+              <span class="pill pill-yellow">{% trans "PENDIENTE" %}</span>
             {% else %}
-              <span class="pill pill-blue">{{ c.estado }}</span>
+              <span class="pill pill-blue">{% trans c.estado %}</span>
             {% endif %}
           </td>
           <td style="text-align:right;">
@@ -82,19 +83,19 @@
         </tr>
         {% endwith %}
         {% empty %}
-        <tr><td colspan="5" style="text-align:center; padding:16px; color:#94a3b8;">Sin datos en el rango.</td></tr>
+        <tr><td colspan="5" style="text-align:center; padding:16px; color:#94a3b8;">{% trans "Sin datos en el rango." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>
 
     <div class="footer">
       <div class="qr-box">
-        <img src="{% static 'img/favicon.png' %}" alt="QR/Logo">
+        <img src="{% static 'img/favicon.png' %}" alt="{% trans 'QR/Logo' %}">
       </div>
       <div class="totals">
-        <strong>Total Citas: {{ total_citas }}</strong>
-        <strong>Pacientes: {{ total_pacientes }}</strong>
-        <div class="total-amount">TOTAL: ${{ total_monto|floatformat:2 }}</div>
+        <strong>{% trans "Total Citas" %}: {{ total_citas }}</strong>
+        <strong>{% trans "Pacientes" %}: {{ total_pacientes }}</strong>
+        <div class="total-amount">{% trans "TOTAL" %}: ${{ total_monto|floatformat:2 }}</div>
       </div>
     </div>
   </div>

@@ -1,4 +1,5 @@
 {% extends "dentista/base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block dtitle %}Penalizaciones | RC Dental{% endblock %}
@@ -7,43 +8,43 @@
 
 <div class="page-header" style="margin-bottom: 2rem;">
   <div>
-    <h1 style="font-size: 1.8rem; font-weight: 700; color: #1e293b; margin: 0;">Penalizaciones y Riesgos</h1>
-    <p style="color: #64748b; margin-top: 0.5rem; font-size: 1rem;">Gestión de inasistencias, bloqueos manuales y deudas.</p>
+    <h1 style="font-size: 1.8rem; font-weight: 700; color:var(--dk-tx-1e293b, #1e293b); margin: 0;">{% trans "Penalizaciones y Riesgos" %}</h1>
+    <p style="color:var(--dk-tx-64748b, #64748b); margin-top: 0.5rem; font-size: 1rem;">{% trans "Gestión de inasistencias, bloqueos manuales y deudas." %}</p>
   </div>
 </div>
 
 <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
   
-  <div class="cyber-card" style="border-left: 4px solid #f59e0b;">
+  <div class="cyber-card" style="border-left:4px solid #f59e0b;">
     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
       <div style="display: flex; gap: 12px; align-items: center;">
-        <div style="background: #fef3c7; padding: 10px; border-radius: 10px;">
-          <i class="ph-duotone ph-robot" style="font-size: 1.5rem; color: #d97706;"></i>
+        <div style="background:var(--dk-bg-fef3c7, #fef3c7); padding: 10px; border-radius:10px;">
+          <i class="ph-duotone ph-robot" style="font-size: 1.5rem; color:#d97706;"></i>
         </div>
         <div>
-          <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Regla Automática</h3>
-          <span class="badge-pill badge-green" style="margin-top: 4px; display: inline-block;">IA Activa</span>
+          <h3 style="margin: 0; font-size: 1.1rem; color:var(--dk-tx-1e293b, #1e293b);">{% trans "Regla Automática" %}</h3>
+          <span class="badge-pill badge-green" style="margin-top: 4px; display: inline-block;">{% trans "IA Activa" %}</span>
         </div>
       </div>
     </div>
     
-    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">
-      El sistema detecta automáticamente las inasistencias confirmadas.
+    <p style="color:var(--dk-tx-64748b, #64748b); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">
+      {% trans "El sistema detecta automáticamente las inasistencias confirmadas." %}
     </p>
 
     <div class="penal-steps">
       <div class="step-item">
         <span class="step-badge warning">1</span>
         <div class="step-content">
-          <strong>Advertencia</strong>
-          <p>Alerta visual en el perfil del paciente.</p>
+          <strong>{% trans "Advertencia" %}</strong>
+          <p>{% trans "Alerta visual en el perfil del paciente." %}</p>
         </div>
       </div>
       <div class="step-item">
         <span class="step-badge danger">2</span>
         <div class="step-content">
-          <strong>Bloqueo Temporal</strong>
-          <p>Suspensión de citas online por 30 días.</p>
+          <strong>{% trans "Bloqueo Temporal" %}</strong>
+          <p>{% trans "Suspensión de citas online por 30 días." %}</p>
         </div>
       </div>
     </div>
@@ -54,64 +55,64 @@
 <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
   <div class="cyber-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
-      <h3 style="margin:0;font-size:1rem;color:#1e293b;">Penalizadas (con recargo)</h3>
+      <h3 style="margin:0;font-size:1rem;color:var(--dk-tx-1e293b, #1e293b);">{% trans "Penalizadas (con recargo)" %}</h3>
       <span class="badge-pill badge-danger">{{ estado_grupos.penalizadas|length }}</span>
     </div>
-    <p style="color:#64748b;font-size:0.9rem;margin:0 0 0.8rem;">Tienen cargo pendiente ($300) y bloqueo temporal.</p>
+    <p style="color:var(--dk-tx-64748b, #64748b);font-size:0.9rem;margin:0 0 0.8rem;">{% trans "Tienen cargo pendiente ($300) y bloqueo temporal." %}</p>
     <div class="timeline-feed">
       {% for item in estado_grupos.penalizadas %}
       <div class="feed-item">
         <div class="feed-icon danger"></div>
         <div class="feed-content">
           <p class="feed-title"><strong>{{ item.paciente.nombre }}</strong> — {{ item.info.recargo|floatformat:0 }} MXN</p>
-          <p class="feed-meta">Inasistencias: {{ item.info.inasistencias }}{% if item.info.dias_restantes %} • {{ item.info.dias_restantes }}d restantes{% endif %}</p>
-          <form method="POST" action="." style="margin-top:6px;display:inline-flex;gap:8px;">
+          <p class="feed-meta">{% trans "Inasistencias" %}: {{ item.info.inasistencias }}{% if item.info.dias_restantes %} • {% blocktrans with d=item.info.dias_restantes %}{{ d }}d restantes{% endblocktrans %}{% endif %}</p>
+          <form method="POST" action="." class="form-riesgo-accion" style="margin-top:6px;display:inline-flex;gap:8px;">
             {% csrf_token %}
             <input type="hidden" name="paciente_id" value="{{ item.paciente.id }}">
-            <button type="submit" name="accion" value="suspender" class="btn-action danger" style="padding:6px 10px;">Desactivar</button>
-            <button type="submit" name="accion" value="reactivar" class="btn-action success" style="padding:6px 10px;">Reactivar</button>
+            <button type="submit" name="accion" value="suspender" class="btn-action danger" style="padding:6px 10px;">{% trans "Desactivar" %}</button>
+            <button type="submit" name="accion" value="reactivar" class="btn-action success" style="padding:6px 10px;">{% trans "Reactivar" %}</button>
           </form>
         </div>
       </div>
       {% empty %}
-      <p style="color:#94a3b8;font-size:0.9rem;">Sin cuentas penalizadas.</p>
+      <p style="color:var(--dk-tx-94a3b8, #94a3b8);font-size:0.9rem;">{% trans "Sin cuentas penalizadas." %}</p>
       {% endfor %}
     </div>
   </div>
 
   <div class="cyber-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
-      <h3 style="margin:0;font-size:1rem;color:#1e293b;">Advertidas</h3>
+      <h3 style="margin:0;font-size:1rem;color:var(--dk-tx-1e293b, #1e293b);">{% trans "Advertidas" %}</h3>
       <span class="badge-pill badge-warning">{{ estado_grupos.advertidas|length }}</span>
     </div>
-    <p style="color:#64748b;font-size:0.9rem;margin:0 0 0.8rem;">Primera falta registrada; la siguiente genera penalización.</p>
+    <p style="color:var(--dk-tx-64748b, #64748b);font-size:0.9rem;margin:0 0 0.8rem;">{% trans "Primera falta registrada; la siguiente genera penalización." %}</p>
     <div class="timeline-feed">
       {% for item in estado_grupos.advertidas %}
       <div class="feed-item">
         <div class="feed-icon warning"></div>
           <div class="feed-content">
           <p class="feed-title"><strong>{{ item.paciente.nombre }}</strong></p>
-          <p class="feed-meta">Inasistencias: {{ item.info.inasistencias }}</p>
-          <form method="POST" action="." style="margin-top:6px;display:inline-flex;gap:8px;">
+          <p class="feed-meta">{% trans "Inasistencias" %}: {{ item.info.inasistencias }}</p>
+          <form method="POST" action="." class="form-riesgo-accion" style="margin-top:6px;display:inline-flex;gap:8px;">
             {% csrf_token %}
             <input type="hidden" name="paciente_id" value="{{ item.paciente.id }}">
-            <button type="submit" name="accion" value="penalizar" class="btn-action danger" style="padding:6px 10px;">Aplicar penalización</button>
-            <button type="submit" name="accion" value="suspender" class="btn-action danger" style="padding:6px 10px;">Desactivar</button>
+            <button type="submit" name="accion" value="penalizar" class="btn-action danger" style="padding:6px 10px;">{% trans "Aplicar penalización" %}</button>
+            <button type="submit" name="accion" value="suspender" class="btn-action danger" style="padding:6px 10px;">{% trans "Desactivar" %}</button>
           </form>
         </div>
       </div>
       {% empty %}
-      <p style="color:#94a3b8;font-size:0.9rem;">Sin advertencias activas.</p>
+      <p style="color:var(--dk-tx-94a3b8, #94a3b8);font-size:0.9rem;">{% trans "Sin advertencias activas." %}</p>
       {% endfor %}
     </div>
   </div>
 
   <div class="cyber-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
-      <h3 style="margin:0;font-size:1rem;color:#1e293b;">Inhabilitadas</h3>
+      <h3 style="margin:0;font-size:1rem;color:var(--dk-tx-1e293b, #1e293b);">{% trans "Inhabilitadas" %}</h3>
       <span class="badge-pill badge-gray">{{ estado_grupos.inhabilitadas|length }}</span>
     </div>
-    <p style="color:#64748b;font-size:0.9rem;margin:0 0 0.8rem;">Cuenta bloqueada (manual o por penalización vencida).</p>
+    <p style="color:var(--dk-tx-64748b, #64748b);font-size:0.9rem;margin:0 0 0.8rem;">{% trans "Cuenta bloqueada (manual o por penalización vencida)." %}</p>
     <div class="timeline-feed">
       {% for item in estado_grupos.inhabilitadas %}
       <div class="feed-item">
@@ -119,44 +120,44 @@
         <div class="feed-content">
           <p class="feed-title"><strong>{{ item.paciente.nombre }}</strong></p>
           <p class="feed-meta">
-            {% if item.info.estado == 'disabled' %}Penalización vencida{% else %}Cuenta desactivada{% endif %}
+            {% if item.info.estado == 'disabled' %}{% trans "Penalización vencida" %}{% else %}{% trans "Cuenta desactivada" %}{% endif %}
           </p>
-          <form method="POST" action="." style="margin-top:6px;">
+          <form method="POST" action="." class="form-riesgo-accion" style="margin-top:6px;">
             {% csrf_token %}
             <input type="hidden" name="paciente_id" value="{{ item.paciente.id }}">
-            <button type="submit" name="accion" value="reactivar" class="btn-action success" style="padding:6px 10px;">Reactivar cuenta</button>
+            <button type="submit" name="accion" value="reactivar" class="btn-action success" style="padding:6px 10px;">{% trans "Reactivar cuenta" %}</button>
           </form>
         </div>
       </div>
       {% empty %}
-      <p style="color:#94a3b8;font-size:0.9rem;">Sin cuentas inhabilitadas.</p>
+      <p style="color:var(--dk-tx-94a3b8, #94a3b8);font-size:0.9rem;">{% trans "Sin cuentas inhabilitadas." %}</p>
       {% endfor %}
     </div>
   </div>
 
   <div class="cyber-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
-      <h3 style="margin:0;font-size:1rem;color:#1e293b;">Activas</h3>
+      <h3 style="margin:0;font-size:1rem;color:var(--dk-tx-1e293b, #1e293b);">{% trans "Activas" %}</h3>
       <span class="badge-pill badge-green">{{ estado_grupos.activas|length }}</span>
     </div>
-    <p style="color:#64748b;font-size:0.9rem;margin:0 0 0.8rem;">Sin penalización ni bloqueos.</p>
+    <p style="color:var(--dk-tx-64748b, #64748b);font-size:0.9rem;margin:0 0 0.8rem;">{% trans "Sin penalización ni bloqueos." %}</p>
     <div class="timeline-feed">
       {% for item in estado_grupos.activas %}
       <div class="feed-item">
         <div class="feed-icon success"></div>
         <div class="feed-content">
           <p class="feed-title"><strong>{{ item.paciente.nombre }}</strong></p>
-          <p class="feed-meta">Inasistencias: {{ item.info.inasistencias }}</p>
-          <form method="POST" action="." style="margin-top:6px;display:inline-flex;gap:8px;flex-wrap:wrap;">
+          <p class="feed-meta">{% trans "Inasistencias" %}: {{ item.info.inasistencias }}</p>
+          <form method="POST" action="." class="form-riesgo-accion" style="margin-top:6px;display:inline-flex;gap:8px;flex-wrap:wrap;">
             {% csrf_token %}
             <input type="hidden" name="paciente_id" value="{{ item.paciente.id }}">
-            <button type="submit" name="accion" value="advertencia" class="btn-action warning" style="padding:6px 10px;">Advertir</button>
-            <button type="submit" name="accion" value="suspender" class="btn-action danger" style="padding:6px 10px;">Desactivar</button>
+            <button type="submit" name="accion" value="advertencia" class="btn-action warning" style="padding:6px 10px;">{% trans "Advertir" %}</button>
+            <button type="submit" name="accion" value="suspender" class="btn-action danger" style="padding:6px 10px;">{% trans "Desactivar" %}</button>
           </form>
         </div>
       </div>
       {% empty %}
-      <p style="color:#94a3b8;font-size:0.9rem;">Aún no hay pacientes activos.</p>
+      <p style="color:var(--dk-tx-94a3b8, #94a3b8);font-size:0.9rem;">{% trans "Aún no hay pacientes activos." %}</p>
       {% endfor %}
     </div>
   </div>
@@ -165,53 +166,53 @@
 <div class="dashboard-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
   
   <div class="cyber-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
-    <div style="padding: 1.5rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-      <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Pagos Pendientes</h3>
-      <span class="badge-pill badge-gray">{{ pendientes.count }} casos</span>
+    <div style="padding: 1.5rem; border-bottom:1px solid var(--dk-bd-f1f5f9, #f1f5f9); display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0; font-size: 1.1rem; color:var(--dk-tx-1e293b, #1e293b);">{% trans "Pagos Pendientes" %}</h3>
+      <span class="badge-pill badge-gray">{% blocktrans count n=pendientes.count %}{{ n }} caso{% plural %}{{ n }} casos{% endblocktrans %}</span>
     </div>
 
     <div class="table-responsive">
       <table class="finance-table" style="width: 100%;">
-        <thead style="background: #f8fafc;">
+        <thead style="background:var(--dk-bg-f8fafc, #f8fafc);">
           <tr>
-            <th style="padding: 1rem; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Paciente</th>
-            <th style="padding: 1rem; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Concepto</th>
-            <th style="padding: 1rem; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Monto</th>
-            <th style="padding: 1rem; text-align: right; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Acción</th>
+            <th style="padding: 1rem; color:var(--dk-tx-64748b, #64748b); font-size: 0.8rem; text-transform: uppercase;">{% trans "Paciente" %}</th>
+            <th style="padding: 1rem; color:var(--dk-tx-64748b, #64748b); font-size: 0.8rem; text-transform: uppercase;">{% trans "Concepto" %}</th>
+            <th style="padding: 1rem; color:var(--dk-tx-64748b, #64748b); font-size: 0.8rem; text-transform: uppercase;">{% trans "Monto" %}</th>
+            <th style="padding: 1rem; text-align: right; color:var(--dk-tx-64748b, #64748b); font-size: 0.8rem; text-transform: uppercase;">{% trans "Acción" %}</th>
           </tr>
         </thead>
         <tbody>
           {% for p in pendientes %}
-          <tr style="border-bottom: 1px solid #f1f5f9;">
+          <tr style="border-bottom:1px solid var(--dk-bd-f1f5f9, #f1f5f9);">
             <td style="padding: 1rem;">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 32px; height: 32px; background: #e0f2fe; color: #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">
+                <div style="width: 32px; height: 32px; background:var(--dk-bg-e0f2fe, #e0f2fe); color:#0284c7; border-radius:50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">
                   {{ p.cita.paciente.nombre|slice:":1" }}
                 </div>
                 <div style="display: flex; flex-direction: column;">
-                  <span style="font-weight: 600; color: #334155;">{{ p.cita.paciente.nombre }}</span>
-                  <span style="font-size: 0.8rem; color: #94a3b8;">{{ p.cita.paciente.email|default:"Sin correo" }}</span>
+                  <span style="font-weight: 600; color:var(--dk-tx-334155, #334155);">{{ p.cita.paciente.nombre }}</span>
+                  <span style="font-size: 0.8rem; color:var(--dk-tx-94a3b8, #94a3b8);">{{ p.cita.paciente.email|default:"Sin correo" }}</span>
                 </div>
               </div>
             </td>
             <td style="padding: 1rem;">
-              <span style="display: block; color: #475569;">{{ p.cita.servicio.nombre }}</span>
-              <small style="color: #94a3b8;">{{ p.created_at|date:"d M, Y" }}</small>
+              <span style="display: block; color:var(--dk-tx-475569, #475569);">{{ p.cita.servicio.nombre }}</span>
+              <small style="color:var(--dk-tx-94a3b8, #94a3b8);">{{ p.created_at|date:"d M, Y" }}</small>
             </td>
-            <td style="padding: 1rem; font-weight: 600; color: #ef4444;">
+            <td style="padding: 1rem; font-weight: 600; color:#ef4444;">
               ${{ p.monto }}
             </td>
             <td style="padding: 1rem; text-align: right;">
-              <a href="{% url 'dentista:registrar_pago' %}?cita_id={{ p.cita.id }}" class="btn-icon-sm" title="Cobrar ahora" style="color: #059669; background: #ecfdf5; border: 1px solid #d1fae5; text-decoration: none; padding: 6px 10px; border-radius: 6px; font-size: 0.9rem; font-weight: 600;">
-                 Cobrar
+              <a href="{% url 'dentista:registrar_pago' %}?cita_id={{ p.cita.id }}" class="btn-icon-sm" title="{% trans 'Cobrar ahora' %}" style="color:var(--dk-tx-059669, #059669); background:var(--dk-bg-ecfdf5, #ecfdf5); border:1px solid var(--dk-bd-d1fae5, #d1fae5); text-decoration: none; padding: 6px 10px; border-radius:6px; font-size: 0.9rem; font-weight: 600;">
+                 {% trans "Cobrar" %}
               </a>
             </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="4" style="text-align: center; padding: 3rem; color: #94a3b8;">
-              <i class="ph-duotone ph-check-circle" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; color: #cbd5e1;"></i>
-              No hay pagos pendientes.
+            <td colspan="4" style="text-align: center; padding: 3rem; color:var(--dk-tx-94a3b8, #94a3b8);">
+              <i class="ph-duotone ph-check-circle" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; color:#cbd5e1;"></i>
+              {% trans "No hay pagos pendientes." %}
             </td>
           </tr>
           {% endfor %}
@@ -222,8 +223,8 @@
 
   <div class="cyber-card">
     <div style="margin-bottom: 1.5rem;">
-      <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Historial</h3>
-      <p style="margin: 4px 0 0; font-size: 0.85rem; color: #64748b;">Últimos movimientos.</p>
+      <h3 style="margin: 0; font-size: 1.1rem; color:var(--dk-tx-1e293b, #1e293b);">{% trans "Historial" %}</h3>
+      <p style="margin: 4px 0 0; font-size: 0.85rem; color:var(--dk-tx-64748b, #64748b);">{% trans "Últimos movimientos." %}</p>
     </div>
 
     <div class="timeline-feed">
@@ -238,10 +239,51 @@
         </div>
       </div>
       {% empty %}
-      <p style="color: #94a3b8; font-size: 0.9rem;">Sin registros recientes.</p>
+      <p style="color:var(--dk-tx-94a3b8, #94a3b8); font-size: 0.9rem;">{% trans "Sin registros recientes." %}</p>
       {% endfor %}
     </div>
   </div>
 
 </div>
+
+<script>
+    // Confirmación antes de aplicar cualquier acción sobre el riesgo/penalización
+    // de un paciente (advertir, penalizar, suspender o reactivar).
+    document.addEventListener('DOMContentLoaded', function () {
+        var TEXTOS = {
+            advertencia: { title: '{% filter escapejs %}{% trans "¿Registrar advertencia?" %}{% endfilter %}', text: '{% filter escapejs %}{% trans "Se marcará una advertencia por inasistencia en su expediente." %}{% endfilter %}', icon: 'question', color: '#f59e0b', boton: 'Advertir' },
+            penalizar:   { title: '{% filter escapejs %}{% trans "¿Aplicar penalización?" %}{% endfilter %}', text: '{% filter escapejs %}{% trans "Se generará un cargo de $300 y un bloqueo temporal de la cuenta." %}{% endfilter %}', icon: 'warning', color: '#ef4444', boton: 'Aplicar penalización' },
+            suspender:   { title: '{% filter escapejs %}{% trans "¿Desactivar esta cuenta?" %}{% endfilter %}', text: '{% filter escapejs %}{% trans "El paciente no podrá agendar citas hasta que reactives su cuenta." %}{% endfilter %}', icon: 'warning', color: '#ef4444', boton: 'Desactivar' },
+            reactivar:   { title: '{% filter escapejs %}{% trans "¿Reactivar esta cuenta?" %}{% endfilter %}', text: '{% filter escapejs %}{% trans "El paciente podrá volver a agendar citas con normalidad." %}{% endfilter %}', icon: 'question', color: '#10b981', boton: 'Reactivar' }
+        };
+
+        document.querySelectorAll('form.form-riesgo-accion').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var boton = e.submitter; // Botón específico que disparó el envío
+                var accion = boton ? boton.value : '';
+                var cfg = TEXTOS[accion] || { title: '{% filter escapejs %}{% trans "¿Confirmar acción?" %}{% endfilter %}', text: '{% filter escapejs %}{% trans "¿Deseas continuar?" %}{% endfilter %}', icon: 'question', color: '#10b981', boton: 'Aceptar' };
+
+                rcConfirmar({
+                    title: cfg.title,
+                    text: cfg.text,
+                    icon: cfg.icon,
+                    confirmColor: cfg.color,
+                    confirmButton: cfg.boton
+                }).then(function (ok) {
+                    if (ok) {
+                        // Reinyectamos qué botón se presionó, ya que form.submit()
+                        // no incluye el par nombre/valor del botón pulsado.
+                        var hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = 'accion';
+                        hidden.value = accion;
+                        form.appendChild(hidden);
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 {% endblock %}

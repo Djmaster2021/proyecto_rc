@@ -1,14 +1,27 @@
-{% load static %}
+{% load static i18n %}
+{% get_current_language as CURRENT_LANG %}
 <!doctype html>
-<html lang="es">
+<html lang="{{ CURRENT_LANG|default:'es' }}" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   
   <!-- Título general del módulo Dentista -->
-  <title>{% block dtitle %}Dental RC | Suite Pro{% endblock %}</title>
+  <title>{% block dtitle %}{% trans "Dental RC | Suite Pro" %}{% endblock %}</title>
   
+  <!-- Tema claro/oscuro guardado: se aplica antes de pintar para evitar parpadeo -->
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("dentista-theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
@@ -23,7 +36,10 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
   <!-- Estilos principales del módulo Dentista -->
-  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}?v=8.0">
+  <link rel="stylesheet" href="{% static 'dentista/styles.css' %}?v=8.7">
+  <!-- Modo oscuro (solo aplica con html[data-theme="dark"]) -->
+  <link rel="stylesheet" href="{% static 'dentista/theme-dark.css' %}?v=2.0">
+  <link rel="stylesheet" href="{% static 'dentista/theme.css' %}?v=2.0">
 
   <!-- Espacio para CSS adicional por vista (si alguna plantilla hija lo necesita) -->
   {% block extra_css %}{% endblock %}
@@ -46,10 +62,10 @@
             </div>
             <div class="brand-box-premium">
               <span class="brand-title-premium">
-                  CONSULTORIO <span class="brand-highlight">RC</span>
+                  {% trans "CONSULTORIO" %} <span class="brand-highlight">{% trans "RC" %}</span>
               </span>
               <span class="brand-tagline-premium" style="color: #e2e8f0;">
-                  Tu sonrisa es lo primero
+                  {% trans "Tu sonrisa es lo primero" %}
               </span>
             </div>
         </div>
@@ -65,64 +81,64 @@
       <div class="sidebar-content">
         <!-- Grupo: principal -->
         <div class="nav-group">
-            <span class="nav-caption">PRINCIPAL</span>
+            <span class="nav-caption">{% trans "PRINCIPAL" %}</span>
             <nav class="nav-list">
                 <div class="nav-indicator"></div>
 
                 <!-- Inicio / Dashboard -->
                 <a href="{% url 'dentista:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                     <i class="ph-duotone ph-squares-four"></i>
-                    <span>Inicio</span>
+                    <span>{% trans "Inicio" %}</span>
                 </a>
 
                 <!-- Agenda -->
                 <a href="{% url 'dentista:agenda' %}" class="nav-item {% if 'agenda' in request.path %}active{% endif %}">
                     <i class="ph-duotone ph-calendar-check"></i>
-                    <span>Agenda</span>
+                    <span>{% trans "Agenda" %}</span>
                 </a>
 
                 <!-- Pacientes -->
                 <a href="{% url 'dentista:pacientes' %}" class="nav-item {% if 'pacientes' in request.path or 'detalle_paciente' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="ph-duotone ph-users-three"></i>
-                    <span>Pacientes</span>
+                    <span>{% trans "Pacientes" %}</span>
                 </a>
             </nav>
         </div>
 
         <!-- Grupo: gestión -->
         <div class="nav-group">
-            <span class="nav-caption">GESTIÓN</span>
+            <span class="nav-caption">{% trans "GESTIÓN" %}</span>
             <nav class="nav-list">
                 <a href="{% url 'dentista:pagos' %}" class="nav-item {% if 'pagos' in request.path %}active{% endif %}">
                     <i class="ph-duotone ph-wallet"></i>
-                    <span>Finanzas</span>
+                    <span>{% trans "Finanzas" %}</span>
                 </a>
                 <a href="{% url 'dentista:reportes' %}" class="nav-item {% if 'reportes' in request.path %}active{% endif %}">
                     <i class="ph-duotone ph-chart-pie-slice"></i>
-                    <span>Reportes</span>
+                    <span>{% trans "Reportes" %}</span>
                 </a>
                  <a href="{% url 'dentista:servicios' %}" class="nav-item {% if 'servicios' in request.path %}active{% endif %}">
                     <i class="ph-duotone ph-list-checks"></i>
-                    <span>Servicios</span>
+                    <span>{% trans "Servicios" %}</span>
                 </a>
                  <a href="{% url 'dentista:penalizaciones' %}" class="nav-item {% if 'penalizaciones' in request.path %}active{% endif %}">
                     <i class="ph-duotone ph-warning-octagon"></i>
-                    <span>Riesgos</span>
+                    <span>{% trans "Riesgos" %}</span>
                 </a>
             </nav>
         </div>
 
         <!-- Grupo: sistema -->
         <div class="nav-group">
-            <span class="nav-caption">SISTEMA</span>
+            <span class="nav-caption">{% trans "SISTEMA" %}</span>
             <nav class="nav-list">
                 <a href="{% url 'dentista:configuracion' %}" class="nav-item {% if 'configuracion' in request.path %}active{% endif %}">
                     <i class="ph-duotone ph-sliders-horizontal"></i>
-                    <span>Configuración</span>
+                    <span>{% trans "Configuración" %}</span>
                 </a>
                 <a href="{% url 'dentista:soporte' %}" class="nav-item {% if 'soporte' in request.path %}active{% endif %}">
                     <i class="ph-duotone ph-lifebuoy"></i>
-                    <span>Soporte</span>
+                    <span>{% trans "Soporte" %}</span>
                 </a>
             </nav>
         </div>
@@ -130,22 +146,45 @@
 
       <!-- Footer del sidebar: tarjeta del usuario + logout -->
       <div class="sidebar-footer">
+        <!-- Idioma y tema -->
+        <div class="sidebar-prefs">
+          <div class="pref-lang">
+            {% with path=request.get_full_path %}
+            <form action="{% url 'set_language' %}" method="post">
+              {% csrf_token %}
+              <input name="next" type="hidden" value="{% if path|slice:':4' == '/en/' %}{{ path|slice:'3:' }}{% else %}{{ path }}{% endif %}">
+              <input name="language" type="hidden" value="es">
+              <button type="submit" class="{% if CURRENT_LANG|slice:':2' == 'es' %}active{% endif %}" aria-label="{% trans 'Español' %}">{% trans "ES" %}</button>
+            </form>
+            <form action="{% url 'set_language' %}" method="post">
+              {% csrf_token %}
+              <input name="next" type="hidden" value="{% if path|slice:':4' == '/en/' %}{{ path }}{% else %}/en{{ path }}{% endif %}">
+              <input name="language" type="hidden" value="en">
+              <button type="submit" class="{% if CURRENT_LANG|slice:':2' == 'en' %}active{% endif %}" aria-label="{% trans 'English' %}">{% trans "EN" %}</button>
+            </form>
+            {% endwith %}
+          </div>
+          <button type="button" id="theme-toggle" class="pref-theme" title="{% trans 'Cambiar tema claro/oscuro' %}" aria-label="{% trans 'Cambiar tema claro/oscuro' %}">
+            <i class="ph-bold ph-moon ic-moon"></i><i class="ph-bold ph-sun ic-sun"></i>
+            <span class="ic-moon">{% trans "Oscuro" %}</span><span class="ic-sun">{% trans "Claro" %}</span>
+          </button>
+        </div>
         <div class="user-glass-card">
             <div class="user-img-wrap">
                  {% if user.dentista.foto_perfil %}
-                    <img src="{{ user.dentista.foto_perfil.url }}" alt="Dr.">
+                    <img src="{{ user.dentista.foto_perfil.url }}" alt="{% trans 'Dr.' %}">
                  {% else %}
-                    <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=00adc1&color=fff&bold=true" alt="Doc">
+                    <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=00adc1&color=fff&bold=true" alt="{% trans 'Doc' %}">
                  {% endif %}
                  <span class="status-dot-online"></span>
             </div>
             <div class="user-data">
                 <span class="u-name">Dr. {{ user.last_name }}</span>
-                <span class="u-role">Dentista</span>
+                <span class="u-role">{% trans "Dentista" %}</span>
             </div>
             <form action="{% url 'accounts:logout' %}" method="post">
                 {% csrf_token %}
-                <button type="submit" class="btn-logout-glass" title="Cerrar Sesión">
+                <button type="submit" class="btn-logout-glass" title="{% trans 'Cerrar Sesión' %}">
                     <i class="ph-bold ph-sign-out"></i>
                 </button>
             </form>
@@ -166,28 +205,44 @@
           
           <div class="mobile-brand">
              <i class="ph-fill ph-tooth" style="color: #22d3ee;"></i>
-             <span>RC</span>
+             <span>{% trans "RC" %}</span>
           </div>
 
           <div class="mobile-avatar">
              {% if user.dentista.foto_perfil %}
-                <img src="{{ user.dentista.foto_perfil.url }}" alt="Doc">
+                <img src="{{ user.dentista.foto_perfil.url }}" alt="{% trans 'Doc' %}">
              {% else %}
-                <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=00adc1&color=fff" alt="Doc">
+                <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=00adc1&color=fff" alt="{% trans 'Doc' %}">
              {% endif %}
           </div>
       </div>
 
-      <!-- Mensajes flash del sistema (Django messages) -->
+      <!-- Mensajes flash del sistema (Django messages), mostrados como modal
+           centrado (mismo estilo que el modal de "Corte de caja") en vez de
+           la barra superior. -->
       {% if messages %}
-        <div id="messages-area" class="toast-container">
-          {% for message in messages %}
-            <div class="toast-alert toast-{{ message.tags }}" style="background: #334155; color: #fff; padding: 1rem; border-radius: 8px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-              <i class="ph-fill {% if message.tags == 'success' %}ph-check-circle{% else %}ph-warning{% endif %}"></i>
-              <span>{{ message }}</span>
-            </div>
-          {% endfor %}
-        </div>
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            var rcMensajes = [
+              {% for message in messages %}
+              { tags: "{{ message.tags|escapejs }}", text: "{{ message|escapejs }}" }{% if not forloop.last %},{% endif %}
+              {% endfor %}
+            ];
+            (function mostrarSiguiente(i) {
+              if (i >= rcMensajes.length) return;
+              var m = rcMensajes[i];
+              var esWarning = m.tags.indexOf('warning') !== -1;
+              var esError = esWarning || m.tags.indexOf('error') !== -1;
+              Swal.fire({
+                icon: esError ? (esWarning ? 'warning' : 'error') : 'success',
+                title: esError ? (esWarning ? 'Atención' : 'Hubo un error') : '¡Listo!',
+                text: m.text,
+                confirmButtonText: '{% filter escapejs %}{% trans "Entendido" %}{% endfilter %}',
+                confirmButtonColor: esError ? '#ef4444' : '#10b981'
+              }).then(function () { mostrarSiguiente(i + 1); });
+            })(0);
+          });
+        </script>
       {% endif %}
 
       <!-- Bloque principal que cada vista hija sobreescribe -->
@@ -297,9 +352,77 @@
                 closeMenu();
             };
         }
+
+        // Tema claro / oscuro (se guarda en el navegador)
+        var themeBtn = document.getElementById("theme-toggle");
+        if (themeBtn) {
+            themeBtn.addEventListener("click", function () {
+                var root = document.documentElement;
+                var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+                root.setAttribute("data-theme", next);
+                try { localStorage.setItem("dentista-theme", next); } catch (e) {}
+            });
+        }
     });
   </script>
   <script src="{% static 'dentista/app.js' %}?v=8.0"></script>
+
+  <!-- ===============================
+       Confirmación "Aceptar / Cancelar" antes de crear o modificar.
+       Mismo estilo que el modal de "Corte de caja" (SweetAlert2).
+
+       Uso en cualquier plantilla hija: agrega estos atributos al <form>
+       que crea/edita/elimina algo y queda conectado automáticamente,
+       sin escribir JS adicional:
+
+         <form method="post"
+               data-confirm-title="¿Guardar la cita?"
+               data-confirm-text="Se agendará la cita para el paciente seleccionado."
+               data-confirm-icon="question"
+               data-confirm-button="Guardar"
+               data-confirm-color="#10b981">
+
+       Para un botón suelto (no <form>, p.ej. una acción vía fetch/AJAX),
+       usa la función rcConfirmar(opciones) directamente desde tu script:
+
+         rcConfirmar({
+           title: '¿Eliminar paciente?',
+           text: 'Esta acción no se puede deshacer.',
+           icon: 'warning',
+           confirmButton: 'Eliminar',
+           confirmColor: '#ef4444'
+         }).then(function (ok) { if (ok) { ...tu acción... } });
+       =============================== -->
+  <script>
+    function rcConfirmar(opts) {
+      opts = opts || {};
+      return Swal.fire({
+        icon: opts.icon || 'question',
+        title: opts.title || '¿Confirmar acción?',
+        html: opts.text || '¿Deseas continuar?',
+        showCancelButton: true,
+        confirmButtonText: opts.confirmButton || 'Aceptar',
+        cancelButtonText: opts.cancelButton || 'Cancelar',
+        confirmButtonColor: opts.confirmColor || '#10b981',
+        cancelButtonColor: '#334155'
+      }).then(function (result) { return result.isConfirmed; });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('form[data-confirm-title]').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          rcConfirmar({
+            title: form.dataset.confirmTitle,
+            text: form.dataset.confirmText,
+            icon: form.dataset.confirmIcon,
+            confirmButton: form.dataset.confirmButton,
+            confirmColor: form.dataset.confirmColor
+          }).then(function (ok) { if (ok) form.submit(); });
+        });
+      });
+    });
+  </script>
 
   <!-- Espacio para JS adicional de cada vista (Dashboard, Agenda, etc.) -->
   {% block extra_js %}{% endblock %}

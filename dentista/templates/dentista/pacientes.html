@@ -1,4 +1,5 @@
 {% extends "dentista/base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block dtitle %}Directorio de Pacientes | RC{% endblock %}
@@ -9,95 +10,95 @@
 
     <div class="page-header compact" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
         <div>
-            <h1 class="text-gradient" style="font-size: 2rem; font-weight: 800; color: #0f172a; margin: 0;">Directorio de Pacientes</h1>
-            <p class="subtitle" style="color: #64748b; margin-top: 5px;">{{ pacientes.count }} expedientes activos.</p>
+            <h1 class="text-gradient" style="font-size: 2rem; font-weight: 800; color:var(--dk-tx-0f172a, #0f172a); margin: 0;">{% trans "Directorio de Pacientes" %}</h1>
+            <p class="subtitle" style="color:var(--dk-tx-64748b, #64748b); margin-top: 5px;">{% blocktrans count n=pacientes.count %}{{ n }} expediente activo.{% plural %}{{ n }} expedientes activos.{% endblocktrans %}</p>
         </div>
         <a href="{% url 'dentista:registrar_paciente' %}" class="cyber-btn cyber-btn-glow" style="padding: 12px 24px; font-size: 1rem;">
-            <i class="ph-bold ph-user-plus"></i> Nuevo Paciente
+            <i class="ph-bold ph-user-plus"></i> {% trans "Nuevo Paciente" %}
         </a>
     </div>
 
     <div class="search-container-floating" style="margin-bottom: 2rem;">
-        <form method="get" class="search-form" style="background: white; padding: 12px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
-            <i class="ph-bold ph-magnifying-glass" style="font-size: 1.2rem; color: #94a3b8;"></i>
-            <input type="text" name="q" value="{{ query }}" placeholder="Buscar por nombre, teléfono..." style="border: none; outline: none; width: 100%; font-size: 1rem; background: transparent; color: #334155;">
+        <form method="get" class="search-form" style="background:var(--dk-bg-white, white); padding: 12px 20px; border-radius:12px; border:1px solid var(--dk-bd-e2e8f0, #e2e8f0); display: flex; align-items: center; gap: 10px; box-shadow:0 4px 10px rgba(0,0,0,0.02);">
+            <i class="ph-bold ph-magnifying-glass" style="font-size: 1.2rem; color:var(--dk-tx-94a3b8, #94a3b8);"></i>
+            <input type="text" name="q" value="{{ query }}" placeholder="{% trans 'Buscar por nombre, teléfono...' %}" style="border:none; outline:none; width: 100%; font-size: 1rem; background:transparent; color:var(--dk-tx-334155, #334155);">
             {% if query %}
-            <a href="{% url 'dentista:pacientes' %}" style="color: #ef4444;"><i class="ph-bold ph-x"></i></a>
+            <a href="{% url 'dentista:pacientes' %}" style="color:#ef4444;"><i class="ph-bold ph-x"></i></a>
             {% endif %}
         </form>
     </div>
 
-    <div class="patients-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px;">
+    <div class="rc-patients-grid">
         {% for p in pacientes %}
-        <div class="patient-card-pro">
-            
-            <div class="card-head">
-                <div class="avatar-circle">
+        <div class="rc-patient-card">
+
+            <div class="rc-pc-head">
+                <div class="rc-pc-avatar">
                     {% if p.imagen %}
                         <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
                     {% else %}
                         <span>{{ p.nombre|slice:":1" }}</span>
                     {% endif %}
                 </div>
-                
-                <div class="head-info">
-                    <h3 class="p-name" title="{{ p.nombre }}">{{ p.nombre|truncatechars:20 }}</h3>
-                    <span class="p-id">ID: {{ p.id|stringformat:"04d" }}</span>
+
+                <div class="rc-pc-identity">
+                    <h3 class="rc-pc-name" title="{{ p.nombre }}">{{ p.nombre }}</h3>
+                    <span class="rc-pc-id">ID {{ p.id|stringformat:"04d" }}</span>
                 </div>
 
-                <div class="floating-actions">
-                    <a href="{% url 'dentista:editar_paciente' p.id %}" class="icon-btn edit" title="Editar">
+                <div class="rc-pc-actions">
+                    <a href="{% url 'dentista:editar_paciente' p.id %}" class="icon-btn edit" title="{% trans 'Editar' %}">
                         <i class="ph-bold ph-pencil-simple"></i>
                     </a>
-                    
-                    <button type="button" class="icon-btn delete" onclick="confirmarEliminar('{{ p.id }}', '{{ p.nombre }}')" title="Eliminar">
+
+                    <button type="button" class="icon-btn delete" onclick="confirmarEliminar('{{ p.id }}', '{{ p.nombre }}')" title="{% trans 'Eliminar' %}">
                         <i class="ph-bold ph-trash"></i>
                     </button>
-                    
+
                     <form id="delete-form-{{ p.id }}" action="{% url 'dentista:eliminar_paciente' p.id %}" method="post" style="display: none;">
                         {% csrf_token %}
                     </form>
                 </div>
             </div>
 
-            <div class="card-body">
+            <div class="rc-pc-body">
                 {% if p.fecha_nacimiento %}
-                    <div class="data-row">
-                        <span class="lbl"><i class="ph-duotone ph-cake"></i> Edad</span>
-                        <span class="val">{{ p.edad }} años</span>
+                    <div class="rc-pc-row">
+                        <span class="lbl"><i class="ph-duotone ph-cake"></i> {% trans "Edad" %}</span>
+                        <span class="val">{% blocktrans with edad=p.edad %}{{ edad }} años{% endblocktrans %}</span>
                     </div>
                 {% endif %}
-                <div class="data-row">
-                    <span class="lbl"><i class="ph-duotone ph-phone"></i> Teléfono</span>
+                <div class="rc-pc-row">
+                    <span class="lbl"><i class="ph-duotone ph-phone"></i> {% trans "Teléfono" %}</span>
                     <span class="val">{{ p.telefono|default:"--" }}</span>
                 </div>
-                <div class="data-row">
-                    <span class="lbl"><i class="ph-duotone ph-calendar"></i> Registro</span>
+                <div class="rc-pc-row">
+                    <span class="lbl"><i class="ph-duotone ph-calendar"></i> {% trans "Registro" %}</span>
                     <span class="val">{{ p.created_at|date:"d M, Y" }}</span>
                 </div>
             </div>
 
-            <div class="card-footer">
-                <a href="{% url 'dentista:detalle_paciente' p.id %}" class="btn-expediente-pro">
-                    <i class="ph-bold ph-folder-open"></i> Expediente
+            <div class="rc-pc-footer">
+                <a href="{% url 'dentista:detalle_paciente' p.id %}" class="rc-btn-expediente">
+                    <i class="ph-bold ph-folder-open"></i> {% trans "Expediente" %}
                 </a>
-                
+
                 {% if p.telefono %}
                 {% with "Hola "|add:p.nombre|add:", te escribo de Consultorio RC para confirmar/agendar tu cita. ¿Qué día y hora te viene bien?" as wa_msg %}
-                    <a href="https://wa.me/52{{ p.telefono }}?text={{ wa_msg|urlencode }}" target="_blank" class="btn-whatsapp-pro">
+                    <a href="https://wa.me/52{{ p.telefono }}?text={{ wa_msg|urlencode }}" target="_blank" class="rc-btn-whatsapp" title="{% trans 'Escribir por WhatsApp' %}">
                         <i class="ph-fill ph-whatsapp-logo"></i>
                     </a>
                 {% endwith %}
                 {% else %}
-                <button class="btn-whatsapp-pro disabled" disabled><i class="ph-fill ph-whatsapp-logo"></i></button>
+                <button class="rc-btn-whatsapp disabled" disabled title="{% trans 'Sin teléfono' %}"><i class="ph-fill ph-whatsapp-logo"></i></button>
                 {% endif %}
             </div>
 
         </div>
         {% empty %}
-        <div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: #94a3b8;">
-            <i class="ph-duotone ph-users-three" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-            <p>No se encontraron pacientes.</p>
+        <div class="rc-empty-state">
+            <i class="ph-duotone ph-users-three"></i>
+            <p>{% trans "No se encontraron pacientes." %}</p>
         </div>
         {% endfor %}
     </div>
@@ -107,14 +108,14 @@
 <script>
     function confirmarEliminar(id, nombre) {
         Swal.fire({
-            title: '¿Eliminar paciente y su cuenta?',
+            title: '{% filter escapejs %}{% trans "¿Eliminar paciente y su cuenta?" %}{% endfilter %}',
             text: `Se eliminará a ${nombre}, su historial clínico y su cuenta de acceso. No podrás deshacer esto.`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ef4444',
             cancelButtonColor: '#334155',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
+            confirmButtonText: '{% filter escapejs %}{% trans "Sí, eliminar" %}{% endfilter %}',
+            cancelButtonText: '{% filter escapejs %}{% trans "Cancelar" %}{% endfilter %}'
         }).then((result) => {
             if (result.isConfirmed) {
                 // Busca el formulario por ID y lo envía

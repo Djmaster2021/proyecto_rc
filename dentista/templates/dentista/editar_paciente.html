@@ -1,4 +1,5 @@
 {% extends "dentista/base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block dtitle %}Editar Paciente | RC{% endblock %}
@@ -6,52 +7,56 @@
 {% block dcontent %}
 
 <div class="page-header">
-    <h1 class="text-gradient">Editar Expediente</h1>
-    <p class="welcome-subtitle">Actualizando datos de: <strong>{{ paciente.nombre }}</strong></p>
+    <h1 class="text-gradient">{% trans "Editar Expediente" %}</h1>
+    <p class="welcome-subtitle">{% trans "Actualizando datos de:" %} <strong>{{ paciente.nombre }}</strong></p>
 </div>
 
 <div class="cyber-card" style="max-width: 800px; margin: 0 auto; padding: 2rem;">
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data"
+          data-confirm-title="{% trans '¿Guardar los cambios?' %}"
+          data-confirm-text="{% blocktrans with nombre=paciente.nombre %}Se actualizará el expediente de {{ nombre }}.{% endblocktrans %}"
+          data-confirm-icon="question"
+          data-confirm-button="{% trans 'Guardar cambios' %}">
         {% csrf_token %}
 
         <div class="row-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div class="form-group">
-                <label class="form-label">Nombre Completo *</label>
+                <label class="form-label">{% trans "Nombre Completo *" %}</label>
                 <input type="text" name="nombre" class="form-control" value="{{ paciente.nombre }}" required>
             </div>
 
             <div class="form-group">
-                <label class="form-label">Teléfono</label>
-                <input type="tel" name="telefono" class="form-control" value="{{ paciente.telefono }}" inputmode="numeric" maxlength="10" minlength="10" required title="Ingresa 10 dígitos numéricos">
+                <label class="form-label">{% trans "Teléfono" %}</label>
+                <input type="tel" name="telefono" class="form-control" value="{{ paciente.telefono }}" inputmode="numeric" maxlength="10" minlength="10" required title="{% trans 'Ingresa 10 dígitos numéricos' %}">
             </div>
 
             <div class="form-group">
-                <label class="form-label">Fecha de Nacimiento</label>
+                <label class="form-label">{% trans "Fecha de Nacimiento" %}</label>
                 <input type="date" name="fecha_nacimiento" class="form-control" value="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}">
             </div>
 
             <div class="form-group">
-                <label class="form-label">Cambiar Foto</label>
+                <label class="form-label">{% trans "Cambiar Foto" %}</label>
                 <input type="file" name="imagen" class="form-control" accept="image/*">
                 {% if paciente.imagen %}
-                    <small style="color: #666;">Actualmente: <a href="{{ paciente.imagen.url }}" target="_blank">Ver foto</a></small>
+                    <small style="color:var(--dk-tx-666, #666);">{% trans "Actualmente:" %} <a href="{{ paciente.imagen.url }}" target="_blank">{% trans "Ver foto" %}</a></small>
                 {% endif %}
             </div>
         </div>
 
         <div class="form-group" style="margin-top: 15px;">
-            <label class="form-label">Dirección</label>
+            <label class="form-label">{% trans "Dirección" %}</label>
             <input type="text" name="direccion" class="form-control" value="{{ paciente.direccion }}">
         </div>
 
         <div class="form-group" style="margin-top: 15px;">
-            <label class="form-label">Antecedentes Médicos</label>
+            <label class="form-label">{% trans "Antecedentes Médicos" %}</label>
             <textarea name="antecedentes" class="form-control" rows="3">{{ paciente.antecedentes }}</textarea>
         </div>
 
         <div style="margin-top: 2rem; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
-            <a href="{% url 'dentista:pacientes' %}" class="cyber-btn cyber-btn-secondary">Cancelar</a>
-            <button type="submit" class="cyber-btn cyber-btn-glow">Actualizar Datos</button>
+            <a href="{% url 'dentista:pacientes' %}" class="cyber-btn cyber-btn-secondary">{% trans "Cancelar" %}</a>
+            <button type="submit" class="cyber-btn cyber-btn-glow">{% trans "Actualizar Datos" %}</button>
         </div>
     </form>
 </div>

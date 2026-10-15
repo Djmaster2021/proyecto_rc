@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-08 13:50-0600\n"
+"POT-Creation-Date: 2026-10-15 08:31-0600\n"
 "PO-Revision-Date: 2025-12-03 00:00+0000\n"
 "Last-Translator: Auto <auto@example.com>\n"
 "Language-Team: English <LL@li.org>\n"
@@ -17,71 +17,3192 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: domain/models.py:113
-msgid "Pendiente de Confirmación"
-msgstr "Pending Confirmation"
+# Modal agendar cita (paciente)
+#: dentista/templates/dentista/agenda.html:351
+#: dentista/templates/dentista/agenda.html:352
+msgid "Agenda Clínica"
+msgstr "Clinical Schedule"
 
-#: domain/models.py:114
+#: dentista/templates/dentista/agenda.html:353
+msgid "Vista operativa de alta densidad."
+msgstr "High-density operational view."
+
+#: dentista/templates/dentista/agenda.html:357
+#: dentista/templates/dentista/agenda_mes.html:12
+#: dentista/templates/dentista/agenda_semana.html:12
+msgid "Hoy"
+msgstr "Today"
+
+#: dentista/templates/dentista/agenda.html:358
+#: dentista/templates/dentista/agenda_dia.html:18
+#: dentista/templates/dentista/agenda_mes.html:13
+msgid "Semana"
+msgstr "Week"
+
+#: dentista/templates/dentista/agenda.html:359
+#: dentista/templates/dentista/agenda_dia.html:19
+#: dentista/templates/dentista/agenda_semana.html:13
+msgid "Mes"
+msgstr "Month"
+
+#: dentista/templates/dentista/agenda.html:360
+msgid "Todo"
+msgstr "All"
+
+#: dentista/templates/dentista/agenda.html:362
+#: dentista/templates/dentista/dashboard.html:79
+#: dentista/templates/dentista/detalle_paciente.html:51
+msgid "Nueva Cita"
+msgstr "New Appointment"
+
+#: dentista/templates/dentista/agenda.html:369
+msgid "En curso / siguiente"
+msgstr "In progress / next"
+
+#: dentista/templates/dentista/agenda.html:371
+#: dentista/templates/dentista/agenda_mes.html:25
+msgid "Libre"
+msgstr "Free"
+
+#: dentista/templates/dentista/agenda.html:377
+msgid "Agenda libre por ahora."
+msgstr "Schedule is free for now."
+
+#: dentista/templates/dentista/agenda.html:382
+msgid "Vistos hoy"
+msgstr "Seen today"
+
+#: dentista/templates/dentista/agenda.html:384
+#, python-format
+msgid "de %(total)s pacientes."
+msgstr "of %(total)s patients."
+
+#: dentista/templates/dentista/agenda.html:390
+#, python-format
+msgid "Reloj %(dia)s"
+msgstr "%(dia)s clock"
+
+#: dentista/templates/dentista/agenda.html:398
+msgid "Estados"
+msgstr "Statuses"
+
+#: dentista/templates/dentista/agenda.html:400 domain/models.py:126
 msgid "Confirmada"
 msgstr "Confirmed"
 
-#: domain/models.py:115
-msgid "Completada / Asistió"
-msgstr "Completed / Attended"
-
-#: domain/models.py:116
-msgid "Cancelada por Paciente"
-msgstr "Cancelled by Patient"
-
-#: domain/models.py:117
-msgid "Cancelada por Dentista"
-msgstr "Cancelled by Dentist"
-
-#: domain/models.py:118
-msgid "No Asistió (Inasistencia)"
-msgstr "No Show (Missed)"
-
-#: domain/models.py:153
-msgid "Efectivo en Consultorio"
-msgstr "Cash at Office"
-
-#: domain/models.py:154
-msgid "MercadoPago Online"
-msgstr "MercadoPago Online"
-
-#: domain/models.py:155
-msgid "Transferencia Bancaria"
-msgstr "Bank Transfer"
-
-#: domain/models.py:158
+#: dentista/templates/dentista/agenda.html:401
+#: dentista/templates/dentista/vista-paciente.html:68 domain/models.py:125
+#: domain/models.py:173
 msgid "Pendiente"
 msgstr "Pending"
 
-#: domain/models.py:159
-msgid "Pagado"
-msgstr "Paid"
+#: dentista/templates/dentista/agenda.html:402
+msgid "Finalizada"
+msgstr "Completed"
 
-#: domain/models.py:160
-msgid "Fallido/Rechazado"
-msgstr "Failed/Rejected"
+#: dentista/templates/dentista/agenda.html:403 domain/models.py:128
+msgid "Cancelada"
+msgstr "Cancelled"
 
-#: domain/models.py:161
-msgid "Reembolsado"
-msgstr "Refunded"
+# Pagos (paciente)
+#: dentista/templates/dentista/agenda.html:418
+#: dentista/templates/dentista/agenda_mes.html:23
+#, python-format
+msgid "%(n)s cita"
+msgid_plural "%(n)s citas"
+msgstr[0] "%(n)s appointment"
+msgstr[1] "%(n)s appointments"
 
-#: proyecto_rc/settings.py:108
+#: dentista/templates/dentista/agenda.html:423
+#: dentista/templates/dentista/configuracion.html:162
+msgid "Descanso"
+msgstr "Day off"
+
+#: dentista/templates/dentista/agenda.html:428
+msgid "Abrir expediente"
+msgstr "Open record"
+
+#: dentista/templates/dentista/agenda.html:437
+msgid "Ver expediente"
+msgstr "View record"
+
+#: dentista/templates/dentista/agenda.html:440
+msgid "Modificar"
+msgstr "Edit"
+
+#: dentista/templates/dentista/agenda.html:445
+#: dentista/templates/dentista/pacientes.html:54
+#: dentista/templates/dentista/servicios.html:85
+#: dentista/templates/dentista/soporte.html:401
+msgid "Eliminar"
+msgstr "Delete"
+
+# Pagos (paciente)
+#: dentista/templates/dentista/agenda.html:454
+#: dentista/templates/dentista/agenda_semana.html:32
+#: dentista/templates/dentista/dashboard.html:141
+msgid "Sin citas"
+msgstr "No appointments"
+
+#: dentista/templates/dentista/agenda.html:459
+#: paciente/templates/paciente/agendar_cita.html:12
+msgid "Agendar"
+msgstr "Book"
+
+#: dentista/templates/dentista/agenda.html:477
+msgid "¿Eliminar cita?"
+msgstr "Delete appointment?"
+
+#: dentista/templates/dentista/agenda.html:483
+#: dentista/templates/dentista/pacientes.html:117
+#: dentista/templates/dentista/servicios.html:274
+#: dentista/templates/dentista/soporte.html:505
+msgid "Sí, eliminar"
+msgstr "Yes, delete"
+
+#: dentista/templates/dentista/agenda.html:484
+#: dentista/templates/dentista/configuracion.html:236
+#: dentista/templates/dentista/configuracion.html:274
+#: dentista/templates/dentista/crear_cita_manual.html:89
+#: dentista/templates/dentista/editar_paciente.html:58
+#: dentista/templates/dentista/pacientes.html:118
+#: dentista/templates/dentista/pagos.html:179
+#: dentista/templates/dentista/registrar_paciente.html:76
+#: dentista/templates/dentista/registrar_pago.html:59
+#: dentista/templates/dentista/registrar_pago_efectivo.html:16
+#: dentista/templates/dentista/servicios.html:138
+#: dentista/templates/dentista/servicios.html:239
+#: dentista/templates/dentista/servicios.html:275
+#: dentista/templates/dentista/servicios_form.html:37
+#: dentista/templates/dentista/soporte.html:455
+#: dentista/templates/dentista/soporte.html:506
+#: paciente/templates/paciente/_partials/cita_botones.html:19
+#: paciente/templates/paciente/agendar_cita.html:73
+#: paciente/templates/paciente/feedback_cita.html:39
+#: paciente/templates/paciente/perfil.html:87
+msgid "Cancelar"
+msgstr "Cancel"
+
+#: dentista/templates/dentista/agenda_dia.html:15
+#, python-format
+msgid "Agenda del %(dia)s"
+msgstr "Schedule for %(dia)s"
+
+#: dentista/templates/dentista/agenda_dia.html:45
+#: dentista/templates/dentista/configuracion.html:158
+msgid "Disponible"
+msgstr "Available"
+
+#: dentista/templates/dentista/agenda_mes.html:9
+msgid "Agenda del Mes"
+msgstr "Monthly Schedule"
+
+#: dentista/templates/dentista/agenda_semana.html:9
+msgid "Agenda Semanal"
+msgstr "Weekly Schedule"
+
+#: dentista/templates/dentista/base.html:11
+msgid "Dental RC | Suite Pro"
+msgstr "Dental RC | Suite Pro"
+
+#: dentista/templates/dentista/base.html:65
+msgid "CONSULTORIO"
+msgstr "CLINIC"
+
+#: dentista/templates/dentista/base.html:65
+#: dentista/templates/dentista/base.html:208
+msgid "RC"
+msgstr "RC"
+
+#: dentista/templates/dentista/base.html:68
+#: paciente/templates/paciente/base.html:42
+msgid "Tu sonrisa es lo primero"
+msgstr "Your smile comes first"
+
+#: dentista/templates/dentista/base.html:84
+msgid "PRINCIPAL"
+msgstr "MAIN"
+
+#: dentista/templates/dentista/base.html:91
+#: paciente/templates/paciente/base.html:53
+#: paciente/templates/paciente/dashboard.html:4
+#: paciente/templates/paciente/dashboard.html:5
+msgid "Inicio"
+msgstr "Home"
+
+#: dentista/templates/dentista/base.html:97
+#: dentista/templates/dentista/dashboard.html:119
+#: dentista/templates/dentista/soporte.html:296
+msgid "Agenda"
+msgstr "Schedule"
+
+#: dentista/templates/dentista/base.html:103
+#: dentista/templates/dentista/dashboard.html:103
+#: dentista/templates/dentista/reporte_pdf.html:97
+msgid "Pacientes"
+msgstr "Patients"
+
+#: dentista/templates/dentista/base.html:110
+msgid "GESTIÓN"
+msgstr "MANAGEMENT"
+
+#: dentista/templates/dentista/base.html:114
+msgid "Finanzas"
+msgstr "Finances"
+
+#: dentista/templates/dentista/base.html:118
+#: dentista/templates/dentista/soporte.html:237
+msgid "Reportes"
+msgstr "Reports"
+
+#: dentista/templates/dentista/base.html:122
+#: templates/_components/navbar.html:10 templates/_components/navbar.html:51
+msgid "Servicios"
+msgstr "Services"
+
+#: dentista/templates/dentista/base.html:126
+msgid "Riesgos"
+msgstr "Risks"
+
+#: dentista/templates/dentista/base.html:133
+msgid "SISTEMA"
+msgstr "SYSTEM"
+
+#: dentista/templates/dentista/base.html:137
+#: dentista/templates/dentista/soporte.html:254
+msgid "Configuración"
+msgstr "Settings"
+
+#: dentista/templates/dentista/base.html:141
+msgid "Soporte"
+msgstr "Support"
+
+#: dentista/templates/dentista/base.html:157 proyecto_rc/settings.py:216
 msgid "Español"
 msgstr "Spanish"
 
-#: proyecto_rc/settings.py:109
+#: dentista/templates/dentista/base.html:157
+msgid "ES"
+msgstr "ES"
+
+#: dentista/templates/dentista/base.html:163 proyecto_rc/settings.py:217
 msgid "English"
 msgstr "English"
 
-#: templates/landing/index.html:5
+#: dentista/templates/dentista/base.html:163
+msgid "EN"
+msgstr "EN"
+
+#: dentista/templates/dentista/base.html:167
+#: paciente/templates/paciente/base.html:136
+msgid "Cambiar tema claro/oscuro"
+msgstr "Toggle light/dark theme"
+
+#: dentista/templates/dentista/base.html:169
+msgid "Oscuro"
+msgstr "Dark"
+
+#: dentista/templates/dentista/base.html:169
+msgid "Claro"
+msgstr "Light"
+
+#: dentista/templates/dentista/base.html:175
+msgid "Dr."
+msgstr "Dr."
+
+#: dentista/templates/dentista/base.html:177
+#: dentista/templates/dentista/base.html:213
+#: dentista/templates/dentista/base.html:215
+msgid "Doc"
+msgstr "Doc"
+
+#: dentista/templates/dentista/base.html:183
+msgid "Dentista"
+msgstr "Dentist"
+
+#: dentista/templates/dentista/base.html:187
+msgid "Cerrar Sesión"
+msgstr "Log Out"
+
+#: dentista/templates/dentista/base.html:240
+#: paciente/templates/paciente/base.html:167
+msgid "Entendido"
+msgstr "Got it"
+
+#: dentista/templates/dentista/configuracion.html:11
+msgid "Configuración del Sistema"
+msgstr "System Settings"
+
+#: dentista/templates/dentista/configuracion.html:12
+msgid "Gestiona tu perfil profesional y horarios de atención."
+msgstr "Manage your professional profile and office hours."
+
+#: dentista/templates/dentista/configuracion.html:25
+msgid "Perfil"
+msgstr "Profile"
+
+#: dentista/templates/dentista/configuracion.html:30
+#: paciente/templates/paciente/perfil.html:25
+msgid "Cambiar foto"
+msgstr "Change photo"
+
+#: dentista/templates/dentista/configuracion.html:39
+msgid "Verificado"
+msgstr "Verified"
+
+#: dentista/templates/dentista/configuracion.html:54
+#: dentista/templates/dentista/configuracion.html:193
+#: dentista/templates/dentista/editar_paciente.html:29
+#: dentista/templates/dentista/pacientes.html:72
+#: dentista/templates/dentista/registrar_paciente.html:51
+#: dentista/templates/dentista/vista-paciente.html:23
+#: paciente/templates/paciente/perfil.html:58
+msgid "Teléfono"
+msgstr "Phone"
+
+#: dentista/templates/dentista/configuracion.html:61
+#: paciente/templates/paciente/dashboard.html:180
+msgid "Cédula"
+msgstr "License"
+
+#: dentista/templates/dentista/configuracion.html:68
+#: dentista/templates/dentista/configuracion.html:205
+msgid "Especialidad"
+msgstr "Specialty"
+
+#: dentista/templates/dentista/configuracion.html:75
+#: dentista/templates/dentista/configuracion.html:215
+#: dentista/templates/dentista/editar_paciente.html:48
+#: dentista/templates/dentista/registrar_paciente.html:61
+#: paciente/templates/paciente/perfil.html:69
+msgid "Dirección"
+msgstr "Address"
+
+#: dentista/templates/dentista/configuracion.html:83
+msgid "Editar Datos"
+msgstr "Edit Details"
+
+#: dentista/templates/dentista/configuracion.html:86
+#: dentista/templates/dentista/configuracion.html:246
+msgid "Seguridad"
+msgstr "Security"
+
+#: dentista/templates/dentista/configuracion.html:97
+msgid "Nuevo Bloque de Horario"
+msgstr "New Schedule Block"
+
+#: dentista/templates/dentista/configuracion.html:98
+msgid "Define tu disponibilidad para la agenda automática."
+msgstr "Set your availability for automatic scheduling."
+
+#: dentista/templates/dentista/configuracion.html:103
+msgid "¿Agregar este bloque de horario?"
+msgstr "Add this schedule block?"
+
+#: dentista/templates/dentista/configuracion.html:104
+msgid "Quedará disponible para que se agenden citas en ese horario."
+msgstr "It will be available for booking appointments at that time."
+
+#: dentista/templates/dentista/configuracion.html:106
+#: dentista/templates/dentista/configuracion.html:128
+msgid "Agregar"
+msgstr "Add"
+
+#: dentista/templates/dentista/configuracion.html:112
+msgid "Día"
+msgstr "Day"
+
+#: dentista/templates/dentista/configuracion.html:120
+msgctxt "hora"
+msgid "Inicio"
+msgstr "Start"
+
+#: dentista/templates/dentista/configuracion.html:124
+msgid "Fin"
+msgstr "End"
+
+#: dentista/templates/dentista/configuracion.html:135
+msgid "Horarios Activos"
+msgstr "Active Schedules"
+
+#: dentista/templates/dentista/configuracion.html:136
+#, python-format
+msgid "%(n)s bloque"
+msgid_plural "%(n)s bloques"
+msgstr[0] "%(n)s block"
+msgstr[1] "%(n)s blocks"
+
+#: dentista/templates/dentista/configuracion.html:152
+msgid "Eliminar bloque"
+msgstr "Delete block"
+
+# Modal editar perfil (paciente)
+#: dentista/templates/dentista/configuracion.html:175
+msgid "Editar Perfil"
+msgstr "Edit Profile"
+
+#: dentista/templates/dentista/configuracion.html:180
+msgid "¿Guardar los cambios del perfil?"
+msgstr "Save profile changes?"
+
+#: dentista/templates/dentista/configuracion.html:181
+msgid "Se actualizará tu información profesional y de contacto."
+msgstr "Your professional and contact information will be updated."
+
+#: dentista/templates/dentista/configuracion.html:183
+#: dentista/templates/dentista/detalle_paciente.html:97
+#: dentista/templates/dentista/editar_paciente.html:19
+#: dentista/templates/dentista/soporte.html:427
+#: paciente/templates/paciente/perfil.html:88
+msgid "Guardar cambios"
+msgstr "Save changes"
+
+#: dentista/templates/dentista/configuracion.html:189
+msgid "Nombre Completo"
+msgstr "Full Name"
+
+#: dentista/templates/dentista/configuracion.html:199
+msgid "Email (Login)"
+msgstr "Email (Login)"
+
+#: dentista/templates/dentista/configuracion.html:209
+msgid "Cédula / Licencia"
+msgstr "License / ID"
+
+#: dentista/templates/dentista/configuracion.html:220
+msgid "Foto de Perfil"
+msgstr "Profile Photo"
+
+#: dentista/templates/dentista/configuracion.html:227
+msgid "Click para subir nueva foto"
+msgstr "Click to upload a new photo"
+
+#: dentista/templates/dentista/configuracion.html:228
+msgid "JPG, PNG (Max 2MB)"
+msgstr "JPG, PNG (Max 2MB)"
+
+#: dentista/templates/dentista/configuracion.html:237
+#: dentista/templates/dentista/soporte.html:456
+msgid "Guardar Cambios"
+msgstr "Save Changes"
+
+#: dentista/templates/dentista/configuracion.html:251
+msgid "¿Actualizar tu contraseña?"
+msgstr "Update your password?"
+
+#: dentista/templates/dentista/configuracion.html:252
+msgid ""
+"Tendrás que usar la nueva contraseña la próxima vez que inicies sesión."
+msgstr "You'll need to use the new password next time you sign in."
+
+#: dentista/templates/dentista/configuracion.html:254
+#: dentista/templates/dentista/configuracion.html:275
+msgid "Actualizar"
+msgstr "Update"
+
+#: dentista/templates/dentista/configuracion.html:259
+msgid "Contraseña Actual"
+msgstr "Current Password"
+
+#: dentista/templates/dentista/configuracion.html:264
+msgid "Nueva Contraseña"
+msgstr "New Password"
+
+#: dentista/templates/dentista/configuracion.html:269
+msgid "Confirmar Nueva"
+msgstr "Confirm New"
+
+#: dentista/templates/dentista/consulta.html:11
+msgid "Consulta en Curso"
+msgstr "Consultation in Progress"
+
+#: dentista/templates/dentista/consulta.html:12
+msgid "Registro clínico y cierre administrativo."
+msgstr "Clinical record and administrative closing."
+
+#: dentista/templates/dentista/consulta.html:16
+msgid "Ver Historial"
+msgstr "View History"
+
+#: dentista/templates/dentista/consulta.html:24
+#: dentista/templates/dentista/crear_cita_manual.html:24
+#: dentista/templates/dentista/historial.html:31
+#: dentista/templates/dentista/penalizaciones.html:178
+#: dentista/templates/dentista/reporte_pdf.html:54
+#: dentista/templates/dentista/reportes.html:48
+#: dentista/templates/dentista/reportes.html:91
+#: paciente/templates/paciente/base.html:96
+msgid "Paciente"
+msgstr "Patient"
+
+#: dentista/templates/dentista/consulta.html:29
+#: dentista/templates/dentista/historial.html:32
+#: dentista/templates/dentista/reporte_pdf.html:55
+#: dentista/templates/dentista/reportes.html:49
+#: dentista/templates/dentista/servicios.html:34
+#: paciente/templates/paciente/agendar_cita.html:64
+msgid "Tratamiento"
+msgstr "Treatment"
+
+#: dentista/templates/dentista/consulta.html:34
+#: dentista/templates/dentista/crear_cita_manual.html:46
+#: dentista/templates/dentista/historial.html:30
+#: dentista/templates/dentista/reporte_pdf.html:53
+#: dentista/templates/dentista/reportes.html:47
+#: dentista/templates/dentista/reportes.html:90
+#: dentista/templates/dentista/vista-paciente.html:49
+#: paciente/templates/paciente/agendar_cita.html:49
+#: paciente/templates/paciente/agendar_cita.html:67
+msgid "Fecha"
+msgstr "Date"
+
+#: dentista/templates/dentista/consulta.html:39
+#: dentista/templates/dentista/historial.html:33
+#: dentista/templates/dentista/reporte_pdf.html:56
+#: dentista/templates/dentista/reportes.html:50
+#: dentista/templates/dentista/reportes.html:94
+#: dentista/templates/dentista/servicios.html:37
+#: dentista/templates/dentista/soporte.html:373
+#: dentista/templates/dentista/soporte.html:441
+msgid "Estado"
+msgstr "Status"
+
+#: dentista/templates/dentista/consulta.html:51
+msgid "Evolución Clínica"
+msgstr "Clinical Progress"
+
+#: dentista/templates/dentista/consulta.html:55
+msgid ""
+"Escribe aquí los detalles del procedimiento, observaciones y evolución del "
+"paciente..."
+msgstr ""
+"Write the procedure details, observations and patient progress here..."
+
+#: dentista/templates/dentista/consulta.html:58
+msgid "ADJUNTAR ARCHIVO (RX / FOTO)"
+msgstr "ATTACH FILE (X-RAY / PHOTO)"
+
+#: dentista/templates/dentista/consulta.html:65
+msgid "Cierre de Consulta"
+msgstr "Close Consultation"
+
+#: dentista/templates/dentista/consulta.html:69
+msgid "Total a Cobrar"
+msgstr "Total to Charge"
+
+#: dentista/templates/dentista/consulta.html:75
+msgid "Pago Recibido"
+msgstr "Payment Received"
+
+#: dentista/templates/dentista/consulta.html:76
+msgid "¿Liquidó hoy?"
+msgstr "Paid today?"
+
+#: dentista/templates/dentista/consulta.html:86
+msgid "FINALIZAR CONSULTA"
+msgstr "FINISH CONSULTATION"
+
+#: dentista/templates/dentista/consulta.html:90
+msgid "Guardar y Salir (Sin terminar)"
+msgstr "Save and Exit (Unfinished)"
+
+#: dentista/templates/dentista/consulta.html:94
+msgid "Cancelar Cita"
+msgstr "Cancel Appointment"
+
+# Modal agendar cita (paciente)
+#: dentista/templates/dentista/crear_cita_manual.html:10
+msgid "Agendar Cita"
+msgstr "Book Appointment"
+
+#: dentista/templates/dentista/crear_cita_manual.html:11
+msgid "El sistema calculará la disponibilidad exacta."
+msgstr "The system will calculate exact availability."
+
+#: dentista/templates/dentista/crear_cita_manual.html:17
+msgid "¿Guardar la cita?"
+msgstr "Save the appointment?"
+
+#: dentista/templates/dentista/crear_cita_manual.html:18
+msgid "Se agendará la cita para el paciente y horario seleccionados."
+msgstr "The appointment will be booked for the selected patient and time."
+
+#: dentista/templates/dentista/crear_cita_manual.html:20
+msgid "Guardar cita"
+msgstr "Save appointment"
+
+#: dentista/templates/dentista/crear_cita_manual.html:26
+msgid "Selecciona un paciente..."
+msgstr "Select a patient..."
+
+#: dentista/templates/dentista/crear_cita_manual.html:36
+#: dentista/templates/dentista/reportes.html:92
+#: dentista/templates/dentista/vista-paciente.html:50
+msgid "Servicio"
+msgstr "Service"
+
+#: dentista/templates/dentista/crear_cita_manual.html:38
+msgid "Selecciona servicio..."
+msgstr "Select service..."
+
+#: dentista/templates/dentista/crear_cita_manual.html:56
+msgid "Método de pago"
+msgstr "Payment method"
+
+#: dentista/templates/dentista/crear_cita_manual.html:58
+#: dentista/templates/dentista/registrar_pago.html:47 domain/models.py:166
+#: templates/landing/index.html:155
+msgid "Efectivo"
+msgstr "Cash"
+
+#: dentista/templates/dentista/crear_cita_manual.html:59
+#: dentista/templates/dentista/registrar_pago.html:49 domain/models.py:168
+msgid "Tarjeta"
+msgstr "Card"
+
+#: dentista/templates/dentista/crear_cita_manual.html:60
+#: dentista/templates/dentista/registrar_pago.html:48 domain/models.py:167
+#: templates/landing/index.html:157
+msgid "Transferencia"
+msgstr "Bank transfer"
+
+#: dentista/templates/dentista/crear_cita_manual.html:61 domain/models.py:169
+#: templates/landing/index.html:156
+msgid "MercadoPago"
+msgstr "MercadoPago"
+
+#: dentista/templates/dentista/crear_cita_manual.html:65
+#: dentista/templates/dentista/historial.html:34
+#: dentista/templates/dentista/penalizaciones.html:180
+#: dentista/templates/dentista/registrar_pago.html:35
+#: dentista/templates/dentista/reporte_pdf.html:57
+#: dentista/templates/dentista/reportes.html:51
+#: dentista/templates/dentista/reportes.html:95
+#: dentista/templates/dentista/vista-paciente.html:51
+#: paciente/templates/paciente/pagar_penalizacion.html:24
+msgid "Monto"
+msgstr "Amount"
+
+#: dentista/templates/dentista/crear_cita_manual.html:66
+msgid "Ej. 500.00"
+msgstr "E.g. 500.00"
+
+#: dentista/templates/dentista/crear_cita_manual.html:67
+msgid "Se precarga con el precio del servicio, puedes ajustarlo."
+msgstr "Pre-filled with the service price; you can adjust it."
+
+#: dentista/templates/dentista/crear_cita_manual.html:73
+msgid "Horarios Disponibles"
+msgstr "Available Times"
+
+#: dentista/templates/dentista/crear_cita_manual.html:75
+msgid "Buscando..."
+msgstr "Searching..."
+
+#: dentista/templates/dentista/crear_cita_manual.html:82
+msgid "Selecciona servicio y fecha para cargar horarios."
+msgstr "Select a service and date to load times."
+
+#: dentista/templates/dentista/crear_cita_manual.html:90
+msgid "Confirmar Cita"
+msgstr "Confirm Appointment"
+
+#: dentista/templates/dentista/dashboard.html:71
+#, python-format
+msgid "Hola, Dr. %(nombre)s"
+msgstr "Hi, Dr. %(nombre)s"
+
+#: dentista/templates/dentista/dashboard.html:74
+msgid "• Panel de Control"
+msgstr "• Control Panel"
+
+#: dentista/templates/dentista/dashboard.html:89
+msgid "Citas Hoy"
+msgstr "Appointments Today"
+
+#: dentista/templates/dentista/dashboard.html:96
+#: paciente/templates/paciente/pagos.html:22
+msgid "Pendientes"
+msgstr "Pending"
+
+#: dentista/templates/dentista/dashboard.html:110
+msgid "Ingresos Mes"
+msgstr "Monthly Income"
+
+#: dentista/templates/dentista/dashboard.html:120
+msgid "Ver Agenda"
+msgstr "View Schedule"
+
+#: dentista/templates/dentista/dashboard.html:131
+msgid "HOY"
+msgstr "TODAY"
+
+#: dentista/templates/dentista/dashboard.html:154
+msgid "Siguiente Paciente"
+msgstr "Next Patient"
+
+#: dentista/templates/dentista/dashboard.html:164
+msgid "Abrir Expediente"
+msgstr "Open Record"
+
+#: dentista/templates/dentista/dashboard.html:170
+msgid "No hay más citas por hoy."
+msgstr "No more appointments today."
+
+#: dentista/templates/dentista/dashboard.html:176
+msgid "Recientes"
+msgstr "Recent"
+
+#: dentista/templates/dentista/dashboard.html:192
+msgid "Sin movimientos."
+msgstr "No activity."
+
+#: dentista/templates/dentista/dashboard.html:195
+msgid "Ver historial completo"
+msgstr "View full history"
+
+#: dentista/templates/dentista/dashboard.html:199
+msgid "Avisos"
+msgstr "Notices"
+
+#: dentista/templates/dentista/dashboard.html:207
+msgid "No hay avisos."
+msgstr "No notices."
+
+#: dentista/templates/dentista/detalle_paciente.html:33
+msgid "Volver a Pacientes"
+msgstr "Back to Patients"
+
+#: dentista/templates/dentista/detalle_paciente.html:45
+#: dentista/templates/dentista/pacientes.html:68
+#, python-format
+msgid "%(edad)s años"
+msgstr "%(edad)s years old"
+
+#: dentista/templates/dentista/detalle_paciente.html:56
+#: dentista/templates/dentista/penalizaciones.html:226
+#: paciente/templates/paciente/citas.html:16
+msgid "Historial"
+msgstr "History"
+
+#: dentista/templates/dentista/detalle_paciente.html:57
+msgid "Odontograma"
+msgstr "Odontogram"
+
+#: dentista/templates/dentista/detalle_paciente.html:77
+msgid "Odontograma interactivo"
+msgstr "Interactive odontogram"
+
+#: dentista/templates/dentista/detalle_paciente.html:78
+msgid "Selecciona el diente y asigna estado o nota."
+msgstr "Select a tooth and assign a status or note."
+
+#: dentista/templates/dentista/detalle_paciente.html:80
+msgid "Sin diente seleccionado"
+msgstr "No tooth selected"
+
+#: dentista/templates/dentista/detalle_paciente.html:86
+msgid "Estado y notas"
+msgstr "Status and notes"
+
+#: dentista/templates/dentista/detalle_paciente.html:88
+msgid "Sano"
+msgstr "Healthy"
+
+#: dentista/templates/dentista/detalle_paciente.html:89
+msgid "Bracket"
+msgstr "Bracket"
+
+#: dentista/templates/dentista/detalle_paciente.html:90
+msgid "Caries"
+msgstr "Cavity"
+
+#: dentista/templates/dentista/detalle_paciente.html:91
+msgid "Corona"
+msgstr "Crown"
+
+#: dentista/templates/dentista/detalle_paciente.html:93
+msgid "Nota"
+msgstr "Note"
+
+#: dentista/templates/dentista/detalle_paciente.html:94
+msgid "Describe el hallazgo o tratamiento..."
+msgstr "Describe the finding or treatment..."
+
+#: dentista/templates/dentista/detalle_paciente.html:96
+msgid "Limpiar"
+msgstr "Clear"
+
+#: dentista/templates/dentista/detalle_paciente.html:215
+msgid "Diente limpiado"
+msgstr "Tooth cleared"
+
+#: dentista/templates/dentista/detalle_paciente.html:218
+#: dentista/templates/dentista/detalle_paciente.html:252
+msgid "Error"
+msgstr "Error"
+
+#: dentista/templates/dentista/detalle_paciente.html:218
+msgid "No se pudo limpiar el odontograma."
+msgstr "Couldn't clear the odontogram."
+
+#: dentista/templates/dentista/detalle_paciente.html:229
+msgid "Selecciona un diente"
+msgstr "Select a tooth"
+
+#: dentista/templates/dentista/detalle_paciente.html:229
+msgid "Toca un diente para aplicar estado o nota."
+msgstr "Tap a tooth to apply a status or note."
+
+#: dentista/templates/dentista/detalle_paciente.html:249
+msgid "Guardado"
+msgstr "Saved"
+
+#: dentista/templates/dentista/detalle_paciente.html:252
+msgid "No se pudo guardar el odontograma."
+msgstr "Couldn't save the odontogram."
+
+#: dentista/templates/dentista/editar_paciente.html:10
+msgid "Editar Expediente"
+msgstr "Edit Record"
+
+#: dentista/templates/dentista/editar_paciente.html:11
+msgid "Actualizando datos de:"
+msgstr "Updating details for:"
+
+#: dentista/templates/dentista/editar_paciente.html:16
+msgid "¿Guardar los cambios?"
+msgstr "Save changes?"
+
+#: dentista/templates/dentista/editar_paciente.html:17
+#, python-format
+msgid "Se actualizará el expediente de %(nombre)s."
+msgstr "%(nombre)s's record will be updated."
+
+#: dentista/templates/dentista/editar_paciente.html:24
+#: dentista/templates/dentista/registrar_paciente.html:45
+msgid "Nombre Completo *"
+msgstr "Full Name *"
+
+#: dentista/templates/dentista/editar_paciente.html:30
+#: dentista/templates/dentista/registrar_paciente.html:52
+msgid "Ingresa 10 dígitos numéricos"
+msgstr "Enter 10 numeric digits"
+
+#: dentista/templates/dentista/editar_paciente.html:34
+#: dentista/templates/dentista/registrar_paciente.html:55
+msgid "Fecha de Nacimiento"
+msgstr "Date of Birth"
+
+#: dentista/templates/dentista/editar_paciente.html:39
+msgid "Cambiar Foto"
+msgstr "Change Photo"
+
+#: dentista/templates/dentista/editar_paciente.html:42
+msgid "Actualmente:"
+msgstr "Current:"
+
+#: dentista/templates/dentista/editar_paciente.html:42
+msgid "Ver foto"
+msgstr "View photo"
+
+#: dentista/templates/dentista/editar_paciente.html:53
+#: dentista/templates/dentista/registrar_paciente.html:66
+msgid "Antecedentes Médicos"
+msgstr "Medical History"
+
+#: dentista/templates/dentista/editar_paciente.html:59
+msgid "Actualizar Datos"
+msgstr "Update Details"
+
+#: dentista/templates/dentista/historial.html:7
+msgid "Reporte Financiero RC"
+msgstr "RC Financial Report"
+
+#: dentista/templates/dentista/historial.html:14
+msgid "CONSULTORIO RC"
+msgstr "RC CLINIC"
+
+#: dentista/templates/dentista/historial.html:15
+msgid "Reporte Oficial de Actividades"
+msgstr "Official Activity Report"
+
+#: dentista/templates/dentista/historial.html:21
+msgid "Periodo:"
+msgstr "Period:"
+
+#: dentista/templates/dentista/historial.html:22
+#: dentista/templates/dentista/reporte_pdf.html:43
+msgid "Generado:"
+msgstr "Generated:"
+
+#: dentista/templates/dentista/historial.html:56
+msgid "PAGADO EN LÍNEA"
+msgstr "PAID ONLINE"
+
+#: dentista/templates/dentista/historial.html:72
+msgid "Feedback:"
+msgstr "Feedback:"
+
+#: dentista/templates/dentista/historial.html:75
+msgid "Puntuación:"
+msgstr "Rating:"
+
+#: dentista/templates/dentista/historial.html:86
+msgid "No se encontraron registros financieros en este periodo."
+msgstr "No financial records found in this period."
+
+#: dentista/templates/dentista/historial.html:101
+msgid "Validación"
+msgstr "Validation"
+
+#: dentista/templates/dentista/historial.html:109
+msgid "Citas Realizadas:"
+msgstr "Completed Appointments:"
+
+#: dentista/templates/dentista/historial.html:113
+msgid "Pacientes Atendidos:"
+msgstr "Patients Seen:"
+
+#: dentista/templates/dentista/historial.html:117
+#: dentista/templates/dentista/reporte_pdf.html:98
+msgid "TOTAL"
+msgstr "TOTAL"
+
+#: dentista/templates/dentista/historial.html:125
+msgid ""
+"Este documento es un reporte interno generado automáticamente por Dental "
+"Suite Pro."
+msgstr ""
+"This document is an internal report automatically generated by Dental Suite "
+"Pro."
+
+#: dentista/templates/dentista/historial.html:126
+msgid ""
+"Para fines fiscales oficiales, por favor consulte las facturas emitidas ante"
+" el SAT."
+msgstr ""
+"For official tax purposes, please refer to the invoices issued with the SAT."
+
+#: dentista/templates/dentista/pacientes.html:13
+msgid "Directorio de Pacientes"
+msgstr "Patient Directory"
+
+#: dentista/templates/dentista/pacientes.html:14
+#, python-format
+msgid "%(n)s expediente activo."
+msgid_plural "%(n)s expedientes activos."
+msgstr[0] "%(n)s active record."
+msgstr[1] "%(n)s active records."
+
+#: dentista/templates/dentista/pacientes.html:17
+msgid "Nuevo Paciente"
+msgstr "New Patient"
+
+#: dentista/templates/dentista/pacientes.html:24
+msgid "Buscar por nombre, teléfono..."
+msgstr "Search by name, phone..."
+
+#: dentista/templates/dentista/pacientes.html:50
+#: dentista/templates/dentista/servicios.html:70
+#: dentista/templates/dentista/soporte.html:394
+msgid "Editar"
+msgstr "Edit"
+
+#: dentista/templates/dentista/pacientes.html:67
+#: paciente/templates/paciente/perfil.html:38
+msgid "Edad"
+msgstr "Age"
+
+#: dentista/templates/dentista/pacientes.html:76
+msgid "Registro"
+msgstr "Registered"
+
+#: dentista/templates/dentista/pacientes.html:83
+msgid "Expediente"
+msgstr "Record"
+
+#: dentista/templates/dentista/pacientes.html:88
+msgid "Escribir por WhatsApp"
+msgstr "Message on WhatsApp"
+
+#: dentista/templates/dentista/pacientes.html:93
+msgid "Sin teléfono"
+msgstr "No phone"
+
+#: dentista/templates/dentista/pacientes.html:101
+msgid "No se encontraron pacientes."
+msgstr "No patients found."
+
+#: dentista/templates/dentista/pacientes.html:111
+msgid "¿Eliminar paciente y su cuenta?"
+msgstr "Delete patient and their account?"
+
+#: dentista/templates/dentista/pagos.html:13
+msgid "Control de Caja"
+msgstr "Cash Register"
+
+#: dentista/templates/dentista/pagos.html:14
+msgid "Corte de caja diario y registro de movimientos."
+msgstr "Daily cash closing and transaction log."
+
+#: dentista/templates/dentista/pagos.html:18
+msgid "Corte"
+msgstr "Closing"
+
+#: dentista/templates/dentista/pagos.html:21
+#: dentista/templates/dentista/registrar_pago.html:11
+msgid "Registrar ingreso"
+msgstr "Record income"
+
+#: dentista/templates/dentista/pagos.html:28
+msgid "Buscar por recibo, paciente o método..."
+msgstr "Search by receipt, patient or method..."
+
+#: dentista/templates/dentista/pagos.html:36
+msgid "RECAUDADO HOY"
+msgstr "COLLECTED TODAY"
+
+#: dentista/templates/dentista/pagos.html:36
+msgid "* Se reinicia 00:00 ("
+msgstr "* Resets at 00:00 ("
+
+#: dentista/templates/dentista/pagos.html:44
+msgid "TRANSACCIONES"
+msgstr "TRANSACTIONS"
+
+#: dentista/templates/dentista/pagos.html:52
+msgid "CIERRE AUTOMÁTICO"
+msgstr "AUTOMATIC CLOSING"
+
+#: dentista/templates/dentista/pagos.html:62
+msgid "ID RECIBO"
+msgstr "RECEIPT ID"
+
+#: dentista/templates/dentista/pagos.html:63
+msgid "FECHA / HORA"
+msgstr "DATE / TIME"
+
+#: dentista/templates/dentista/pagos.html:64
+msgid "PACIENTE"
+msgstr "PATIENT"
+
+#: dentista/templates/dentista/pagos.html:65
+msgid "CONCEPTO"
+msgstr "CONCEPT"
+
+#: dentista/templates/dentista/pagos.html:66
+msgid "MÉTODO"
+msgstr "METHOD"
+
+#: dentista/templates/dentista/pagos.html:67
+msgid "ESTADO"
+msgstr "STATUS"
+
+#: dentista/templates/dentista/pagos.html:68
+msgid "MONTO"
+msgstr "AMOUNT"
+
+#: dentista/templates/dentista/pagos.html:69
+msgid "ACCIONES"
+msgstr "ACTIONS"
+
+#: dentista/templates/dentista/pagos.html:89 domain/models.py:97
+msgid "EFECTIVO"
+msgstr "CASH"
+
+#: dentista/templates/dentista/pagos.html:91 domain/models.py:97
+msgid "TRANSFERENCIA"
+msgstr "TRANSFER"
+
+#: dentista/templates/dentista/pagos.html:93 domain/models.py:97
+msgid "TARJETA"
+msgstr "CARD"
+
+#: dentista/templates/dentista/pagos.html:100
+msgid "● PAGADO"
+msgstr "● PAID"
+
+#: dentista/templates/dentista/pagos.html:102
+msgid "● PENDIENTE"
+msgstr "● PENDING"
+
+#: dentista/templates/dentista/pagos.html:109
+msgid "Descargar comprobante"
+msgstr "Download receipt"
+
+#: dentista/templates/dentista/pagos.html:115
+msgid "No hay movimientos hoy."
+msgstr "No transactions today."
+
+#: dentista/templates/dentista/pagos.html:120
+#, python-format
+msgid "Mostrando %(n)s transacción"
+msgid_plural "Mostrando %(n)s transacciones"
+msgstr[0] "Showing %(n)s transaction"
+msgstr[1] "Showing %(n)s transactions"
+
+#: dentista/templates/dentista/pagos.html:172
+msgid "Corte de caja"
+msgstr "Cash closing"
+
+#: dentista/templates/dentista/pagos.html:178
+msgid "Hacer corte"
+msgstr "Close register"
+
+#: dentista/templates/dentista/pagos.html:183
+msgid "Corte aplicado"
+msgstr "Closing applied"
+
+#: dentista/templates/dentista/penalizaciones.html:11
+msgid "Penalizaciones y Riesgos"
+msgstr "Penalties and Risks"
+
+#: dentista/templates/dentista/penalizaciones.html:12
+msgid "Gestión de inasistencias, bloqueos manuales y deudas."
+msgstr "Missed appointments, manual blocks and debts."
+
+#: dentista/templates/dentista/penalizaciones.html:25
+msgid "Regla Automática"
+msgstr "Automatic Rule"
+
+#: dentista/templates/dentista/penalizaciones.html:26
+msgid "IA Activa"
+msgstr "AI Active"
+
+#: dentista/templates/dentista/penalizaciones.html:32
+msgid "El sistema detecta automáticamente las inasistencias confirmadas."
+msgstr "The system automatically detects confirmed no-shows."
+
+#: dentista/templates/dentista/penalizaciones.html:39 domain/models.py:208
+msgid "Advertencia"
+msgstr "Warning"
+
+#: dentista/templates/dentista/penalizaciones.html:40
+msgid "Alerta visual en el perfil del paciente."
+msgstr "Visual alert on the patient's profile."
+
+#: dentista/templates/dentista/penalizaciones.html:46
+msgid "Bloqueo Temporal"
+msgstr "Temporary Block"
+
+#: dentista/templates/dentista/penalizaciones.html:47
+msgid "Suspensión de citas online por 30 días."
+msgstr "Online booking suspended for 30 days."
+
+#: dentista/templates/dentista/penalizaciones.html:58
+msgid "Penalizadas (con recargo)"
+msgstr "Penalized (with fee)"
+
+#: dentista/templates/dentista/penalizaciones.html:61
+msgid "Tienen cargo pendiente ($300) y bloqueo temporal."
+msgstr "They have a pending fee ($300) and a temporary block."
+
+#: dentista/templates/dentista/penalizaciones.html:68
+#: dentista/templates/dentista/penalizaciones.html:95
+#: dentista/templates/dentista/penalizaciones.html:150
+#: paciente/templates/paciente/pagar_penalizacion.html:20
+msgid "Inasistencias"
+msgstr "Missed appointments"
+
+#: dentista/templates/dentista/penalizaciones.html:68
+#, python-format
+msgid "%(d)sd restantes"
+msgstr "%(d)sd remaining"
+
+#: dentista/templates/dentista/penalizaciones.html:72
+#: dentista/templates/dentista/penalizaciones.html:100
+#: dentista/templates/dentista/penalizaciones.html:155
+#: dentista/templates/dentista/servicios.html:78
+msgid "Desactivar"
+msgstr "Deactivate"
+
+#: dentista/templates/dentista/penalizaciones.html:73
+msgid "Reactivar"
+msgstr "Reactivate"
+
+#: dentista/templates/dentista/penalizaciones.html:78
+msgid "Sin cuentas penalizadas."
+msgstr "No penalized accounts."
+
+#: dentista/templates/dentista/penalizaciones.html:85
+msgid "Advertidas"
+msgstr "Warned"
+
+#: dentista/templates/dentista/penalizaciones.html:88
+msgid "Primera falta registrada; la siguiente genera penalización."
+msgstr "First no-show recorded; the next one triggers a penalty."
+
+#: dentista/templates/dentista/penalizaciones.html:99
+msgid "Aplicar penalización"
+msgstr "Apply penalty"
+
+#: dentista/templates/dentista/penalizaciones.html:105
+msgid "Sin advertencias activas."
+msgstr "No active warnings."
+
+#: dentista/templates/dentista/penalizaciones.html:112
+msgid "Inhabilitadas"
+msgstr "Disabled"
+
+#: dentista/templates/dentista/penalizaciones.html:115
+msgid "Cuenta bloqueada (manual o por penalización vencida)."
+msgstr "Account blocked (manually or due to an overdue penalty)."
+
+#: dentista/templates/dentista/penalizaciones.html:123
+msgid "Penalización vencida"
+msgstr "Overdue penalty"
+
+#: dentista/templates/dentista/penalizaciones.html:123
+msgid "Cuenta desactivada"
+msgstr "Account deactivated"
+
+#: dentista/templates/dentista/penalizaciones.html:128 domain/models.py:211
+msgid "Reactivar cuenta"
+msgstr "Reactivate account"
+
+#: dentista/templates/dentista/penalizaciones.html:133
+msgid "Sin cuentas inhabilitadas."
+msgstr "No disabled accounts."
+
+#: dentista/templates/dentista/penalizaciones.html:140
+msgid "Activas"
+msgstr "Active"
+
+#: dentista/templates/dentista/penalizaciones.html:143
+msgid "Sin penalización ni bloqueos."
+msgstr "No penalties or blocks."
+
+#: dentista/templates/dentista/penalizaciones.html:154
+msgid "Advertir"
+msgstr "Warn"
+
+#: dentista/templates/dentista/penalizaciones.html:160
+msgid "Aún no hay pacientes activos."
+msgstr "No active patients yet."
+
+#: dentista/templates/dentista/penalizaciones.html:170
+msgid "Pagos Pendientes"
+msgstr "Pending Payments"
+
+#: dentista/templates/dentista/penalizaciones.html:171
+#, python-format
+msgid "%(n)s caso"
+msgid_plural "%(n)s casos"
+msgstr[0] "%(n)s case"
+msgstr[1] "%(n)s cases"
+
+#: dentista/templates/dentista/penalizaciones.html:179
+msgid "Concepto"
+msgstr "Concept"
+
+#: dentista/templates/dentista/penalizaciones.html:181
+msgid "Acción"
+msgstr "Action"
+
+#: dentista/templates/dentista/penalizaciones.html:206
+msgid "Cobrar ahora"
+msgstr "Charge now"
+
+#: dentista/templates/dentista/penalizaciones.html:207
+msgid "Cobrar"
+msgstr "Charge"
+
+#: dentista/templates/dentista/penalizaciones.html:215
+msgid "No hay pagos pendientes."
+msgstr "No pending payments."
+
+#: dentista/templates/dentista/penalizaciones.html:227
+msgid "Últimos movimientos."
+msgstr "Latest activity."
+
+#: dentista/templates/dentista/penalizaciones.html:242
+msgid "Sin registros recientes."
+msgstr "No recent records."
+
+#: dentista/templates/dentista/penalizaciones.html:254
+msgid "¿Registrar advertencia?"
+msgstr "Record a warning?"
+
+#: dentista/templates/dentista/penalizaciones.html:254
+msgid "Se marcará una advertencia por inasistencia en su expediente."
+msgstr "A no-show warning will be added to their record."
+
+#: dentista/templates/dentista/penalizaciones.html:255
+msgid "¿Aplicar penalización?"
+msgstr "Apply penalty?"
+
+#: dentista/templates/dentista/penalizaciones.html:255
+msgid "Se generará un cargo de $300 y un bloqueo temporal de la cuenta."
+msgstr "A $300 fee and a temporary account block will be applied."
+
+#: dentista/templates/dentista/penalizaciones.html:256
+msgid "¿Desactivar esta cuenta?"
+msgstr "Deactivate this account?"
+
+#: dentista/templates/dentista/penalizaciones.html:256
+msgid "El paciente no podrá agendar citas hasta que reactives su cuenta."
+msgstr ""
+"The patient won't be able to book appointments until you reactivate their "
+"account."
+
+#: dentista/templates/dentista/penalizaciones.html:257
+msgid "¿Reactivar esta cuenta?"
+msgstr "Reactivate this account?"
+
+#: dentista/templates/dentista/penalizaciones.html:257
+msgid "El paciente podrá volver a agendar citas con normalidad."
+msgstr "The patient will be able to book appointments normally again."
+
+#: dentista/templates/dentista/penalizaciones.html:265
+msgid "¿Confirmar acción?"
+msgstr "Confirm action?"
+
+#: dentista/templates/dentista/penalizaciones.html:265
+msgid "¿Deseas continuar?"
+msgstr "Do you want to continue?"
+
+#: dentista/templates/dentista/registrar_paciente.html:11
+msgid "Registrar Nuevo Paciente"
+msgstr "Register New Patient"
+
+#: dentista/templates/dentista/registrar_paciente.html:12
+msgid "Crea el expediente clínico y sus credenciales de acceso."
+msgstr "Create the clinical record and login credentials."
+
+#: dentista/templates/dentista/registrar_paciente.html:18
+msgid "¿Registrar este paciente?"
+msgstr "Register this patient?"
+
+#: dentista/templates/dentista/registrar_paciente.html:19
+msgid "Se creará su expediente clínico y sus credenciales de acceso."
+msgstr "Their clinical record and login credentials will be created."
+
+#: dentista/templates/dentista/registrar_paciente.html:21
+msgid "Registrar"
+msgstr "Register"
+
+#: dentista/templates/dentista/registrar_paciente.html:26
+msgid "Credenciales de Acceso"
+msgstr "Login Credentials"
+
+#: dentista/templates/dentista/registrar_paciente.html:30
+msgid "Correo Electrónico (Usuario) *"
+msgstr "Email (Username) *"
+
+#: dentista/templates/dentista/registrar_paciente.html:31
+msgid "ejemplo@correo.com"
+msgstr "example@email.com"
+
+#: dentista/templates/dentista/registrar_paciente.html:32
+msgid "Este será su usuario para entrar."
+msgstr "This will be their username to sign in."
+
+#: dentista/templates/dentista/registrar_paciente.html:35
+msgid "Contraseña *"
+msgstr "Password *"
+
+#: dentista/templates/dentista/registrar_paciente.html:36
+msgid "Crear contraseña segura"
+msgstr "Create a secure password"
+
+# Completar perfil
+#: dentista/templates/dentista/registrar_paciente.html:37
+msgid "Compártela con el paciente."
+msgstr "Share it with the patient."
+
+#: dentista/templates/dentista/registrar_paciente.html:42
+msgid "Datos Personales"
+msgstr "Personal Details"
+
+#: dentista/templates/dentista/registrar_paciente.html:46
+msgid "Nombre y Apellidos"
+msgstr "First and last name"
+
+#: dentista/templates/dentista/registrar_paciente.html:52
+#: paciente/templates/paciente/perfil.html:60
+msgid "10 dígitos"
+msgstr "10 digits"
+
+#: dentista/templates/dentista/registrar_paciente.html:62
+msgid "Calle, Número, Colonia..."
+msgstr "Street, number, neighborhood..."
+
+#: dentista/templates/dentista/registrar_paciente.html:67
+msgid "Alergias, enfermedades crónicas, cirugías previas..."
+msgstr "Allergies, chronic conditions, previous surgeries..."
+
+#: dentista/templates/dentista/registrar_paciente.html:71
+msgid "Foto de Perfil (Opcional)"
+msgstr "Profile Photo (Optional)"
+
+#: dentista/templates/dentista/registrar_paciente.html:77
+msgid "Guardar Paciente"
+msgstr "Save Patient"
+
+#: dentista/templates/dentista/registrar_pago.html:12
+msgid "Cobro manual. Se crea un comprobante ligado a “Pago Directo”."
+msgstr "Manual charge. A receipt linked to “Direct Payment” is created."
+
+#: dentista/templates/dentista/registrar_pago.html:14
+msgid "Volver a caja"
+msgstr "Back to register"
+
+#: dentista/templates/dentista/registrar_pago.html:22
+msgid "Cita pendiente (opcional)"
+msgstr "Pending appointment (optional)"
+
+#: dentista/templates/dentista/registrar_pago.html:24
+msgid "Pago directo (sin cita)"
+msgstr "Direct payment (no appointment)"
+
+#: dentista/templates/dentista/registrar_pago.html:31
+msgid "Si eliges una cita, se llena monto y concepto automáticamente."
+msgstr ""
+"If you choose an appointment, amount and concept are filled in "
+"automatically."
+
+#: dentista/templates/dentista/registrar_pago.html:40
+msgid "Concepto / nota"
+msgstr "Concept / note"
+
+#: dentista/templates/dentista/registrar_pago.html:41
+msgid "Ej. Pago en mostrador - Juan Perez, Limpieza"
+msgstr "E.g. Counter payment - Juan Perez, Cleaning"
+
+#: dentista/templates/dentista/registrar_pago.html:45
+#: dentista/templates/dentista/reportes.html:93
+msgid "Método"
+msgstr "Method"
+
+#: dentista/templates/dentista/registrar_pago.html:50
+msgid "MercadoPago (link de pago)"
+msgstr "MercadoPago (payment link)"
+
+#: dentista/templates/dentista/registrar_pago.html:55
+msgid ""
+"* Si no eliges cita, se usa el paciente genérico “Venta Mostrador / Rápida” "
+"y servicio “Pago Directo”."
+msgstr ""
+"* If you don't choose an appointment, the generic patient “Walk-in / Quick "
+"Sale” and the “Direct Payment” service are used."
+
+#: dentista/templates/dentista/registrar_pago.html:60
+msgid "Guardar cobro"
+msgstr "Save charge"
+
+#: dentista/templates/dentista/registrar_pago_efectivo.html:11
+msgid "Registrar Cobro"
+msgstr "Record Charge"
+
+#: dentista/templates/dentista/registrar_pago_efectivo.html:12
+msgid "Seleccione una cita pendiente para procesar el pago."
+msgstr "Select a pending appointment to process the payment."
+
+#: dentista/templates/dentista/registrar_pago_efectivo.html:30
+msgid "CITAS PENDIENTES"
+msgstr "PENDING APPOINTMENTS"
+
+#: dentista/templates/dentista/registrar_pago_efectivo.html:49
+msgid "¡Todo al día! No hay cobros pendientes."
+msgstr "All caught up! No pending charges."
+
+#: dentista/templates/dentista/registrar_pago_efectivo.html:58
+msgid "Resumen de Venta"
+msgstr "Sale Summary"
+
+#: dentista/templates/dentista/registrar_pago_efectivo.html:64
+msgid "Paciente:"
+msgstr "Patient:"
+
+#: dentista/templates/dentista/registrar_pago_efectivo.html:68
+msgid "Servicio:"
+msgstr "Service:"
+
+#: dentista/templates/dentista/registrar_pago_efectivo.html:73
+msgid "Total a Pagar"
+msgstr "Total to Pay"
+
+#: dentista/templates/dentista/registrar_pago_efectivo.html:77
+msgid "Monto Recibido"
+msgstr "Amount Received"
+
+#: dentista/templates/dentista/registrar_pago_efectivo.html:82
+msgid "Notas (Opcional)"
+msgstr "Notes (Optional)"
+
+#: dentista/templates/dentista/registrar_pago_efectivo.html:83
+msgid "Ej. Billete de $500..."
+msgstr "E.g. $500 bill..."
+
+#: dentista/templates/dentista/registrar_pago_efectivo.html:87
+msgid "Confirmar Cobro"
+msgstr "Confirm Charge"
+
+#: dentista/templates/dentista/reporte_pdf.html:8
+msgid "Reporte"
+msgstr "Report"
+
+#: dentista/templates/dentista/reporte_pdf.html:38
+msgid "RC DENTAL"
+msgstr "RC DENTAL"
+
+#: dentista/templates/dentista/reporte_pdf.html:39
+msgid "Reporte oficial de actividades"
+msgstr "Official activity report"
+
+#: dentista/templates/dentista/reporte_pdf.html:44
+msgid "Periodo"
+msgstr "Period"
+
+#: dentista/templates/dentista/reporte_pdf.html:69 domain/models.py:95
+msgid "COMPLETADA"
+msgstr "COMPLETED"
+
+#: dentista/templates/dentista/reporte_pdf.html:71 domain/models.py:95
+msgid "PENDIENTE"
+msgstr "PENDING"
+
+#: dentista/templates/dentista/reporte_pdf.html:86
+msgid "Sin datos en el rango."
+msgstr "No data in the range."
+
+#: dentista/templates/dentista/reporte_pdf.html:93
+msgid "QR/Logo"
+msgstr "QR/Logo"
+
+#: dentista/templates/dentista/reporte_pdf.html:96
+msgid "Total Citas"
+msgstr "Total Appointments"
+
+#: dentista/templates/dentista/reportes.html:11
+msgid "Reportes del Consultorio"
+msgstr "Clinic Reports"
+
+#: dentista/templates/dentista/reportes.html:12
+msgid "Exporta tus movimientos entre fechas."
+msgstr "Export your activity between dates."
+
+#: dentista/templates/dentista/reportes.html:19
+msgid "Desde"
+msgstr "From"
+
+#: dentista/templates/dentista/reportes.html:23
+msgid "Hasta"
+msgstr "To"
+
+#: dentista/templates/dentista/reportes.html:26
+msgid "Filtrar"
+msgstr "Filter"
+
+#: dentista/templates/dentista/reportes.html:28
+msgid "CSV"
+msgstr "CSV"
+
+#: dentista/templates/dentista/reportes.html:31
+msgid "PDF"
+msgstr "PDF"
+
+#: dentista/templates/dentista/reportes.html:38
+msgid "Total citas:"
+msgstr "Total appointments:"
+
+#: dentista/templates/dentista/reportes.html:39
+msgid "Pacientes:"
+msgstr "Patients:"
+
+#: dentista/templates/dentista/reportes.html:40
+msgid "Ingresos cobrados:"
+msgstr "Income collected:"
+
+#: dentista/templates/dentista/reportes.html:42
+msgid "Citas"
+msgstr "Appointments"
+
+#: dentista/templates/dentista/reportes.html:71
+msgid "Sin pago"
+msgstr "Unpaid"
+
+#: dentista/templates/dentista/reportes.html:77
+msgid "No hay datos en el rango."
+msgstr "No data in the range."
+
+#: dentista/templates/dentista/reportes.html:85
+msgid "Pagos (incluye pendientes)"
+msgstr "Payments (including pending)"
+
+#: dentista/templates/dentista/reportes.html:113
+msgid "Sin pagos en el rango."
+msgstr "No payments in the range."
+
+#: dentista/templates/dentista/servicios.html:13
+msgid "Catálogo de Servicios"
+msgstr "Service Catalog"
+
+#: dentista/templates/dentista/servicios.html:14
+msgid "Gestiona tus tratamientos, precios y tiempos."
+msgstr "Manage your treatments, prices and durations."
+
+#: dentista/templates/dentista/servicios.html:17
+#: dentista/templates/dentista/servicios.html:109
+#: dentista/templates/dentista/servicios_form.html:12
+msgid "Nuevo Servicio"
+msgstr "New Service"
+
+#: dentista/templates/dentista/servicios.html:24
+msgid "Buscar tratamiento..."
+msgstr "Search treatment..."
+
+#: dentista/templates/dentista/servicios.html:26
+#: paciente/templates/paciente/agendar_cita.html:69
+msgid "Total"
+msgstr "Total"
+
+#: dentista/templates/dentista/servicios.html:35
+#: dentista/templates/dentista/servicios.html:128
+msgid "Precio"
+msgstr "Price"
+
+#: dentista/templates/dentista/servicios.html:36
+#: paciente/templates/paciente/agendar_cita.html:66
+msgid "Duración"
+msgstr "Duration"
+
+#: dentista/templates/dentista/servicios.html:38
+#: dentista/templates/dentista/soporte.html:375
+#: dentista/templates/dentista/vista-paciente.html:53
+msgid "Acciones"
+msgstr "Actions"
+
+#: dentista/templates/dentista/servicios.html:54
+msgid "ACTIVO"
+msgstr "ACTIVE"
+
+#: dentista/templates/dentista/servicios.html:56
+msgid "INACTIVO"
+msgstr "INACTIVE"
+
+#: dentista/templates/dentista/servicios.html:78
+msgid "Activar"
+msgstr "Enable"
+
+#: dentista/templates/dentista/servicios.html:96
+msgid "No hay servicios registrados."
+msgstr "No services registered."
+
+#: dentista/templates/dentista/servicios.html:117
+msgid "Nombre"
+msgstr "Name"
+
+#: dentista/templates/dentista/servicios.html:122
+msgid "Descripción"
+msgstr "Description"
+
+#: dentista/templates/dentista/servicios.html:132
+msgid "Duración (min)"
+msgstr "Duration (min)"
+
+#: dentista/templates/dentista/servicios.html:139
+#: dentista/templates/dentista/servicios_form.html:40
+msgid "Guardar"
+msgstr "Save"
+
+#: dentista/templates/dentista/servicios.html:268
+msgid "¿Eliminar permanentemente?"
+msgstr "Delete permanently?"
+
+#: dentista/templates/dentista/servicios.html:269
+msgid "Esta acción no se puede deshacer."
+msgstr "This action cannot be undone."
+
+# Modal editar perfil (paciente)
+#: dentista/templates/dentista/servicios_form.html:12
+msgid "Editar Servicio"
+msgstr "Edit Service"
+
+#: dentista/templates/dentista/soporte.html:176
+msgid "Centro de Ayuda"
+msgstr "Help Center"
+
+#: dentista/templates/dentista/soporte.html:177
+msgid "Documentación oficial y soporte técnico."
+msgstr "Official documentation and technical support."
+
+#: dentista/templates/dentista/soporte.html:182
+msgid "Buscar en la documentación..."
+msgstr "Search the documentation..."
+
+#: dentista/templates/dentista/soporte.html:188
+msgid "Todos los sistemas operativos &bull; v6.2.0 (Stable)"
+msgstr "All systems operational &bull; v6.2.0 (Stable)"
+
+#: dentista/templates/dentista/soporte.html:189
+msgid "Actualizado:"
+msgstr "Updated:"
+
+# Modal agendar cita (paciente)
+#: dentista/templates/dentista/soporte.html:200
+msgid "Agenda y Citas"
+msgstr "Schedule and Appointments"
+
+#: dentista/templates/dentista/soporte.html:201
+msgid "Gestión de pacientes, horarios y reglas operativas."
+msgstr "Patient, schedule and operating rules management."
+
+#: dentista/templates/dentista/soporte.html:207
+msgid "¿Cómo funciona la regla de los 28 días?"
+msgstr "How does the 28-day rule work?"
+
+#: dentista/templates/dentista/soporte.html:208
+msgid ""
+"El sistema bloquea citas consecutivas para evitar sobretratamiento si no han"
+" pasado 28 días. Contacta a administración para excepciones."
+msgstr ""
+"The system blocks consecutive appointments to prevent overtreatment if 28 "
+"days haven't passed. Contact administration for exceptions."
+
+#: dentista/templates/dentista/soporte.html:211
+msgid "Gestionar cancelaciones y No-Shows"
+msgstr "Managing cancellations and no-shows"
+
+#: dentista/templates/dentista/soporte.html:212
+msgid ""
+"Usa el botón \"Eliminar\" en la cita. El sistema registra automáticamente el"
+" incidente en el historial del paciente."
+msgstr ""
+"Use the \"Delete\" button on the appointment. The system automatically "
+"records the incident in the patient's history."
+
+#: dentista/templates/dentista/soporte.html:215
+msgid "Agendar fuera de horario laboral"
+msgstr "Booking outside office hours"
+
+#: dentista/templates/dentista/soporte.html:216
+msgid ""
+"Es posible, pero generará una alerta visual amarilla en la agenda indicando "
+"que es una excepción operativa."
+msgstr ""
+"It's possible, but it will show a yellow visual alert on the schedule "
+"indicating an operational exception."
+
+#: dentista/templates/dentista/soporte.html:225
+msgid "Pagos y Caja"
+msgstr "Payments and Cash Register"
+
+#: dentista/templates/dentista/soporte.html:226
+msgid "Registro de ingresos, reportes y cortes."
+msgstr "Income records, reports and closings."
+
+#: dentista/templates/dentista/soporte.html:232
+msgid "¿Cómo registro un pago en efectivo?"
+msgstr "How do I record a cash payment?"
+
+#: dentista/templates/dentista/soporte.html:233
+msgid "Ve a la sección"
+msgstr "Go to the section"
+
+#: dentista/templates/dentista/soporte.html:233
+msgid "Nuevo Cobro"
+msgstr "New Charge"
+
+#: dentista/templates/dentista/soporte.html:233
+msgid ". Selecciona la cita pendiente y confirma el monto recibido."
+msgstr ". Select the pending appointment and confirm the amount received."
+
+#: dentista/templates/dentista/soporte.html:236
+msgid "Descargar reportes fiscales"
+msgstr "Download tax reports"
+
+#: dentista/templates/dentista/soporte.html:237
+msgid "En la sección"
+msgstr "In the section"
+
+#: dentista/templates/dentista/soporte.html:237
+msgid ""
+", usa los botones de exportación (PDF/CSV) situados en la esquina superior "
+"derecha."
+msgstr ", use the export buttons (PDF/CSV) in the top-right corner."
+
+#: dentista/templates/dentista/soporte.html:246
+msgid "Mi Cuenta"
+msgstr "My Account"
+
+#: dentista/templates/dentista/soporte.html:247
+msgid "Seguridad, perfil y horarios de atención."
+msgstr "Security, profile and office hours."
+
+#: dentista/templates/dentista/soporte.html:253
+msgid "Modificar mi disponibilidad"
+msgstr "Change my availability"
+
+#: dentista/templates/dentista/soporte.html:254
+msgid "Ve a"
+msgstr "Go to"
+
+#: dentista/templates/dentista/soporte.html:254
+msgid ""
+". Puedes eliminar bloques de horario antiguos y crear nuevos turnos "
+"semanales."
+msgstr ". You can delete old schedule blocks and create new weekly shifts."
+
+#: dentista/templates/dentista/soporte.html:278
+msgid "Soporte Técnico"
+msgstr "Technical Support"
+
+#: dentista/templates/dentista/soporte.html:280
+msgid "SLA &lt; 24h"
+msgstr "SLA &lt; 24h"
+
+#: dentista/templates/dentista/soporte.html:281
+msgid "Mesa N1"
+msgstr "Desk N1"
+
+#: dentista/templates/dentista/soporte.html:282
+msgid "Prioridad médica"
+msgstr "Medical priority"
+
+#: dentista/templates/dentista/soporte.html:288
+msgid "¿Enviar este ticket?"
+msgstr "Send this ticket?"
+
+#: dentista/templates/dentista/soporte.html:289
+msgid "El equipo de soporte recibirá tu reporte y te contactará."
+msgstr "The support team will receive your report and contact you."
+
+#: dentista/templates/dentista/soporte.html:291
+msgid "Enviar ticket"
+msgstr "Send ticket"
+
+#: dentista/templates/dentista/soporte.html:295
+msgid "Error crítico"
+msgstr "Critical error"
+
+#: dentista/templates/dentista/soporte.html:297
+#: paciente/templates/paciente/base.html:66
+#: paciente/templates/paciente/pagos.html:4
+#: paciente/templates/paciente/pagos.html:5
+#: templates/_components/navbar.html:12 templates/_components/navbar.html:53
+msgid "Pagos"
+msgstr "Payments"
+
+#: dentista/templates/dentista/soporte.html:298
+msgid "Sugerencia"
+msgstr "Suggestion"
+
+#: dentista/templates/dentista/soporte.html:302
+#: dentista/templates/dentista/soporte.html:431
+msgid "Categoría"
+msgstr "Category"
+
+#: dentista/templates/dentista/soporte.html:305
+msgid "Selecciona el problema..."
+msgstr "Select the issue..."
+
+#: dentista/templates/dentista/soporte.html:306
+#: dentista/templates/dentista/soporte.html:433
+msgid "🔴 Sistema Detenido"
+msgstr "🔴 System Down"
+
+#: dentista/templates/dentista/soporte.html:307
+#: dentista/templates/dentista/soporte.html:434
+msgid "🟡 Finanzas / Caja"
+msgstr "🟡 Finances / Cash Register"
+
+# Modal agendar cita (paciente)
+#: dentista/templates/dentista/soporte.html:308
+#: dentista/templates/dentista/soporte.html:435
+msgid "🔵 Agenda / Citas"
+msgstr "🔵 Schedule / Appointments"
+
+#: dentista/templates/dentista/soporte.html:309
+#: dentista/templates/dentista/soporte.html:436
+msgid "✨ Sugerencia"
+msgstr "✨ Suggestion"
+
+#: dentista/templates/dentista/soporte.html:316
+#: dentista/templates/dentista/soporte.html:450
+#: paciente/templates/paciente/pagar_penalizacion.html:18
+msgid "Detalle"
+msgstr "Details"
+
+#: dentista/templates/dentista/soporte.html:322
+msgid "Describe lo que sucedió..."
+msgstr "Describe what happened..."
+
+#: dentista/templates/dentista/soporte.html:328
+msgid "Enviar Ticket"
+msgstr "Send Ticket"
+
+#: dentista/templates/dentista/soporte.html:336
+msgid "Adjunta contexto: acción que realizabas y pantallazo si hay error."
+msgstr ""
+"Attach context: what you were doing and a screenshot if there's an error."
+
+#: dentista/templates/dentista/soporte.html:340
+msgid "Incluye paciente/servicio/monto si aplica (agenda o pagos)."
+msgstr "Include patient/service/amount if applicable (schedule or payments)."
+
+#: dentista/templates/dentista/soporte.html:344
+msgid "Enviamos correo al soporte y respondemos en &lt;24h."
+msgstr "We email support and reply within &lt;24h."
+
+#: dentista/templates/dentista/soporte.html:350
+msgid "Contacto directo"
+msgstr "Direct contact"
+
+#: dentista/templates/dentista/soporte.html:354
+msgid "WhatsApp"
+msgstr "WhatsApp"
+
+#: dentista/templates/dentista/soporte.html:366
+msgid "Historial de Tickets"
+msgstr "Ticket History"
+
+#: dentista/templates/dentista/soporte.html:371
+msgid "ID"
+msgstr "ID"
+
+#: dentista/templates/dentista/soporte.html:372
+msgid "Asunto"
+msgstr "Subject"
+
+#: dentista/templates/dentista/soporte.html:374
+msgid "Creado"
+msgstr "Created"
+
+#: dentista/templates/dentista/soporte.html:391
+msgid "Descargar PDF"
+msgstr "Download PDF"
+
+#: dentista/templates/dentista/soporte.html:410
+msgid "Sin tickets previos."
+msgstr "No previous tickets."
+
+# Modal editar perfil (paciente)
+#: dentista/templates/dentista/soporte.html:420
+msgid "Editar Ticket"
+msgstr "Edit Ticket"
+
+#: dentista/templates/dentista/soporte.html:424
+msgid "¿Guardar los cambios del ticket?"
+msgstr "Save ticket changes?"
+
+#: dentista/templates/dentista/soporte.html:425
+msgid "Se actualizará la categoría, el detalle y el estado del ticket."
+msgstr "The ticket's category, details and status will be updated."
+
+#: dentista/templates/dentista/soporte.html:443 domain/models.py:291
+msgid "Abierto"
+msgstr "Open"
+
+#: dentista/templates/dentista/soporte.html:444 domain/models.py:292
+msgid "En proceso"
+msgstr "In progress"
+
+#: dentista/templates/dentista/soporte.html:445 domain/models.py:293
+msgid "Cerrado"
+msgstr "Closed"
+
+#: dentista/templates/dentista/soporte.html:499
+msgid "¿Eliminar ticket?"
+msgstr "Delete ticket?"
+
+#: dentista/templates/dentista/vista-paciente.html:10
+msgid "Historial —"
+msgstr "History —"
+
+#: dentista/templates/dentista/vista-paciente.html:10
+msgid "Ana García"
+msgstr "Ana García"
+
+#: dentista/templates/dentista/vista-paciente.html:11
+msgid "Registro de tratamientos, pagos y notas clínicas"
+msgstr "Treatments, payments and clinical notes"
+
+#: dentista/templates/dentista/vista-paciente.html:15
+msgid "Agendar nueva cita"
+msgstr "Book new appointment"
+
+#: dentista/templates/dentista/vista-paciente.html:27
+msgid "Email"
+msgstr "Email"
+
+#: dentista/templates/dentista/vista-paciente.html:28
+msgid "ana.g@ejemplo.com"
+msgstr "ana.g@example.com"
+
+#: dentista/templates/dentista/vista-paciente.html:31
+msgid "Próx. cita"
+msgstr "Next appt."
+
+#: dentista/templates/dentista/vista-paciente.html:32
+msgid "28 Oct, 2025 · 11:00"
+msgstr "Oct 28, 2025 · 11:00"
+
+#: dentista/templates/dentista/vista-paciente.html:35
+msgid "Saldo Pendiente"
+msgstr "Outstanding Balance"
+
+#: dentista/templates/dentista/vista-paciente.html:44
+msgid "Historial de Citas y Pagos"
+msgstr "Appointment and Payment History"
+
+#: dentista/templates/dentista/vista-paciente.html:52
+msgid "Estado del Pago"
+msgstr "Payment Status"
+
+#: dentista/templates/dentista/vista-paciente.html:59
+msgid "Ortodoncia (ajuste)"
+msgstr "Orthodontics (adjustment)"
+
+#: dentista/templates/dentista/vista-paciente.html:61
+msgid "Pagado"
+msgstr "Paid"
+
+#: dentista/templates/dentista/vista-paciente.html:62
+msgid "Ver Recibo"
+msgstr "View Receipt"
+
+#: dentista/templates/dentista/vista-paciente.html:66
+#: templates/landing/index.html:51
+msgid "Limpieza profunda"
+msgstr "Deep cleaning"
+
+#: dentista/templates/dentista/vista-paciente.html:69
+#: paciente/templates/paciente/dashboard.html:41
+msgid "Pagar ahora"
+msgstr "Pay now"
+
+#: dentista/views.py:477
+msgid "No puedes agendar en fecha pasada."
+msgstr "You can't book on a past date."
+
+#: dentista/views.py:482
+msgid "Debes elegir un servicio del propio consultorio."
+msgstr "You must choose one of your clinic's services."
+
+#: dentista/views.py:490
+msgid "Monto inválido."
+msgstr "Invalid amount."
+
+#: dentista/views.py:531
+msgid "Cita creada, pero el paciente no tiene correo registrado."
+msgstr "Appointment created, but the patient has no registered email."
+
+#: dentista/views.py:535
+msgid "Cita creada y notificada al paciente."
+msgstr "Appointment created and patient notified."
+
+#: dentista/views.py:539
+#, python-format
+msgid "Error al crear la cita: %(e)s"
+msgstr "Error creating the appointment: %(e)s"
+
+#: dentista/views.py:555
+msgid "Cita eliminada."
+msgstr "Appointment deleted."
+
+#: dentista/views.py:592
+msgid "Consulta actualizada."
+msgstr "Consultation updated."
+
+#: dentista/views.py:620 paciente/views.py:1128
+msgid "Día no laboral"
+msgstr "Non-working day"
+
+#: dentista/views.py:693
+msgid "Servicio creado."
+msgstr "Service created."
+
+#: dentista/views.py:695
+#, python-format
+msgid "Error: %(e)s"
+msgstr "Error: %(e)s"
+
+#: dentista/views.py:710
+msgid "Servicio actualizado."
+msgstr "Service updated."
+
+#: dentista/views.py:712
+#, python-format
+msgid "Error actualizando: %(e)s"
+msgstr "Error updating: %(e)s"
+
+#: dentista/views.py:723
+msgid "Estado actualizado."
+msgstr "Status updated."
+
+#: dentista/views.py:732
+msgid "Servicio eliminado."
+msgstr "Service deleted."
+
+#: dentista/views.py:761
+msgid "Correo, contraseña y nombre son obligatorios."
+msgstr "Email, password and name are required."
+
+#: dentista/views.py:764 dentista/views.py:830
+msgid "El teléfono debe tener exactamente 10 dígitos numéricos."
+msgstr "Phone number must have exactly 10 numeric digits."
+
+#: dentista/views.py:767
+msgid "Ya existe un paciente con este teléfono."
+msgstr "A patient with this phone number already exists."
+
+#: dentista/views.py:770
+msgid "Ya existe un paciente con ese nombre."
+msgstr "A patient with that name already exists."
+
+#: dentista/views.py:776
+msgid "Este correo ya está registrado en el sistema."
+msgstr "This email is already registered in the system."
+
+#: dentista/views.py:812
+#, python-format
+msgid "Paciente %(nombre)s registrado con éxito."
+msgstr "Patient %(nombre)s registered successfully."
+
+#: dentista/views.py:816
+#, python-format
+msgid "Error al registrar: %(e)s"
+msgstr "Error registering: %(e)s"
+
+#: dentista/views.py:837
+msgid "Ya existe otro paciente con este teléfono."
+msgstr "Another patient with this phone number already exists."
+
+#: dentista/views.py:844
+msgid "Ya existe otro paciente con ese nombre."
+msgstr "Another patient with that name already exists."
+
+#: dentista/views.py:881
+msgid "Paciente eliminado junto con su cuenta de acceso."
+msgstr "Patient deleted along with their login account."
+
+#: dentista/views.py:901
+msgid "Falta número"
+msgstr "Missing number"
+
+#: dentista/views.py:972
+msgid "Monto inválido"
+msgstr "Invalid amount"
+
+#: dentista/views.py:982
+msgid "Ingresa un monto"
+msgstr "Enter an amount"
+
+#: dentista/views.py:992
+msgid "Selecciona una cita para cobrar con MercadoPago."
+msgstr "Select an appointment to charge with MercadoPago."
+
+#: dentista/views.py:1001
+msgid "Redirigiendo a MercadoPago para completar el cobro."
+msgstr "Redirecting to MercadoPago to complete the charge."
+
+#: dentista/views.py:1004
+#, python-format
+msgid "No se pudo generar el cobro en MercadoPago: %(e)s"
+msgstr "Couldn't generate the MercadoPago charge: %(e)s"
+
+#: dentista/views.py:1036
+msgid "Pago registrado."
+msgstr "Payment recorded."
+
+#: dentista/views.py:1220
+msgid "La hora de fin debe ser posterior a la hora de inicio."
+msgstr "End time must be after start time."
+
+#: dentista/views.py:1222
+msgid "Ese bloque ya existe para ese día."
+msgstr "That block already exists for that day."
+
+#: dentista/views.py:1234
+msgid "Horario actualizado."
+msgstr "Schedule updated."
+
+#: dentista/views.py:1242
+msgid "Perfil guardado."
+msgstr "Profile saved."
+
+#: dentista/views.py:1249
+msgid "Contraseña cambiada."
+msgstr "Password changed."
+
+#: dentista/views.py:1251
+msgid "Error en contraseña."
+msgstr "Password error."
+
+#: dentista/views.py:1273
+msgid "Horario eliminado."
+msgstr "Schedule deleted."
+
+#: dentista/views.py:1285
+msgid "Ticket enviado."
+msgstr "Ticket sent."
+
+#: dentista/views.py:1300
+msgid "Ticket actualizado."
+msgstr "Ticket updated."
+
+#: dentista/views.py:1309
+msgid "Ticket eliminado."
+msgstr "Ticket deleted."
+
+#: dentista/views.py:1392
+msgid "Indica el ID del paciente."
+msgstr "Enter the patient ID."
+
+#: dentista/views.py:1398
+msgid "Paciente no encontrado para este dentista."
+msgstr "Patient not found for this dentist."
+
+#: dentista/views.py:1404
+msgid "El paciente no tiene citas para registrar inasistencia."
+msgstr "The patient has no appointments to record a no-show."
+
+#: dentista/views.py:1406
+msgid "Inasistencia registrada."
+msgstr "No-show recorded."
+
+#: dentista/views.py:1407
+#, python-format
+msgid "Penalización aplicada a %(nombre)s. %(msg)s"
+msgstr "Penalty applied to %(nombre)s. %(msg)s"
+
+#: dentista/views.py:1412
+msgid "El paciente no tiene usuario vinculado para suspender."
+msgstr "The patient has no linked user to suspend."
+
+#: dentista/views.py:1424
+#, python-format
+msgid "Cuenta de %(nombre)s suspendida."
+msgstr "%(nombre)s's account suspended."
+
+#: dentista/views.py:1429
+msgid "El paciente no tiene usuario vinculado para reactivar."
+msgstr "The patient has no linked user to reactivate."
+
+#: dentista/views.py:1441
+#, python-format
+msgid "Cuenta de %(nombre)s reactivada."
+msgstr "%(nombre)s's account reactivated."
+
+#: dentista/views.py:1457
+msgid "Configura al menos un servicio para aplicar advertencias."
+msgstr "Set up at least one service to apply warnings."
+
+#: dentista/views.py:1534
+msgid "Acción no reconocida."
+msgstr "Unrecognized action."
+
+#: domain/models.py:95
+msgid "CONFIRMADA"
+msgstr "CONFIRMED"
+
+#: domain/models.py:96
+msgid "CANCELADA"
+msgstr "CANCELLED"
+
+#: domain/models.py:96
+msgid "INASISTENCIA"
+msgstr "NO-SHOW"
+
+#: domain/models.py:96
+msgid "COMPLETADO"
+msgstr "COMPLETED"
+
+#: domain/models.py:98
+msgid "MERCADOPAGO"
+msgstr "MERCADOPAGO"
+
+#: domain/models.py:98
+msgid "MERCADOPAGO_FAKE"
+msgstr "MERCADOPAGO (TEST)"
+
+#: domain/models.py:106
+msgid "Lunes"
+msgstr "Monday"
+
+#: domain/models.py:106
+msgid "Martes"
+msgstr "Tuesday"
+
+#: domain/models.py:106
+msgid "Miércoles"
+msgstr "Wednesday"
+
+#: domain/models.py:106
+msgid "Jueves"
+msgstr "Thursday"
+
+#: domain/models.py:107
+msgid "Viernes"
+msgstr "Friday"
+
+#: domain/models.py:107
+msgid "Sábado"
+msgstr "Saturday"
+
+#: domain/models.py:107
+msgid "Domingo"
+msgstr "Sunday"
+
+#: domain/models.py:127
+msgid "Completada"
+msgstr "Completed"
+
+#: domain/models.py:129
+msgid "No Show"
+msgstr "No-show"
+
+#: domain/models.py:170
+msgid "MercadoPago (fake)"
+msgstr "MercadoPago (test)"
+
+#: domain/models.py:174
+msgid "Completado"
+msgstr "Completed"
+
+#: domain/models.py:209
+msgid "Penalización automática"
+msgstr "Automatic penalty"
+
+#: domain/models.py:210
+msgid "Suspender cuenta"
+msgstr "Suspend account"
+
+#: paciente/templates/paciente/_partials/cita_botones.html:12
+msgid "Ya usaste tu reprogramación de este mes"
+msgstr "You already used your reschedule this month"
+
+#: paciente/templates/paciente/_partials/cita_botones.html:13
+msgid "Reprogramar"
+msgstr "Reschedule"
+
+#: paciente/templates/paciente/_partials/cita_botones.html:18
+msgid "Ya usaste tu cancelación de este mes"
+msgstr "You already used your cancellation this month"
+
+#: paciente/templates/paciente/_partials/cita_modales.html:12
+msgid "Reprogramar cita"
+msgstr "Reschedule appointment"
+
+#: paciente/templates/paciente/_partials/cita_modales.html:13
+#: paciente/templates/paciente/_partials/cita_modales.html:38
+msgid "Cerrar"
+msgstr "Close"
+
+#: paciente/templates/paciente/_partials/cita_modales.html:25
+msgid "Horario actual:"
+msgstr "Current time:"
+
+#: paciente/templates/paciente/_partials/cita_modales.html:29
+msgid "Nueva fecha"
+msgstr "New date"
+
+#: paciente/templates/paciente/_partials/cita_modales.html:31
+#: paciente/templates/paciente/agendar_cita.html:51
+msgid "Hasta 60 días a partir de hoy. No se atiende en domingo."
+msgstr "Up to 60 days from today. Closed on Sundays."
+
+#: paciente/templates/paciente/_partials/cita_modales.html:34
+msgid "Nuevo horario"
+msgstr "New time"
+
+#: paciente/templates/paciente/_partials/cita_modales.html:40
+msgid "Confirmar cambio"
+msgstr "Confirm change"
+
+#: paciente/templates/paciente/agendar_cita.html:4
+#: paciente/templates/paciente/agendar_cita.html:5
+#: paciente/templates/paciente/base.html:59
+#: paciente/templates/paciente/dashboard.html:22
+msgid "Agendar cita"
+msgstr "Book appointment"
+
+#: paciente/templates/paciente/agendar_cita.html:6
+msgid "Elige tratamiento, fecha y horario"
+msgstr "Choose treatment, date and time"
+
+#: paciente/templates/paciente/agendar_cita.html:10
+msgid "¿Confirmar cita?"
+msgstr "Confirm appointment?"
+
+#: paciente/templates/paciente/agendar_cita.html:11
+msgid "Te enviaremos un correo de confirmación."
+msgstr "We'll send you a confirmation email."
+
+#: paciente/templates/paciente/agendar_cita.html:20
+msgid "¿Qué tratamiento necesitas?"
+msgstr "Which treatment do you need?"
+
+#: paciente/templates/paciente/agendar_cita.html:41
+msgid "No hay servicios disponibles por ahora."
+msgstr "No services available right now."
+
+#: paciente/templates/paciente/agendar_cita.html:47
+msgid "Elige fecha y horario"
+msgstr "Choose date and time"
+
+#: paciente/templates/paciente/agendar_cita.html:54
+msgid "Horarios disponibles"
+msgstr "Available times"
+
+#: paciente/templates/paciente/agendar_cita.html:62
+msgid "Resumen"
+msgstr "Summary"
+
+#: paciente/templates/paciente/agendar_cita.html:65
+#: paciente/templates/paciente/perfil.html:39
+msgid "Especialista"
+msgstr "Specialist"
+
+#: paciente/templates/paciente/agendar_cita.html:68
+msgid "Hora"
+msgstr "Time"
+
+#: paciente/templates/paciente/agendar_cita.html:71
+msgid "Confirmar cita"
+msgstr "Confirm appointment"
+
+#: paciente/templates/paciente/agendar_cita.html:74
+msgid "Podrás pagar en línea desde la sección Pagos."
+msgstr "You can pay online from the Payments section."
+
+#: paciente/templates/paciente/base.html:44
+msgid "Cerrar menú"
+msgstr "Close menu"
+
+#: paciente/templates/paciente/base.html:51
+msgid "Principal"
+msgstr "Main"
+
+# Pagos (paciente)
+#: paciente/templates/paciente/base.html:56
+#: paciente/templates/paciente/citas.html:4
+#: paciente/templates/paciente/citas.html:5
+msgid "Mis citas"
+msgstr "My appointments"
+
+#: paciente/templates/paciente/base.html:64
+msgid "Mi cuenta"
+msgstr "My account"
+
+#: paciente/templates/paciente/base.html:70
+#: paciente/templates/paciente/dashboard.html:20
+#: paciente/templates/paciente/perfil.html:4
+#: paciente/templates/paciente/perfil.html:5
+msgid "Mi perfil"
+msgstr "My profile"
+
+#: paciente/templates/paciente/base.html:75
+msgid "Ayuda"
+msgstr "Help"
+
+#: paciente/templates/paciente/base.html:77
+msgid "Contactar consultorio"
+msgstr "Contact the clinic"
+
+#: paciente/templates/paciente/base.html:80
+#: paciente/templates/paciente/dashboard.html:233
+msgid "Guía del paciente"
+msgstr "Patient guide"
+
+#: paciente/templates/paciente/base.html:100
+msgid "Cerrar sesión"
+msgstr "Log out"
+
+#: paciente/templates/paciente/base.html:112
+msgid "Abrir menú"
+msgstr "Open menu"
+
+#: paciente/templates/paciente/base.html:116
+msgid "Panel del paciente"
+msgstr "Patient panel"
+
+#: paciente/templates/paciente/base.html:136
+msgid "Cambiar tema"
+msgstr "Change theme"
+
+#: paciente/templates/paciente/base.html:165
+msgid "Hubo un problema"
+msgstr "Something went wrong"
+
+#: paciente/templates/paciente/base.html:165
+msgid "Atención"
+msgstr "Attention"
+
+#: paciente/templates/paciente/base.html:165
+msgid "Aviso"
+msgstr "Notice"
+
+#: paciente/templates/paciente/base.html:165
+msgid "¡Listo!"
+msgstr "Done!"
+
+#: paciente/templates/paciente/citas.html:6
+msgid "Consulta, reprograma o cancela tus citas"
+msgstr "View, reschedule or cancel your appointments"
+
+#: paciente/templates/paciente/citas.html:13
+msgid "Próximas"
+msgstr "Upcoming"
+
+#: paciente/templates/paciente/citas.html:20
+msgid "Nueva cita"
+msgstr "New appointment"
+
+#: paciente/templates/paciente/citas.html:40
+msgid "Reprogramada"
+msgstr "Rescheduled"
+
+#: paciente/templates/paciente/citas.html:46
+#: paciente/templates/paciente/pagos.html:32
+msgid "Cita"
+msgstr "Appointment"
+
+#: paciente/templates/paciente/citas.html:51
+msgid "Ver mapa"
+msgstr "View map"
+
+#: paciente/templates/paciente/citas.html:61
+#: paciente/templates/paciente/dashboard.html:113
+msgid ""
+"Puedes cancelar o reprogramar una vez al mes. Para más cambios contacta al "
+"consultorio."
+msgstr ""
+"You can cancel or reschedule once a month. For further changes, contact the "
+"clinic."
+
+#: paciente/templates/paciente/citas.html:67
+msgid "No tienes citas próximas."
+msgstr "You have no upcoming appointments."
+
+#: paciente/templates/paciente/citas.html:68
+#: paciente/templates/paciente/dashboard.html:119
+msgid "Agendar una cita"
+msgstr "Book an appointment"
+
+#: paciente/templates/paciente/citas.html:95
+#: paciente/templates/paciente/dashboard.html:144
+msgid "Opinar"
+msgstr "Rate"
+
+#: paciente/templates/paciente/citas.html:104
+#: paciente/templates/paciente/dashboard.html:152
+msgid "Aún no tienes historial de citas."
+msgstr "You don't have any appointment history yet."
+
+#: paciente/templates/paciente/dashboard.html:16
+#, python-format
+msgid "Hola, %(nombre)s"
+msgstr "Hi, %(nombre)s"
+
+#: paciente/templates/paciente/dashboard.html:17
+msgid "Aquí tienes el resumen de tu cuidado dental."
+msgstr "Here's an overview of your dental care."
+
+#: paciente/templates/paciente/dashboard.html:32
+msgid "Registramos una inasistencia"
+msgstr "We recorded a missed appointment"
+
+#: paciente/templates/paciente/dashboard.html:32
+msgid ""
+"Si vuelves a faltar se generará una penalización y se bloqueará tu agenda."
+msgstr ""
+"If you miss another one, a penalty will be applied and booking will be "
+"blocked."
+
+#: paciente/templates/paciente/dashboard.html:38
+msgid "Agenda bloqueada por inasistencia"
+msgstr "Booking blocked due to a missed appointment"
+
+#: paciente/templates/paciente/dashboard.html:39
+#, python-format
+msgid "Cubre la cuota de $%(monto)s MXN para volver a agendar citas."
+msgstr "Pay the $%(monto)s MXN fee to book appointments again."
+
+#: paciente/templates/paciente/dashboard.html:47
+msgid "Aviso del consultorio"
+msgstr "Notice from the clinic"
+
+#: paciente/templates/paciente/dashboard.html:54
+msgid "Completa tu perfil"
+msgstr "Complete your profile"
+
+#: paciente/templates/paciente/dashboard.html:54
+msgid "Agrega tu teléfono para recibir recordatorios de tus citas."
+msgstr "Add your phone number to receive appointment reminders."
+
+#: paciente/templates/paciente/dashboard.html:55
+msgid "Completar"
+msgstr "Complete"
+
+#: paciente/templates/paciente/dashboard.html:63
+msgid "Citas próximas"
+msgstr "Upcoming appointments"
+
+#: paciente/templates/paciente/dashboard.html:67
+msgid "Tratamientos realizados"
+msgstr "Completed treatments"
+
+#: paciente/templates/paciente/dashboard.html:71
+msgid "Citas en total"
+msgstr "Total appointments"
+
+#: paciente/templates/paciente/dashboard.html:75
+msgid "Saldo pendiente"
+msgstr "Outstanding balance"
+
+#: paciente/templates/paciente/dashboard.html:84
+msgid "Tu próxima cita"
+msgstr "Your next appointment"
+
+#: paciente/templates/paciente/dashboard.html:85
+msgid "Ver todas"
+msgstr "View all"
+
+#: paciente/templates/paciente/dashboard.html:117
+msgid "No tienes citas programadas."
+msgstr "You have no scheduled appointments."
+
+#: paciente/templates/paciente/dashboard.html:128
+msgid "Historial reciente"
+msgstr "Recent history"
+
+#: paciente/templates/paciente/dashboard.html:129
+msgid "Ver historial"
+msgstr "View history"
+
+#: paciente/templates/paciente/dashboard.html:144
+msgid "Editar opinión"
+msgstr "Edit review"
+
+#: paciente/templates/paciente/dashboard.html:160
+msgid "Mi especialista"
+msgstr "My specialist"
+
+#: paciente/templates/paciente/dashboard.html:169
+msgid "Odontología general"
+msgstr "General dentistry"
+
+#: paciente/templates/paciente/dashboard.html:185
+msgid "Llamar"
+msgstr "Call"
+
+#: paciente/templates/paciente/dashboard.html:188
+msgid "Cómo llegar"
+msgstr "Directions"
+
+#: paciente/templates/paciente/dashboard.html:190
+msgid "Contactar"
+msgstr "Contact"
+
+#: paciente/templates/paciente/dashboard.html:193
+msgid "Aún no tienes un dentista asignado."
+msgstr "You don't have an assigned dentist yet."
+
+#: paciente/templates/paciente/dashboard.html:200
+msgid "Pagos pendientes"
+msgstr "Pending payments"
+
+# Pagos (paciente)
+#: paciente/templates/paciente/dashboard.html:201
+msgid "Ver pagos"
+msgstr "View payments"
+
+#: paciente/templates/paciente/dashboard.html:210
+#: paciente/templates/paciente/pagar_penalizacion.html:4
+#: paciente/templates/paciente/pagos.html:63 templates/landing/index.html:205
+msgid "Penalización"
+msgstr "Penalty"
+
+#: paciente/templates/paciente/dashboard.html:211
+msgid "Cargo por inasistencia"
+msgstr "Missed appointment fee"
+
+#: paciente/templates/paciente/dashboard.html:222
+msgid "Pagar en línea"
+msgstr "Pay online"
+
+#: paciente/templates/paciente/dashboard.html:225
+msgid "Estás al día con tus pagos."
+msgstr "You are up to date with your payments."
+
+#: paciente/templates/paciente/dashboard.html:234
+msgid "Cómo agendar, pagar y preparar tu visita."
+msgstr "How to book, pay and prepare for your visit."
+
+#: paciente/templates/paciente/dashboard.html:236
+msgid "Descargar guía (PDF)"
+msgstr "Download guide (PDF)"
+
+#: paciente/templates/paciente/feedback_cita.html:4
+#: paciente/templates/paciente/feedback_cita.html:5
+msgid "Tu opinión"
+msgstr "Your review"
+
+#: paciente/templates/paciente/feedback_cita.html:6
+msgid "Cuéntanos cómo te fue en tu cita"
+msgstr "Tell us how your appointment went"
+
+#: paciente/templates/paciente/feedback_cita.html:22
+msgid "Califica tu experiencia"
+msgstr "Rate your experience"
+
+#: paciente/templates/paciente/feedback_cita.html:25
+#: paciente/templates/paciente/feedback_cita.html:26
+msgid "Puntuación"
+msgstr "Rating"
+
+#: paciente/templates/paciente/feedback_cita.html:35
+msgid "Comentario (opcional)"
+msgstr "Comment (optional)"
+
+#: paciente/templates/paciente/feedback_cita.html:36
+msgid "Comparte detalles de tu experiencia"
+msgstr "Share details about your experience"
+
+#: paciente/templates/paciente/feedback_cita.html:40
+msgid "Enviar opinión"
+msgstr "Submit review"
+
+#: paciente/templates/paciente/pagar_penalizacion.html:5
+#: paciente/templates/paciente/pagos.html:31
+msgid "Penalización por inasistencia"
+msgstr "Missed appointment penalty"
+
+#: paciente/templates/paciente/pagar_penalizacion.html:12
+msgid "Tu agenda está bloqueada"
+msgstr "Your booking is blocked"
+
+#: paciente/templates/paciente/pagar_penalizacion.html:13
+msgid ""
+"Acumulaste inasistencias que generaron una penalización. Al cubrirla podrás "
+"agendar de nuevo."
+msgstr ""
+"Your missed appointments generated a penalty. Once it's paid you can book "
+"again."
+
+#: paciente/templates/paciente/pagar_penalizacion.html:22
+msgid "Fecha límite"
+msgstr "Due date"
+
+#: paciente/templates/paciente/pagar_penalizacion.html:30
+msgid "Pagar con MercadoPago"
+msgstr "Pay with MercadoPago"
+
+# Pagos (paciente)
+#: paciente/templates/paciente/pagar_penalizacion.html:33
+msgid "Ir a pagos"
+msgstr "Go to payments"
+
+#: paciente/templates/paciente/pagar_penalizacion.html:35
+msgid "Volver al inicio"
+msgstr "Back to home"
+
+#: paciente/templates/paciente/pagos.html:6
+msgid "Paga en línea y descarga tus recibos"
+msgstr "Pay online and download your receipts"
+
+#: paciente/templates/paciente/pagos.html:13
+msgid "Tienes una penalización pendiente"
+msgstr "You have a pending penalty"
+
+#: paciente/templates/paciente/pagos.html:14
+#, python-format
+msgid "Paga $%(monto)s MXN para reactivar tu agenda."
+msgstr "Pay $%(monto)s MXN to reactivate booking."
+
+#: paciente/templates/paciente/pagos.html:37
+msgid "Ir a MercadoPago"
+msgstr "Go to MercadoPago"
+
+#: paciente/templates/paciente/pagos.html:38
+#, python-format
+msgid ""
+"Serás redirigido a MercadoPago para pagar $%(monto)s MXN de forma segura."
+msgstr "You'll be redirected to MercadoPago to securely pay $%(monto)s MXN."
+
+#: paciente/templates/paciente/pagos.html:39
+msgid "Continuar"
+msgstr "Continue"
+
+#: paciente/templates/paciente/pagos.html:41
+msgid "Pagar"
+msgstr "Pay"
+
+#: paciente/templates/paciente/pagos.html:48
+msgid "No tienes pagos pendientes."
+msgstr "You have no pending payments."
+
+#: paciente/templates/paciente/pagos.html:54
+msgid "Completados"
+msgstr "Completed"
+
+#: paciente/templates/paciente/pagos.html:69
+msgid "Recibo"
+msgstr "Receipt"
+
+#: paciente/templates/paciente/pagos.html:76
+msgid "Aún no tienes pagos completados."
+msgstr "You don't have completed payments yet."
+
+#: paciente/templates/paciente/pagos.html:81
+msgid ""
+"Los pagos en línea se procesan de forma segura con MercadoPago. También "
+"puedes pagar en el consultorio."
+msgstr ""
+"Online payments are processed securely by MercadoPago. You can also pay at "
+"the clinic."
+
+#: paciente/templates/paciente/perfil.html:6
+msgid "Tus datos personales y de contacto"
+msgstr "Your personal and contact details"
+
+#: paciente/templates/paciente/perfil.html:25
+msgid "Subir foto"
+msgstr "Upload photo"
+
+#: paciente/templates/paciente/perfil.html:31
+msgid "Quitar"
+msgstr "Remove"
+
+#: paciente/templates/paciente/perfil.html:35
+msgid "JPG, PNG o WEBP. Máximo 5 MB."
+msgstr "JPG, PNG or WEBP. Max 5 MB."
+
+#: paciente/templates/paciente/perfil.html:38 templates/landing/index.html:36
+msgid "años"
+msgstr "years"
+
+#: paciente/templates/paciente/perfil.html:40
+msgid "Paciente desde"
+msgstr "Patient since"
+
+#: paciente/templates/paciente/perfil.html:47
+msgid "Datos personales"
+msgstr "Personal details"
+
+#: paciente/templates/paciente/perfil.html:50
+msgid "Nombre completo"
+msgstr "Full name"
+
+#: paciente/templates/paciente/perfil.html:54
+msgid "Fecha de nacimiento"
+msgstr "Date of birth"
+
+#: paciente/templates/paciente/perfil.html:61
+msgid "Lo usamos para recordatorios de tus citas."
+msgstr "We use it for appointment reminders."
+
+#: paciente/templates/paciente/perfil.html:64
+msgid "Correo electrónico"
+msgstr "Email"
+
+#: paciente/templates/paciente/perfil.html:66
+msgid "El correo está ligado a tu cuenta y no se puede cambiar aquí."
+msgstr "Your email is linked to your account and can't be changed here."
+
+#: paciente/templates/paciente/perfil.html:70
+msgid "Calle, número, colonia, ciudad"
+msgstr "Street, number, neighborhood, city"
+
+#: paciente/templates/paciente/perfil.html:76
+msgid "Información médica"
+msgstr "Medical information"
+
+#: paciente/templates/paciente/perfil.html:79
+msgid "Alergias, enfermedades o medicamentos"
+msgstr "Allergies, conditions or medications"
+
+#: paciente/templates/paciente/perfil.html:80
+msgid "Ej. alergia a la penicilina, diabetes, hipertensión…"
+msgstr "E.g. penicillin allergy, diabetes, hypertension…"
+
+#: paciente/templates/paciente/perfil.html:81
+msgid ""
+"Solo tu dentista puede ver esta información. Ayuda a darte una atención "
+"segura."
+msgstr ""
+"Only your dentist can see this information. It helps provide safe care."
+
+#: paciente/views.py:101
+msgid ""
+"No hay un dentista configurado aún. Contacta al administrador para registrar"
+" uno antes de continuar."
+msgstr ""
+"No dentist has been set up yet. Contact the administrator to register one "
+"before continuing."
+
+#: paciente/views.py:114
+msgid ""
+"Perfil creado automáticamente. Completa tus datos desde tu perfil si lo "
+"necesitas."
+msgstr ""
+"Profile created automatically. Complete your details from your profile if "
+"needed."
+
+#: paciente/views.py:221
+msgid "El nombre es obligatorio."
+msgstr "Name is required."
+
+#: paciente/views.py:223
+msgid "El teléfono debe tener exactamente 10 dígitos."
+msgstr "Phone number must have exactly 10 digits."
+
+#: paciente/views.py:225
+msgid "Ese teléfono ya está registrado con otro paciente."
+msgstr "That phone number is already registered to another patient."
+
+#: paciente/views.py:227
+msgid "Ya existe otro paciente con ese nombre. Agrega tu segundo apellido."
+msgstr "Another patient already has that name. Add your second last name."
+
+#: paciente/views.py:232
+msgid "La foto no puede pesar más de 5 MB."
+msgstr "The photo can't be larger than 5 MB."
+
+#: paciente/views.py:234
+msgid "La foto debe ser JPG, PNG o WEBP."
+msgstr "The photo must be JPG, PNG or WEBP."
+
+#: paciente/views.py:253
+msgid "Tu perfil se actualizó correctamente."
+msgstr "Your profile was updated successfully."
+
+#: paciente/views.py:303
+msgid "No puedes agendar citas hasta cubrir la penalización pendiente ($300)."
+msgstr "You can't book appointments until you pay the pending penalty ($300)."
+
+#: paciente/views.py:328
+msgid "No puedes agendar en fechas pasadas."
+msgstr "You can't book on past dates."
+
+#: paciente/views.py:331
+msgid "Solo puedes agendar hasta 60 días a partir de hoy."
+msgstr "You can only book up to 60 days from today."
+
+#: paciente/views.py:334 paciente/views.py:1040
+msgid "No se atiende los domingos. Elige otro día."
+msgstr "We're closed on Sundays. Choose another day."
+
+#: paciente/views.py:343
+msgid "No puedes agendar en una hora que ya pasó."
+msgstr "You can't book a time that has already passed."
+
+#: paciente/views.py:357 paciente/views.py:1065
+msgid "Ese horario ya no está disponible. Elige otro."
+msgstr "That time is no longer available. Choose another."
+
+#: paciente/views.py:398
+#, python-format
+msgid "Cita agendada con el especialista Dr. %(nombre)s."
+msgstr "Appointment booked with specialist Dr. %(nombre)s."
+
+#: paciente/views.py:400
+msgid "Cita agendada con tu dentista correctamente."
+msgstr "Appointment booked with your dentist successfully."
+
+#: paciente/views.py:406
+msgid "Error en los datos seleccionados."
+msgstr "There's an error in the selected data."
+
+#: paciente/views.py:432
+msgid "Pago registrado correctamente."
+msgstr "Payment recorded successfully."
+
+#: paciente/views.py:513
+msgid "Este pago ya está completado."
+msgstr "This payment is already completed."
+
+#: paciente/views.py:517
+msgid "Acción no permitida."
+msgstr "Action not allowed."
+
+#: paciente/views.py:528
+msgid ""
+"No se pudo iniciar el pago en línea. Revisa que tus credenciales de "
+"MercadoPago sean válidas y vuelve a intentar."
+msgstr ""
+"The online payment couldn't be started. Check that the MercadoPago "
+"credentials are valid and try again."
+
+#: paciente/views.py:545
+msgid "No pudimos validar el pago (sin referencia)."
+msgstr "We couldn't validate the payment (no reference)."
+
+#: paciente/views.py:550
+msgid "Pago no encontrado para esta cuenta."
+msgstr "Payment not found for this account."
+
+#: paciente/views.py:579
+msgid "El pago fue cancelado o falló."
+msgstr "The payment was cancelled or failed."
+
+#: paciente/views.py:585
+msgid "Pago en estado pendiente. Verifica más tarde."
+msgstr "Payment is pending. Check again later."
+
+#: paciente/views.py:720
+msgid "No tienes penalizaciones por cubrir."
+msgstr "You have no penalties to pay."
+
+#: paciente/views.py:725
+msgid "Realiza el pago en línea desde la sección Pagos."
+msgstr "Make the payment online from the Payments section."
+
+#: paciente/views.py:760
+msgid ""
+"Ya usaste tu cancelación de este mes. Contacta a tu dentista para más "
+"cambios."
+msgstr ""
+"You already used your cancellation this month. Contact your dentist for "
+"further changes."
+
+#: paciente/views.py:764
+msgid "La cita ya estaba cancelada."
+msgstr "The appointment was already cancelled."
+
+#: paciente/views.py:767
+msgid "No puedes cancelar una cita ya marcada como inasistencia."
+msgstr "You can't cancel an appointment already marked as missed."
+
+#: paciente/views.py:785
+msgid "Cita cancelada. Se notificará al dentista."
+msgstr "Appointment cancelled. The dentist will be notified."
+
+#: paciente/views.py:798
+msgid "Perfil de paciente no encontrado."
+msgstr "Patient profile not found."
+
+#: paciente/views.py:803
+msgid "Sin remitente configurado."
+msgstr "No sender configured."
+
+#: paciente/views.py:849
+msgid "positiva"
+msgstr "positive"
+
+#: paciente/views.py:849
+msgid "neutral"
+msgstr "neutral"
+
+#: paciente/views.py:849
+msgid "negativa"
+msgstr "negative"
+
+#: paciente/views.py:850
+#, python-format
+msgid "Experiencia %(tono)s"
+msgstr "%(tono)s experience"
+
+#: paciente/views.py:851
+#, python-format
+msgid "¡Gracias por tu opinión! Resumen IA: %(resumen)s"
+msgstr "Thanks for your feedback! AI summary: %(resumen)s"
+
+#: paciente/views.py:867
+msgid "Enlace inválido o expirado."
+msgstr "Invalid or expired link."
+
+#: paciente/views.py:874
+msgid "Asistencia confirmada. ¡Te esperamos!"
+msgstr "Attendance confirmed. See you soon!"
+
+#: paciente/views.py:876
+msgid "La cita ya estaba confirmada."
+msgstr "The appointment was already confirmed."
+
+#: paciente/views.py:1010
+msgid ""
+"Ya usaste tu reprogramación de este mes. Comunícate con tu dentista para más"
+" cambios."
+msgstr ""
+"You already used your reschedule this month. Contact your dentist for "
+"further changes."
+
+#: paciente/views.py:1015
+msgid ""
+"Ya reprogramaste esta cita. Comunícate con tu dentista para más cambios."
+msgstr ""
+"You already rescheduled this appointment. Contact your dentist for further "
+"changes."
+
+#: paciente/views.py:1021
+msgid "Fecha u hora inválidas."
+msgstr "Invalid date or time."
+
+#: paciente/views.py:1028
+msgid "Formato de fecha u hora inválido."
+msgstr "Invalid date or time format."
+
+#: paciente/views.py:1034
+msgid "No puedes reprogramar a una fecha pasada."
+msgstr "You can't reschedule to a past date."
+
+#: paciente/views.py:1037
+msgid "Solo puedes reprogramar hasta 60 días a partir de hoy."
+msgstr "You can only reschedule up to 60 days from today."
+
+#: paciente/views.py:1048
+msgid "No puedes reprogramar a una hora que ya pasó."
+msgstr "You can't reschedule to a time that has already passed."
+
+#: paciente/views.py:1093
+msgid "Cita reprogramada correctamente."
+msgstr "Appointment rescheduled successfully."
+
+#: paciente/views.py:1104
+msgid "Faltan parámetros"
+msgstr "Missing parameters"
+
+#: paciente/views.py:1109
+msgid "Servicio no encontrado"
+msgstr "Service not found"
+
+#: paciente/views.py:1114
+msgid "Fecha inválida"
+msgstr "Invalid date"
+
+#: paciente/views.py:1119
+msgid "No se permiten fechas pasadas"
+msgstr "Past dates are not allowed"
+
+#: paciente/views.py:1121
+msgid "Fuera de rango (60 días)"
+msgstr "Out of range (60 days)"
+
+#: paciente/views.py:1123
+msgid "No se atiende domingos"
+msgstr "Closed on Sundays"
+
+#: templates/_components/base_site.html:8
+msgid "Sistema Integral De Gestión Dental"
+msgstr "Comprehensive Dental Management System"
+
+#: templates/_components/navbar.html:11 templates/_components/navbar.html:52
+msgid "Acerca"
+msgstr "About"
+
+#: templates/_components/navbar.html:13 templates/_components/navbar.html:54
+msgid "Contacto"
+msgstr "Contact"
+
+#: templates/_components/navbar.html:17 templates/_components/navbar.html:56
+#: templates/landing/index.html:30
+msgid "Iniciar sesión"
+msgstr "Login"
+
+#: templates/_components/navbar.html:18 templates/_components/navbar.html:57
+#: templates/landing/index.html:31
+msgid "Agenda tu cita"
+msgstr "Book your appointment"
+
+#: templates/landing/index.html:4
 msgid "Consultorio Dental Rodolfo Castellón | Sistema integral"
 msgstr "Rodolfo Castellón Dental Office | Integral System"
 
-#: templates/landing/index.html:6
+#: templates/landing/index.html:5
 msgid ""
 "Atención dental profesional en Puerto Vallarta. Citas en línea, pagos "
 "seguros."
@@ -89,15 +3210,15 @@ msgstr ""
 "Professional dental care in Puerto Vallarta. Online appointments, secure "
 "payments."
 
-#: templates/landing/index.html:17
+#: templates/landing/index.html:21
 msgid "SISTEMA INTEGRAL • PUERTO VALLARTA"
 msgstr "INTEGRAL SYSTEM • PUERTO VALLARTA"
 
-#: templates/landing/index.html:18
+#: templates/landing/index.html:22
 msgid "Consultorio Dental Rodolfo Castellón"
 msgstr "Rodolfo Castellón Dental Office"
 
-#: templates/landing/index.html:20
+#: templates/landing/index.html:24
 msgid ""
 "<strong>Sistema integral</strong> para la <strong>gestión de pacientes, "
 "citas y pagos</strong>. Tecnología moderna, trato humano y precios "
@@ -107,51 +3228,35 @@ msgstr ""
 "payment management</strong>. Modern technology, human touch, and affordable "
 "prices."
 
-#: templates/landing/index.html:25
-msgid "Iniciar sesión"
-msgstr "Login"
-
-#: templates/landing/index.html:26
-msgid "Agenda tu cita"
-msgstr "Book your appointment"
-
-#: templates/landing/index.html:30
+#: templates/landing/index.html:34
 msgid "Procedimientos"
 msgstr "Procedures"
 
-#: templates/landing/index.html:31
+#: templates/landing/index.html:35
 msgid "Satisfacción"
 msgstr "Satisfaction"
 
-#: templates/landing/index.html:32
-msgid "años"
-msgstr "years"
-
-#: templates/landing/index.html:32
+#: templates/landing/index.html:36
 msgid "Experiencia"
 msgstr "Experience"
 
-#: templates/landing/index.html:41
+#: templates/landing/index.html:44
 msgid "Servicios principales"
 msgstr "Main Services"
 
-#: templates/landing/index.html:42
+#: templates/landing/index.html:45
 msgid "Tratamientos personalizados para cada sonrisa."
 msgstr "Personalized treatments for every smile."
 
-#: templates/landing/index.html:46
+#: templates/landing/index.html:50
 msgid "Odontología General"
 msgstr "General Dentistry"
 
-#: templates/landing/index.html:48
-msgid "Limpieza profunda"
-msgstr "Deep cleaning"
-
-#: templates/landing/index.html:49
+#: templates/landing/index.html:51
 msgid "Resinas"
 msgstr "Resin fillings"
 
-#: templates/landing/index.html:50
+#: templates/landing/index.html:51
 msgid "Extracciones"
 msgstr "Extractions"
 
@@ -159,334 +3264,300 @@ msgstr "Extractions"
 msgid "Ortodoncia"
 msgstr "Orthodontics"
 
-#: templates/landing/index.html:57
+#: templates/landing/index.html:56
 msgid "Brackets estéticos"
 msgstr "Aesthetic brackets"
 
-#: templates/landing/index.html:58
+#: templates/landing/index.html:56
 msgid "Alineadores"
 msgstr "Aligners"
 
-#: templates/landing/index.html:63
+#: templates/landing/index.html:60
 msgid "Estética"
 msgstr "Aesthetics"
 
-#: templates/landing/index.html:65
+#: templates/landing/index.html:61
 msgid "Blanqueamiento"
 msgstr "Whitening"
 
-#: templates/landing/index.html:66
+#: templates/landing/index.html:61
 msgid "Carillas"
 msgstr "Veneers"
 
-#: templates/landing/index.html:71
+#: templates/landing/index.html:65
 msgid "Restaurativa"
 msgstr "Restorative"
 
-#: templates/landing/index.html:73
+#: templates/landing/index.html:66
 msgid "Coronas"
 msgstr "Crowns"
 
-#: templates/landing/index.html:74
+#: templates/landing/index.html:66
 msgid "Incrustaciones"
 msgstr "Inlays/Onlays"
 
-#: templates/landing/index.html:79
-msgid "Prótesis e Implantes"
-msgstr "Prosthetics and Implants"
+#: templates/landing/index.html:70
+msgid "Prótesis"
+msgstr "Prosthetics"
 
-#: templates/landing/index.html:81
+#: templates/landing/index.html:71
 msgid "Implantes dentales"
 msgstr "Dental implants"
 
-#: templates/landing/index.html:82
+#: templates/landing/index.html:71
 msgid "Puentes"
 msgstr "Bridges"
 
-#: templates/landing/index.html:87
+#: templates/landing/index.html:75
 msgid "Agenda Digital"
 msgstr "Digital Agenda"
 
-#: templates/landing/index.html:88
-msgid "Recordatorios automáticos por correo y WhatsApp."
-msgstr "Automatic reminders via email and WhatsApp."
+#: templates/landing/index.html:76
+msgid "Recordatorios automáticos."
+msgstr "Automatic reminders."
 
-#: templates/landing/index.html:98
+#: templates/landing/index.html:86
 msgid "Acerca del consultorio"
 msgstr "About the office"
 
-#: templates/landing/index.html:99
+#: templates/landing/index.html:87
 msgid ""
-"Ubicados en <strong>El Pitillal, Puerto Vallarta</strong>, ofrecemos "
-"tratamientos de última generación con un trato humano."
+"Ubicados en El Pitillal, Puerto Vallarta, ofrecemos tratamientos de última "
+"generación con un trato humano."
 msgstr ""
-"Located in <strong>El Pitillal, Puerto Vallarta</strong>, we offer state-of-"
-"the-art treatments with a human touch."
+"Located in El Pitillal, Puerto Vallarta, we offer state-of-the-art "
+"treatments with a human touch."
 
-#: templates/landing/index.html:100
-msgid "Horario: Lunes a Sábado, 2:00pm - 8:00pm."
-msgstr "Hours: Monday to Saturday, 2:00pm - 8:00pm."
+#: templates/landing/index.html:89
+msgid "Horario flexible: Lunes, 7 am - 7pm y Sabados, 9 a 2"
+msgstr "Flexible hours: Monday, 7 am - 7 pm and Saturdays, 9 am - 2 pm"
 
-#: templates/landing/index.html:101
+#: templates/landing/index.html:90
+msgid "Tecnología moderna y ambiente seguro"
+msgstr "Modern technology and a safe environment"
+
+#: templates/landing/index.html:91
+msgid "Atención personalizada por el Dr. Castellón"
+msgstr "Personalized care by Dr. Castellón"
+
+#: templates/landing/index.html:93
 msgid "Quiero una valoración"
 msgstr "I want an assessment"
 
+#: templates/landing/index.html:106
+msgid "Sistema digital RC"
+msgstr "RC digital system"
+
+#: templates/landing/index.html:107
+msgid "Agenda, pagos y recordatorios conectados para pacientes y dentistas."
+msgstr ""
+"Scheduling, payments and reminders connected for patients and dentists."
+
+#: templates/landing/index.html:108
+msgid ""
+"Un panel para el dentista y otro para el paciente, sincronizados con "
+"correos, penalizaciones y cobros en línea."
+msgstr ""
+"One panel for the dentist and one for the patient, synced with emails, "
+"penalties and online payments."
+
 #: templates/landing/index.html:110
+msgid "Crear mi cuenta"
+msgstr "Create my account"
+
+#: templates/landing/index.html:111
+msgid "Acceder"
+msgstr "Sign in"
+
+#: templates/landing/index.html:119
+msgid "Agenda inteligente"
+msgstr "Smart scheduling"
+
+#: templates/landing/index.html:120
+msgid "Slots en tiempo real, reprogramaciones y confirmaciones por correo."
+msgstr "Real-time slots, rescheduling and email confirmations."
+
+#: templates/landing/index.html:126
+msgid "Pagos con MercadoPago"
+msgstr "Payments with MercadoPago"
+
+#: templates/landing/index.html:127
+msgid "Cobros seguros, recibos en PDF y conciliación automática."
+msgstr "Secure payments, PDF receipts and automatic reconciliation."
+
+#: templates/landing/index.html:133
+msgid "Recordatorios 24h"
+msgstr "24h reminders"
+
+#: templates/landing/index.html:134
+msgid "Correos automáticos antes de la cita y enlaces de confirmación."
+msgstr "Automatic emails before the appointment and confirmation links."
+
+#: templates/landing/index.html:140
+msgid "Seguridad y acceso"
+msgstr "Security and access"
+
+#: templates/landing/index.html:141
+msgid "Verificación de email y control de penalizaciones por inasistencias."
+msgstr "Email verification and missed-appointment penalty control."
+
+#: templates/landing/index.html:152
 msgid "Formas de pago"
 msgstr "Payment methods"
 
-#: templates/landing/index.html:112
-msgid "Efectivo"
-msgstr "Cash"
+#: templates/landing/index.html:153
+msgid "Flexibilidad para tu comodidad."
+msgstr "Flexibility for your convenience."
 
-#: templates/landing/index.html:113
-msgid "Pagos en línea (MercadoPago)"
-msgstr "Online payments (MercadoPago)"
-
-#: templates/landing/index.html:114
-msgid "Transferencias"
-msgstr "Bank transfers"
-
-#: templates/landing/index.html:119
-msgid "Lo que dicen nuestros pacientes"
-msgstr "What our patients say"
-
-#: templates/landing/index.html:127
+#: templates/landing/index.html:166
 msgid "Contáctanos"
 msgstr "Contact us"
 
-#: templates/landing/index.html:131
-msgid "Calle Guatemala #125, El Pitillal, Puerto Vallarta."
-msgstr "Guatemala Street #125, El Pitillal, Puerto Vallarta."
+#: templates/landing/index.html:170
+msgid "Calle Guatemala #125, El Pitillal"
+msgstr "125 Guatemala St., El Pitillal"
 
-#: templates/landing/index.html:133
-msgid "Mensaje enviado (Demo)"
-msgstr "Message sent (Demo)"
-
-#: templates/landing/index.html:136
-msgid "Nombre"
-msgstr "Name"
-
-#: templates/landing/index.html:137
-msgid "Teléfono"
-msgstr "Phone"
-
-#: templates/landing/index.html:139
-msgid "¿En qué podemos ayudarte?"
-msgstr "How can we help you?"
-
-#: templates/landing/index.html:140
-msgid "Enviar mensaje"
-msgstr "Send message"
-
-#: templates/landing/index.html:144
+#: templates/landing/index.html:174 templates/landing/index.html:207
 msgid "Ubicación"
 msgstr "Location"
 
-#: templates/landing/index.html:153
-msgid "Agendar cita"
-msgstr "Book appointment"
+#: templates/landing/index.html:188
+msgid ""
+"Hola 👋 Bienvenido/a. Puedo ayudarte a agendar una cita, consultar servicios "
+"y precios, o atender una urgencia. Elige una opción para comenzar."
+msgstr ""
+"Hi 👋 Welcome. I can help you book an appointment, check services and prices,"
+" or handle an emergency. Choose an option to get started."
+
+#: templates/landing/index.html:189
+msgid "Elige una opción o escribe tu duda..."
+msgstr "Choose an option or type your question..."
+
+#: templates/landing/index.html:190
+msgid "Agenda · Precios · Urgencias · Ubicación · Pagos"
+msgstr "Booking · Prices · Emergencies · Location · Payments"
+
+#: templates/landing/index.html:191
+msgid "Error al conectar. Intenta de nuevo."
+msgstr "Connection error. Please try again."
+
+#: templates/landing/index.html:195
+msgid "En línea"
+msgstr "Online"
+
+#: templates/landing/index.html:197
+msgid "Entrenado en agenda, pagos y penalizaciones"
+msgstr "Trained on scheduling, payments and penalties"
+
+#: templates/landing/index.html:204
+msgid "Quiero agendar una cita"
+msgstr "I want to book an appointment"
+
+#: templates/landing/index.html:204
+msgid "Agendar (IA)"
+msgstr "Book (AI)"
+
+#: templates/landing/index.html:205
+msgid "¿Cómo pagar mi penalización?"
+msgstr "How do I pay my penalty?"
+
+#: templates/landing/index.html:206
+msgid "¿Cuáles son los horarios disponibles?"
+msgstr "What times are available?"
+
+#: templates/landing/index.html:206
+msgid "Horarios"
+msgstr "Hours"
+
+#: templates/landing/index.html:207
+msgid "Ubicación del consultorio"
+msgstr "Clinic location"
+
+#: templates/landing/index.html:211
+msgid "Escribe tu pregunta..."
+msgstr "Type your question..."
+
+#: templates/landing/index.html:212
+msgid "Enviar"
+msgstr "Send"
+
+#~ msgid "Completada / Asistió"
+#~ msgstr "Completed / Attended"
+
+#~ msgid "Cancelada por Paciente"
+#~ msgstr "Cancelled by Patient"
+
+#~ msgid "Efectivo en Consultorio"
+#~ msgstr "Cash at Office"
+
+#~ msgid "Transferencia Bancaria"
+#~ msgstr "Bank Transfer"
+
+#~ msgid "Fallido/Rechazado"
+#~ msgstr "Failed/Rejected"
+
+#~ msgid "Reembolsado"
+#~ msgstr "Refunded"
+
+#~ msgid "Horario: Lunes a Sábado, 2:00pm - 8:00pm."
+#~ msgstr "Hours: Monday to Saturday, 2:00pm - 8:00pm."
+
+#~ msgid "Mensaje enviado (Demo)"
+#~ msgstr "Message sent (Demo)"
+
+#~ msgid "¿En qué podemos ayudarte?"
+#~ msgstr "How can we help you?"
 
 # Dashboard paciente
+#~ msgid "Dashboard | Paciente"
+#~ msgstr "Dashboard | Patient"
 
-msgid "Dashboard | Paciente"
-msgstr "Dashboard | Patient"
+#~ msgid "Tu sonrisa dental en tus manos."
+#~ msgstr "Your dental smile in your hands."
 
-msgid "Panel del Paciente"
-msgstr "Patient Panel"
+#~ msgid "Gestionar pagos en línea"
+#~ msgstr "Manage online payments"
 
-msgid "Tu sonrisa dental en tus manos."
-msgstr "Your dental smile in your hands."
+#~ msgid "Médico de Cabecera"
+#~ msgstr "Primary Doctor"
 
-msgid "Tu Próxima Cita"
-msgstr "Your Next Appointment"
+#~ msgid "Fecha Deseada"
+#~ msgstr "Desired Date"
 
-msgid "No tienes citas próximas."
-msgstr "You have no upcoming appointments."
+#~ msgid "Primero selecciona fecha"
+#~ msgstr "Select a date first"
 
-msgid "Agendar una cita"
-msgstr "Book an appointment"
+#~ msgid "Gestiona tus pagos pendientes o revisa tus pagos completados."
+#~ msgstr "Manage your pending payments or review completed ones."
 
-msgid "Mi Perfil"
-msgstr "My Profile"
+#~ msgid "Volver"
+#~ msgstr "Back"
 
-msgid "Sin dirección"
-msgstr "No address on file"
+#~ msgid "Teléfono (no editable)"
+#~ msgstr "Phone (not editable)"
 
-msgid "Pagos en línea"
-msgstr "Online Payments"
+#~ msgid "Correo (no editable)"
+#~ msgstr "Email (not editable)"
 
-msgid "Estás al día con tus pagos."
-msgstr "You are up to date with your payments."
+#~ msgid "Paso 2 de 2 · Completar perfil"
+#~ msgstr "Step 2 of 2 · Complete profile"
 
-msgid "Gestionar pagos en línea"
-msgstr "Manage online payments"
+#~ msgid "Solo falta tu número de teléfono"
+#~ msgstr "We just need your phone number"
 
-msgid "Mi Especialista"
-msgstr "My Specialist"
+#~ msgid ""
+#~ "Hola, %(nombre)s. Usaremos tu teléfono solo para confirmar o avisarte sobre "
+#~ "tus citas."
+#~ msgstr ""
+#~ "Hi %(nombre)s. We'll use your phone only to confirm or notify you about your"
+#~ " appointments."
 
-msgid "Médico de Cabecera"
-msgstr "Primary Doctor"
+#~ msgid "Número de teléfono"
+#~ msgstr "Phone number"
 
-msgid "Contactar"
-msgstr "Contact"
-
-# Modal agendar cita (paciente)
-
-msgid "Agendar Cita"
-msgstr "Book Appointment"
-
-msgid "Tratamiento"
-msgstr "Treatment"
-
-msgid "Selecciona"
-msgstr "Select"
-
-msgid "No hay servicios activos"
-msgstr "No active services"
-
-msgid "Fecha Deseada"
-msgstr "Desired Date"
-
-msgid "Horario Disponible"
-msgstr "Available Time"
-
-msgid "Primero selecciona fecha"
-msgstr "Select a date first"
-
-msgid "Buscando horarios..."
-msgstr "Searching time slots..."
-
-msgid "Cancelar"
-msgstr "Cancel"
-
-msgid "Confirmar Cita"
-msgstr "Confirm Appointment"
-
-msgid "Reprogramar"
-msgstr "Reschedule"
-
-msgid "Solo puedes cancelar o reprogramar una vez al mes. Después deberás comunicarte con tu dentista."
-msgstr "You can only cancel or reschedule once per month. After that, please contact your dentist."
-
-# Pagos (paciente)
-
-#: paciente/templates/paciente/pagos.html:4
-msgid "Mis pagos"
-msgstr "My payments"
-
-#: paciente/templates/paciente/pagos.html:5
-msgid "Pagos del paciente"
-msgstr "Patient payments"
-
-#: paciente/templates/paciente/pagos.html:57
-msgid "Pagos"
-msgstr "Payments"
-
-#: paciente/templates/paciente/pagos.html:58
-msgid "Gestiona tus pagos pendientes o revisa tus pagos completados."
-msgstr "Manage your pending payments or review completed ones."
-
-#: paciente/templates/paciente/pagos.html:64
-msgid "Volver"
-msgstr "Back"
-
-#: paciente/templates/paciente/pagos.html:71
-msgid "Pagos pendientes"
-msgstr "Pending payments"
-
-#: paciente/templates/paciente/pagos.html:83
-msgid "Cita"
-msgstr "Appointment"
-
-#: paciente/templates/paciente/pagos.html:83
-msgid "Dr."
-msgstr "Dr."
-
-#: paciente/templates/paciente/pagos.html:84
-msgid "Método"
-msgstr "Method"
-
-#: paciente/templates/paciente/pagos.html:84
-msgid "No especificado"
-msgstr "Not specified"
-
-#: paciente/templates/paciente/pagos.html:87
-msgid "Pagar ahora"
-msgstr "Pay now"
-
-#: paciente/templates/paciente/pagos.html:89
-#: paciente/templates/paciente/pagos.html:109
-msgid "Descargar PDF"
-msgstr "Download PDF"
-
-#: paciente/templates/paciente/pagos.html:94
-msgid "No tienes pagos pendientes 🎉"
-msgstr "You have no pending payments 🎉"
-
-#: paciente/templates/paciente/pagos.html:101
-msgid "Pagos completados"
-msgstr "Completed payments"
-
-#: paciente/templates/paciente/pagos.html:113
-msgid "Completado"
-msgstr "Completed"
-
-#: paciente/templates/paciente/pagos.html:121
-msgid "Aún no tienes pagos completados."
-msgstr "You don't have completed payments yet."
-
-# Modal editar perfil (paciente)
-
-#: paciente/templates/paciente/dashboard.html:211
-msgid "Editar Perfil"
-msgstr "Edit Profile"
-
-#: paciente/templates/paciente/dashboard.html:217
-msgid "Teléfono (no editable)"
-msgstr "Phone (not editable)"
-
-#: paciente/templates/paciente/dashboard.html:221
-msgid "Correo (no editable)"
-msgstr "Email (not editable)"
-
-#: paciente/templates/paciente/dashboard.html:225
-msgid "Dirección"
-msgstr "Address"
-
-#: paciente/templates/paciente/dashboard.html:229
-msgid "Nacimiento"
-msgstr "Birthdate"
-
-#: paciente/templates/paciente/dashboard.html:236
-msgid "Guardar"
-msgstr "Save"
-
-# Completar perfil
-
-msgid "Completar perfil | Paciente"
-msgstr "Complete profile | Patient"
-
-msgid "Completar perfil"
-msgstr "Complete profile"
-
-msgid "Paso 2 de 2 · Completar perfil"
-msgstr "Step 2 of 2 · Complete profile"
-
-msgid "Solo falta tu número de teléfono"
-msgstr "We just need your phone number"
-
-msgid "Hola, %(nombre)s. Usaremos tu teléfono solo para confirmar o avisarte sobre tus citas."
-msgstr "Hi %(nombre)s. We'll use your phone only to confirm or notify you about your appointments."
-
-msgid "Número de teléfono"
-msgstr "Phone number"
-
-msgid "Debe contener exactamente 10 dígitos, sin espacios ni guiones."
-msgstr "Must contain exactly 10 digits, no spaces or dashes."
-
-msgid "Guardar y continuar"
-msgstr "Save and continue"
-
-msgid "Al continuar, aceptas que podremos contactarte vía este número solo para temas relacionados con tus citas."
-msgstr "By continuing, you agree we may contact you via this number only about your appointments."
+#~ msgid ""
+#~ "Al continuar, aceptas que podremos contactarte vía este número solo para "
+#~ "temas relacionados con tus citas."
+#~ msgstr ""
+#~ "By continuing, you agree we may contact you via this number only about your "
+#~ "appointments."

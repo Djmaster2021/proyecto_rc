@@ -13,19 +13,28 @@ from pathlib import Path
 from django.conf import settings 
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
+from django.utils.html import strip_tags, escape
 from django.contrib import messages
+from django.utils.translation import gettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.db.models import Sum, Q, Count
 from django.http import HttpResponse, JsonResponse, FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.units import mm
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, HRFlowable
+
 # IMPORTAMOS TODOS LOS MODELOS
 from domain.models import (
+    SERVICIO_PAGO_DIRECTO,
     PenalizacionLog,
     AvisoDentista,
     Cita,
@@ -186,7 +195,7 @@ def procesar_notificacion_cita(cita, origen="DENTISTA", accion="CREADA"):
                 contexto['mensaje'] = "El consultorio ha agendado una nueva cita para ti."
                 _enviar_html(
                     asunto=f"📅 Cita Agendada: {cita.fecha.strftime('%d/%m')}",
-                    template='dentista/email_paciente.html',
+                    template='dentista/email-paciente.html',
                     contexto=contexto,
                     destinatario=email_paciente
                 )
@@ -201,7 +210,7 @@ def procesar_notificacion_cita(cita, origen="DENTISTA", accion="CREADA"):
                 contexto_p['mensaje'] = "Hemos recibido tu solicitud de cita. Te esperamos."
                 _enviar_html(
                     asunto="✅ Tu cita ha sido reservada",
-                    template='dentista/email_paciente.html',
+                    template='dentista/email-paciente.html',
                     contexto=contexto_p,
                     destinatario=email_paciente
                 )
@@ -211,7 +220,7 @@ def procesar_notificacion_cita(cita, origen="DENTISTA", accion="CREADA"):
             if email_dentista:
                 _enviar_html(
                     asunto=f"🔔 Nueva Cita Web: {cita.paciente.nombre}",
-                    template='dentista/email_dentista.html',
+                    template='dentista/email-dentista.html',
                     contexto=contexto_base,
                     destinatario=email_dentista
                 )
@@ -225,7 +234,7 @@ def procesar_notificacion_cita(cita, origen="DENTISTA", accion="CREADA"):
                 contexto['mensaje'] = "Tu cita está 100% confirmada. Recuerda llegar 5 min antes."
                 _enviar_html(
                     asunto="✅ Confirmación de Cita RC Dental",
-                    template='dentista/email_paciente.html',
+                    template='dentista/email-paciente.html',
                     contexto=contexto,
                     destinatario=email_paciente
                 )
@@ -465,12 +474,12 @@ def crear_cita_manual(request):
                 h = datetime.strptime(h_str, "%H:%M").time()
                 hoy = date.today()
                 if f < hoy:
-                    messages.error(request, "No puedes agendar en fecha pasada.")
+                    messages.error(request, _("No puedes agendar en fecha pasada."))
                     return redirect("dentista:crear_cita_manual")
 
                 s = Servicio.objects.get(id=s_id)
                 if s.dentista_id != dentista.id:
-                    messages.error(request, "Debes elegir un servicio del propio consultorio.")
+                    messages.error(request, _("Debes elegir un servicio del propio consultorio."))
                     return redirect("dentista:crear_cita_manual")
                 paciente_obj = get_object_or_404(Paciente, id=p_id, dentista=dentista)
 
@@ -478,7 +487,7 @@ def crear_cita_manual(request):
                 try:
                     monto_decimal = Decimal(monto_raw) if monto_raw else s.precio
                 except Exception:
-                    messages.error(request, "Monto inválido.")
+                    messages.error(request, _("Monto inválido."))
                     return redirect("dentista:crear_cita_manual")
 
                 if metodo_pago not in ["EFECTIVO", "TRANSFERENCIA", "TARJETA", "MERCADOPAGO"]:
@@ -519,15 +528,15 @@ def crear_cita_manual(request):
                     if email_dest:
                         enviar_correo_confirmacion_cita(nueva_cita)
                     else:
-                        messages.warning(request, "Cita creada, pero el paciente no tiene correo registrado.")
+                        messages.warning(request, _("Cita creada, pero el paciente no tiene correo registrado."))
                 except Exception as exc:
                     print(f"[WARN] No se pudo enviar correo de confirmación: {exc}")
                 
-                messages.success(request, "Cita creada y notificada al paciente.")
+                messages.success(request, _("Cita creada y notificada al paciente."))
                 return redirect("dentista:agenda")
                 
             except Exception as e:
-                messages.error(request, f"Error al crear la cita: {e}")
+                messages.error(request, _("Error al crear la cita: %(e)s") % {"e": e})
 
     return render(request, "dentista/crear_cita_manual.html", {
         "dentista": dentista,
@@ -543,7 +552,7 @@ def eliminar_cita(request, id):
     cita = get_object_or_404(Cita, id=id, dentista__user=request.user)
     # Opcional: Notificar cancelación antes de borrar
     cita.delete()
-    messages.success(request, "Cita eliminada.")
+    messages.success(request, _("Cita eliminada."))
     return redirect("dentista:agenda")
 
 @login_required
@@ -560,7 +569,7 @@ def consulta(request, id):
             # Flujo de pago rápido desde consulta
             cita.estado = "COMPLETADA"
             monto_registrado = request.POST.get("monto", cita.servicio.precio)
-            pago_obj, _ = Pago.objects.update_or_create(
+            pago_obj, _creado = Pago.objects.update_or_create(
                 cita=cita, 
                 defaults={"monto": monto_registrado, "estado": "COMPLETADO", "metodo": "EFECTIVO"}
             )
@@ -580,7 +589,7 @@ def consulta(request, id):
         cita.save()
         if aviso_text:
             _guardar_aviso(cita.dentista, aviso_text)
-        messages.success(request, "Consulta actualizada.")
+        messages.success(request, _("Consulta actualizada."))
         return redirect("dentista:consulta", id=cita.id)
         
     return render(request, "dentista/consulta.html", {
@@ -608,7 +617,7 @@ def obtener_slots_disponibles(request):
         return JsonResponse({'slots': []})
 
     horarios = Horario.objects.filter(dentista=dentista, dia_semana=fecha.isoweekday())
-    if not horarios: return JsonResponse({'slots': [], 'mensaje': 'Día no laboral'})
+    if not horarios: return JsonResponse({'slots': [], 'mensaje': _('Día no laboral')})
 
     ocupados = [(datetime.combine(fecha, c.hora_inicio), datetime.combine(fecha, c.hora_fin)) 
                 for c in Cita.objects.filter(dentista=dentista, fecha=fecha).exclude(estado__in=['CANCELADA', 'INASISTENCIA'])]
@@ -681,9 +690,9 @@ def servicio_crear(request):
                 duracion_estimada=int(request.POST.get("duracion", "30")),
                 activo=True
             )
-            messages.success(request, "Servicio creado.")
+            messages.success(request, _("Servicio creado."))
         except Exception as e:
-            messages.error(request, f"Error: {e}")
+            messages.error(request, _("Error: %(e)s") % {"e": e})
     return redirect("dentista:servicios")
 
 @login_required
@@ -698,9 +707,9 @@ def servicio_editar(request, id):
             servicio.precio = Decimal(request.POST.get("precio"))
             servicio.duracion_estimada = int(request.POST.get("duracion"))
             servicio.save()
-            messages.success(request, "Servicio actualizado.")
+            messages.success(request, _("Servicio actualizado."))
         except Exception as e:
-            messages.error(request, f"Error actualizando: {e}")
+            messages.error(request, _("Error actualizando: %(e)s") % {"e": e})
 
     return redirect("dentista:servicios")
 
@@ -711,7 +720,7 @@ def servicio_toggle_estado(request, id):
     if request.method == "POST":
         servicio.activo = not servicio.activo
         servicio.save()
-        messages.success(request, "Estado actualizado.")
+        messages.success(request, _("Estado actualizado."))
     return redirect("dentista:servicios")
 
 @login_required
@@ -720,7 +729,7 @@ def servicio_eliminar(request, id):
     servicio = get_object_or_404(Servicio, id=id, dentista=dentista)
     if request.method == "POST":
         servicio.delete()
-        messages.success(request, "Servicio eliminado.")
+        messages.success(request, _("Servicio eliminado."))
     return redirect("dentista:servicios")
 
 
@@ -749,63 +758,62 @@ def registrar_paciente(request):
         
         # 2. Validaciones básicas
         if not email or not password or not nombre:
-            messages.error(request, "Correo, contraseña y nombre son obligatorios.")
+            messages.error(request, _("Correo, contraseña y nombre son obligatorios."))
             return render(request, "dentista/registrar_paciente.html", {"dentista": dentista})
         if not (telefono_validado := _validar_telefono_10d(telefono)):
-            messages.error(request, "El teléfono debe tener exactamente 10 dígitos numéricos.")
+            messages.error(request, _("El teléfono debe tener exactamente 10 dígitos numéricos."))
             return render(request, "dentista/registrar_paciente.html", {"dentista": dentista})
         if Paciente.objects.filter(dentista=dentista, telefono=telefono_validado).exists():
-            messages.error(request, "Ya existe un paciente con este teléfono.")
+            messages.error(request, _("Ya existe un paciente con este teléfono."))
             return render(request, "dentista/registrar_paciente.html", {"dentista": dentista})
         if Paciente.objects.filter(dentista=dentista, nombre__iexact=nombre).exists():
-            messages.error(request, "Ya existe un paciente con ese nombre.")
+            messages.error(request, _("Ya existe un paciente con ese nombre."))
             return render(request, "dentista/registrar_paciente.html", {"dentista": dentista})
             
         # 3. Verificar si el correo ya existe
         usuarios_email = User.objects.filter(email=email)
         if usuarios_email.exists():
-            messages.error(request, "Este correo ya está registrado en el sistema.")
-            return render(request, "dentista/registrar_paciente.html", {"dentista": dentista})
-        try:
-            nuevo_usuario = User.objects.create_user(
-                username=email, 
-                email=email, 
-                password=password,
-                first_name=nombre
-            )
-        except Exception as e:
-            messages.error(request, f"No se pudo crear el usuario: {e}")
+            messages.error(request, _("Este correo ya está registrado en el sistema."))
             return render(request, "dentista/registrar_paciente.html", {"dentista": dentista})
 
         try:
-            # 4. Crear el Paciente (Perfil Clínico)
-            paciente = Paciente(
-                user=nuevo_usuario,  # VINCULAMOS AL USUARIO CREADO
-                dentista=dentista,
-                nombre=nombre,
-                telefono=telefono_validado,
-                direccion=request.POST.get("direccion", ""),
-                antecedentes=request.POST.get("antecedentes", "")
-            )
+            # Creamos el usuario y el perfil de Paciente en una sola transacción:
+            # si falla el paso del Paciente, el usuario también se revierte
+            # (antes quedaba un usuario "huérfano" que bloqueaba el correo para
+            # siempre con el error "Este correo ya está registrado").
+            with transaction.atomic():
+                nuevo_usuario = User.objects.create_user(
+                    username=email,
+                    email=email,
+                    password=password,
+                    first_name=nombre
+                )
 
-            if f := request.POST.get("fecha_nacimiento"):
-                paciente.fecha_nacimiento = datetime.strptime(f, "%Y-%m-%d").date()
-            
-            if request.FILES.get("imagen"):
-                paciente.imagen = request.FILES.get("imagen")
-                
-            paciente.save()
+                paciente = Paciente(
+                    user=nuevo_usuario,  # VINCULAMOS AL USUARIO CREADO
+                    dentista=dentista,
+                    nombre=nombre,
+                    telefono=telefono_validado,
+                    direccion=request.POST.get("direccion", ""),
+                    antecedentes=request.POST.get("antecedentes", "")
+                )
+
+                if f := request.POST.get("fecha_nacimiento"):
+                    paciente.fecha_nacimiento = datetime.strptime(f, "%Y-%m-%d").date()
+
+                if request.FILES.get("imagen"):
+                    paciente.imagen = request.FILES.get("imagen")
+
+                paciente.save()
 
             # OPCIONAL: Enviar correo de bienvenida con sus credenciales
-            # _enviar_correo_bienvenida(paciente, password) 
+            # _enviar_correo_bienvenida(paciente, password)
 
-            messages.success(request, f"Paciente {nombre} registrado con éxito.")
+            messages.success(request, _("Paciente %(nombre)s registrado con éxito.") % {"nombre": nombre})
             return redirect("dentista:detalle_paciente", id=paciente.id)
 
         except Exception as e:
-            messages.error(request, f"Error al registrar: {e}")
-            # Si falló algo, podríamos borrar el usuario creado para no dejar basura, 
-            # pero por ahora lo dejamos así para debugging.
+            messages.error(request, _("Error al registrar: %(e)s") % {"e": e})
 
     return render(request, "dentista/registrar_paciente.html", {"dentista": dentista})
 @login_required
@@ -819,21 +827,21 @@ def editar_paciente(request, id):
         fecha_nacimiento_raw = request.POST.get("fecha_nacimiento")
 
         if not (telefono_validado := _validar_telefono_10d(telefono)):
-            messages.error(request, "El teléfono debe tener exactamente 10 dígitos numéricos.")
+            messages.error(request, _("El teléfono debe tener exactamente 10 dígitos numéricos."))
             p.nombre = nombre
             p.telefono = telefono
             p.direccion = direccion
             p.antecedentes = antecedentes
             return render(request, "dentista/editar_paciente.html", {"dentista": request.user.dentista, "paciente": p})
         if Paciente.objects.filter(dentista=request.user.dentista, telefono=telefono_validado).exclude(id=p.id).exists():
-            messages.error(request, "Ya existe otro paciente con este teléfono.")
+            messages.error(request, _("Ya existe otro paciente con este teléfono."))
             p.nombre = nombre
             p.telefono = telefono
             p.direccion = direccion
             p.antecedentes = antecedentes
             return render(request, "dentista/editar_paciente.html", {"dentista": request.user.dentista, "paciente": p})
         if Paciente.objects.filter(dentista=request.user.dentista, nombre__iexact=nombre).exclude(id=p.id).exists():
-            messages.error(request, "Ya existe otro paciente con ese nombre.")
+            messages.error(request, _("Ya existe otro paciente con ese nombre."))
             p.nombre = nombre
             p.telefono = telefono
             p.direccion = direccion
@@ -870,7 +878,7 @@ def eliminar_paciente(request, id):
     if usuario:
         usuario.delete()
 
-    messages.success(request, "Paciente eliminado junto con su cuenta de acceso.")
+    messages.success(request, _("Paciente eliminado junto con su cuenta de acceso."))
     return redirect("dentista:pacientes")
 
 @login_required
@@ -890,7 +898,7 @@ def odontograma_guardar(request, id):
             estado = body.get('estado') or body.get('status')
             nota = body.get('nota', '')
 
-            if not num: return JsonResponse({'status': 'error', 'msg': 'Falta número'}, status=400)
+            if not num: return JsonResponse({'status': 'error', 'msg': _('Falta número')}, status=400)
 
             # Normalización
             if estado == 'ortodoncia': estado = 'bracket'
@@ -961,7 +969,7 @@ def registrar_pago(request):
         try:
             monto_decimal = Decimal(monto_raw) if monto_raw else None
         except:
-            messages.error(request, "Monto inválido")
+            messages.error(request, _("Monto inválido"))
             return redirect("dentista:registrar_pago")
 
         cita_obj = None
@@ -971,33 +979,33 @@ def registrar_pago(request):
             if not concepto: concepto = f"{cita_obj.servicio.nombre} - {cita_obj.paciente.nombre}"
         else:
             if not monto_decimal: 
-                messages.error(request, "Ingresa un monto")
+                messages.error(request, _("Ingresa un monto"))
                 return redirect("dentista:registrar_pago")
             # Venta mostrador (Paciente genérico)
-            paciente_gen, _ = Paciente.objects.get_or_create(dentista=dentista, nombre="Venta Mostrador", defaults={"telefono": "000"})
-            servicio_gen, _ = Servicio.objects.get_or_create(dentista=dentista, nombre="Pago Directo", defaults={"precio": 0, "duracion_estimada": 15})
+            paciente_gen, _creado = Paciente.objects.get_or_create(dentista=dentista, nombre="Venta Mostrador", defaults={"telefono": "000"})
+            servicio_gen, _creado = Servicio.objects.get_or_create(dentista=dentista, nombre=SERVICIO_PAGO_DIRECTO, defaults={"precio": 0, "duracion_estimada": 15})
             cita_obj = Cita.objects.create(dentista=dentista, paciente=paciente_gen, servicio=servicio_gen, fecha=date.today(), hora_inicio=timezone.localtime().time(), hora_fin=timezone.localtime().time(), estado="COMPLETADA", notas=concepto)
 
         # Flujo MercadoPago: requiere cita para enlazar external_reference
         if metodo == "MERCADOPAGO":
             if not cita_id:
-                messages.error(request, "Selecciona una cita para cobrar con MercadoPago.")
+                messages.error(request, _("Selecciona una cita para cobrar con MercadoPago."))
                 return redirect("dentista:registrar_pago")
 
-            pago_obj, _ = Pago.objects.update_or_create(
+            pago_obj, _creado = Pago.objects.update_or_create(
                 cita=cita_obj,
                 defaults={"monto": monto_decimal, "metodo": "MERCADOPAGO", "estado": "PENDIENTE"},
             )
             try:
                 pref_url = crear_preferencia_pago(cita_obj, request)
-                messages.info(request, "Redirigiendo a MercadoPago para completar el cobro.")
+                messages.info(request, _("Redirigiendo a MercadoPago para completar el cobro."))
                 return redirect(pref_url)
             except Exception as exc:
-                messages.error(request, f"No se pudo generar el cobro en MercadoPago: {exc}")
+                messages.error(request, _("No se pudo generar el cobro en MercadoPago: %(e)s") % {"e": exc})
                 return redirect("dentista:registrar_pago")
 
         # Flujo presencial/digital directo
-        pago_obj, _ = Pago.objects.update_or_create(
+        pago_obj, _creado = Pago.objects.update_or_create(
             cita=cita_obj,
             defaults={"monto": monto_decimal, "metodo": metodo, "estado": "COMPLETADO"},
         )
@@ -1025,7 +1033,7 @@ def registrar_pago(request):
                 ]
             ).strip(),
         )
-        messages.success(request, "Pago registrado.")
+        messages.success(request, _("Pago registrado."))
         return redirect("dentista:pagos")
 
     return render(request, "dentista/registrar_pago.html", {
@@ -1208,16 +1216,22 @@ def configuracion(request):
         if action == "add_schedule":
             dia, h_ini, h_fin = request.POST.get("dia"), request.POST.get("hora_inicio"), request.POST.get("hora_fin")
             if dia and h_ini and h_fin:
-                # Limpiamos duplicados previos y dejamos un solo bloque por día
-                qs = Horario.objects.filter(dentista=dentista, dia_semana=int(dia))
-                if qs.count() > 1:
-                    qs.exclude(id=qs.first().id).delete()
-                Horario.objects.update_or_create(
-                    dentista=dentista,
-                    dia_semana=int(dia),
-                    defaults={"hora_inicio": h_ini, "hora_fin": h_fin},
-                )
-                messages.success(request, "Horario actualizado.")
+                if h_fin <= h_ini:
+                    messages.error(request, _("La hora de fin debe ser posterior a la hora de inicio."))
+                elif Horario.objects.filter(dentista=dentista, dia_semana=int(dia), hora_inicio=h_ini, hora_fin=h_fin).exists():
+                    messages.error(request, _("Ese bloque ya existe para ese día."))
+                else:
+                    # Un día puede tener varios bloques (ej. mañana y tarde con
+                    # descanso de comida entre medio); el motor de citas
+                    # (obtener_slots_disponibles) ya itera sobre todos los
+                    # bloques de un día, así que aquí solo agregamos.
+                    Horario.objects.create(
+                        dentista=dentista,
+                        dia_semana=int(dia),
+                        hora_inicio=h_ini,
+                        hora_fin=h_fin,
+                    )
+                    messages.success(request, _("Horario actualizado."))
         elif action == "update_profile":
             dentista.nombre = request.POST.get("nombre", dentista.nombre)
             dentista.telefono = request.POST.get("telefono", dentista.telefono)
@@ -1225,23 +1239,38 @@ def configuracion(request):
             dentista.licencia = request.POST.get("licencia", dentista.licencia)
             if request.FILES.get("foto_perfil"): dentista.foto_perfil = request.FILES.get("foto_perfil")
             dentista.save()
-            messages.success(request, "Perfil guardado.")
+            messages.success(request, _("Perfil guardado."))
         elif action == "change_password":
             old, new, conf = request.POST.get("old_password"), request.POST.get("new_password"), request.POST.get("confirm_password")
             if new == conf and request.user.check_password(old):
                 request.user.set_password(new)
                 request.user.save()
                 update_session_auth_hash(request, request.user)
-                messages.success(request, "Contraseña cambiada.")
+                messages.success(request, _("Contraseña cambiada."))
             else:
-                messages.error(request, "Error en contraseña.")
+                messages.error(request, _("Error en contraseña."))
         return redirect("dentista:configuracion")
 
-    return render(request, "dentista/configuracion.html", {"dentista": dentista, "dias_semana": Horario.DIAS, "horarios": Horario.objects.filter(dentista=dentista).order_by("dia_semana")})
+    horarios = Horario.objects.filter(dentista=dentista).order_by("dia_semana", "hora_inicio")
+    horarios_por_dia = {}
+    for h in horarios:
+        horarios_por_dia.setdefault(h.dia_semana, []).append(h)
+    calendario_semana = [
+        {"val": val, "nombre": nombre, "horarios": horarios_por_dia.get(val, [])}
+        for val, nombre in Horario.DIAS
+    ]
+    return render(request, "dentista/configuracion.html", {
+        "dentista": dentista,
+        "dias_semana": Horario.DIAS,
+        "horarios": horarios,
+        "calendario_semana": calendario_semana,
+    })
 
 @login_required
 def eliminar_horario(request, id):
-    get_object_or_404(Horario, id=id, dentista__user=request.user).delete()
+    horario = get_object_or_404(Horario, id=id, dentista__user=request.user)
+    horario.delete()
+    messages.success(request, _("Horario eliminado."))
     return redirect("dentista:configuracion")
 
 @login_required
@@ -1253,9 +1282,71 @@ def soporte(request):
             enviar_correo_ticket_soporte(dentista, request.POST.get("asunto", ""), request.POST.get("mensaje", ""))
         except Exception as exc:
             print(f"[WARN] No se pudo enviar correo de soporte: {exc}")
-        messages.success(request, "Ticket enviado.")
+        messages.success(request, _("Ticket enviado."))
         return redirect("dentista:soporte")
     return render(request, "dentista/soporte.html", {"dentista": dentista, "tickets": TicketSoporte.objects.filter(dentista=dentista).order_by("-created_at")[:10]})
+
+@login_required
+@require_POST
+def editar_ticket(request, id):
+    dentista = get_object_or_404(Dentista, user=request.user)
+    ticket = get_object_or_404(TicketSoporte, id=id, dentista=dentista)
+    ticket.asunto = request.POST.get("asunto", ticket.asunto)
+    ticket.mensaje = request.POST.get("mensaje", ticket.mensaje)
+    estado = request.POST.get("estado")
+    if estado in dict(TicketSoporte.ESTADOS):
+        ticket.estado = estado
+    ticket.save()
+    messages.success(request, _("Ticket actualizado."))
+    return redirect("dentista:soporte")
+
+@login_required
+@require_POST
+def eliminar_ticket(request, id):
+    dentista = get_object_or_404(Dentista, user=request.user)
+    ticket = get_object_or_404(TicketSoporte, id=id, dentista=dentista)
+    ticket.delete()
+    messages.success(request, _("Ticket eliminado."))
+    return redirect("dentista:soporte")
+
+@login_required
+def descargar_ticket(request, id):
+    dentista = get_object_or_404(Dentista, user=request.user)
+    ticket = get_object_or_404(TicketSoporte, id=id, dentista=dentista)
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle("TituloTicket", parent=styles["Heading1"], fontSize=16, textColor=colors.black)
+    meta_style = ParagraphStyle("MetaTicket", parent=styles["Normal"], fontSize=9.5, textColor=colors.HexColor("#444444"))
+    sub_style = ParagraphStyle("SubTicket", parent=styles["Heading2"], fontSize=11, textColor=colors.black, spaceBefore=4)
+    body_style = ParagraphStyle("CuerpoTicket", parent=styles["Normal"], fontSize=10.5, textColor=colors.black, leading=15)
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        topMargin=20 * mm, bottomMargin=16 * mm, leftMargin=18 * mm, rightMargin=18 * mm,
+        title=f"Ticket de soporte #{ticket.id}",
+    )
+    story = [
+        Paragraph(f"Ticket de Soporte #{ticket.id}", title_style),
+        Spacer(1, 8),
+        Paragraph(f"Dentista: Dr. {dentista.nombre}", meta_style),
+        Paragraph(f"Asunto: {escape(ticket.asunto)}", meta_style),
+        Paragraph(f"Estado: {escape(ticket.get_estado_display())}", meta_style),
+        Paragraph(f"Creado: {ticket.created_at.strftime('%d/%m/%Y %H:%M')}", meta_style),
+        Spacer(1, 14),
+        HRFlowable(width="100%", thickness=1, color=colors.black),
+        Spacer(1, 14),
+        Paragraph("Detalle", sub_style),
+        Spacer(1, 6),
+        Paragraph(escape(ticket.mensaje).replace("\n", "<br/>"), body_style),
+    ]
+    doc.build(story)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="ticket_{ticket.id}.pdf"'
+    return response
 
 @login_required
 def penalizaciones(request):
@@ -1298,27 +1389,27 @@ def penalizaciones(request):
 
         if accion in ("penalizar", "suspender", "reactivar", "advertencia"):
             if not pid:
-                messages.error(request, "Indica el ID del paciente.")
+                messages.error(request, _("Indica el ID del paciente."))
                 return redirect("dentista:penalizaciones")
 
             try:
                 paciente = Paciente.objects.get(id=pid, dentista=dentista)
             except Paciente.DoesNotExist:
-                messages.error(request, "Paciente no encontrado para este dentista.")
+                messages.error(request, _("Paciente no encontrado para este dentista."))
                 return redirect("dentista:penalizaciones")
 
             if accion == "penalizar":
                 cita = Cita.objects.filter(paciente=paciente).order_by("-fecha", "-hora_inicio").first()
                 if not cita:
-                    messages.error(request, "El paciente no tiene citas para registrar inasistencia.")
+                    messages.error(request, _("El paciente no tiene citas para registrar inasistencia."))
                 else:
-                    msg = procesar_inasistencia(cita) or "Inasistencia registrada."
-                    messages.success(request, f"Penalización aplicada a {paciente.nombre}. {msg}")
+                    msg = procesar_inasistencia(cita) or _("Inasistencia registrada.")
+                    messages.success(request, _("Penalización aplicada a %(nombre)s. %(msg)s") % {"nombre": paciente.nombre, "msg": msg})
 
             elif accion == "suspender":
                 usuario = getattr(paciente, "user", None)
                 if not usuario:
-                    messages.error(request, "El paciente no tiene usuario vinculado para suspender.")
+                    messages.error(request, _("El paciente no tiene usuario vinculado para suspender."))
                 else:
                     if usuario.is_active:
                         usuario.is_active = False
@@ -1330,12 +1421,12 @@ def penalizaciones(request):
                         motivo="Suspensión manual aplicada por el dentista.",
                         monto=Decimal("0"),
                     )
-                    messages.success(request, f"Cuenta de {paciente.nombre} suspendida.")
+                    messages.success(request, _("Cuenta de %(nombre)s suspendida.") % {"nombre": paciente.nombre})
 
             elif accion == "reactivar":
                 usuario = getattr(paciente, "user", None)
                 if not usuario:
-                    messages.error(request, "El paciente no tiene usuario vinculado para reactivar.")
+                    messages.error(request, _("El paciente no tiene usuario vinculado para reactivar."))
                 else:
                     if not usuario.is_active:
                         usuario.is_active = True
@@ -1347,7 +1438,7 @@ def penalizaciones(request):
                         motivo="Reactivación manual aplicada por el dentista.",
                         monto=Decimal("0"),
                     )
-                    messages.success(request, f"Cuenta de {paciente.nombre} reactivada.")
+                    messages.success(request, _("Cuenta de %(nombre)s reactivada.") % {"nombre": paciente.nombre})
 
             elif accion == "advertencia":
                 # Generamos pago pendiente de penalización ($300) y mantenemos en advertidas
@@ -1363,7 +1454,7 @@ def penalizaciones(request):
                         .first()
                     )
                     if not servicio_base:
-                        messages.error(request, "Configura al menos un servicio para aplicar advertencias.")
+                        messages.error(request, _("Configura al menos un servicio para aplicar advertencias."))
                         return redirect("dentista:penalizaciones")
                     ahora = timezone.localtime()
                     cita = Cita.objects.create(
@@ -1440,7 +1531,7 @@ def penalizaciones(request):
 
             return redirect("dentista:penalizaciones")
 
-        messages.info(request, "Acción no reconocida.")
+        messages.info(request, _("Acción no reconocida."))
 
     return render(request, "dentista/penalizaciones.html", {
         "dentista": dentista,
@@ -1517,128 +1608,131 @@ def reporte_pdf(request):
     total_citas = citas.count()
     total_pacientes = citas.values("paciente_id").distinct().count()
 
-    def esc(txt):
-        return str(txt).replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+    styles = getSampleStyleSheet()
+    cell_style = ParagraphStyle("CeldaReporte", parent=styles["Normal"], fontSize=9, leading=11, textColor=colors.black)
+    title_style = ParagraphStyle("TituloReporte", parent=styles["Heading1"], fontSize=17, textColor=colors.black, spaceAfter=2)
+    meta_style = ParagraphStyle("MetaReporte", parent=styles["Normal"], fontSize=9.5, textColor=colors.HexColor("#444444"))
+    section_style = ParagraphStyle("SeccionReporte", parent=styles["Heading2"], fontSize=12, textColor=colors.black, spaceBefore=14, spaceAfter=6)
+    footer_style = ParagraphStyle("PieReporte", parent=styles["Normal"], fontSize=8, textColor=colors.HexColor("#666666"))
 
-    def rect(x, y, w, h, fill=None, stroke=(0.8, 0.85, 0.95), sw=1):
-        ops = ""
-        if fill:
-            r, g, b = fill
-            ops += f"{r} {g} {b} rg "
-        if stroke:
-            r, g, b = stroke
-            ops += f"{r} {g} {b} RG {sw} w "
-        ops += f"{x} {y} {w} {h} re "
-        if fill and stroke:
-            ops += "B\n"
-        elif fill:
-            ops += "f\n"
-        else:
-            ops += "S\n"
-        return ops
+    def celda(valor):
+        return Paragraph(escape(str(valor)), cell_style)
 
-    def text(x, y, msg, size=12):
-        return f"BT /F1 {size} Tf 0 0 0 rg {x} {y} Td ({esc(msg)}) Tj ET\n"
+    def estilo_tabla(fila_vacia=False):
+        reglas = [
+            ("BOX", (0, 0), (-1, -1), 0.75, colors.black),
+            ("INNERGRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#999999")),
+            ("LINEBELOW", (0, 0), (-1, 0), 0.9, colors.black),
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#ededed")),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("TOPPADDING", (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ("LEFTPADDING", (0, 0), (-1, -1), 6),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("ALIGN", (-1, 0), (-1, -1), "RIGHT"),
+        ]
+        if fila_vacia:
+            reglas.append(("SPAN", (0, 1), (-1, 1)))
+            reglas.append(("ALIGN", (0, 1), (-1, 1), "CENTER"))
+            reglas.append(("TEXTCOLOR", (0, 1), (-1, 1), colors.HexColor("#777777")))
+        return TableStyle(reglas)
 
-    width, height = 595, 842
-    margin = 40
-    contenido = ""
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        topMargin=18 * mm, bottomMargin=16 * mm, leftMargin=16 * mm, rightMargin=16 * mm,
+        title="Reporte de citas y pagos",
+    )
 
-    # Fondo principal
-    contenido += rect(margin, margin, width - 2 * margin, height - 2 * margin, fill=(0.97, 0.99, 1), stroke=(0.77, 0.86, 0.95), sw=1.4)
-
-    # Header
-    header_h = 120
-    contenido += rect(margin + 8, height - margin - header_h, width - 2 * margin - 16, header_h - 12, fill=(0.2, 0.4, 0.82), stroke=(0.2, 0.4, 0.82))
-    contenido += text(margin + 22, height - margin - 40, "Reporte de citas y pagos", 18)
-    contenido += text(margin + 22, height - margin - 62, f"Dentista: {dentista.nombre}", 12)
-    contenido += text(margin + 22, height - margin - 82, f"Rango: {fi.strftime('%d/%m/%Y')} - {ff.strftime('%d/%m/%Y')}", 12)
-    contenido += text(width - margin - 160, height - margin - 40, f"Citas: {total_citas}", 12)
-    contenido += text(width - margin - 160, height - margin - 58, f"Pacientes: {total_pacientes}", 12)
-    contenido += text(width - margin - 160, height - margin - 76, f"Cobrado: ${total_monto:.2f}", 12)
-    contenido += text(width - margin - 160, height - margin - 94, f"Pendiente: ${total_pendiente:.2f}", 12)
-
-    # Subheader tabla
-    table_top = height - margin - header_h - 30
-    contenido += rect(margin + 8, table_top - 26, width - 2 * margin - 16, 28, fill=(0.9, 0.95, 1), stroke=(0.75, 0.84, 0.95))
-    headers = [
-        ("FECHA", margin + 16),
-        ("HORA", margin + 90),
-        ("PACIENTE", margin + 150),
-        ("SERVICIO", margin + 300),
-        ("MONTO", width - margin - 90),
+    story = [
+        Paragraph("Reporte de Citas y Pagos", title_style),
+        Paragraph(f"Dentista: Dr. {dentista.nombre}", meta_style),
+        Paragraph(f"Rango: {fi.strftime('%d/%m/%Y')} &mdash; {ff.strftime('%d/%m/%Y')}", meta_style),
+        Paragraph(f"Generado: {timezone.localtime().strftime('%d/%m/%Y %H:%M')}", meta_style),
+        Spacer(1, 10),
+        HRFlowable(width="100%", thickness=1, color=colors.black),
+        Spacer(1, 12),
     ]
-    for h_label, hx in headers:
-        contenido += text(hx, table_top - 8, h_label, 11)
 
-    # Filas
-    y = table_top - 40
-    max_rows = 20
-    row = 0
+    # Resumen
+    resumen_tbl = Table(
+        [
+            ["Citas", "Pacientes atendidos", "Cobrado", "Pendiente"],
+            [str(total_citas), str(total_pacientes), f"${total_monto:.2f}", f"${total_pendiente:.2f}"],
+        ],
+        colWidths=[42 * mm] * 4,
+    )
+    resumen_tbl.setStyle(TableStyle([
+        ("BOX", (0, 0), (-1, -1), 0.75, colors.black),
+        ("INNERGRID", (0, 0), (-1, -1), 0.5, colors.black),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#ededed")),
+        ("FONTNAME", (0, 0), (-1, -1), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 9.5),
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+    ]))
+    story.append(resumen_tbl)
+    story.append(Spacer(1, 18))
+
+    # Sección: Citas
+    story.append(Paragraph("Citas en el periodo", section_style))
+    citas_rows = [["Fecha", "Hora", "Paciente", "Servicio", "Monto"]]
     for c in citas:
-        if row >= max_rows:
-            break  # corte simple
         monto = getattr(getattr(c, "pago_relacionado", None), "monto", None)
         monto_txt = f"${monto:.2f}" if monto else "-"
-        contenido += text(margin + 16, y, c.fecha.strftime("%d/%m/%Y"), 10)
-        contenido += text(margin + 90, y, c.hora_inicio.strftime("%H:%M"), 10)
-        contenido += text(margin + 150, y, c.paciente.nombre[:26], 10)
-        contenido += text(margin + 300, y, c.servicio.nombre[:22], 10)
-        contenido += text(width - margin - 90, y, monto_txt, 10)
-        y -= 18
-        row += 1
+        citas_rows.append([
+            c.fecha.strftime("%d/%m/%Y"),
+            c.hora_inicio.strftime("%H:%M"),
+            celda(c.paciente.nombre),
+            celda(c.servicio.nombre),
+            monto_txt,
+        ])
+    sin_citas = len(citas_rows) == 1
+    if sin_citas:
+        citas_rows.append(["Sin citas registradas en este periodo.", "", "", "", ""])
 
-    # Espacio y tabla de pagos
-    y -= 20
-    contenido += rect(margin + 8, y, width - 2 * margin - 16, 24, fill=(0.9, 0.95, 1), stroke=(0.75, 0.84, 0.95))
-    contenido += text(margin + 16, y + 6, "PAGOS (incluye pendientes)", 11)
-    y -= 18
+    citas_tbl = Table(citas_rows, colWidths=[22 * mm, 16 * mm, 48 * mm, 58 * mm, 24 * mm], repeatRows=1)
+    citas_tbl.setStyle(estilo_tabla(fila_vacia=sin_citas))
+    story.append(citas_tbl)
+    story.append(Spacer(1, 18))
 
-    pagos_headers = [
-        ("FECHA", margin + 16),
-        ("PACIENTE", margin + 110),
-        ("MÉTODO", margin + 280),
-        ("ESTADO", margin + 370),
-        ("MONTO", width - margin - 90),
-    ]
-    for label, hx in pagos_headers:
-        contenido += text(hx, y, label, 11)
-    y -= 16
+    # Sección: Pagos
+    story.append(Paragraph("Pagos (incluye pendientes)", section_style))
+    pagos_rows = [["Fecha", "Paciente", "Método", "Estado", "Monto"]]
+    for p in pagos:
+        pagos_rows.append([
+            p.created_at.strftime("%d/%m/%Y"),
+            celda(p.cita.paciente.nombre),
+            celda(p.get_metodo_display()),
+            celda(p.get_estado_display()),
+            f"${p.monto:.2f}",
+        ])
+    sin_pagos = len(pagos_rows) == 1
+    if sin_pagos:
+        pagos_rows.append(["Sin pagos registrados en este periodo.", "", "", "", ""])
 
-    max_pagos = 14
-    for p in pagos[:max_pagos]:
-        if y < margin + 40:
-            break
-        contenido += text(margin + 16, y, p.created_at.strftime("%d/%m/%Y"), 10)
-        contenido += text(margin + 110, y, p.cita.paciente.nombre[:26], 10)
-        contenido += text(margin + 280, y, p.metodo[:14], 10)
-        contenido += text(margin + 370, y, p.estado[:12], 10)
-        contenido += text(width - margin - 90, y, f"${p.monto:.2f}", 10)
-        y -= 16
+    pagos_tbl = Table(pagos_rows, colWidths=[22 * mm, 55 * mm, 30 * mm, 30 * mm, 31 * mm], repeatRows=1)
+    pagos_tbl.setStyle(estilo_tabla(fila_vacia=sin_pagos))
+    story.append(pagos_tbl)
 
-    # Nota pie
-    contenido += text(margin + 4, margin + 28, "Generado automáticamente por RC Dental. Para detalles completos exporta el CSV.", 10)
+    story.append(Spacer(1, 18))
+    story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor("#999999")))
+    story.append(Spacer(1, 4))
+    story.append(Paragraph("Generado automáticamente por RC Dental. Para el detalle completo exporta el CSV.", footer_style))
 
-    stream = contenido.encode("latin-1", "ignore")
+    def _pie_pagina(canvas, doc_):
+        canvas.saveState()
+        canvas.setFont("Helvetica", 8)
+        canvas.setFillColor(colors.HexColor("#666666"))
+        canvas.drawRightString(A4[0] - 16 * mm, 10 * mm, f"Página {doc_.page}")
+        canvas.restoreState()
 
-    obj_catalog = b"1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n"
-    obj_pages = b"2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n"
-    obj_page = b"3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 5 0 R /Resources << /Font << /F1 4 0 R >> >> >> endobj\n"
-    obj_font = b"4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n"
-    obj_content = f"5 0 obj << /Length {len(stream)} >> stream\n".encode() + stream + b"\nendstream endobj\n"
+    doc.build(story, onFirstPage=_pie_pagina, onLaterPages=_pie_pagina)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
 
-    parts = [b"%PDF-1.4\n", obj_catalog, obj_pages, obj_page, obj_font, obj_content]
-    offsets, cursor = [], 0
-    for p in parts:
-        offsets.append(cursor); cursor += len(p)
-    xref_start = cursor
-
-    xref = b"xref\n0 6\n0000000000 65535 f \n"
-    for off in offsets:
-        xref += f"{off:010d} 00000 n \n".encode()
-    trailer = b"trailer << /Size 6 /Root 1 0 R >>\nstartxref\n" + str(xref_start).encode() + b"\n%%EOF"
-
-    pdf_bytes = b"".join(parts) + xref + trailer
     response = HttpResponse(pdf_bytes, content_type="application/pdf")
     response["Content-Disposition"] = 'attachment; filename="reporte.pdf"'
     return response

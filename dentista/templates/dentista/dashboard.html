@@ -1,4 +1,5 @@
 {% extends "dentista/base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block dtitle %}Dashboard Dentista | RC Dental{% endblock %}
@@ -11,9 +12,9 @@
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
 }
 .agenda-card {
-    border: 1px solid #d5e3eb;
+    border: 1px solid var(--dk-bd-d5e3eb, #d5e3eb);
     border-radius: 12px;
-    background: #f8fbfc;
+    background: var(--dk-bg-f8fbfc, #f8fbfc);
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -25,17 +26,17 @@
 }
 .agenda-card .day-label {
     font-weight: 800;
-    color: #1b3c4d;
+    color: var(--dk-tx-1b3c4d, #1b3c4d);
 }
 .agenda-card .date-num {
     font-size: 1.6rem;
     font-weight: 800;
-    color: #0f1f2c;
+    color: var(--dk-tx-0f1f2c, #0f1f2c);
     line-height: 1.1;
 }
 .agenda-item {
-    background: #fff;
-    border: 1px solid #e2eef3;
+    background: var(--dk-bg-fff, #fff);
+    border: 1px solid var(--dk-bd-e2eef3, #e2eef3);
     border-radius: 10px;
     padding: 6px 8px;
     font-size: 0.92rem;
@@ -43,13 +44,13 @@
     flex-direction: column;
     gap: 2px;
 }
-.agenda-item .time { font-weight: 800; color: #0f172a; }
-.agenda-item .pac { font-weight: 700; color: #1b3c4d; }
-.agenda-item .srv { color: #64748b; font-size: 0.85rem; }
+.agenda-item .time { font-weight: 800; color: var(--dk-tx-0f172a, #0f172a); }
+.agenda-item .pac { font-weight: 700; color: var(--dk-tx-1b3c4d, #1b3c4d); }
+.agenda-item .srv { color: var(--dk-tx-64748b, #64748b); font-size: 0.85rem; }
 .agenda-wrapper {
-    border: 1px solid #d5e3eb;
+    border: 1px solid var(--dk-bd-d5e3eb, #d5e3eb);
     border-radius: 16px;
-    background: #fff;
+    background: var(--dk-bg-fff, #fff);
     padding: 16px;
 }
 .grid-layout {
@@ -67,15 +68,15 @@
 
 <div class="page-header">
     <div class="welcome-text">
-        <h1 class="text-gradient">Hola, Dr. {{ dentista.nombre }} 👋</h1>
+        <h1 class="text-gradient">{% blocktrans with nombre=dentista.nombre %}Hola, Dr. {{ nombre }}{% endblocktrans %} 👋</h1>
         <p class="welcome-subtitle">
             <i class="ph-bold ph-calendar-blank"></i>
-            {% now "l d F, Y" %} • Panel de Control
+            {% now "l d F, Y" %} {% trans "• Panel de Control" %}
         </p>
     </div>
     <div class="header-actions">
         <a href="{% url 'dentista:crear_cita_manual' %}" class="cyber-btn cyber-btn-glow">
-            <i class="ph-bold ph-plus"></i> Nueva Cita
+            <i class="ph-bold ph-plus"></i> {% trans "Nueva Cita" %}
         </a>
     </div>
 </div>
@@ -85,28 +86,28 @@
         <div class="kpi-icon"><i class="ph-duotone ph-calendar-check"></i></div>
         <div class="kpi-content">
             <h3 class="kpi-value">{{ citas_hoy.count }}</h3>
-            <span class="kpi-label">Citas Hoy</span>
+            <span class="kpi-label">{% trans "Citas Hoy" %}</span>
         </div>
     </div>
     <div class="kpi-card kpi-orange">
         <div class="kpi-icon"><i class="ph-duotone ph-clock-countdown"></i></div>
         <div class="kpi-content">
             <h3 class="kpi-value">{{ kpi_pendientes }}</h3>
-            <span class="kpi-label">Pendientes</span>
+            <span class="kpi-label">{% trans "Pendientes" %}</span>
         </div>
     </div>
     <div class="kpi-card kpi-blue">
         <div class="kpi-icon"><i class="ph-duotone ph-users"></i></div>
         <div class="kpi-content">
             <h3 class="kpi-value">{{ kpi_pacientes }}</h3>
-            <span class="kpi-label">Pacientes</span>
+            <span class="kpi-label">{% trans "Pacientes" %}</span>
         </div>
     </div>
     <div class="kpi-card kpi-money">
         <div class="kpi-icon"><i class="ph-bold ph-currency-dollar"></i></div>
         <div class="kpi-content">
             <h3 class="kpi-value">${{ ingresos_mes|floatformat:2 }}</h3>
-            <span class="kpi-label">Ingresos Mes</span>
+            <span class="kpi-label">{% trans "Ingresos Mes" %}</span>
         </div>
     </div>
 </div>
@@ -115,8 +116,8 @@
 
     <div class="agenda-wrapper">
         <div class="panel-header" style="margin-bottom: 12px;">
-            <h3 style="margin:0;"><i class="ph-bold ph-calendar-check"></i> Agenda</h3>
-            <a href="{% url 'dentista:agenda' %}" class="link-action">Ver Agenda</a>
+            <h3 style="margin:0;"><i class="ph-bold ph-calendar-check"></i> {% trans "Agenda" %}</h3>
+            <a href="{% url 'dentista:agenda' %}" class="link-action">{% trans "Ver Agenda" %}</a>
         </div>
         <div class="agenda-grid">
             {% for dia in calendario_dias %}
@@ -127,7 +128,7 @@
                         <div class="date-num">{{ dia.dia|date:"d" }}</div>
                     </div>
                     {% if dia.dia == fecha_actual %}
-                        <span class="badge badge-success">HOY</span>
+                        <span class="badge badge-success">{% trans "HOY" %}</span>
                     {% endif %}
                 </div>
                 {% for c in dia.citas %}
@@ -137,7 +138,7 @@
                     <span class="srv">{{ c.servicio|default:"Cita" }}</span>
                 </div>
                 {% empty %}
-                <small style="color:#94a3b8;">Sin citas</small>
+                <small style="color:var(--dk-tx-94a3b8, #94a3b8);">{% trans "Sin citas" %}</small>
                 {% endfor %}
             </div>
             {% endfor %}
@@ -150,7 +151,7 @@
             {% if proxima_cita %}
                 <div class="hp-status-bar"></div>
                 <div class="hp-content">
-                    <span class="hp-label">Siguiente Paciente</span>
+                    <span class="hp-label">{% trans "Siguiente Paciente" %}</span>
                     <h2 class="hp-name">{{ proxima_cita.paciente.nombre }}</h2>
                     <p class="hp-service">{{ proxima_cita.servicio.nombre }}</p>
                     
@@ -160,19 +161,19 @@
                     </div>
 
                     <a href="{% url 'dentista:consulta' proxima_cita.id %}" class="cyber-btn cyber-btn-full">
-                        Abrir Expediente <i class="ph-bold ph-arrow-right"></i>
+                        {% trans "Abrir Expediente" %} <i class="ph-bold ph-arrow-right"></i>
                     </a>
                 </div>
             {% else %}
                 <div class="hp-empty">
                     <i class="ph-duotone ph-coffee"></i>
-                    <p>No hay más citas por hoy.</p>
+                    <p>{% trans "No hay más citas por hoy." %}</p>
                 </div>
             {% endif %}
         </div>
 
         <div class="cyber-card payments-card">
-            <h4 class="card-title"><i class="ph-bold ph-credit-card"></i> Recientes</h4>
+            <h4 class="card-title"><i class="ph-bold ph-credit-card"></i> {% trans "Recientes" %}</h4>
             <div class="payments-list">
                 {% for p in pagos|slice:":5" %}
                 <div class="payment-item">
@@ -188,14 +189,14 @@
                     </div>
                 </div>
                 {% empty %}
-                <p class="empty-state">Sin movimientos.</p>
+                <p class="empty-state">{% trans "Sin movimientos." %}</p>
                 {% endfor %}
             </div>
-            <a href="{% url 'dentista:pagos' %}" class="card-footer-link">Ver historial completo</a>
+            <a href="{% url 'dentista:pagos' %}" class="card-footer-link">{% trans "Ver historial completo" %}</a>
         </div>
 
         <div class="cyber-card notif-card">
-            <h4 class="card-title"><i class="ph-bold ph-bell"></i> Avisos</h4>
+            <h4 class="card-title"><i class="ph-bold ph-bell"></i> {% trans "Avisos" %}</h4>
             <div class="notif-list notif-scroll">
                 {% for aviso in notificaciones %}
                 <div class="notif-item">
@@ -203,7 +204,7 @@
                     <small>{{ aviso.created_at|timesince }}</small>
                 </div>
                 {% empty %}
-                <p class="empty-state">No hay avisos.</p>
+                <p class="empty-state">{% trans "No hay avisos." %}</p>
                 {% endfor %}
             </div>
         </div>

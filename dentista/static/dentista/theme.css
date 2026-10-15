@@ -1,0 +1,76 @@
+/* ==========================================================================
+   PANEL DEL DENTISTA — MODO OSCURO + SELECTOR DE IDIOMA/TEMA
+   Se carga después de styles.css y theme-dark.css (generado).
+   No cambia el diseño original: solo colores en modo oscuro.
+   ========================================================================== */
+
+/* ---------- Tokens del modo oscuro ---------- */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-app: #0b1215;
+  --bg-sidebar: #10262c;
+  --bg-card: #141d22;
+  --bg-soft: #1a252b;
+  --bg-input: #0f171b;
+  --border-subtle: #2a3a41;
+  --text-main: #e6edf0;
+  --text-muted: #94a3ab;
+  --brand-glow: rgba(0, 173, 193, 0.18);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-elevated: 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+:root { --bg-soft: #f8fafc; }
+
+html[data-theme="dark"] body,
+html[data-theme="dark"] .main-content { background: var(--bg-app); color: var(--text-main); }
+html[data-theme="dark"] .sidebar { background: var(--bg-sidebar); }
+
+/* ---------- Idioma + tema (pie del menú lateral) ---------- */
+.sidebar-prefs { display: flex; gap: 8px; margin-bottom: 12px; }
+.pref-lang { display: flex; background: rgba(0, 0, 0, 0.2); border-radius: 10px; padding: 3px; }
+.pref-lang form { display: contents; }
+.pref-lang button,
+.pref-theme {
+  border: 0; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 12px;
+  color: rgba(255, 255, 255, 0.75); background: transparent; border-radius: 8px;
+}
+.pref-lang button { padding: 6px 10px; }
+.pref-lang button.active { background: rgba(255, 255, 255, 0.18); color: #fff; }
+.pref-theme {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  background: rgba(0, 0, 0, 0.2); padding: 6px 10px; border-radius: 10px;
+}
+.pref-theme i { font-size: 15px; }
+.pref-lang button:hover, .pref-theme:hover { color: #fff; }
+.pref-theme .ic-sun { display: none; }
+html[data-theme="dark"] .pref-theme .ic-sun { display: inline; }
+html[data-theme="dark"] .pref-theme .ic-moon { display: none; }
+
+/* ---------- Controles nativos y plugins en modo oscuro ---------- */
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background-color: var(--bg-input);
+  color: var(--text-main);
+  border-color: var(--border-subtle);
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder { color: #6b7c84; }
+html[data-theme="dark"] option { background: var(--bg-card); color: var(--text-main); }
+html[data-theme="dark"] hr { border-color: var(--border-subtle); }
+
+/* SweetAlert2 */
+html[data-theme="dark"] .swal2-popup { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-subtle); }
+html[data-theme="dark"] .swal2-title,
+html[data-theme="dark"] .swal2-html-container { color: var(--text-main) !important; }
+html[data-theme="dark"] .swal2-input,
+html[data-theme="dark"] .swal2-textarea,
+html[data-theme="dark"] .swal2-select { background: var(--bg-input); color: var(--text-main); border-color: var(--border-subtle); }
+
+/* Select2 */
+html[data-theme="dark"] .select2-container--default .select2-selection--single,
+html[data-theme="dark"] .select2-container--default .select2-selection--multiple,
+html[data-theme="dark"] .select2-dropdown { background: var(--bg-input) !important; border-color: var(--border-subtle) !important; }
+html[data-theme="dark"] .select2-container--default .select2-selection--single .select2-selection__rendered { color: var(--text-main) !important; }
+html[data-theme="dark"] .select2-results__option { color: var(--text-main); }
+html[data-theme="dark"] .select2-search__field { background: var(--bg-card) !important; color: var(--text-main) !important; }

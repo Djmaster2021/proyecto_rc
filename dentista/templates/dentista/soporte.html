@@ -1,4 +1,5 @@
 {% extends "dentista/base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block dtitle %}Centro de Ayuda | RC{% endblock %}
@@ -58,24 +59,23 @@
     font-size: 0.98rem;
 }
 .ticket-card {
-    background: linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,41,59,0.95));
-    border: 1px solid rgba(148,163,184,0.2);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    background: var(--dk-bg-fff, #fff);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-card);
     border-radius: 18px;
     padding: 1.5rem;
     position: relative;
     overflow: hidden;
 }
-.ticket-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(120% 120% at 85% 10%, rgba(59,130,246,0.15), transparent 40%);
-    pointer-events: none;
+.ticket-icon-badge {
+    width: 60px; height: 60px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--brand) 0%, var(--bg-sidebar) 100%);
+    border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    color: #fff; box-shadow: 0 4px 10px var(--brand-glow);
 }
 .ticket-meta {
     display: flex;
-    gap: 1rem;
+    gap: 0.6rem;
     flex-wrap: wrap;
     font-size: 0.9rem;
     color: var(--text-muted);
@@ -85,12 +85,12 @@
     align-items: center;
     gap: 6px;
     border-radius: 999px;
-    padding: 6px 10px;
-    background: rgba(255,255,255,0.06);
-    color: #e2e8f0;
+    padding: 5px 10px;
+    background: var(--dk-bg-f0f9ff, #f0f9ff);
+    color: var(--text-main);
     font-weight: 700;
     letter-spacing: -0.01em;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
 }
 .pill i { color: var(--brand); }
 .quick-tags {
@@ -100,18 +100,20 @@
     margin-bottom: 1rem;
 }
 .quick-tags button {
-    border: 1px solid rgba(148,163,184,0.4);
-    background: rgba(255,255,255,0.05);
-    color: #e2e8f0;
+    border: 1px solid var(--border-subtle);
+    background: var(--dk-bg-f8fafc, #f8fafc);
+    color: var(--text-main);
     border-radius: 10px;
     padding: 8px 12px;
     font-size: 0.88rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all .15s ease;
 }
 .quick-tags button:hover {
     border-color: var(--brand);
-    color: #fff;
+    color: var(--brand);
+    background: var(--dk-bg-f0f9ff, #f0f9ff);
 }
 .steps {
     display: grid;
@@ -128,23 +130,41 @@
     width: 40px;
     height: 40px;
     border-radius: 12px;
-    background: rgba(255,255,255,0.08);
+    background: var(--dk-bg-f0f9ff, #f0f9ff);
     display: grid;
     place-items: center;
-    color: #fff;
+    color: var(--brand);
     font-weight: 800;
-    border: 1px solid rgba(148,163,184,0.3);
+    border: 1px solid var(--border-subtle);
 }
 .steps .step .copy {
-    color: #cbd5e1;
+    color: var(--text-muted);
     font-size: 0.92rem;
 }
 .history-card {
     border-radius: 14px;
-    border: 1px solid rgba(148,163,184,0.25);
-    background: rgba(255,255,255,0.6);
-    backdrop-filter: blur(4px);
+    border: 1px solid var(--border-subtle);
+    background: var(--dk-bg-fff, #fff);
+    box-shadow: var(--shadow-card);
 }
+.ticket-actions {
+    display: flex; gap: 4px; justify-content: flex-end;
+}
+.ticket-actions button {
+    width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border-subtle);
+    background: var(--dk-bg-f8fafc, #f8fafc); color: var(--text-muted); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: 0.2s; font-size: 0.85rem; padding: 0;
+}
+.ticket-actions a.btn-descargar-ticket {
+    width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border-subtle);
+    background: var(--dk-bg-f8fafc, #f8fafc); color: var(--text-muted); text-decoration: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: 0.2s; font-size: 0.85rem;
+}
+.ticket-actions .btn-editar-ticket:hover { border-color: var(--brand); color: var(--brand); background: var(--dk-bg-f0f9ff, #f0f9ff); }
+.ticket-actions .btn-descargar-ticket:hover { border-color: var(--brand); color: var(--brand); background: var(--dk-bg-f0f9ff, #f0f9ff); }
+.ticket-actions .btn-eliminar-ticket:hover { border-color: var(--danger); color: var(--danger); background: var(--dk-bg-fef2f2, #fef2f2); }
 </style>
 {% endblock %}
 
@@ -153,20 +173,20 @@
 <div class="support-page">
 <div class="page-header" style="margin-bottom: 1.5rem;">
     <div>
-        <h1 class="text-gradient">Centro de Ayuda</h1>
-        <p class="welcome-subtitle">Documentación oficial y soporte técnico.</p>
+        <h1 class="text-gradient">{% trans "Centro de Ayuda" %}</h1>
+        <p class="welcome-subtitle">{% trans "Documentación oficial y soporte técnico." %}</p>
     </div>
     
     <div class="search-hero-box">
         <i class="ph-bold ph-magnifying-glass search-icon-overlay" style="position:absolute; left:15px; top:12px; color:var(--text-muted);"></i>
-        <input type="text" id="faqSearch" class="search-hero-input" placeholder="Buscar en la documentación...">
+        <input type="text" id="faqSearch" class="search-hero-input" placeholder="{% trans 'Buscar en la documentación...' %}">
     </div>
 </div>
 
 <div class="system-status-bar">
     <div class="status-pulse-green"></div>
-    <span>Todos los sistemas operativos &bull; v6.2.0 (Stable)</span>
-    <span style="margin-left: auto; color: var(--text-muted); font-weight: 400;">Actualizado: {% now "H:i" %}</span>
+    <span>{% trans "Todos los sistemas operativos &bull; v6.2.0 (Stable)" %}</span>
+    <span style="margin-left: auto; color:var(--text-muted); font-weight: 400;">{% trans "Actualizado:" %} {% now "H:i" %}</span>
 </div>
 
 <div class="support-grid">
@@ -177,23 +197,23 @@
             <div class="cat-header">
                 <div class="cat-icon cat-agenda"><i class="ph-fill ph-calendar-check"></i></div>
                 <div>
-                    <h3 class="cat-title">Agenda y Citas</h3>
-                    <p class="cat-desc">Gestión de pacientes, horarios y reglas operativas.</p>
+                    <h3 class="cat-title">{% trans "Agenda y Citas" %}</h3>
+                    <p class="cat-desc">{% trans "Gestión de pacientes, horarios y reglas operativas." %}</p>
                 </div>
             </div>
             
             <div class="faq-list">
                 <details class="faq-item">
-                    <summary>¿Cómo funciona la regla de los 28 días? <i class="ph-bold ph-caret-down faq-icon"></i></summary>
-                    <div class="faq-answer">El sistema bloquea citas consecutivas para evitar sobretratamiento si no han pasado 28 días. Contacta a administración para excepciones.</div>
+                    <summary><span>{% trans "¿Cómo funciona la regla de los 28 días?" %}</span> <i class="ph-bold ph-caret-down faq-icon"></i></summary>
+                    <div class="faq-answer">{% trans "El sistema bloquea citas consecutivas para evitar sobretratamiento si no han pasado 28 días. Contacta a administración para excepciones." %}</div>
                 </details>
                 <details class="faq-item">
-                    <summary>Gestionar cancelaciones y No-Shows <i class="ph-bold ph-caret-down faq-icon"></i></summary>
-                    <div class="faq-answer">Usa el botón "Eliminar" en la cita. El sistema registra automáticamente el incidente en el historial del paciente.</div>
+                    <summary><span>{% trans "Gestionar cancelaciones y No-Shows" %}</span> <i class="ph-bold ph-caret-down faq-icon"></i></summary>
+                    <div class="faq-answer">{% trans 'Usa el botón "Eliminar" en la cita. El sistema registra automáticamente el incidente en el historial del paciente.' %}</div>
                 </details>
                 <details class="faq-item">
-                    <summary>Agendar fuera de horario laboral <i class="ph-bold ph-caret-down faq-icon"></i></summary>
-                    <div class="faq-answer">Es posible, pero generará una alerta visual amarilla en la agenda indicando que es una excepción operativa.</div>
+                    <summary><span>{% trans "Agendar fuera de horario laboral" %}</span> <i class="ph-bold ph-caret-down faq-icon"></i></summary>
+                    <div class="faq-answer">{% trans "Es posible, pero generará una alerta visual amarilla en la agenda indicando que es una excepción operativa." %}</div>
                 </details>
             </div>
         </div>
@@ -202,19 +222,19 @@
             <div class="cat-header">
                 <div class="cat-icon cat-money"><i class="ph-fill ph-coins"></i></div>
                 <div>
-                    <h3 class="cat-title">Pagos y Caja</h3>
-                    <p class="cat-desc">Registro de ingresos, reportes y cortes.</p>
+                    <h3 class="cat-title">{% trans "Pagos y Caja" %}</h3>
+                    <p class="cat-desc">{% trans "Registro de ingresos, reportes y cortes." %}</p>
                 </div>
             </div>
             
             <div class="faq-list">
                 <details class="faq-item">
-                    <summary>¿Cómo registro un pago en efectivo? <i class="ph-bold ph-caret-down faq-icon"></i></summary>
-                    <div class="faq-answer">Ve a la sección <strong>Finanzas > Nuevo Cobro</strong>. Selecciona la cita pendiente y confirma el monto recibido.</div>
+                    <summary><span>{% trans "¿Cómo registro un pago en efectivo?" %}</span> <i class="ph-bold ph-caret-down faq-icon"></i></summary>
+                    <div class="faq-answer">{% trans "Ve a la sección" %} <strong>Finanzas > {% trans "Nuevo Cobro" %}</strong>{% trans ". Selecciona la cita pendiente y confirma el monto recibido." %}</div>
                 </details>
                 <details class="faq-item">
-                    <summary>Descargar reportes fiscales <i class="ph-bold ph-caret-down faq-icon"></i></summary>
-                    <div class="faq-answer">En la sección <strong>Reportes</strong>, usa los botones de exportación (PDF/CSV) situados en la esquina superior derecha.</div>
+                    <summary><span>{% trans "Descargar reportes fiscales" %}</span> <i class="ph-bold ph-caret-down faq-icon"></i></summary>
+                    <div class="faq-answer">{% trans "En la sección" %} <strong>{% trans "Reportes" %}</strong>{% trans ", usa los botones de exportación (PDF/CSV) situados en la esquina superior derecha." %}</div>
                 </details>
             </div>
         </div>
@@ -223,15 +243,15 @@
             <div class="cat-header">
                 <div class="cat-icon cat-user"><i class="ph-fill ph-user-gear"></i></div>
                 <div>
-                    <h3 class="cat-title">Mi Cuenta</h3>
-                    <p class="cat-desc">Seguridad, perfil y horarios de atención.</p>
+                    <h3 class="cat-title">{% trans "Mi Cuenta" %}</h3>
+                    <p class="cat-desc">{% trans "Seguridad, perfil y horarios de atención." %}</p>
                 </div>
             </div>
             
             <div class="faq-list">
                 <details class="faq-item">
-                    <summary>Modificar mi disponibilidad <i class="ph-bold ph-caret-down faq-icon"></i></summary>
-                    <div class="faq-answer">Ve a <strong>Configuración</strong>. Puedes eliminar bloques de horario antiguos y crear nuevos turnos semanales.</div>
+                    <summary><span>{% trans "Modificar mi disponibilidad" %}</span> <i class="ph-bold ph-caret-down faq-icon"></i></summary>
+                    <div class="faq-answer">{% trans "Ve a" %} <strong>{% trans "Configuración" %}</strong>{% trans ". Puedes eliminar bloques de horario antiguos y crear nuevos turnos semanales." %}</div>
                 </details>
             </div>
         </div>
@@ -251,83 +271,87 @@
             {% endif %}
 
             <div style="display:flex; align-items:flex-start; gap: 1rem; margin-bottom: 1.5rem;">
-                <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.06); border:1px solid rgba(148,163,184,0.3); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--brand);">
-                    <i class="ph-duotone ph-life-buoy" style="font-size: 2rem;"></i>
+                <div class="ticket-icon-badge">
+                    <i class="ph-fill ph-life-buoy" style="font-size: 2rem;"></i>
                 </div>
                 <div>
-                    <h3 style="margin:0; color: #e2e8f0; font-size: 1.3rem; font-weight: 800;">Soporte Técnico</h3>
+                    <h3 style="margin:0; color:var(--text-main); font-size: 1.3rem; font-weight: 800;">{% trans "Soporte Técnico" %}</h3>
                     <div class="ticket-meta">
-                        <span class="pill"><i class="ph-bold ph-bolt"></i> SLA &lt; 24h</span>
-                        <span class="pill"><i class="ph-bold ph-headset"></i> Mesa N1</span>
-                        <span class="pill"><i class="ph-bold ph-shield-check"></i> Prioridad médica</span>
+                        <span class="pill"><i class="ph-bold ph-bolt"></i> {% trans "SLA &lt; 24h" %}</span>
+                        <span class="pill"><i class="ph-bold ph-headset"></i> {% trans "Mesa N1" %}</span>
+                        <span class="pill"><i class="ph-bold ph-shield-check"></i> {% trans "Prioridad médica" %}</span>
                     </div>
                 </div>
             </div>
           
-            <form method="post" action="{% url 'dentista:soporte' %}">
+            <form method="post" action="{% url 'dentista:soporte' %}"
+                  data-confirm-title="{% trans '¿Enviar este ticket?' %}"
+                  data-confirm-text="{% trans 'El equipo de soporte recibirá tu reporte y te contactará.' %}"
+                  data-confirm-icon="question"
+                  data-confirm-button="{% trans 'Enviar ticket' %}">
               {% csrf_token %}
 
               <div class="quick-tags">
-                <button type="button" onclick="presetTicket('Error Crítico', 'Describe el mensaje de error en pantalla, antes y después. Incluye si estabas guardando una cita o pago.')">Error crítico</button>
-                <button type="button" onclick="presetTicket('Agenda/Citas', 'Indica paciente, fecha/hora y qué intentabas hacer (crear, mover, cancelar).')">Agenda</button>
-                <button type="button" onclick="presetTicket('Problema Pagos', 'Indica el paciente, monto y método. ¿Se guardó el pago o falló?')">Pagos</button>
-                <button type="button" onclick="presetTicket('Sugerencia', 'Cuéntanos la mejora que te gustaría ver. Ej: reporte, alerta, integración.')">Sugerencia</button>
+                <button type="button" onclick="presetTicket('Error Crítico', 'Describe el mensaje de error en pantalla, antes y después. Incluye si estabas guardando una cita o pago.')">{% trans "Error crítico" %}</button>
+                <button type="button" onclick="presetTicket('Agenda/Citas', 'Indica paciente, fecha/hora y qué intentabas hacer (crear, mover, cancelar).')">{% trans "Agenda" %}</button>
+                <button type="button" onclick="presetTicket('Problema Pagos', 'Indica el paciente, monto y método. ¿Se guardó el pago o falló?')">{% trans "Pagos" %}</button>
+                <button type="button" onclick="presetTicket('Sugerencia', 'Cuéntanos la mejora que te gustaría ver. Ej: reporte, alerta, integración.')">{% trans "Sugerencia" %}</button>
               </div>
               
               <div class="form-group">
-                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Categoría</label>
+                <label style="font-size: 0.75rem; font-weight: 700; color:var(--text-muted); text-transform: uppercase;">{% trans "Categoría" %}</label>
                 <div style="position: relative;">
-                    <select name="asunto" id="asuntoInput" class="cyber-input" required style="appearance: none; background: rgba(255,255,255,0.05); color:#e2e8f0; border-color: rgba(148,163,184,0.3);">
-                      <option value="" disabled selected>Selecciona el problema...</option>
-                      <option value="Error Crítico">🔴 Sistema Detenido</option>
-                      <option value="Problema Pagos">🟡 Finanzas / Caja</option>
-                      <option value="Agenda/Citas">🔵 Agenda / Citas</option>
-                      <option value="Sugerencia">✨ Sugerencia</option>
+                    <select name="asunto" id="asuntoInput" class="cyber-input" required style="appearance: none;">
+                      <option value="" disabled selected>{% trans "Selecciona el problema..." %}</option>
+                      <option value="Error Crítico">{% trans "🔴 Sistema Detenido" %}</option>
+                      <option value="Problema Pagos">{% trans "🟡 Finanzas / Caja" %}</option>
+                      <option value="Agenda/Citas">{% trans "🔵 Agenda / Citas" %}</option>
+                      <option value="Sugerencia">{% trans "✨ Sugerencia" %}</option>
                     </select>
-                    <i class="ph-bold ph-caret-down" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-muted);"></i>
+                    <i class="ph-bold ph-caret-down" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color:var(--text-muted);"></i>
                 </div>
               </div>
           
               <div class="form-group">
-                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Detalle</label>
+                <label style="font-size: 0.75rem; font-weight: 700; color:var(--text-muted); text-transform: uppercase;">{% trans "Detalle" %}</label>
                 <textarea 
                   name="mensaje" 
                   id="mensajeInput"
                   rows="5" 
-                  class="cyber-input" 
-                  placeholder="Describe lo que sucedió..." 
-                  style="resize: none; background: rgba(255,255,255,0.05); color:#e2e8f0; border-color: rgba(148,163,184,0.3);"
+                  class="cyber-input"
+                  placeholder="{% trans 'Describe lo que sucedió...' %}"
+                  style="resize: none;"
                   required></textarea>
               </div>
           
               <button type="submit" class="cyber-btn cyber-btn-glow w-100" style="justify-content:center;">
-                Enviar Ticket <i class="ph-bold ph-paper-plane-right"></i>
+                {% trans "Enviar Ticket" %} <i class="ph-bold ph-paper-plane-right"></i>
               </button>
             </form>
 
-            <div style="margin-top: 1.5rem; padding: 1rem; border:1px dashed rgba(148,163,184,0.3); border-radius: 12px; background: rgba(255,255,255,0.03);">
+            <div style="margin-top: 1.5rem; padding: 1rem; border:1px dashed var(--border-subtle); border-radius:12px; background:var(--dk-bg-f8fafc, #f8fafc);">
                 <div class="steps">
                     <div class="step">
                         <div class="num">1</div>
-                        <div class="copy">Adjunta contexto: acción que realizabas y pantallazo si hay error.</div>
+                        <div class="copy">{% trans "Adjunta contexto: acción que realizabas y pantallazo si hay error." %}</div>
                     </div>
                     <div class="step">
                         <div class="num">2</div>
-                        <div class="copy">Incluye paciente/servicio/monto si aplica (agenda o pagos).</div>
+                        <div class="copy">{% trans "Incluye paciente/servicio/monto si aplica (agenda o pagos)." %}</div>
                     </div>
                     <div class="step">
                         <div class="num">3</div>
-                        <div class="copy">Enviamos correo al soporte y respondemos en &lt;24h.</div>
+                        <div class="copy">{% trans "Enviamos correo al soporte y respondemos en &lt;24h." %}</div>
                     </div>
                 </div>
             </div>
 
-            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(148,163,184,0.2);">
-                <p style="text-align: center; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 1rem;">Contacto directo</p>
+            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top:1px solid var(--border-subtle);">
+                <p style="text-align: center; font-size: 0.8rem; color:var(--text-muted); margin-bottom: 1rem;">{% trans "Contacto directo" %}</p>
                 <div class="contact-grid">
                     <a href="https://wa.me/523228892558?text=Hola%2C%20necesito%20soporte%20para%20el%20sistema%20RC%20Dental." target="_blank" class="method-item">
                         <i class="ph-fill ph-whatsapp-logo" style="font-size:1.5rem; color:#25D366;"></i>
-                        <span style="font-weight: 700; font-size: 0.8rem; margin-top: 5px;">WhatsApp</span>
+                        <span style="font-weight: 700; font-size: 0.8rem; margin-top: 5px;">{% trans "WhatsApp" %}</span>
                     </a>
                     <a href="mailto:diegomag2996@gmail.com?subject=Soporte%20RC%20Dental&body=Describe%20tu%20problema..." class="method-item">
                         <i class="ph-fill ph-envelope-simple" style="font-size:1.5rem; color:var(--brand);"></i>
@@ -339,15 +363,16 @@
         </div>
 
         <div class="cyber-card history-card" style="margin-top:1rem; padding:1rem;">
-            <h3 style="margin:0 0 10px;">Historial de Tickets</h3>
+            <h3 style="margin:0 0 10px;">{% trans "Historial de Tickets" %}</h3>
             <div class="table-responsive">
                 <table class="finance-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Asunto</th>
-                            <th>Estado</th>
-                            <th>Creado</th>
+                            <th>{% trans "ID" %}</th>
+                            <th>{% trans "Asunto" %}</th>
+                            <th>{% trans "Estado" %}</th>
+                            <th>{% trans "Creado" %}</th>
+                            <th style="text-align:right;">{% trans "Acciones" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -357,16 +382,80 @@
                             <td>{{ t.asunto }}</td>
                             <td>
                                 <span class="badge-pill {% if t.estado == 'ABIERTO' %}yellow{% elif t.estado == 'EN_PROCESO' %}blue{% else %}green{% endif %}">
-                                    {{ t.estado }}
+                                    {{ t.get_estado_display }}
                                 </span>
                             </td>
                             <td>{{ t.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <div class="ticket-actions">
+                                    <a href="{% url 'dentista:descargar_ticket' t.id %}" class="btn-descargar-ticket" title="{% trans 'Descargar PDF' %}">
+                                        <i class="ph-bold ph-download-simple"></i>
+                                    </a>
+                                    <button type="button" class="btn-editar-ticket" title="{% trans 'Editar' %}"
+                                        data-id="{{ t.id }}" data-asunto="{{ t.asunto }}" data-estado="{{ t.estado }}"
+                                        data-mensaje="{{ t.mensaje }}">
+                                        <i class="ph-bold ph-pencil-simple"></i>
+                                    </button>
+                                    <form method="post" action="{% url 'dentista:eliminar_ticket' t.id %}" style="display:inline; margin:0;">
+                                        {% csrf_token %}
+                                        <button type="button" class="btn-eliminar-ticket" title="{% trans 'Eliminar' %}"
+                                            onclick="confirmarEliminacionTicket(this, '{{ t.asunto|escapejs }}')">
+                                            <i class="ph-bold ph-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="4" style="text-align:center; padding:12px; color:#94a3b8;">Sin tickets previos.</td></tr>
+                        <tr><td colspan="5" style="text-align:center; padding:12px; color:var(--dk-tx-94a3b8, #94a3b8);">{% trans "Sin tickets previos." %}</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <div id="ticketEditModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 style="margin:0; color:var(--text-main);">{% trans "Editar Ticket" %}</h3>
+                    <button type="button" onclick="closeModals()" class="btn-icon" style="background:transparent; color:var(--text-muted);"><i class="ph-bold ph-x"></i></button>
+                </div>
+                <form id="ticketEditForm" method="post" action=""
+                      data-confirm-title="{% trans '¿Guardar los cambios del ticket?' %}"
+                      data-confirm-text="{% trans 'Se actualizará la categoría, el detalle y el estado del ticket.' %}"
+                      data-confirm-icon="question"
+                      data-confirm-button="{% trans 'Guardar cambios' %}">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label>{% trans "Categoría" %}</label>
+                        <select name="asunto" id="ticketEditAsunto" class="cyber-input" required>
+                            <option value="Error Crítico">{% trans "🔴 Sistema Detenido" %}</option>
+                            <option value="Problema Pagos">{% trans "🟡 Finanzas / Caja" %}</option>
+                            <option value="Agenda/Citas">{% trans "🔵 Agenda / Citas" %}</option>
+                            <option value="Sugerencia">{% trans "✨ Sugerencia" %}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{% trans "Estado" %}</label>
+                        <select name="estado" id="ticketEditEstado" class="cyber-input" required>
+                            <option value="ABIERTO">{% trans "Abierto" %}</option>
+                            <option value="EN_PROCESO">{% trans "En proceso" %}</option>
+                            <option value="CERRADO">{% trans "Cerrado" %}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{% trans "Detalle" %}</label>
+                        <textarea name="mensaje" id="ticketEditMensaje" rows="5" class="cyber-input" style="resize:none;" required></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="cyber-btn cyber-btn-secondary" onclick="closeModals()">{% trans "Cancelar" %}</button>
+                        <button type="submit" class="cyber-btn cyber-btn-glow">{% trans "Guardar Cambios" %}</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -390,5 +479,50 @@ function presetTicket(asunto, detalle) {
     }
     if (mensajeInput) { mensajeInput.focus(); }
 }
+
+function abrirTicketEditModal(id, asunto, estado, mensaje) {
+    const form = document.getElementById("ticketEditForm");
+    const modal = document.getElementById("ticketEditModal");
+    if (!form || !modal) return;
+
+    form.action = "/dentista/soporte/" + id + "/editar/";
+    document.getElementById("ticketEditAsunto").value = asunto;
+    document.getElementById("ticketEditEstado").value = estado;
+    document.getElementById("ticketEditMensaje").value = mensaje;
+
+    modal.style.display = "flex";
+    setTimeout(() => modal.classList.add("active"), 10);
+}
+
+function confirmarEliminacionTicket(btnElement, asunto) {
+    Swal.fire({
+        title: "{% filter escapejs %}{% trans "¿Eliminar ticket?" %}{% endfilter %}",
+        html: `Se eliminará el ticket <strong>${asunto}</strong>. Esta acción no se puede deshacer.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#94a3b8",
+        confirmButtonText: "{% filter escapejs %}{% trans "Sí, eliminar" %}{% endfilter %}",
+        cancelButtonText: "{% filter escapejs %}{% trans "Cancelar" %}{% endfilter %}",
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            btnElement.closest("form").submit();
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".btn-editar-ticket").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            abrirTicketEditModal(
+                this.dataset.id,
+                this.dataset.asunto,
+                this.dataset.estado,
+                this.dataset.mensaje
+            );
+        });
+    });
+});
 </script>
 {% endblock %}

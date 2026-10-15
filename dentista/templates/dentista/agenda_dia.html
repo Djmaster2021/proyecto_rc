@@ -1,4 +1,5 @@
 {% extends "dentista/base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block dtitle %}Agenda – Vista Día{% endblock %}
@@ -11,11 +12,11 @@
 ============================================ -->
 
 <div class="page-header">
-    <h1 class="text-gradient">Agenda del {{ fecha|date:"l d F" }}</h1>
+    <h1 class="text-gradient">{% blocktrans with dia=fecha|date:"l d F" %}Agenda del {{ dia }}{% endblocktrans %}</h1>
 
     <div class="header-actions">
-        <a href="{% url 'dentista:agenda_modo' 'semana' %}" class="cyber-btn">Semana</a>
-        <a href="{% url 'dentista:agenda_modo' 'mes' %}" class="cyber-btn">Mes</a>
+        <a href="{% url 'dentista:agenda_modo' 'semana' %}" class="cyber-btn">{% trans "Semana" %}</a>
+        <a href="{% url 'dentista:agenda_modo' 'mes' %}" class="cyber-btn">{% trans "Mes" %}</a>
     </div>
 </div>
 
@@ -41,7 +42,7 @@
             {% endfor %}
         {% else %}
         <a class="slot-libre-btn" href="#">
-            Disponible
+            {% trans "Disponible" %}
         </a>
         {% endif %}
 

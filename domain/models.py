@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _, gettext_noop
 
 # ============================================================
 # 1. PERFIL DEL DENTISTA
@@ -25,7 +26,20 @@ class Dentista(models.Model):
 # ============================================================
 # 2. CATÁLOGO DE SERVICIOS
 # ============================================================
+# Servicio interno que usa el dentista para cobros de mostrador (sin cita).
+# Nunca debe ofrecerse a los pacientes para agendar.
+SERVICIO_PAGO_DIRECTO = "Pago Directo"
+
+
+class ServicioQuerySet(models.QuerySet):
+    def agendables(self):
+        """Servicios activos que un paciente puede agendar."""
+        return self.filter(activo=True).exclude(nombre=SERVICIO_PAGO_DIRECTO)
+
+
 class Servicio(models.Model):
+    objects = ServicioQuerySet.as_manager()
+
     dentista = models.ForeignKey(Dentista, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True, help_text="Descripción breve del tratamiento")
@@ -76,13 +90,21 @@ class Paciente(models.Model):
             )
         ]
 
+# Códigos de estado/método que algunas plantillas muestran en mayúsculas con {% trans valor %}
+CODIGOS_TRADUCIBLES = [
+    gettext_noop("PENDIENTE"), gettext_noop("CONFIRMADA"), gettext_noop("COMPLETADA"),
+    gettext_noop("CANCELADA"), gettext_noop("INASISTENCIA"), gettext_noop("COMPLETADO"),
+    gettext_noop("EFECTIVO"), gettext_noop("TRANSFERENCIA"), gettext_noop("TARJETA"),
+    gettext_noop("MERCADOPAGO"), gettext_noop("MERCADOPAGO_FAKE"),
+]
+
 # ============================================================
 # 4. HORARIOS DE TRABAJO
 # ============================================================
 class Horario(models.Model):
     DIAS = [
-        (1, 'Lunes'), (2, 'Martes'), (3, 'Miércoles'), (4, 'Jueves'),
-        (5, 'Viernes'), (6, 'Sábado'), (7, 'Domingo')
+        (1, _('Lunes')), (2, _('Martes')), (3, _('Miércoles')), (4, _('Jueves')),
+        (5, _('Viernes')), (6, _('Sábado')), (7, _('Domingo'))
     ]
     dentista = models.ForeignKey(Dentista, on_delete=models.CASCADE)
     dia_semana = models.IntegerField(choices=DIAS)
@@ -100,11 +122,11 @@ class Horario(models.Model):
 # ============================================================
 class Cita(models.Model):
     ESTADOS = [
-        ('PENDIENTE', 'Pendiente'),
-        ('CONFIRMADA', 'Confirmada'),
-        ('COMPLETADA', 'Completada'),
-        ('CANCELADA', 'Cancelada'),
-        ('INASISTENCIA', 'No Show'),
+        ('PENDIENTE', _('Pendiente')),
+        ('CONFIRMADA', _('Confirmada')),
+        ('COMPLETADA', _('Completada')),
+        ('CANCELADA', _('Cancelada')),
+        ('INASISTENCIA', _('No Show')),
     ]
     
     dentista = models.ForeignKey(Dentista, on_delete=models.CASCADE)
@@ -141,15 +163,15 @@ class Cita(models.Model):
 # ============================================================
 class Pago(models.Model):
     METODOS = [
-        ('EFECTIVO', 'Efectivo'),
-        ('TRANSFERENCIA', 'Transferencia'),
-        ('TARJETA', 'Tarjeta'),
-        ('MERCADOPAGO', 'MercadoPago'),
-        ('MERCADOPAGO_FAKE', 'MercadoPago (fake)'),
+        ('EFECTIVO', _('Efectivo')),
+        ('TRANSFERENCIA', _('Transferencia')),
+        ('TARJETA', _('Tarjeta')),
+        ('MERCADOPAGO', _('MercadoPago')),
+        ('MERCADOPAGO_FAKE', _('MercadoPago (fake)')),
     ]
     ESTADOS_PAGO = [
-        ('PENDIENTE', 'Pendiente'),
-        ('COMPLETADO', 'Completado'),
+        ('PENDIENTE', _('Pendiente')),
+        ('COMPLETADO', _('Completado')),
     ]
     
     cita = models.OneToOneField(Cita, on_delete=models.CASCADE, related_name='pago_relacionado')
@@ -183,10 +205,10 @@ class ComprobantePago(models.Model):
 
 class PenalizacionLog(models.Model):
     ACCIONES = [
-        ("ADVERTENCIA", "Advertencia"),
-        ("AUTO_PENALIZAR", "Penalización automática"),
-        ("SUSPENDER", "Suspender cuenta"),
-        ("REACTIVAR", "Reactivar cuenta"),
+        ("ADVERTENCIA", _("Advertencia")),
+        ("AUTO_PENALIZAR", _("Penalización automática")),
+        ("SUSPENDER", _("Suspender cuenta")),
+        ("REACTIVAR", _("Reactivar cuenta")),
     ]
     dentista = models.ForeignKey(Dentista, on_delete=models.CASCADE)
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
@@ -266,9 +288,9 @@ class OdontogramaEntrada(models.Model):
 # ============================================================
 class TicketSoporte(models.Model):
     ESTADOS = [
-        ("ABIERTO", "Abierto"),
-        ("EN_PROCESO", "En proceso"),
-        ("CERRADO", "Cerrado"),
+        ("ABIERTO", _("Abierto")),
+        ("EN_PROCESO", _("En proceso")),
+        ("CERRADO", _("Cerrado")),
     ]
     dentista = models.ForeignKey(Dentista, on_delete=models.CASCADE)
     asunto = models.CharField(max_length=200)

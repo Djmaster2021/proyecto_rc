@@ -1,4 +1,5 @@
 {% extends "dentista/base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block dtitle %}Catálogo de Servicios | RC{% endblock %}
@@ -9,40 +10,40 @@
 
     <div class="page-header" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-end;">
         <div>
-            <h1 class="text-gradient" style="font-size: 2rem; margin: 0;">Catálogo de Servicios</h1>
-            <p class="subtitle" style="color: #64748b; margin-top: 0.5rem;">Gestiona tus tratamientos, precios y tiempos.</p>
+            <h1 class="text-gradient" style="font-size: 2rem; margin: 0;">{% trans "Catálogo de Servicios" %}</h1>
+            <p class="subtitle" style="color:var(--dk-tx-64748b, #64748b); margin-top: 0.5rem;">{% trans "Gestiona tus tratamientos, precios y tiempos." %}</p>
         </div>
         <button type="button" class="cyber-btn cyber-btn-glow" onclick="abrirModal()">
-            <i class="ph-bold ph-plus"></i> Nuevo Servicio
+            <i class="ph-bold ph-plus"></i> {% trans "Nuevo Servicio" %}
         </button>
     </div>
 
-    <div class="tools-bar" style="background: white; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 1rem; align-items: center;">
+    <div class="tools-bar" style="background:var(--dk-bg-white, white); padding: 1rem; border-radius:12px; margin-bottom: 1.5rem; box-shadow:0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 1rem; align-items: center;">
         <form class="search-container" method="GET" style="flex: 1; position: relative;">
-            <i class="ph-bold ph-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Buscar tratamiento..." style="padding-left: 36px; width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; height: 40px;">
+            <i class="ph-bold ph-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color:var(--dk-tx-94a3b8, #94a3b8);"></i>
+            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="{% trans 'Buscar tratamiento...' %}" style="padding-left: 36px; width: 100%; border:1px solid var(--dk-bd-e2e8f0, #e2e8f0); border-radius:8px; height: 40px;">
         </form>
-        <span style="color: #64748b; font-weight: 600; font-size: 0.9rem;">Total: {{ total }}</span>
+        <span style="color:var(--dk-tx-64748b, #64748b); font-weight: 600; font-size: 0.9rem;">{% trans "Total" %}: {{ total }}</span>
     </div>
 
-    <div class="cyber-card" style="padding: 0; overflow: hidden; border: none;">
+    <div class="cyber-card" style="padding: 0; overflow: hidden; border:none;">
         <div class="table-responsive">
-            <table class="finance-table" style="width: 100%; border-collapse: collapse;">
-                <thead style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+            <table class="finance-table" style="width: 100%; border-collapse:collapse;">
+                <thead style="background:var(--dk-bg-f8fafc, #f8fafc); border-bottom:1px solid var(--dk-bd-e2e8f0, #e2e8f0);">
                     <tr>
-                        <th style="padding: 1rem; text-align: left;">Tratamiento</th>
-                        <th style="padding: 1rem; text-align: left;">Precio</th>
-                        <th style="padding: 1rem; text-align: left;">Duración</th>
-                        <th style="padding: 1rem; text-align: left;">Estado</th>
-                        <th style="padding: 1rem; text-align: right;">Acciones</th>
+                        <th style="padding: 1rem; text-align: left;">{% trans "Tratamiento" %}</th>
+                        <th style="padding: 1rem; text-align: left;">{% trans "Precio" %}</th>
+                        <th style="padding: 1rem; text-align: left;">{% trans "Duración" %}</th>
+                        <th style="padding: 1rem; text-align: left;">{% trans "Estado" %}</th>
+                        <th style="padding: 1rem; text-align: right;">{% trans "Acciones" %}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for s in servicios %}
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <tr style="border-bottom:1px solid var(--dk-bd-f1f5f9, #f1f5f9);">
                         <td style="padding: 1rem;">
-                            <strong style="color: #0f172a;">{{ s.nombre }}</strong>
-                            <div style="font-size: 0.85rem; color: #64748b;">
+                            <strong style="color:var(--dk-tx-0f172a, #0f172a);">{{ s.nombre }}</strong>
+                            <div style="font-size: 0.85rem; color:var(--dk-tx-64748b, #64748b);">
                                 {{ s.descripcion_mostrar|truncatechars:80 }}
                             </div>
                         </td>
@@ -50,9 +51,9 @@
                         <td style="padding: 1rem;">{{ s.duracion_estimada }} min</td>
                         <td style="padding: 1rem;">
                             {% if s.activo %}
-                                <span style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">ACTIVO</span>
+                                <span style="background:var(--dk-bg-dcfce7, #dcfce7); color:var(--dk-tx-166534, #166534); padding: 4px 8px; border-radius:12px; font-size: 0.75rem; font-weight: 700;">{% trans "ACTIVO" %}</span>
                             {% else %}
-                                <span style="background: #f1f5f9; color: #64748b; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">INACTIVO</span>
+                                <span style="background:var(--dk-bg-f1f5f9, #f1f5f9); color:var(--dk-tx-64748b, #64748b); padding: 4px 8px; border-radius:12px; font-size: 0.75rem; font-weight: 700;">{% trans "INACTIVO" %}</span>
                             {% endif %}
                         </td>
                         <td style="padding: 1rem; text-align: right;">
@@ -60,30 +61,30 @@
                                 
                                 <button type="button" 
                                         class="btn-icon-sm btn-editar"
-                                        style="cursor: pointer; background: white; border: 1px solid #e2e8f0; padding: 6px; border-radius: 6px;"
+                                        style="cursor: pointer; background:var(--dk-bg-white, white); border:1px solid var(--dk-bd-e2e8f0, #e2e8f0); padding: 6px; border-radius:6px;"
                                         data-id="{{ s.id }}"
                                         data-nombre="{{ s.nombre }}"
                                         data-desc="{{ s.descripcion }}"
                                         data-precio="{{ s.precio }}"
                                         data-duracion="{{ s.duracion_estimada }}"
-                                        title="Editar">
-                                    <i class="ph-bold ph-pencil-simple" style="color: #64748b;"></i>
+                                        title="{% trans 'Editar' %}">
+                                    <i class="ph-bold ph-pencil-simple" style="color:var(--dk-tx-64748b, #64748b);"></i>
                                 </button>
 
                                 <form action="{% url 'dentista:servicio_toggle' s.id %}" method="POST" style="display:inline;" class="form-toggle" data-active="{{ s.activo|yesno:'true,false' }}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn-icon-hover" 
-                                            style="cursor: pointer; background: white; border: 1px solid #e2e8f0; padding: 6px; border-radius: 6px;"
-                                            title="{% if s.activo %}Desactivar{% else %}Activar{% endif %}">
-                                        <i class="ph-bold ph-power" style="color: {% if s.activo %}#10b981{% else %}#cbd5e1{% endif %};"></i>
+                                            style="cursor: pointer; background:var(--dk-bg-white, white); border:1px solid var(--dk-bd-e2e8f0, #e2e8f0); padding: 6px; border-radius:6px;"
+                                            title="{% if s.activo %}{% trans 'Desactivar' %}{% else %}{% trans 'Activar' %}{% endif %}">
+                                        <i class="ph-bold ph-power" style="color:{% if s.activo %}#10b981{% else %}#cbd5e1{% endif %};"></i>
                                     </button>
                                 </form>
 
                                 <form action="{% url 'dentista:servicio_eliminar' s.id %}" method="POST" style="display:inline;" class="form-eliminar">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn-icon-sm" title="Eliminar"
-                                            style="cursor: pointer; background: white; border: 1px solid #fee2e2; padding: 6px; border-radius: 6px;">
-                                        <i class="ph-bold ph-trash" style="color: #ef4444;"></i>
+                                    <button type="submit" class="btn-icon-sm" title="{% trans 'Eliminar' %}"
+                                            style="cursor: pointer; background:var(--dk-bg-white, white); border:1px solid var(--dk-bd-fee2e2, #fee2e2); padding: 6px; border-radius:6px;">
+                                        <i class="ph-bold ph-trash" style="color:#ef4444;"></i>
                                     </button>
                                 </form>
 
@@ -92,7 +93,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 3rem; color: #94a3b8;">No hay servicios registrados.</td>
+                        <td colspan="5" style="text-align: center; padding: 3rem; color:var(--dk-tx-94a3b8, #94a3b8);">{% trans "No hay servicios registrados." %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -105,37 +106,37 @@
 <div id="serviceModal" class="modal-overlay">
     <div class="modal-card cyber-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <h3 id="modalTitle" style="margin: 0;">Nuevo Servicio</h3>
-            <button type="button" onclick="cerrarModal()" style="border: none; background: transparent; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            <h3 id="modalTitle" style="margin: 0;">{% trans "Nuevo Servicio" %}</h3>
+            <button type="button" onclick="cerrarModal()" style="border:none; background:transparent; font-size: 1.5rem; cursor: pointer;">&times;</button>
         </div>
 
         <form method="POST" id="formServicio" action="{% url 'dentista:servicio_crear' %}">
             {% csrf_token %}
             
             <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Nombre</label>
-                <input type="text" name="nombre" id="inputNombre" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px;" required>
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">{% trans "Nombre" %}</label>
+                <input type="text" name="nombre" id="inputNombre" class="form-control" style="width: 100%; padding: 8px; border:1px solid var(--dk-bd-cbd5e0, #cbd5e0); border-radius:6px;" required>
             </div>
 
             <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Descripción</label>
-                <textarea name="descripcion" id="inputDescripcion" class="form-control" rows="2" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px;"></textarea>
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">{% trans "Descripción" %}</label>
+                <textarea name="descripcion" id="inputDescripcion" class="form-control" rows="2" style="width: 100%; padding: 8px; border:1px solid var(--dk-bd-cbd5e0, #cbd5e0); border-radius:6px;"></textarea>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
                 <div>
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Precio</label>
-                    <input type="number" step="0.01" name="precio" id="inputPrecio" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px;" required>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">{% trans "Precio" %}</label>
+                    <input type="number" step="0.01" name="precio" id="inputPrecio" class="form-control" style="width: 100%; padding: 8px; border:1px solid var(--dk-bd-cbd5e0, #cbd5e0); border-radius:6px;" required>
                 </div>
                 <div>
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Duración (min)</label>
-                    <input type="number" name="duracion" id="inputDuracion" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px;" required>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">{% trans "Duración (min)" %}</label>
+                    <input type="number" name="duracion" id="inputDuracion" class="form-control" style="width: 100%; padding: 8px; border:1px solid var(--dk-bd-cbd5e0, #cbd5e0); border-radius:6px;" required>
                 </div>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button type="button" onclick="cerrarModal()" style="padding: 8px 16px; border: 1px solid #cbd5e0; background: white; border-radius: 6px; cursor: pointer;">Cancelar</button>
-                <button type="submit" style="padding: 8px 16px; border: none; background: #00adc1; color: white; border-radius: 6px; cursor: pointer; font-weight: bold;">Guardar</button>
+                <button type="button" onclick="cerrarModal()" style="padding: 8px 16px; border:1px solid var(--dk-bd-cbd5e0, #cbd5e0); background:var(--dk-bg-white, white); border-radius:6px; cursor: pointer;">{% trans "Cancelar" %}</button>
+                <button type="submit" style="padding: 8px 16px; border:none; background:#00adc1; color:white; border-radius:6px; cursor: pointer; font-weight: bold;">{% trans "Guardar" %}</button>
             </div>
         </form>
     </div>
@@ -150,7 +151,7 @@
     }
     .modal-overlay.active { display: flex; }
     .modal-card {
-        background: white; padding: 2rem; border-radius: 12px; width: 90%; max-width: 500px;
+        background: var(--dk-bg-white, white); padding: 2rem; border-radius: 12px; width: 90%; max-width: 500px;
         box-shadow: 0 20px 25px rgba(0,0,0,0.1);
     }
 </style>
@@ -235,7 +236,7 @@
                     confirmButtonColor: colorBoton,
                     cancelButtonColor: '#64748b',
                     confirmButtonText: textoBoton,
-                    cancelButtonText: 'Cancelar',
+                    cancelButtonText: '{% filter escapejs %}{% trans "Cancelar" %}{% endfilter %}',
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -245,19 +246,33 @@
             });
         });
 
-        // 3. Botones Eliminar (ESTILO ROJO)
+        // 3. Formulario de crear/editar servicio (modal)
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const esEdicion = modalTitle.innerText.indexOf('Editar') !== -1;
+            rcConfirmar({
+                title: esEdicion ? '¿Guardar cambios del servicio?' : '¿Crear este servicio?',
+                text: esEdicion
+                    ? 'Se actualizará la información de este servicio.'
+                    : 'El servicio quedará disponible para agendar citas.',
+                icon: 'question',
+                confirmButton: 'Guardar'
+            }).then(function (ok) { if (ok) form.submit(); });
+        });
+
+        // 4. Botones Eliminar (ESTILO ROJO)
         document.querySelectorAll('.form-eliminar').forEach(form => {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 Swal.fire({
-                    title: '¿Eliminar permanentemente?',
-                    text: "Esta acción no se puede deshacer.",
+                    title: '{% filter escapejs %}{% trans "¿Eliminar permanentemente?" %}{% endfilter %}',
+                    text: "{% filter escapejs %}{% trans "Esta acción no se puede deshacer." %}{% endfilter %}",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#ef4444', // Rojo peligro
                     cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Sí, eliminar',
-                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: '{% filter escapejs %}{% trans "Sí, eliminar" %}{% endfilter %}',
+                    cancelButtonText: '{% filter escapejs %}{% trans "Cancelar" %}{% endfilter %}',
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {

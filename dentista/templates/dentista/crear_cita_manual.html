@@ -1,4 +1,5 @@
 {% extends "dentista/base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block dtitle %}Nueva Cita | RC{% endblock %}
@@ -6,19 +7,23 @@
 {% block dcontent %}
 
 <div class="page-header">
-    <h1 class="text-gradient">Agendar Cita</h1>
-    <p class="welcome-subtitle">El sistema calculará la disponibilidad exacta.</p>
+    <h1 class="text-gradient">{% trans "Agendar Cita" %}</h1>
+    <p class="welcome-subtitle">{% trans "El sistema calculará la disponibilidad exacta." %}</p>
 </div>
 
 <div class="cyber-card" style="max-width: 800px; margin: 0 auto; padding: 2rem;">
     
-    <form method="post" id="citaForm">
+    <form method="post" id="citaForm"
+          data-confirm-title="{% trans '¿Guardar la cita?' %}"
+          data-confirm-text="{% trans 'Se agendará la cita para el paciente y horario seleccionados.' %}"
+          data-confirm-icon="question"
+          data-confirm-button="{% trans 'Guardar cita' %}">
         {% csrf_token %}
 
         <div class="form-group mb-4">
-            <label class="form-label"><i class="ph-bold ph-user"></i> Paciente</label>
+            <label class="form-label"><i class="ph-bold ph-user"></i> {% trans "Paciente" %}</label>
             <select name="paciente" class="form-control" required>
-                <option value="">Selecciona un paciente...</option>
+                <option value="">{% trans "Selecciona un paciente..." %}</option>
                 {% for p in pacientes %}
                 <option value="{{ p.id }}">{{ p.nombre }}</option>
                 {% endfor %}
@@ -28,9 +33,9 @@
         <div class="row-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             
             <div class="form-group">
-                <label class="form-label"><i class="ph-bold ph-tooth"></i> Servicio</label>
+                <label class="form-label"><i class="ph-bold ph-tooth"></i> {% trans "Servicio" %}</label>
                 <select name="servicio" id="servicioSelect" class="form-control" required onchange="cargarSlots()">
-                    <option value="">Selecciona servicio...</option>
+                    <option value="">{% trans "Selecciona servicio..." %}</option>
                     {% for s in servicios %}
                     <option value="{{ s.id }}" data-precio="{{ s.precio }}">{{ s.nombre }} ({{ s.duracion_estimada }} min)</option>
                     {% endfor %}
@@ -38,51 +43,51 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label"><i class="ph-bold ph-calendar"></i> Fecha</label>
+                <label class="form-label"><i class="ph-bold ph-calendar"></i> {% trans "Fecha" %}</label>
                 <input type="date" name="fecha" id="fechaInput" class="form-control" 
                        min="{{ fecha_min }}" max="{{ fecha_max }}" required onchange="cargarSlots()">
             </div>
         </div>
 
-        <hr style="border-color: #eee; margin: 2rem 0;">
+        <hr style="border-color:var(--dk-bd-eee, #eee); margin: 2rem 0;">
 
         <div class="row-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1rem;">
             <div class="form-group">
-                <label class="form-label"><i class="ph-bold ph-credit-card"></i> Método de pago</label>
+                <label class="form-label"><i class="ph-bold ph-credit-card"></i> {% trans "Método de pago" %}</label>
                 <select name="metodo_pago" id="metodoPago" class="form-control" required>
-                    <option value="EFECTIVO">Efectivo</option>
-                    <option value="TARJETA">Tarjeta</option>
-                    <option value="TRANSFERENCIA">Transferencia</option>
-                    <option value="MERCADOPAGO">MercadoPago</option>
+                    <option value="EFECTIVO">{% trans "Efectivo" %}</option>
+                    <option value="TARJETA">{% trans "Tarjeta" %}</option>
+                    <option value="TRANSFERENCIA">{% trans "Transferencia" %}</option>
+                    <option value="MERCADOPAGO">{% trans "MercadoPago" %}</option>
                 </select>
             </div>
             <div class="form-group">
-                <label class="form-label"><i class="ph-bold ph-currency-dollar"></i> Monto</label>
-                <input type="number" name="monto" id="montoInput" class="form-control" step="0.01" min="0" placeholder="Ej. 500.00">
-                <small style="color:#64748b;">Se precarga con el precio del servicio, puedes ajustarlo.</small>
+                <label class="form-label"><i class="ph-bold ph-currency-dollar"></i> {% trans "Monto" %}</label>
+                <input type="number" name="monto" id="montoInput" class="form-control" step="0.01" min="0" placeholder="{% trans 'Ej. 500.00' %}">
+                <small style="color:var(--dk-tx-64748b, #64748b);">{% trans "Se precarga con el precio del servicio, puedes ajustarlo." %}</small>
             </div>
         </div>
 
         <div class="form-group">
             <label class="form-label" style="display: flex; justify-content: space-between;">
-                <span><i class="ph-bold ph-clock"></i> Horarios Disponibles</span>
-                <span id="loading-badge" style="display: none; font-size: 0.8rem; color: #0083B0;">
-                    <i class="ph-duotone ph-spinner ph-spin"></i> Buscando...
+                <span><i class="ph-bold ph-clock"></i> {% trans "Horarios Disponibles" %}</span>
+                <span id="loading-badge" style="display: none; font-size: 0.8rem; color:var(--dk-tx-0083b0, #0083B0);">
+                    <i class="ph-duotone ph-spinner ph-spin"></i> {% trans "Buscando..." %}
                 </span>
             </label>
             
             <div id="slots-container" class="slots-grid">
                 <div class="empty-slot-msg">
                     <i class="ph-duotone ph-hand-pointing"></i>
-                    Selecciona servicio y fecha para cargar horarios.
+                    {% trans "Selecciona servicio y fecha para cargar horarios." %}
                 </div>
             </div>
             <input type="hidden" name="hora" id="horaSelected" required>
         </div>
 
         <div style="margin-top: 2rem; text-align: right;">
-            <a href="{% url 'dentista:agenda' %}" class="cyber-btn cyber-btn-secondary">Cancelar</a>
-            <button type="submit" class="cyber-btn cyber-btn-glow" id="btnSubmit" disabled>Confirmar Cita</button>
+            <a href="{% url 'dentista:agenda' %}" class="cyber-btn cyber-btn-secondary">{% trans "Cancelar" %}</a>
+            <button type="submit" class="cyber-btn cyber-btn-glow" id="btnSubmit" disabled>{% trans "Confirmar Cita" %}</button>
         </div>
     </form>
 </div>
@@ -93,18 +98,18 @@
         margin-top: 10px; max-height: 300px; overflow-y: auto; padding: 5px;
     }
     .time-slot-btn {
-        background: white; border: 1px solid #ddd; border-radius: 8px; padding: 10px;
-        text-align: center; cursor: pointer; font-weight: 600; color: #555; position: relative;
+        background: var(--dk-bg-white, white); border: 1px solid var(--dk-bd-ddd, #ddd); border-radius: 8px; padding: 10px;
+        text-align: center; cursor: pointer; font-weight: 600; color: var(--dk-tx-555, #555); position: relative;
     }
-    .time-slot-btn:hover { border-color: #0083B0; color: #0083B0; background: #f0f9ff; }
+    .time-slot-btn:hover { border-color: #0083B0; color: var(--dk-tx-0083b0, #0083B0); background: var(--dk-bg-f0f9ff, #f0f9ff); }
     .time-slot-btn.selected { background: #0083B0; color: white; border-color: #0083B0; }
     .slot-badge-ia {
         position: absolute; top: -8px; right: -5px; background: #00C9A7; color: white;
         font-size: 0.6rem; padding: 2px 6px; border-radius: 10px;
     }
     .empty-slot-msg {
-        grid-column: 1 / -1; text-align: center; padding: 2rem; color: #999;
-        background: #f9f9f9; border: 1px dashed #ddd; border-radius: 8px;
+        grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--dk-tx-999, #999);
+        background: var(--dk-bg-f9f9f9, #f9f9f9); border: 1px dashed var(--dk-bd-ddd, #ddd); border-radius: 8px;
     }
 </style>
 
@@ -145,7 +150,7 @@
             // VALIDACIONES DE ERRORES DEL BACKEND
             if (data.mensaje) {
                 // Caso: Día no laboral
-                container.innerHTML = `<div class="empty-slot-msg" style="color: #e67e22;">
+                container.innerHTML = `<div class="empty-slot-msg" style="color:#e67e22;">
                     <i class="ph-bold ph-warning"></i> ${data.mensaje}
                 </div>`;
                 return;
@@ -178,7 +183,7 @@
         } catch (error) {
             console.error(error);
             loader.style.display = 'none';
-            container.innerHTML = `<div class="empty-slot-msg" style="color: red;">
+            container.innerHTML = `<div class="empty-slot-msg" style="color:red;">
                 Error al cargar. Verifica que el servidor esté corriendo y la URL exista.
             </div>`;
         }
