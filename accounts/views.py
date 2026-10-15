@@ -86,7 +86,11 @@ class CustomLoginView(LoginView):
         return reverse("accounts:redirect_by_role")
 
     def form_invalid(self, form):
-        messages.error(self.request, "Usuario o contraseña incorrectos. Intenta de nuevo.")
+        # No usamos messages.error aquí: accounts/login.html no consume
+        # `messages` (solo `form.errors`, ya mostrado en la misma página),
+        # así que un mensaje aquí quedaba "pendiente" y aparecía más tarde,
+        # fuera de contexto, en la primera página que sí lo muestre
+        # (ej. el dashboard, justo después de un login exitoso).
         return super().form_invalid(form)
 
 
