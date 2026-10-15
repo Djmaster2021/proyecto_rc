@@ -1,142 +1,184 @@
 {% load static i18n %}
 {% get_current_language as CURRENT_LANG %}
 <!DOCTYPE html>
-<html lang="{{ CURRENT_LANG|default:'es' }}">
-
+<html lang="{{ CURRENT_LANG|default:'es' }}" data-theme="light">
 <head>
-    <!-- ================================
-         META & CONFIGURACIÓN BÁSICA
-    ================================= -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block ptitle %}Consultorio RC{% endblock %} | Consultorio RC</title>
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
-    <title>{% block ptitle %}Consultorio RC{% endblock %}</title>
+  <!-- Aplica el tema guardado antes de pintar (evita parpadeo) -->
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("paciente-theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
 
-    <!-- Fuentes -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5"></script>
 
-    <!-- Estilos globales del módulo Paciente -->
-    <link rel="stylesheet" href="{% static 'paciente/styles.css' %}" />
-
-    <!-- Espacio para CSS adicional por página -->
-    {% block extra_css %}{% endblock %}
+  <link rel="stylesheet" href="{% static 'paciente/panel.css' %}?v=1.0">
+  {% block extra_css %}{% endblock %}
 </head>
+<body data-lang="{{ CURRENT_LANG|default:'es' }}">
+{% with nav=request.resolver_match.url_name pac=user.paciente_perfil %}
+<div class="shell">
 
-<body class="dark-mode" data-theme="dark" data-lang="{{ CURRENT_LANG|default:'es' }}">
-    <!-- =====================================================================
-         TOPBAR / BARRA SUPERIOR
-         Esta barra es fija y aparece en todas las vistas del módulo paciente.
-    ====================================================================== -->
-    <header class="topbar">
-        <div class="topbar__inner">
-            <!-- Nombre del consultorio -->
-            <a href="/" class="brand">
-              Consultorio Dental RC
-            </a>
+  <!-- ============ SIDEBAR ============ -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-head">
+      <div class="logo-box"><i class="ph-fill ph-tooth"></i></div>
+      <div>
+        <div class="brand-title">CONSULTORIO <span>RC</span></div>
+        <div class="brand-tag">{% trans "Tu sonrisa es lo primero" %}</div>
+      </div>
+      <button type="button" class="sidebar-close" id="sidebar-close" aria-label="{% trans 'Cerrar menú' %}">
+        <i class="ph-bold ph-x"></i>
+      </button>
+    </div>
 
-            <!-- Texto central, cambia según la vista -->
-            <div class="center-title">
-                {% block header_title %}Paciente{% endblock %}
-            </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <span class="nav-caption">{% trans "Principal" %}</span>
+        <a href="{% url 'paciente:dashboard' %}" class="nav-item {% if nav == 'dashboard' %}active{% endif %}">
+          <i class="ph-duotone ph-squares-four"></i><span>{% trans "Inicio" %}</span>
+        </a>
+        <a href="{% url 'paciente:mis_citas' %}" class="nav-item {% if nav == 'mis_citas' or nav == 'feedback_cita' %}active{% endif %}">
+          <i class="ph-duotone ph-calendar-check"></i><span>{% trans "Mis citas" %}</span>
+        </a>
+        <a href="{% url 'paciente:agendar_cita' %}" class="nav-item {% if nav == 'agendar_cita' %}active{% endif %}">
+          <i class="ph-duotone ph-calendar-plus"></i><span>{% trans "Agendar cita" %}</span>
+        </a>
+      </div>
 
-            <!-- Acción de cerrar sesión -->
-            <div class="right-actions">
-                <div class="topbar-toggle">
-                    <button id="theme-toggle" class="chip-toggle" type="button" aria-label="Cambiar tema">
-                        <span class="chip-icon">🌙</span>
-                        <span class="chip-label">Modo</span>
-                    </button>
-                </div>
-                <div class="lang-switch">
-                    <form action="{% url 'set_language' %}" method="post">
-                        {% csrf_token %}
-                        {% with path=request.get_full_path %}
-                            {% if path|slice:":4" == "/en/" %}
-                                <input name="next" type="hidden" value="{{ path|slice:'3:' }}">
-                            {% else %}
-                                <input name="next" type="hidden" value="{{ path }}">
-                            {% endif %}
-                        {% endwith %}
-                        <input name="language" type="hidden" value="es">
-                        <button type="submit" class="lang-pill {% if CURRENT_LANG|slice:':2' == 'es' %}active{% endif %}" aria-label="Español (MX)">
-                            <span class="flag flag-mx"></span>
-                            <span class="flag-code">MX</span>
-                        </button>
-                    </form>
-                    <form action="{% url 'set_language' %}" method="post">
-                        {% csrf_token %}
-                        {% with path=request.get_full_path %}
-                            {% if path|slice:":4" == "/en/" %}
-                                <input name="next" type="hidden" value="{{ path }}">
-                            {% else %}
-                                <input name="next" type="hidden" value="/en{{ path }}">
-                            {% endif %}
-                        {% endwith %}
-                        <input name="language" type="hidden" value="en">
-                        <button type="submit" class="lang-pill {% if CURRENT_LANG|slice:':2' == 'en' %}active{% endif %}" aria-label="English (US)">
-                            <span class="flag flag-us"></span>
-                            <span class="flag-code">US</span>
-                        </button>
-                    </form>
-                </div>
-                <form
-                    action="{% url 'accounts:logout' %}"
-                    method="post"
-                    style="display:inline;"
-                >
-                    {% csrf_token %}
-                    <button type="submit" class="btn-logout">
-                        Cerrar sesión
-                    </button>
-                </form>
-            </div>
+      <div class="nav-group">
+        <span class="nav-caption">{% trans "Mi cuenta" %}</span>
+        <a href="{% url 'paciente:mis_pagos' %}" class="nav-item {% if nav == 'mis_pagos' or nav == 'pagar_penalizacion' %}active{% endif %}">
+          <i class="ph-duotone ph-wallet"></i><span>{% trans "Pagos" %}</span>
+          {% if penalizacion_info.estado == "pending" or penalizacion_info.estado == "disabled" %}<span class="nav-badge">!</span>{% endif %}
+        </a>
+        <a href="{% url 'paciente:perfil' %}" class="nav-item {% if nav == 'perfil' or nav == 'editar_perfil' %}active{% endif %}">
+          <i class="ph-duotone ph-user-circle"></i><span>{% trans "Mi perfil" %}</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <span class="nav-caption">{% trans "Ayuda" %}</span>
+        <a href="#" class="nav-item" onclick="contactarDentista(); return false;">
+          <i class="ph-duotone ph-chat-circle-dots"></i><span>{% trans "Contactar consultorio" %}</span>
+        </a>
+        <a href="{% url 'paciente:guia' %}" class="nav-item" target="_blank" rel="noopener">
+          <i class="ph-duotone ph-book-open-text"></i><span>{% trans "Guía del paciente" %}</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="user-card">
+        <div class="avatar">
+          {% if pac.imagen %}
+            <img src="{{ pac.imagen.url }}" alt="">
+          {% else %}
+            {{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
+          {% endif %}
         </div>
+        <div class="u-data">
+          <span class="u-name">{{ user.get_full_name|default:user.username }}</span>
+          <span class="u-role">{% trans "Paciente" %}</span>
+        </div>
+        <form action="{% url 'accounts:logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn-logout" title="{% trans 'Cerrar sesión' %}" aria-label="{% trans 'Cerrar sesión' %}">
+            <i class="ph-bold ph-sign-out"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </aside>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <!-- ============ CONTENIDO ============ -->
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="icon-btn menu-btn" id="menu-btn" aria-label="{% trans 'Abrir menú' %}">
+        <i class="ph-bold ph-list"></i>
+      </button>
+      <div class="topbar-title">
+        <h1>{% block header_title %}{% trans "Panel del paciente" %}{% endblock %}</h1>
+        <p>{% block header_sub %}{% now "DATE_FORMAT" %}{% endblock %}</p>
+      </div>
+      <div class="topbar-actions">
+        <div class="lang-switch">
+          {% with path=request.get_full_path %}
+          <form action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <input name="next" type="hidden" value="{% if path|slice:':4' == '/en/' %}{{ path|slice:'3:' }}{% else %}{{ path }}{% endif %}">
+            <input name="language" type="hidden" value="es">
+            <button type="submit" class="{% if CURRENT_LANG|slice:':2' == 'es' %}active{% endif %}">ES</button>
+          </form>
+          <form action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <input name="next" type="hidden" value="{% if path|slice:':4' == '/en/' %}{{ path }}{% else %}/en{{ path }}{% endif %}">
+            <input name="language" type="hidden" value="en">
+            <button type="submit" class="{% if CURRENT_LANG|slice:':2' == 'en' %}active{% endif %}">EN</button>
+          </form>
+          {% endwith %}
+        </div>
+        <button type="button" class="icon-btn" id="theme-toggle" aria-label="{% trans 'Cambiar tema claro/oscuro' %}" title="{% trans 'Cambiar tema' %}">
+          <i class="ph-bold ph-moon theme-icon-light"></i>
+          <i class="ph-bold ph-sun theme-icon-dark"></i>
+        </button>
+      </div>
     </header>
 
-    <!-- ========================================================
-         BANNER DE PENALIZACIÓN (si aplica)
-         Se muestra automáticamente si la vista manda penalizacion_info.
-    ========================================================= -->
-    {# Banner global de penalización removido (se muestra solo en la vista de pagos) #}
-
-    <!-- ========================================================
-         SISTEMA GLOBAL DE ALERTAS - TARJETAS TIPO TOAST
-         (mensajes de éxito/error con auto-desvanecimiento)
-    ========================================================= -->
-    <div id="toast-container">
-        <!-- Las tarjetas se insertarán dinámicamente desde JS -->
-    </div>
-
-    <!-- ========================================================
-         CONTENIDO PRINCIPAL DE CADA PÁGINA
-    ========================================================= -->
-    <main class="main-container">
-        {% block pcontent %}{% endblock %}
+    <main class="content">
+      {% block pcontent %}{% endblock %}
     </main>
+  </div>
+</div>
+{% endwith %}
 
-    <!-- ========================================================
-         MODAL GLOBAL (genérico)
-         Puede ser utilizado por distintas vistas.
-    ========================================================= -->
-    <div id="modal" class="modal-backdrop" hidden>
-        <div class="modal-content">
-            <header class="modal-header">
-                <h3 id="modal-title" class="modal-title"></h3>
-                <button class="modal-close" id="modalCloseBtn">✕</button>
-            </header>
-            <div id="modal-body" class="modal-body"></div>
-        </div>
-    </div>
+<!-- Mensajes de Django como modal (igual que el panel del dentista) -->
+{% if messages %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var msgs = [
+      {% for message in messages %}{ tags: "{{ message.tags|escapejs }}", text: "{{ message|escapejs }}" }{% if not forloop.last %},{% endif %}{% endfor %}
+    ];
+    (function next(i) {
+      if (i >= msgs.length) return;
+      var m = msgs[i];
+      var isErr = m.tags.indexOf("error") !== -1;
+      var isWarn = m.tags.indexOf("warning") !== -1;
+      var isInfo = m.tags.indexOf("info") !== -1;
+      Swal.fire({
+        icon: isErr ? "error" : isWarn ? "warning" : isInfo ? "info" : "success",
+        title: isErr ? "{% trans 'Hubo un problema' %}" : isWarn ? "{% trans 'Atención' %}" : isInfo ? "{% trans 'Aviso' %}" : "{% trans '¡Listo!' %}",
+        text: m.text,
+        confirmButtonText: "{% trans 'Entendido' %}",
+        confirmButtonColor: isErr ? "#ef4444" : "#00adc1"
+      }).then(function () { next(i + 1); });
+    })(0);
+  });
+</script>
+{% endif %}
 
-    <!-- ========================================================
-         SCRIPTS GENERALES
-    ========================================================= -->
-    <script src="{% static 'paciente/app.js' %}" defer></script>
-
-    <!-- Scripts extra por vista -->
-    {% block extra_js %}{% endblock %}
+<script>
+  window.RC_PACIENTE = {
+    contactUrl: "{% url 'paciente:contactar_dentista' %}",
+    slotsUrl: "{% url 'paciente:api_slots' %}"
+  };
+</script>
+<script src="{% static 'paciente/app.js' %}?v=2.0"></script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,11 +1,15 @@
 # accounts/adapters.py
 
+import logging
+
 from django.conf import settings
 from django.db import IntegrityError
 from django.urls import reverse
 
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+
+logger = logging.getLogger(__name__)
 
 
 class MyAccountAdapter(DefaultAccountAdapter):
@@ -89,6 +93,16 @@ class MySocialAccountAdapter(DefaultSocialAccountAdapter):
         # Los endpoints de allauth están montados en /social/, ajustamos el callback.
         path = f"/social/{app.provider}/login/callback/"
         return f"{base}{path}"
+
+    def on_authentication_error(self, request, provider, error=None, exception=None, extra_context=None):
+        logger.error(
+            "Fallo login social (%s): error=%s exception=%r",
+            getattr(provider, "id", provider),
+            error,
+            exception,
+            exc_info=exception,
+        )
+        return super().on_authentication_error(request, provider, error, exception, extra_context)
 
     def get_login_redirect_url(self, request, sociallogin):
         adapter = MyAccountAdapter()

@@ -1,59 +1,39 @@
 {% extends "paciente/base.html" %}
-{% load static %}
+{% load i18n %}
 
-{% block ptitle %}Pagar penalización | Paciente{% endblock %}
-
-{% block header_title %}
-    Penalización por inasistencias
-{% endblock %}
+{% block ptitle %}{% trans "Penalización" %}{% endblock %}
+{% block header_title %}{% trans "Penalización por inasistencia" %}{% endblock %}
 
 {% block pcontent %}
-
-<section class="section-wrapper">
-    <div class="section-title">
-        <i class="ph-duotone ph-warning-octagon"></i>
-        Detalles de penalización
+<div style="max-width:720px;" class="stack">
+  <div class="alert alert-danger" style="margin:0;">
+    <i class="ph-duotone ph-warning-octagon"></i>
+    <div>
+      <strong>{% trans "Tu agenda está bloqueada" %}</strong>
+      {% trans "Acumulaste inasistencias que generaron una penalización. Al cubrirla podrás agendar de nuevo." %}
     </div>
+  </div>
 
-    <div class="card-modern penalty-page">
-        <p class="text-muted">
-            Has acumulado inasistencias que generaron una penalización.
-            Para continuar agendando citas con normalidad, es necesario
-            cubrir el monto correspondiente.
-        </p>
-
-        <ul class="penalty-page__list" style="margin-top:1rem;">
-            <li><strong>Inasistencias:</strong> {{ penalizacion.inasistencias }}</li>
-            <li><strong>Monto a pagar:</strong> ${{ penalizacion.recargo }} MXN</li>
-            {% if penalizacion.fecha_limite %}
-                <li><strong>Fecha límite de pago:</strong> {{ penalizacion.fecha_limite|date:"d/m/Y" }}</li>
-            {% endif %}
-            <li><strong>Estado actual:</strong> {{ penalizacion.estado|default:"Pendiente" }}</li>
-        </ul>
-
-        <p class="penalty-page__text" style="margin-top:1.5rem;">
-            Una vez realizado el pago, tu cuenta será reactivada y podrás
-            continuar agendando citas normalmente.
-        </p>
-
-        <form method="POST" style="margin-top:1.5rem;">
-            {% csrf_token %}
-            <button type="submit" class="cyber-btn cyber-btn-glow">
-                <i class="ph-bold ph-credit-card"></i>
-                Pagar con MercadoPago (prueba)
-            </button>
-            <p style="margin-top:0.5rem; color: var(--text-muted);">
-                Este botón activará el cobro con las credenciales de MercadoPago del consultorio.
-                Por ahora está en modo de simulación de pago.
-            </p>
+  <section class="card">
+    <div class="card-head"><h2><i class="ph-duotone ph-receipt"></i> {% trans "Detalle" %}</h2></div>
+    <div class="kv">
+      <div class="kv-row" style="border-top:0;"><span>{% trans "Inasistencias" %}</span><span>{{ penalizacion.inasistencias }}</span></div>
+      {% if penalizacion.fecha_limite %}
+        <div class="kv-row"><span>{% trans "Fecha límite" %}</span><span>{{ penalizacion.fecha_limite|date:"d/m/Y" }}</span></div>
+      {% endif %}
+      <div class="kv-row"><span>{% trans "Monto" %}</span><span style="color:var(--danger); font-size:17px;">${{ penalizacion.recargo|floatformat:2 }} MXN</span></div>
+    </div>
+    <div class="card-body">
+      {% if penal_pendiente %}
+        <form method="post" action="{% url 'paciente:iniciar_pago' penal_pendiente.cita.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary btn-block"><i class="ph-bold ph-credit-card"></i> {% trans "Pagar con MercadoPago" %}</button>
         </form>
-
-        <div style="margin-top:1rem;">
-            <a href="{% url 'paciente:dashboard' %}" class="cyber-btn">
-                ⬅ Volver al panel
-            </a>
-        </div>
+      {% else %}
+        <a href="{% url 'paciente:mis_pagos' %}" class="btn btn-primary btn-block"><i class="ph-bold ph-credit-card"></i> {% trans "Ir a pagos" %}</a>
+      {% endif %}
+      <a href="{% url 'paciente:dashboard' %}" class="btn btn-ghost btn-block" style="margin-top:10px;">{% trans "Volver al inicio" %}</a>
     </div>
-</section>
-
+  </section>
+</div>
 {% endblock %}

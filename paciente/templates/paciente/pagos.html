@@ -1,354 +1,82 @@
 {% extends "paciente/base.html" %}
-{% load static i18n %}
+{% load i18n %}
 
-{% block ptitle %}{% trans "Mis pagos" %}{% endblock %}
-{% block header_title %}{% trans "Pagos del paciente" %}{% endblock %}
-
-{% block extra_css %}
-  <style>
-    .pay-wrapper { max-width: 1180px; margin: 0 auto; padding: 0 1rem 2.2rem; }
-    .pay-success {
-      position: relative;
-      display: none;
-    }
-    .success-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.55);
-      backdrop-filter: blur(4px);
-      z-index: 90;
-      display: grid;
-      place-items: center;
-    }
-    .success-card {
-      width: min(520px, 90vw);
-      background: linear-gradient(140deg, #0e1527, #101b30);
-      border-radius: 22px;
-      padding: 2rem 1.8rem;
-      border: 1px solid rgba(99,228,255,0.08);
-      box-shadow: 0 24px 60px rgba(0,0,0,0.35), 0 0 25px rgba(99,228,255,0.12);
-      text-align: center;
-      position: relative;
-      color: #e2e8f0;
-    }
-    body.light-mode .success-card {
-      background: linear-gradient(140deg, #0f1b2f, #0f1b2f);
-    }
-    .success-card .icon {
-      width: 76px;
-      height: 76px;
-      border-radius: 50%;
-      margin: 0 auto 1.2rem;
-      display: grid;
-      place-items: center;
-      background: rgba(34,197,94,0.12);
-      border: 2px solid rgba(34,197,94,0.35);
-      color: #22c55e;
-      font-size: 2.2rem;
-    }
-    .success-card h2 {
-      margin: 0 0 0.8rem;
-      font-size: 1.7rem;
-      color: #f8fafc;
-      font-weight: 800;
-    }
-    .success-card p {
-      margin: 0;
-      color: #cbd5e1;
-      font-weight: 600;
-      line-height: 1.5;
-    }
-    .success-card .detail {
-      margin-top: 1rem;
-      padding: 0.9rem 1.1rem;
-      border-radius: 14px;
-      background: rgba(34,197,94,0.12);
-      border: 1px dashed rgba(34,197,94,0.35);
-      color: #bbf7d0;
-      font-weight: 800;
-    }
-    .success-card .actions {
-      margin-top: 1.3rem;
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .success-card .btn-primary {
-      border: none;
-      background: linear-gradient(120deg, #22c55e, #16a34a);
-      color: #0b1220;
-      padding: 0.8rem 1.5rem;
-      border-radius: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 14px 30px rgba(34,197,94,0.25);
-      transition: var(--transition-fast);
-    }
-    .success-card .btn-secondary {
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.07);
-      color: #e2e8f0;
-      padding: 0.8rem 1.3rem;
-      border-radius: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: var(--transition-fast);
-    }
-    .success-card .btn-primary:hover { transform: translateY(-1px); }
-    .success-card .btn-secondary:hover { background: rgba(255,255,255,0.12); }
-    .success-card .close {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.18);
-      color: #e2e8f0;
-      font-size: 1rem;
-      padding: 6px 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: var(--transition-fast);
-    }
-    .success-card .close:hover { background: rgba(255,255,255,0.1); }
-    body.light-mode .success-overlay { background: rgba(0,0,0,0.4); }
-
-    .welcome-banner.pay-hero {
-      background: linear-gradient(135deg, #8bc8ff, #4b97ff);
-      border: 2px solid rgba(255,255,255,0.55);
-      box-shadow: 0 15px 40px rgba(75,151,255,0.28), 0 0 18px rgba(255,255,255,0.25);
-    }
-    body.light-mode .welcome-banner.pay-hero {
-      background: linear-gradient(135deg, #e0f2ff, #c1e4ff);
-      border: 2px solid rgba(80,140,255,0.35);
-      box-shadow: 0 14px 36px rgba(99,155,255,0.22), 0 0 16px rgba(80,140,255,0.18);
-    }
-    .pay-hero {
-      margin: 1.4rem auto 2rem;
-      padding: 2rem 1.8rem 2.2rem;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: end;
-      gap: 1.25rem;
-    }
-    .pay-hero .titles { text-align: left; }
-    .pay-hero .titles h1 {
-      margin: 0;
-      font-size: clamp(2rem, 4vw, 2.6rem);
-      color: #e5edff;
-      letter-spacing: 0.4px;
-    }
-    .pay-hero .titles p { color: #cbd5f5; margin: 6px 0 0; }
-    body.light-mode .pay-hero .titles h1 { color: #0f172a; }
-    body.light-mode .pay-hero .titles p { color: #1f2937; }
-    .pay-hero .back { align-self: end; margin-top: 0.6rem; }
-    .pay-grid {
-      display: grid;
-      gap: 1.6rem;
-      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-      align-items: start;
-    }
-    .pay-card {
-      position: relative;
-      min-height: 0;
-      background: linear-gradient(145deg, rgba(10,33,66,0.95), rgba(7,17,38,0.92));
-      border: 2px solid rgba(255,255,255,0.5);
-      box-shadow: 0 16px 42px rgba(56,131,255,0.22), 0 0 14px rgba(255,255,255,0.2);
-    }
-    body:not(.light-mode) .pay-card {
-      background: linear-gradient(160deg, #0b1226, #0c152e);
-      border-color: rgba(120,180,255,0.55);
-      box-shadow: 0 18px 48px rgba(56,131,255,0.3), 0 0 18px rgba(120,180,255,0.35);
-    }
-    .pay-card::after {
-      content: "";
-      position: absolute;
-      inset: 8px;
-      border-radius: 16px;
-      background: radial-gradient(circle at 20% 20%, rgba(91,228,255,0.12), transparent 40%),
-                  radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1), transparent 45%);
-      pointer-events: none;
-      opacity: 0.35;
-    }
-    body.light-mode .pay-card {
-      background: linear-gradient(145deg, #f6fbff, #e9f3ff);
-      border: 2px solid rgba(80,140,255,0.3);
-      box-shadow: 0 14px 36px rgba(99,155,255,0.18), 0 0 12px rgba(80,140,255,0.16);
-    }
-    body.light-mode .pay-card::after { opacity: 0.2; }
-    .pay-card h3 {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 0 0 0.8rem;
-      color: var(--c-text);
-    }
-    body:not(.light-mode) .pay-card h3 { color: #e5edff; }
-    .pay-card h3 i { color: var(--c-primary); }
-    .pay-list { display: grid; gap: 12px; position: relative; z-index: 1; }
-    .pay-item {
-      border: 1px solid var(--c-border);
-      border-radius: 14px;
-      padding: 12px;
-      background: var(--c-surface);
-      display: grid;
-      gap: 6px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-    body:not(.light-mode) .pay-item {
-      background: rgba(255,255,255,0.045);
-      border-color: rgba(140,180,255,0.25);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
-    }
-    .pay-item .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .amount { font-weight: 800; font-size: 1.05rem; color: var(--c-text); }
-    .meta { color: var(--c-text-muted); font-size: 0.95rem; }
-    body:not(.light-mode) .amount { color: #f6fbff; }
-    body:not(.light-mode) .meta { color: rgba(206,217,245,0.9); }
-    .pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 10px; border-radius: 999px; font-weight: 700; font-size: 0.85rem;
-      border: 1px solid var(--c-border);
-    }
-    .pill.success { background: rgba(20,184,166,0.15); color: #5eead4; }
-    .pill.pending { background: rgba(245,158,11,0.18); color: var(--c-warning); }
-    body:not(.light-mode) .pill.success { background: rgba(22,163,74,0.2); color: #76f7c5; border-color: rgba(118,247,197,0.4); }
-    body:not(.light-mode) .pill.pending { background: rgba(255,179,64,0.2); color: #ffdd9b; border-color: rgba(255,221,155,0.35); }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
-    body:not(.light-mode) .pay-card { color: #dbe9ff; }
-    body:not(.light-mode) .cyber-btn {
-      background: rgba(255,255,255,0.08);
-      border-color: rgba(255,255,255,0.16);
-      color: #e9f2ff;
-    }
-    .empty {
-      text-align: center; color: var(--c-text-muted);
-      padding: 0.9rem; border: 1px dashed var(--c-border);
-      border-radius: 12px; background: var(--c-surface);
-    }
-    body:not(.light-mode) .empty {
-      background: rgba(255,255,255,0.03);
-      border-color: rgba(255,255,255,0.18);
-      color: rgba(226,232,240,0.9);
-    }
-    @media (max-width: 960px) {
-      .pay-hero {
-        grid-template-columns: 1fr;
-        align-items: start;
-      }
-      .pay-hero .back { justify-self: flex-start; }
-      .pay-grid { grid-template-columns: 1fr; }
-    }
-  </style>
-{% endblock %}
+{% block ptitle %}{% trans "Pagos" %}{% endblock %}
+{% block header_title %}{% trans "Pagos" %}{% endblock %}
+{% block header_sub %}{% trans "Paga en línea y descarga tus recibos" %}{% endblock %}
 
 {% block pcontent %}
-<div class="pay-wrapper">
-  <div class="welcome-banner pay-hero">
-    <div class="titles">
-      <h1>{% trans "Pagos" %}</h1>
-      <p>{% trans "Gestiona tus pagos pendientes o revisa tus pagos completados." %}</p>
-    </div>
-    <div class="back">
-      <a href="{% url 'paciente:dashboard' %}" class="cyber-btn cyber-btn-secondary">
-        <i class="ph-bold ph-arrow-left"></i> {% trans "Volver" %}
-      </a>
+{% if penal_info.estado == "pending" or penal_info.estado == "disabled" %}
+  <div class="alert alert-danger">
+    <i class="ph-duotone ph-warning-octagon"></i>
+    <div>
+      <strong>{% trans "Tienes una penalización pendiente" %}</strong>
+      {% blocktrans with monto=penal_info.recargo|default:300|floatformat:0 %}Paga ${{ monto }} MXN para reactivar tu agenda.{% endblocktrans %}
     </div>
   </div>
-
-  <div class="pay-grid">
-    <!-- Pagos pendientes -->
-    <section class="card-modern pay-card">
-      <h3><i class="ph-duotone ph-credit-card"></i> {% trans "Pagos pendientes" %}</h3>
-
-      {% if pagos_pendientes %}
-        <div class="pay-list">
-          {% for pago in pagos_pendientes %}
-          <div class="pay-item">
-            <div class="row">
-              <span class="pill pending">
-                {% if pago.cita.estado == "INASISTENCIA" and pago.monto|floatformat:0 == "300" %}
-                  {% trans "Penalización" %}
-                {% else %}
-                  {% trans "Pendiente" %}
-                {% endif %}
-              </span>
-              <span class="amount">${{ pago.monto }} MXN</span>
-            </div>
-            <div class="meta">
-              {% if pago.cita.estado == "INASISTENCIA" and pago.monto|floatformat:0 == "300" %}
-                {% trans "Cargo por inasistencia" %}
-              {% else %}
-                {{ pago.cita.servicio.nombre }} • {{ pago.cita.fecha|date:"d/m/Y" }} {{ pago.cita.hora_inicio|time:"H:i" }}
-              {% endif %}
-            </div>
-            <div class="meta">{% trans "Cita" %} #{{ pago.cita.id }} • {% trans "Dr." %} {{ pago.cita.dentista.nombre }}</div>
-            <div class="meta">{% trans "Método" %}: {{ pago.metodo|default:_("No especificado") }}</div>
-            <div class="actions">
-              <form method="post" action="{% url 'paciente:iniciar_pago' pago.cita.id %}">
-                {% csrf_token %}
-                <button type="submit" class="cyber-btn cyber-btn-glow">{% trans "Pagar ahora" %}</button>
-              </form>
-              <a class="cyber-btn" href="{% url 'paciente:recibo_pago_pdf' pago.id %}" target="_blank" rel="noopener">{% trans "Descargar PDF" %}</a>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="empty">{% trans "No tienes pagos pendientes 🎉" %}</div>
-      {% endif %}
-    </section>
-
-    <!-- Pagos completados -->
-    <section class="card-modern pay-card">
-      <h3><i class="ph-duotone ph-check-circle"></i> {% trans "Pagos completados" %}</h3>
-
-      {% if pagos_completados %}
-        <div class="pay-list">
-          {% for pago in pagos_completados %}
-          <div class="pay-item">
-            <div class="row">
-              <span class="pill success">{% trans "Completado" %}</span>
-              <span class="amount">${{ pago.monto }} MXN</span>
-            </div>
-            <div class="meta">{{ pago.cita.servicio.nombre }} • {{ pago.cita.fecha|date:"d/m/Y" }} {{ pago.cita.hora_inicio|time:"H:i" }}</div>
-            <div class="meta">{% trans "Cita" %} #{{ pago.cita.id }} • {% trans "Dr." %} {{ pago.cita.dentista.nombre }}</div>
-            <div class="meta">{% trans "Método" %}: {{ pago.metodo|default:_("No especificado") }}</div>
-            <div class="actions">
-              <a class="cyber-btn cyber-btn-glow" href="{% url 'paciente:recibo_pago_pdf' pago.id %}" target="_blank" rel="noopener">{% trans "Descargar PDF" %}</a>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="empty">{% trans "Aún no tienes pagos completados." %}</div>
-      {% endif %}
-    </section>
-  </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-{% if request.GET.pago_ok %}
-<div class="success-overlay" id="modal-pago-ok">
-  <div class="success-card">
-    <button class="close" aria-label="{% trans 'Cerrar' %}" onclick="document.getElementById('modal-pago-ok').remove();">✕</button>
-    <div class="icon">✓</div>
-    <h2>{% trans "Pago exitoso" %}</h2>
-    <p>{% trans "Tu pago ha sido registrado correctamente." %}</p>
-    <div class="detail">{{ request.GET.servicio }} • ${{ request.GET.monto }} MXN</div>
-    <div class="actions">
-      <button class="btn-primary" type="button" onclick="document.getElementById('modal-pago-ok').remove();">{% trans "Entendido" %}</button>
-      <button class="btn-secondary" type="button" onclick="window.location.href='{% url 'paciente:dashboard' %}';">{% trans "Volver al panel" %}</button>
-    </div>
-  </div>
-</div>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    if (typeof showToast === "function") {
-      showToast("{{ request.GET.servicio|default:'Pago'|escapejs }} — ${{ request.GET.monto|escapejs }} MXN", "success");
-    }
-  });
-</script>
 {% endif %}
+
+<div class="grid grid-2" style="align-items:start;">
+  <section class="card">
+    <div class="card-head">
+      <h2><i class="ph-duotone ph-hourglass-medium"></i> {% trans "Pendientes" %}</h2>
+      <span class="badge badge-pendiente" style="margin-left:auto;">{{ pagos_pendientes|length }}</span>
+    </div>
+    {% if pagos_pendientes %}
+      <div class="list">
+        {% for pago in pagos_pendientes %}
+          <div class="list-item">
+            <div class="list-icon {% if pago.cita.estado == "INASISTENCIA" %}red{% else %}amber{% endif %}"><i class="ph-duotone {% if pago.cita.estado == "INASISTENCIA" %}ph-warning{% else %}ph-receipt{% endif %}"></i></div>
+            <div class="list-main">
+              <div class="list-title">{% if pago.cita.estado == "INASISTENCIA" %}{% trans "Penalización por inasistencia" %}{% else %}{{ pago.cita.servicio.nombre }}{% endif %}</div>
+              <div class="list-sub">{% trans "Cita" %} {{ pago.cita.id }} · {{ pago.cita.fecha|date:"d M Y" }} · Dr. {{ pago.cita.dentista.nombre }}</div>
+            </div>
+            <div class="list-end">
+              <span class="amount">${{ pago.monto|floatformat:2 }}</span>
+              <form method="post" action="{% url 'paciente:iniciar_pago' pago.cita.id %}"
+                    data-confirm-title="{% trans 'Ir a MercadoPago' %}"
+                    data-confirm-text="{% blocktrans with monto=pago.monto|floatformat:2 %}Serás redirigido a MercadoPago para pagar ${{ monto }} MXN de forma segura.{% endblocktrans %}"
+                    data-confirm-button="{% trans 'Continuar' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-sm"><i class="ph-bold ph-credit-card"></i> {% trans "Pagar" %}</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty"><i class="ph-duotone ph-seal-check" style="color:var(--success);"></i><p>{% trans "No tienes pagos pendientes." %}</p></div>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2><i class="ph-duotone ph-check-circle"></i> {% trans "Completados" %}</h2>
+      <span class="badge badge-completado" style="margin-left:auto;">{{ pagos_completados|length }}</span>
+    </div>
+    {% if pagos_completados %}
+      <div class="list">
+        {% for pago in pagos_completados %}
+          <div class="list-item">
+            <div class="list-icon green"><i class="ph-duotone ph-check"></i></div>
+            <div class="list-main">
+              <div class="list-title">{% if pago.cita.estado == "INASISTENCIA" %}{% trans "Penalización" %}{% else %}{{ pago.cita.servicio.nombre }}{% endif %}</div>
+              <div class="list-sub">{{ pago.cita.fecha|date:"d M Y" }} · {{ pago.get_metodo_display }}</div>
+            </div>
+            <div class="list-end">
+              <span class="amount">${{ pago.monto|floatformat:2 }}</span>
+              <a class="btn btn-ghost btn-sm" href="{% url 'paciente:recibo_pago_pdf' pago.id %}" target="_blank" rel="noopener">
+                <i class="ph-bold ph-file-pdf"></i> {% trans "Recibo" %}
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty"><i class="ph-duotone ph-receipt"></i><p>{% trans "Aún no tienes pagos completados." %}</p></div>
+    {% endif %}
+  </section>
+</div>
+
+<p class="hint"><i class="ph-fill ph-shield-check" style="color:var(--success);"></i> {% trans "Los pagos en línea se procesan de forma segura con MercadoPago. También puedes pagar en el consultorio." %}</p>
 {% endblock %}

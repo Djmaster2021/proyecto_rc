@@ -10,6 +10,7 @@ urlpatterns = [
 
     # Perfil
     path('completar-perfil/', views.completar_perfil_paciente, name='completar_perfil'),
+    path('perfil/', views.editar_perfil, name='perfil'),
     path('editar-perfil/', views.editar_perfil, name='editar_perfil'),
     path('cancelar-registro/', views.cancelar_registro_paciente, name='cancelar_registro'),
     path('citas/<int:cita_id>/cancelar/', views.cancelar_cita, name='cancelar_cita'),
@@ -26,7 +27,9 @@ urlpatterns = [
 
     # Funciones
     path('agendar/', views.agendar_cita, name='agendar_cita'),
+    path('mis-citas/', views.mis_citas, name='mis_citas'),
     path('mis-pagos/', views.mis_pagos, name='mis_pagos'),
     path('pagar-penalizacion/', views.pagar_penalizacion, name='pagar_penalizacion'),
+    path('guia/', views.guia_paciente, name='guia'),
     path('contactar-dentista/', views.contactar_dentista, name='contactar_dentista'),
 ]

@@ -1,0 +1,46 @@
+{% load i18n %}
+<!-- Formulario oculto para cancelar -->
+<form id="form-cancelar" method="post" hidden>
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+</form>
+
+<!-- Modal: reprogramar cita -->
+<div id="modal-reprogramar" class="modal" role="dialog" aria-modal="true" aria-labelledby="reprog-title">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="reprog-title"><i class="ph-duotone ph-calendar-dots"></i> {% trans "Reprogramar cita" %}</h3>
+      <button type="button" class="icon-btn" data-close-modal aria-label="{% trans 'Cerrar' %}"><i class="ph-bold ph-x"></i></button>
+    </div>
+    <form id="form-reprogramar" method="post" data-slot-picker>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <input type="hidden" name="servicio" value="">
+      <input type="hidden" name="hora" value="">
+      <div class="modal-body">
+        <div class="alert alert-info" style="margin:0;">
+          <i class="ph-duotone ph-info"></i>
+          <div>
+            <strong data-sum="servicio">—</strong>
+            {% trans "Horario actual:" %} <span id="reprog-actual"></span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="reprog-fecha">{% trans "Nueva fecha" %}</label>
+          <input type="date" id="reprog-fecha" name="fecha" class="input" data-fecha required>
+          <span class="help">{% trans "Hasta 60 días a partir de hoy. No se atiende en domingo." %}</span>
+        </div>
+        <div class="field">
+          <label>{% trans "Nuevo horario" %}</label>
+          <div data-slots></div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" data-close-modal>{% trans "Cerrar" %}</button>
+          <button type="submit" class="btn btn-primary" data-submit disabled>
+            <i class="ph-bold ph-check"></i> {% trans "Confirmar cambio" %}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,348 +1,244 @@
 {% extends "paciente/base.html" %}
 {% load static i18n %}
 
-{% block ptitle %}{% trans "Dashboard | Paciente" %}{% endblock %}
-
-{% block header_title %}
-    {% trans "Panel del Paciente" %}
-{% endblock %}
+{% block ptitle %}{% trans "Inicio" %}{% endblock %}
+{% block header_title %}{% trans "Inicio" %}{% endblock %}
 
 {% block pcontent %}
+{% with bloqueado=penal_info.estado %}
 
-<section class="welcome-banner">
-    <h1 class="welcome-title">
-        {% blocktrans with nombre=user.first_name|default:user.username %}Bienvenido, {{ nombre }}{% endblocktrans %}
-    </h1>
-    <p class="welcome-subtitle">
-        {% trans "Tu sonrisa dental en tus manos." %}
-    </p>
+<!-- Bienvenida -->
+<section class="hero">
+  <div class="avatar">
+    {% if paciente.imagen %}<img src="{{ paciente.imagen.url }}" alt="">{% else %}{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}{% endif %}
+  </div>
+  <div style="position:relative; z-index:1;">
+    <h2>{% blocktrans with nombre=user.first_name|default:paciente.nombre %}Hola, {{ nombre }}{% endblocktrans %}</h2>
+    <p>{% trans "Aquí tienes el resumen de tu cuidado dental." %}</p>
+  </div>
+  <div class="hero-actions">
+    <a href="{% url 'paciente:perfil' %}" class="btn btn-ghost"><i class="ph-bold ph-user-circle"></i> {% trans "Mi perfil" %}</a>
+    <a href="{% url 'paciente:agendar_cita' %}" class="btn btn-primary{% if bloqueado == 'pending' or bloqueado == 'disabled' %} is-disabled{% endif %}">
+      <i class="ph-bold ph-calendar-plus"></i> {% trans "Agendar cita" %}
+    </a>
+  </div>
 </section>
 
+<!-- Avisos -->
 {% if penal_info and penal_info.estado != "sin_penalizacion" %}
-<div class="card-modern" style="background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; margin-bottom: 1rem;">
-    {% if penal_info.estado == "warning" and penal_info.recargo|floatformat:0 == "0" %}
-        <strong>Advertencia:</strong> Registramos una falta. Si vuelves a faltar se generará una penalización y bloqueo de agenda.
-    {% else %}
-        <strong>Advertencia activa:</strong> Tienes una advertencia por faltar a tu cita dental. Debes pagar tu cuota de ${{ penal_info.recargo|default:300|floatformat:0 }} MXN para poder agendar tu cita nuevamente. <a href="{% url 'paciente:mis_pagos' %}" style="color:#9a3412; text-decoration:underline;">Pagar ahora</a>
-    {% endif %}
-</div>
+  {% if penal_info.estado == "warning" and penal_info.recargo|floatformat:0 == "0" %}
+    <div class="alert alert-warning">
+      <i class="ph-duotone ph-warning"></i>
+      <div><strong>{% trans "Registramos una inasistencia" %}</strong>{% trans "Si vuelves a faltar se generará una penalización y se bloqueará tu agenda." %}</div>
+    </div>
+  {% else %}
+    <div class="alert alert-danger">
+      <i class="ph-duotone ph-warning-octagon"></i>
+      <div>
+        <strong>{% trans "Agenda bloqueada por inasistencia" %}</strong>
+        {% blocktrans with monto=penal_info.recargo|default:300|floatformat:0 %}Cubre la cuota de ${{ monto }} MXN para volver a agendar citas.{% endblocktrans %}
+      </div>
+      <a href="{% url 'paciente:mis_pagos' %}" class="btn btn-sm btn-primary">{% trans "Pagar ahora" %}</a>
+    </div>
+  {% endif %}
+{% elif advertencia_manual %}
+  <div class="alert alert-warning">
+    <i class="ph-duotone ph-warning"></i>
+    <div><strong>{% trans "Aviso del consultorio" %}</strong>{{ advertencia_manual.motivo }}</div>
+  </div>
 {% endif %}
 
-<div class="dashboard-grid">
+{% if not paciente.telefono %}
+  <div class="alert alert-info">
+    <i class="ph-duotone ph-phone"></i>
+    <div><strong>{% trans "Completa tu perfil" %}</strong>{% trans "Agrega tu teléfono para recibir recordatorios de tus citas." %}</div>
+    <a href="{% url 'paciente:perfil' %}" class="btn btn-sm btn-outline">{% trans "Completar" %}</a>
+  </div>
+{% endif %}
 
-    <section class="section-wrapper dash-item">
-        <div class="section-title">
-            <i class="ph-duotone ph-calendar-check"></i> {% trans "Tu Próxima Cita" %}
-        </div>
-        <div class="card-modern">
-            {% if proxima_cita %}
-                <div class="appointment-info">
-                    <p><strong>{% trans "Fecha:" %}</strong> {{ proxima_cita.fecha_hora_inicio|date:"l d F, Y" }}</p>
-                    <p><strong>{% trans "Hora:" %}</strong> {{ proxima_cita.fecha_hora_inicio|time:"h:i A" }}</p>
-                    <p><strong>{% trans "Tratamiento:" %}</strong> {{ proxima_cita.servicio.nombre }}</p>
-                    <p><strong>{% trans "Doctor:" %}</strong> {{ proxima_cita.dentista.nombre }}</p>
-                    <p>
-                        <strong>{% trans "Estado:" %}</strong>
-                        <span class="chip status-{{ proxima_cita.estado|lower }}">
-                            {{ proxima_cita.get_estado_display }}
-                        </span>
-                    </p>
-                </div>
-                <div class="appointment-actions">
-                    <button class="cyber-btn" type="button"
-                        onclick="verificarReprogramacion({{ proxima_cita.id }}, {{ proxima_cita.servicio.id }}, {{ proxima_cita.veces_reprogramada|default:0 }})"
-                        {% if reprogram_used_month %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>
-                        {% trans "Reprogramar" %}
-                    </button>
-                    <button class="cyber-btn cyber-btn-danger" type="button"
-                        onclick="confirmarCancelacion({{ proxima_cita.id }})"
-                        {% if cancel_used_month %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>
-                        {% trans "Cancelar" %}
-                    </button>
-                    <form id="form-cancelar" method="POST" style="display:none;">
-                        {% csrf_token %}
-                    </form>
-                </div>
-                <p style="margin-top:8px; color:#eab308; font-weight:700; font-size:0.9rem;">
-                    {% trans "Solo puedes cancelar o reprogramar una vez al mes. Después deberás comunicarte con tu dentista." %}
-                </p>
-            {% else %}
-                <div class="empty-state">
-                    <i class="ph-duotone ph-calendar-x empty-icon"></i>
-                    <p>{% trans "No tienes citas próximas." %}</p>
-                    <button onclick="abrirModalAgendar()" class="cyber-btn cyber-btn-glow {% if penal_info.estado == 'pending' or penal_info.estado == 'disabled' %}btn-disabled{% endif %}" style="margin-top: 0.3rem;" {% if penal_info.estado == "pending" or penal_info.estado == "disabled" %}disabled{% endif %}>
-                        {% trans "Agendar una cita" %}
-                    </button>
-                </div>
-            {% endif %}
-        </div>
-    </section>
+<!-- Indicadores -->
+<section class="stats">
+  <div class="card stat">
+    <div class="stat-icon"><i class="ph-duotone ph-calendar-check"></i></div>
+    <div><div class="stat-value">{{ stats.proximas }}</div><div class="stat-label">{% trans "Citas próximas" %}</div></div>
+  </div>
+  <div class="card stat">
+    <div class="stat-icon green"><i class="ph-duotone ph-check-circle"></i></div>
+    <div><div class="stat-value">{{ stats.completadas }}</div><div class="stat-label">{% trans "Tratamientos realizados" %}</div></div>
+  </div>
+  <div class="card stat">
+    <div class="stat-icon blue"><i class="ph-duotone ph-clipboard-text"></i></div>
+    <div><div class="stat-value">{{ stats.total_citas }}</div><div class="stat-label">{% trans "Citas en total" %}</div></div>
+  </div>
+  <div class="card stat">
+    <div class="stat-icon amber"><i class="ph-duotone ph-wallet"></i></div>
+    <div><div class="stat-value">${{ stats.saldo_pendiente|floatformat:0 }}</div><div class="stat-label">{% trans "Saldo pendiente" %}</div></div>
+  </div>
+</section>
 
-    <section class="section-wrapper dash-item">
-        <div class="section-title">
-            <i class="ph-duotone ph-user"></i> {% trans "Mi Perfil" %}
-        </div>
-        <div class="card-modern profile-card">
-            <button class="btn-edit-profile" type="button" onclick="abrirModalPerfil()">✏️</button>
-            <div class="profile-container">
-                <div class="profile-details">
-                    <span class="chip patient-id">PAC-{{ paciente.id|stringformat:"04d" }}</span>
-                    <h3 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h3>
-                    <p class="profile-email">{{ user.email }}</p>
-                    <div class="profile-info">
-                        <div>📞 {{ paciente.telefono }}</div>
-                        <div>📍 {{ paciente.direccion|default:_("Sin dirección") }}</div>
-                    </div>
-                </div>
-                <div class="profile-avatar">
-                    {% if paciente.imagen %}
-                        <img src="{{ paciente.imagen.url }}" alt="Foto">
-                    {% else %}
-                        <div class="avatar-fallback">
-                            {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
-                        </div>
-                    {% endif %}
-                </div>
+<div class="grid grid-main">
+  <!-- Columna principal -->
+  <div class="stack">
+    <section class="card">
+      <div class="card-head">
+        <h2><i class="ph-duotone ph-calendar-star"></i> {% trans "Tu próxima cita" %}</h2>
+        <a href="{% url 'paciente:mis_citas' %}" class="link">{% trans "Ver todas" %} <i class="ph-bold ph-caret-right"></i></a>
+      </div>
+      <div class="card-body">
+        {% if proxima_cita %}
+          <div class="appt">
+            <div class="appt-date">
+              <div class="m">{{ proxima_cita.fecha|date:"M" }}</div>
+              <div class="d">{{ proxima_cita.fecha|date:"j" }}</div>
+              <div class="w">{{ proxima_cita.fecha|date:"l" }}</div>
             </div>
-        </div>
-    </section>
-
-    <section class="section-wrapper dash-item">
-        <div class="section-title">
-            <i class="ph-duotone ph-clock-counter-clockwise"></i> {% trans "Historial de citas" %}
-        </div>
-        <div class="card-modern">
-            {% if historial %}
-                <div class="payment-list">
-                    {% for cita_hist in historial %}
-                        <div class="payment-item" style="align-items: flex-start;">
-                            <div>
-                                <strong>{{ cita_hist.servicio.nombre }}</strong><br>
-                                <small>
-                                    {{ cita_hist.fecha|date:"d/m/Y" }} {{ cita_hist.hora_inicio|time:"H:i" }} &mdash;
-                                    Dr. {{ cita_hist.dentista.nombre }}
-                                </small>
-                            </div>
-                            <div style="text-align:right;">
-                                <span class="chip status-{{ cita_hist.estado|lower }}">{{ cita_hist.get_estado_display }}</span>
-                                <div style="margin-top:6px; font-weight:700; color: var(--c-primary);">${{ cita_hist.servicio.precio }}</div>
-                            </div>
-                            <div style="text-align:right; margin-top:6px;">
-                                <a href="{% url 'paciente:feedback_cita' cita_hist.id %}" class="cyber-btn cyber-btn-secondary" style="padding:0.55rem 1rem;">
-                                    {% trans "Comentario / encuesta" %}
-                                </a>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="empty-state"><p>{% trans "Aún no tienes historial de citas." %}</p></div>
-            {% endif %}
-        </div>
-    </section>
-
-    <section class="section-wrapper dash-item">
-        <div class="section-title">
-            <i class="ph-duotone ph-credit-card"></i> {% trans "Pagos en línea" %}
-        </div>
-        <div class="card-modern">
-            {% if deuda_pendiente %}
-                <div class="payment-list">
-                    {% for pago in pagos_pendientes %}
-                        <div class="payment-item">
-                            <div>
-                                {% if pago.cita.estado == "INASISTENCIA" and pago.monto|floatformat:0 == "300" %}
-                                  <strong>Penalización (${{ pago.monto }})</strong><br>
-                                  <small>Bloqueo por inasistencia</small>
-                                {% else %}
-                                  <strong>{{ pago.cita.servicio.nombre }}</strong><br>
-                                  <small>Con Dr. {{ pago.cita.dentista.nombre }} — {{ pago.cita.fecha|date:"d/m/Y" }} {{ pago.cita.hora_inicio|time:"H:i" }}</small>
-                                {% endif %}
-                            </div>
-                            <div class="payment-amount">${{ pago.monto }}</div>
-                        </div>
-                    {% endfor %}
-                </div>
-                <div class="payment-actions">
-                    <a href="{% url 'paciente:mis_pagos' %}" class="cyber-btn cyber-btn-glow">Gestionar pago en línea</a>
-                </div>
-            {% else %}
-                <div class="empty-state"><p>{% trans "Estás al día con tus pagos." %}</p></div>
-                <div class="payment-actions">
-                    <a href="{% url 'paciente:mis_pagos' %}" class="cyber-btn cyber-btn-secondary" style="margin-top: 0.6rem;">{% trans "Gestionar pagos en línea" %}</a>
-                </div>
-            {% endif %}
-        </div>
-    </section>
-
-    <section class="section-wrapper dash-item">
-        <div class="section-title">
-            <i class="ph-duotone ph-first-aid-kit"></i> {% trans "Mi Especialista" %}
-        </div>
-        <div class="card-modern" style="padding: 2rem;">
-            <div>
-                <p style="color: var(--c-text); font-size: 0.9rem; text-transform: uppercase;">{% trans "Dentista" %}</p>
-                <h3 style="font-size: 1.8rem; margin-bottom: 5px; color: var(--c-text);">
-                    {% if paciente.dentista %}{{ paciente.dentista.nombre|upper }}{% else %}{% trans "Sin dentista asignado" %}{% endif %}
-                </h3>
-                <p style="color: var(--c-text); font-weight: 600; margin-bottom: 8px;">
-                    {% if paciente.dentista %}{{ paciente.dentista.especialidad|default:_("Médico general")|upper }}{% else %}{% trans "Especialidad no definida" %}{% endif %}
-                </p>
-                <p style="color: var(--c-text); margin-bottom: 15px;">
-                    <strong>{% trans "Tel:" %}</strong>
-                    {% if paciente.dentista and paciente.dentista.telefono %}{{ paciente.dentista.telefono }}{% else %}{% trans "No disponible" %}{% endif %}
-                </p>
-                <button type="button" class="rc-btn" style="padding: 10px 25px; font-size: 1rem;" onclick="contactarDentista()">
-                    <i class="ph-bold ph-envelope-simple"></i> {% trans "Contactar" %}
-                </button>
+            <div class="appt-info">
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <h3>{{ proxima_cita.servicio.nombre }}</h3>
+                <span class="badge badge-{{ proxima_cita.estado|lower }}">{{ proxima_cita.get_estado_display }}</span>
+              </div>
+              <div class="meta-row">
+                <span><i class="ph-duotone ph-clock"></i> {{ proxima_cita.hora_inicio|time:"H:i" }} – {{ proxima_cita.hora_fin|time:"H:i" }}</span>
+                <span><i class="ph-duotone ph-stethoscope"></i> Dr. {{ proxima_cita.dentista.nombre }}</span>
+                <span><i class="ph-duotone ph-currency-circle-dollar"></i> ${{ proxima_cita.servicio.precio|floatformat:2 }} MXN</span>
+              </div>
+              {% if proxima_cita.dentista.direccion %}
+                <div class="meta-row"><span><i class="ph-duotone ph-map-pin"></i> {{ proxima_cita.dentista.direccion }}</span></div>
+              {% endif %}
+              <div class="appt-actions">
+                {% include "paciente/_partials/cita_botones.html" with cita=proxima_cita %}
+              </div>
             </div>
-        </div>
-    </section>
-
-    <section class="section-wrapper dash-item">
-        <div class="section-title">
-            <i class="ph-duotone ph-book-open-text"></i> {% trans "Manuales" %}
-        </div>
-        <div class="card-modern" style="padding: 1.5rem;">
-            <p style="margin:0 0 10px; color: var(--text-dim);">{% trans "Descarga la guía rápida del paciente en PDF." %}</p>
-            <a class="cyber-btn cyber-btn-secondary" href="{% static 'manuales/manual_paciente.pdf' %}" target="_blank" rel="noopener" style="padding:10px 18px; display:inline-flex; gap:8px; align-items:center;">
-                <i class="ph-bold ph-file-pdf"></i> {% trans "Guía del paciente (PDF)" %}
+          </div>
+          <p class="hint"><i class="ph-fill ph-info"></i> {% trans "Puedes cancelar o reprogramar una vez al mes. Para más cambios contacta al consultorio." %}</p>
+        {% else %}
+          <div class="empty">
+            <i class="ph-duotone ph-calendar-blank"></i>
+            <p>{% trans "No tienes citas programadas." %}</p>
+            <a href="{% url 'paciente:agendar_cita' %}" class="btn btn-primary{% if bloqueado == 'pending' or bloqueado == 'disabled' %} is-disabled{% endif %}">
+              <i class="ph-bold ph-calendar-plus"></i> {% trans "Agendar una cita" %}
             </a>
-        </div>
+          </div>
+        {% endif %}
+      </div>
     </section>
 
-</div> 
-
-<!-- MODAL AGENDAR CITA -->
-<div id="modal-cita" class="modal-overlay">
-    <div class="modal-content glow-card">
-        <div class="modal-header">
-            <h3 id="modal-title"><i class="ph-duotone ph-calendar-plus"></i> {% trans "Agendar Cita" %}</h3>
-            <button class="modal-close" type="button" onclick="cerrarModal()">
-                <i class="ph-bold ph-x"></i>
-            </button>
+    <section class="card">
+      <div class="card-head">
+        <h2><i class="ph-duotone ph-clock-counter-clockwise"></i> {% trans "Historial reciente" %}</h2>
+        <a href="{% url 'paciente:mis_citas' %}?tab=historial" class="link">{% trans "Ver historial" %} <i class="ph-bold ph-caret-right"></i></a>
+      </div>
+      {% if historial %}
+        <div class="list">
+          {% for c in historial %}
+            <div class="list-item">
+              <div class="list-icon{% if c.estado == 'COMPLETADA' %} green{% elif c.estado == 'INASISTENCIA' %} red{% endif %}"><i class="ph-duotone ph-tooth"></i></div>
+              <div class="list-main">
+                <div class="list-title">{{ c.servicio.nombre }}</div>
+                <div class="list-sub">{{ c.fecha|date:"d M Y" }} · {{ c.hora_inicio|time:"H:i" }} · Dr. {{ c.dentista.nombre }}</div>
+              </div>
+              <div class="list-end">
+                <span class="badge badge-{{ c.estado|lower }}">{{ c.get_estado_display }}</span>
+                {% if c.estado == "COMPLETADA" %}
+                  <a href="{% url 'paciente:feedback_cita' c.id %}" class="btn btn-ghost btn-sm">
+                    <i class="ph-bold ph-star"></i>{% if c.encuestasatisfaccion_set.all %} {% trans "Editar opinión" %}{% else %} {% trans "Opinar" %}{% endif %}
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
         </div>
+      {% else %}
+        <div class="empty"><i class="ph-duotone ph-folder-open"></i><p>{% trans "Aún no tienes historial de citas." %}</p></div>
+      {% endif %}
+    </section>
+  </div>
 
-        <form id="form-cita" method="POST" action="{% url 'paciente:agendar_cita' %}" data-slots-url="{% url 'paciente:api_slots' %}">
-            {% csrf_token %}
-
-            <div class="form-group">
-                <label for="servicio_modal">{% trans "Tratamiento" %}</label>
-                <select name="servicio" id="servicio_modal" class="cyber-input" required>
-                    <option value="" disabled selected>-- {% trans "Selecciona" %} --</option>
-                    {% for s in servicios %}
-                        <option value="{{ s.id }}">🦷 {{ s.nombre }} (Dr. {{ s.dentista.nombre }})</option>
-                    {% empty %}
-                        <option disabled>{% trans "No hay servicios activos" %}</option>
-                    {% endfor %}
-                </select>
+  <!-- Columna lateral -->
+  <div class="stack">
+    <section class="card">
+      <div class="card-head"><h2><i class="ph-duotone ph-first-aid-kit"></i> {% trans "Mi especialista" %}</h2></div>
+      <div class="card-body">
+        {% if paciente.dentista %}
+          <div class="doc">
+            <div class="avatar avatar-lg">
+              {% if paciente.dentista.foto_perfil %}<img src="{{ paciente.dentista.foto_perfil.url }}" alt="">{% else %}<i class="ph-fill ph-tooth"></i>{% endif %}
             </div>
-
-            <div class="form-group">
-                <label for="cita-fecha">{% trans "Fecha Deseada" %}</label>
-                <input type="date" id="cita-fecha" name="fecha" class="cyber-input" required style="color-scheme: dark;"
-                  placeholder="{% if CURRENT_LANG|slice:':2' == 'en' %}mm/dd/yyyy{% else %}dd/mm/aaaa{% endif %}">
+            <div>
+              <h3>Dr. {{ paciente.dentista.nombre }}</h3>
+              <p>{{ paciente.dentista.especialidad|default:_("Odontología general") }}</p>
             </div>
+          </div>
+          <div class="info-lines">
+            {% if paciente.dentista.telefono %}
+              <div class="info-line"><i class="ph-duotone ph-phone"></i><a href="tel:{{ paciente.dentista.telefono }}">{{ paciente.dentista.telefono }}</a></div>
+            {% endif %}
+            {% if paciente.dentista.direccion %}
+              <div class="info-line"><i class="ph-duotone ph-map-pin"></i><span>{{ paciente.dentista.direccion }}</span></div>
+            {% endif %}
+            {% if paciente.dentista.licencia %}
+              <div class="info-line"><i class="ph-duotone ph-identification-card"></i><span>{% trans "Cédula" %} {{ paciente.dentista.licencia }}</span></div>
+            {% endif %}
+          </div>
+          <div class="btn-row">
+            {% if paciente.dentista.telefono %}
+              <a href="tel:{{ paciente.dentista.telefono }}" class="btn btn-outline btn-sm"><i class="ph-bold ph-phone"></i> {% trans "Llamar" %}</a>
+            {% endif %}
+            {% if paciente.dentista.direccion %}
+              <a href="https://www.google.com/maps/search/?api=1&query={{ paciente.dentista.direccion|urlencode }}" target="_blank" rel="noopener" class="btn btn-outline btn-sm"><i class="ph-bold ph-navigation-arrow"></i> {% trans "Cómo llegar" %}</a>
+            {% endif %}
+            <button type="button" class="btn btn-primary btn-sm" onclick="contactarDentista()"><i class="ph-bold ph-chat-circle-dots"></i> {% trans "Contactar" %}</button>
+          </div>
+        {% else %}
+          <div class="empty" style="padding:10px;"><p>{% trans "Aún no tienes un dentista asignado." %}</p></div>
+        {% endif %}
+      </div>
+    </section>
 
-            <div class="form-group" style="margin-top: 15px;">
-                <label for="cita-hora">{% trans "Horario Disponible" %}</label>
-                <select name="hora" id="cita-hora" class="cyber-input" disabled required>
-                    <option value="" selected>-- {% trans "Primero selecciona fecha" %} --</option>
-                </select>
-                <small id="hora-help" class="text-muted" style="display:none; color:#00ffc3; font-weight:bold;">{% trans "Buscando horarios..." %}</small>
+    <section class="card">
+      <div class="card-head">
+        <h2><i class="ph-duotone ph-wallet"></i> {% trans "Pagos pendientes" %}</h2>
+        <a href="{% url 'paciente:mis_pagos' %}" class="link">{% trans "Ver pagos" %} <i class="ph-bold ph-caret-right"></i></a>
+      </div>
+      {% if deuda_pendiente %}
+        <div class="list">
+          {% for pago in pagos_pendientes %}
+            <div class="list-item">
+              <div class="list-icon amber"><i class="ph-duotone ph-receipt"></i></div>
+              <div class="list-main">
+                {% if pago.cita.estado == "INASISTENCIA" and pago.monto|floatformat:0 == "300" %}
+                  <div class="list-title">{% trans "Penalización" %}</div>
+                  <div class="list-sub">{% trans "Cargo por inasistencia" %}</div>
+                {% else %}
+                  <div class="list-title">{{ pago.cita.servicio.nombre }}</div>
+                  <div class="list-sub">{{ pago.cita.fecha|date:"d M Y" }}</div>
+                {% endif %}
+              </div>
+              <span class="amount">${{ pago.monto|floatformat:2 }}</span>
             </div>
+          {% endfor %}
+        </div>
+        <div class="card-body" style="padding-top:0;">
+          <a href="{% url 'paciente:mis_pagos' %}" class="btn btn-primary btn-block"><i class="ph-bold ph-credit-card"></i> {% trans "Pagar en línea" %}</a>
+        </div>
+      {% else %}
+        <div class="empty"><i class="ph-duotone ph-seal-check" style="color:var(--success);"></i><p>{% trans "Estás al día con tus pagos." %}</p></div>
+      {% endif %}
+    </section>
 
-            <div class="form-actions">
-                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModal()">{% trans "Cancelar" %}</button>
-                <button type="submit" class="cyber-btn cyber-btn-glow" id="btn-submit-cita" disabled>{% trans "Confirmar Cita" %}</button>
-            </div>
-        </form>
-    </div>
+    <section class="card card-pad">
+      <div class="doc">
+        <div class="list-icon"><i class="ph-duotone ph-book-open-text"></i></div>
+        <div>
+          <h3 style="font-size:15px;">{% trans "Guía del paciente" %}</h3>
+          <p>{% trans "Cómo agendar, pagar y preparar tu visita." %}</p>
+        </div>
+        <a href="{% url 'paciente:guia' %}" target="_blank" rel="noopener" class="icon-btn" style="margin-left:auto;" aria-label="{% trans 'Descargar guía (PDF)' %}"><i class="ph-bold ph-download-simple"></i></a>
+      </div>
+    </section>
+  </div>
 </div>
 
-<!-- MODAL EDITAR PERFIL -->
-<div id="modal-perfil" class="modal-overlay">
-    <div class="modal-content glow-card">
-        <div class="modal-header">
-            <h3><i class="ph-duotone ph-user-gear"></i> {% trans "Editar Perfil" %}</h3>
-            <button class="modal-close" type="button" onclick="cerrarModalPerfil()">
-                <i class="ph-bold ph-x"></i>
-            </button>
-        </div>
-        <form method="POST" action="{% url 'paciente:editar_perfil' %}" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="form-group">
-                <label>{% trans "Nombre" %}</label>
-                <input type="text" name="nombre" class="cyber-input" value="{{ paciente.nombre }}">
-            </div>
-            <div class="form-group">
-                <label>{% trans "Teléfono (no editable)" %}</label>
-                <input type="text" class="cyber-input" value="{{ paciente.telefono }}" disabled>
-            </div>
-            <div class="form-group">
-                <label>{% trans "Correo (no editable)" %}</label>
-                <input type="text" class="cyber-input" value="{{ user.email }}" disabled>
-            </div>
-            <div class="form-group">
-                <label>{% trans "Dirección" %}</label>
-                <input type="text" name="direccion" class="cyber-input" value="{{ paciente.direccion }}">
-            </div>
-            <div class="form-group">
-                <label>{% trans "Nacimiento" %}</label>
-                <input
-                    type="date"
-                    name="fecha_nacimiento"
-                    class="cyber-input"
-                    value="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}"
-                    style="color-scheme: dark;"
-                    placeholder="{% if CURRENT_LANG|slice:':2' == 'en' %}mm/dd/yyyy{% else %}dd/mm/aaaa{% endif %}"
-                >
-            </div>
-            <div class="form-actions">
-                <button type="button" class="cyber-btn cyber-btn-secondary" onclick="cerrarModalPerfil()">{% trans "Cancelar" %}</button>
-                <button type="submit" class="cyber-btn cyber-btn-glow">{% trans "Guardar" %}</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-{% endblock %}
-
-{% block extra_js %}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    function contactarDentista() {
-        fetch("{% url 'paciente:contactar_dentista' %}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCookie("csrftoken")
-            },
-            body: JSON.stringify({})
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === "ok") {
-                Swal.fire({toast:true, position:"top-end", icon:"success", title:"Solicitud enviada", timer:1500, showConfirmButton:false});
-            } else {
-                Swal.fire({icon:"error", title:"No se pudo enviar", text:data.msg || "Intenta más tarde."});
-            }
-        })
-        .catch(() => Swal.fire({icon:"error", title:"No se pudo enviar", text:"Intenta más tarde."}));
-    }
-    </script>
+{% include "paciente/_partials/cita_modales.html" %}
+{% endwith %}
 {% endblock %}

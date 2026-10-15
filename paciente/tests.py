@@ -148,3 +148,119 @@ class PagoMercadoPagoTests(TestCase):
         self.assertIn("notification_url", call_data)
         self.assertNotIn("secret=", call_data["notification_url"])
         self.assertIn("/paciente/pagos/webhook/testsecret/", call_data["notification_url"])
+
+
+def _png_bytes():
+    import base64
+    return base64.b64decode(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+    )
+
+
+@override_settings(SECURE_SSL_REDIRECT=False)
+class PanelPacienteTests(TestCase):
+    def setUp(self):
+        from datetime import timedelta
+        from django.utils import timezone
+
+        self.user = User.objects.create_user(username="pac_panel", password="pwd", email="p@test.com", first_name="Ana", last_name="Ruiz")
+        self.dentista = Dentista.objects.create(
+            user=User.objects.create_user(username="doc_panel", password="pwd"),
+            nombre="Lopez", direccion="Av. Juárez 10, CDMX", telefono="5512345678",
+        )
+        self.paciente = Paciente.objects.create(user=self.user, dentista=self.dentista, nombre="Ana Ruiz")
+        self.servicio = Servicio.objects.create(dentista=self.dentista, nombre="Limpieza", precio=500, duracion_estimada=30)
+        hoy = timezone.localdate()
+        self.futura = Cita.objects.create(
+            dentista=self.dentista, paciente=self.paciente, servicio=self.servicio,
+            fecha=hoy + timedelta(days=5), hora_inicio="10:00", hora_fin="10:30", estado="PENDIENTE",
+        )
+        self.pasada = Cita.objects.create(
+            dentista=self.dentista, paciente=self.paciente, servicio=self.servicio,
+            fecha=hoy - timedelta(days=5), hora_inicio="10:00", hora_fin="10:30", estado="COMPLETADA",
+        )
+        Pago.objects.create(cita=self.futura, monto=500, estado="PENDIENTE", metodo="MERCADOPAGO")
+        Pago.objects.create(cita=self.pasada, monto=500, estado="COMPLETADO", metodo="EFECTIVO")
+        self.client.force_login(self.user)
+
+    def test_paginas_del_panel_cargan(self):
+        for name in ["dashboard", "mis_citas", "agendar_cita", "perfil", "mis_pagos"]:
+            resp = self.client.get(reverse(f"paciente:{name}"))
+            self.assertEqual(resp.status_code, 200, name)
+        resp = self.client.get(reverse("paciente:feedback_cita", args=[self.pasada.id]))
+        self.assertEqual(resp.status_code, 200)
+
+    def test_dashboard_muestra_proxima_cita_y_saldo(self):
+        resp = self.client.get(reverse("paciente:dashboard"))
+        self.assertEqual(resp.context["proxima_cita"], self.futura)
+        self.assertEqual(resp.context["stats"]["saldo_pendiente"], 500)
+        self.assertEqual(resp.context["stats"]["completadas"], 1)
+        self.assertContains(resp, reverse("paciente:reprogramar_cita", args=[self.futura.id]))
+        self.assertContains(resp, "google.com/maps")
+
+    def test_mis_citas_separa_proximas_y_pasadas(self):
+        resp = self.client.get(reverse("paciente:mis_citas"))
+        self.assertEqual(list(resp.context["proximas"]), [self.futura])
+        self.assertEqual(list(resp.context["pasadas"]), [self.pasada])
+
+    def test_editar_perfil_guarda_datos_y_foto(self):
+        import shutil, tempfile
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        media = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, media, ignore_errors=True)
+        foto = SimpleUploadedFile("foto.png", _png_bytes(), content_type="image/png")
+        with override_settings(MEDIA_ROOT=media):
+            resp = self.client.post(reverse("paciente:perfil"), {
+                "nombre": "Ana Ruiz Pérez", "telefono": "5598765432", "direccion": "Calle 1",
+                "fecha_nacimiento": "1990-05-01", "antecedentes": "Alergia a penicilina", "imagen": foto,
+            })
+        self.assertRedirects(resp, reverse("paciente:perfil"))
+        self.paciente.refresh_from_db()
+        self.assertEqual(self.paciente.telefono, "5598765432")
+        self.assertEqual(self.paciente.antecedentes, "Alergia a penicilina")
+        self.assertTrue(self.paciente.imagen.name.startswith("pacientes/"))
+
+    def test_editar_perfil_rechaza_telefono_invalido(self):
+        self.client.post(reverse("paciente:perfil"), {"nombre": "Ana Ruiz", "telefono": "123"})
+        self.paciente.refresh_from_db()
+        self.assertIsNone(self.paciente.telefono)
+
+    def test_cancelar_regresa_a_pagina_de_origen(self):
+        destino = reverse("paciente:mis_citas")
+        resp = self.client.post(reverse("paciente:cancelar_cita", args=[self.futura.id]), {"next": destino})
+        self.assertRedirects(resp, destino)
+        self.futura.refresh_from_db()
+        self.assertEqual(self.futura.estado, "CANCELADA")
+
+    def test_cancelar_ignora_next_externo(self):
+        resp = self.client.post(reverse("paciente:cancelar_cita", args=[self.futura.id]), {"next": "https://evil.com/"})
+        self.assertRedirects(resp, reverse("paciente:dashboard"))
+
+    def test_pagar_penalizacion_por_post_no_marca_pagado(self):
+        inasistencia = Cita.objects.create(
+            dentista=self.dentista, paciente=self.paciente, servicio=self.servicio,
+            fecha="2025-01-01", hora_inicio="09:00", hora_fin="09:30", estado="INASISTENCIA",
+        )
+        pago = Pago.objects.create(cita=inasistencia, monto=300, estado="PENDIENTE")
+        with patch("paciente.views.calcular_penalizacion_paciente", return_value={"estado": "pending", "recargo": 300}):
+            self.client.post(reverse("paciente:pagar_penalizacion"))
+        pago.refresh_from_db()
+        self.assertEqual(pago.estado, "PENDIENTE")
+
+    def test_pago_directo_no_se_ofrece_al_paciente(self):
+        interno = Servicio.objects.create(dentista=self.dentista, nombre="Pago Directo", precio=0, duracion_estimada=15)
+        resp = self.client.get(reverse("paciente:agendar_cita"))
+        self.assertNotIn(interno, list(resp.context["servicios"]))
+        self.assertIn(self.servicio, list(resp.context["servicios"]))
+        resp = self.client.get(reverse("paciente:api_slots"), {"fecha": "2030-01-07", "servicio_id": interno.id})
+        self.assertEqual(resp.status_code, 404)
+
+    def test_guia_se_descarga_en_el_idioma_activo(self):
+        from django.utils import translation
+        resp = self.client.get(reverse("paciente:guia"))
+        self.assertTrue(resp["Location"].endswith("manual_paciente.pdf"))
+        with translation.override("en"):
+            url = reverse("paciente:guia")
+        resp = self.client.get(url)
+        self.assertTrue(resp["Location"].endswith("manual_paciente_en.pdf"))

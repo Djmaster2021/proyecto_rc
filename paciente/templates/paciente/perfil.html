@@ -1,0 +1,99 @@
+{% extends "paciente/base.html" %}
+{% load i18n %}
+
+{% block ptitle %}{% trans "Mi perfil" %}{% endblock %}
+{% block header_title %}{% trans "Mi perfil" %}{% endblock %}
+{% block header_sub %}{% trans "Tus datos personales y de contacto" %}{% endblock %}
+
+{% block pcontent %}
+<form method="post" action="{% url 'paciente:perfil' %}" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="hidden" name="quitar_imagen" id="quitar-imagen" value="0">
+
+  <div class="grid" style="grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); align-items:start;" id="perfil-grid">
+    <!-- Tarjeta de foto -->
+    <section class="card">
+      <div class="profile-hero">
+        <div class="avatar avatar-xl" id="foto-preview">
+          {% if paciente.imagen %}<img src="{{ paciente.imagen.url }}" alt="">{% else %}{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}{% endif %}
+        </div>
+        <h2>{{ paciente.nombre }}</h2>
+        <p>{{ user.email }}</p>
+        <div style="margin-top:10px;"><span class="badge badge-id">PAC-{{ paciente.id|stringformat:"04d" }}</span></div>
+        <div class="photo-actions">
+          <label class="btn btn-outline btn-sm" for="foto-input" style="cursor:pointer;">
+            <i class="ph-bold ph-camera"></i> {% if paciente.imagen %}{% trans "Cambiar foto" %}{% else %}{% trans "Subir foto" %}{% endif %}
+          </label>
+          <input type="file" id="foto-input" name="imagen" accept="image/jpeg,image/png,image/webp" hidden>
+          {% if paciente.imagen %}
+            <button type="button" class="btn btn-danger-soft btn-sm"
+                    onclick="document.getElementById('quitar-imagen').value='1'; document.getElementById('foto-preview').innerHTML='{{ user.first_name|slice:':1'|upper|escapejs }}{{ user.last_name|slice:':1'|upper|escapejs }}';">
+              <i class="ph-bold ph-trash"></i> {% trans "Quitar" %}
+            </button>
+          {% endif %}
+        </div>
+        <p class="help" style="margin-top:10px; font-size:12px;">{% trans "JPG, PNG o WEBP. Máximo 5 MB." %}</p>
+      </div>
+      <div class="kv">
+        <div class="kv-row"><span>{% trans "Edad" %}</span><span>{% if paciente.edad is not None %}{{ paciente.edad }} {% trans "años" %}{% else %}—{% endif %}</span></div>
+        <div class="kv-row"><span>{% trans "Especialista" %}</span><span>{% if paciente.dentista %}Dr. {{ paciente.dentista.nombre }}{% else %}—{% endif %}</span></div>
+        <div class="kv-row"><span>{% trans "Paciente desde" %}</span><span>{{ paciente.created_at|date:"M Y" }}</span></div>
+      </div>
+    </section>
+
+    <!-- Datos -->
+    <div class="stack">
+      <section class="card">
+        <div class="card-head"><h2><i class="ph-duotone ph-identification-card"></i> {% trans "Datos personales" %}</h2></div>
+        <div class="card-body form-grid">
+          <div class="field full">
+            <label for="f-nombre">{% trans "Nombre completo" %}</label>
+            <input type="text" id="f-nombre" name="nombre" class="input" maxlength="200" required value="{{ paciente.nombre }}">
+          </div>
+          <div class="field">
+            <label for="f-nac">{% trans "Fecha de nacimiento" %}</label>
+            <input type="date" id="f-nac" name="fecha_nacimiento" class="input" value="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}" max="{% now 'Y-m-d' %}">
+          </div>
+          <div class="field">
+            <label for="f-tel">{% trans "Teléfono" %}</label>
+            <input type="tel" id="f-tel" name="telefono" class="input" inputmode="numeric" pattern="[0-9]{10}" maxlength="10"
+                   placeholder="{% trans '10 dígitos' %}" value="{{ paciente.telefono|default:'' }}">
+            <span class="help">{% trans "Lo usamos para recordatorios de tus citas." %}</span>
+          </div>
+          <div class="field full">
+            <label for="f-email">{% trans "Correo electrónico" %}</label>
+            <input type="email" id="f-email" class="input" value="{{ user.email }}" disabled>
+            <span class="help">{% trans "El correo está ligado a tu cuenta y no se puede cambiar aquí." %}</span>
+          </div>
+          <div class="field full">
+            <label for="f-dir">{% trans "Dirección" %}</label>
+            <textarea id="f-dir" name="direccion" class="textarea" rows="2" placeholder="{% trans 'Calle, número, colonia, ciudad' %}">{{ paciente.direccion }}</textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2><i class="ph-duotone ph-heartbeat"></i> {% trans "Información médica" %}</h2></div>
+        <div class="card-body">
+          <div class="field">
+            <label for="f-ant">{% trans "Alergias, enfermedades o medicamentos" %}</label>
+            <textarea id="f-ant" name="antecedentes" class="textarea" rows="4" placeholder="{% trans 'Ej. alergia a la penicilina, diabetes, hipertensión…' %}">{{ paciente.antecedentes }}</textarea>
+            <span class="help">{% trans "Solo tu dentista puede ver esta información. Ayuda a darte una atención segura." %}</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <a href="{% url 'paciente:dashboard' %}" class="btn btn-ghost">{% trans "Cancelar" %}</a>
+        <button type="submit" class="btn btn-primary"><i class="ph-bold ph-floppy-disk"></i> {% trans "Guardar cambios" %}</button>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  @media (max-width: 900px) { #perfil-grid { grid-template-columns: 1fr !important; } }
+</style>
+{% endblock %}

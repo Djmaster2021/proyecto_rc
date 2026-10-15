@@ -1,518 +1,421 @@
 /* ============================================================================
-   app.js — PACIENTE
+   app.js — PANEL DEL PACIENTE
+   - Tema claro/oscuro, menú lateral móvil
+   - Confirmaciones (SweetAlert2), contacto con el consultorio
+   - Selector de horarios (agendar / reprogramar) usando /paciente/api/slots/
 ============================================================================ */
+(function () {
+  "use strict";
 
+  var CFG = window.RC_PACIENTE || {};
+  var lang = (window.location.pathname.indexOf("/en/") === 0 ? "en" : (document.body.dataset.lang || "es")).slice(0, 2);
+  var EN = lang === "en";
 
-/* ============================================================
-   1. SISTEMA DE ALERTAS TIPO TOAST
-=============================================================== */
-
-/**
- * Muestra un toast de éxito o error.
- * @param {string} message
- * @param {"success"|"danger"} type
- */
-function showToast(message, type = "success") {
-    const container = document.getElementById("toast-container");
-    if (!container) return;
-  
-    const toast = document.createElement("div");
-    toast.classList.add("toast-card");
-    toast.classList.add(type === "success" ? "toast-success" : "toast-danger");
-    toast.textContent = message;
-  
-    container.appendChild(toast);
-  
-    setTimeout(() => {
-        toast.style.opacity = "0";
-        toast.style.transform = "translateX(40px)";
-        setTimeout(() => toast.remove(), 300);
-    }, 4000);
-  }
-  
-  
-  
-  /* ============================================================
-   2. INICIALIZACIÓN GENERAL (esperar al DOM)
-  =============================================================== */
-  
-document.addEventListener("DOMContentLoaded", () => {
-  // ------------------------------
-  // Tema claro/oscuro con persistencia
-  // ------------------------------
-  const body = document.body;
-  const themeToggle = document.getElementById("theme-toggle");
-  const pathLang = window.location.pathname.startsWith("/en/") ? "en" : null;
-  const lang = (pathLang || body.dataset.lang || document.documentElement.lang || "es").slice(0, 2);
-  const THEME_KEY = "paciente-theme";
-  const STR = {
-    selectDate: lang === "en" ? "Select a date to see times." : "Selecciona fecha para ver horarios.",
-    selectOtherDate: lang === "en" ? "Select another date." : "Selecciona otra fecha.",
-    selectServiceDate: lang === "en" ? "Select service and date to see times." : "Selecciona servicio y fecha para ver horarios.",
-    noSundays: lang === "en" ? "We don't work on Sundays. Please choose another date." : "No atendemos domingos. Elige otra fecha.",
-    titleNew: lang === "en" ? "Book Appointment" : "Agendar Cita",
-    titleReschedule: lang === "en" ? "Reschedule Appointment" : "Reprogramar Cita",
-    swalLimitTitle: lang === "en" ? "Reschedule limit reached" : "Límite de reprogramación alcanzado",
-    swalLimitText: lang === "en"
-      ? "You can only reschedule once. For more changes, contact the clinic."
-      : "Solo puedes reprogramar una vez. Para más cambios, contacta al consultorio.",
-    swalReprogTitle: lang === "en" ? "Do you want to reschedule?" : "¿Deseas reprogramar?",
-    swalReprogText1: lang === "en"
-      ? "You can reschedule only <b>1 time</b>."
-      : "Solamente se puede reprogramar <b>1 sola vez</b>.",
-    swalReprogText2: lang === "en"
-      ? "For further changes, ask your dentist to do it."
-      : "Para volver a cancelar o reprogramar, avisa a tu dentista para que él lo haga.",
-    swalReprogConfirm: lang === "en" ? "Continue and reschedule" : "Continuar y reprogramar",
-    swalReprogCancel: lang === "en" ? "Cancel" : "Cancelar",
-    swalCancelTitle: lang === "en" ? "Are you sure you want to cancel?" : "¿Seguro que deseas cancelar?",
-    swalCancelText1: lang === "en"
-      ? "You can cancel only <b>1 time</b>."
-      : "Solamente se puede cancelar <b>1 sola vez</b>.",
-    swalCancelText2: lang === "en"
-      ? "Please do it with <b>1 day in advance</b>."
-      : "Recuerda hacerlo con <b>1 día de anticipación</b>.",
-    swalCancelWarning: lang === "en"
-      ? "<strong>If you cancel now, you will lose your spot.</strong>"
-      : "<strong>Si cancelas ahora, perderás tu lugar.</strong>",
-    swalCancelConfirm: lang === "en" ? "Yes, cancel" : "Sí, cancelar",
-    swalCancelCancel: lang === "en" ? "Cancel" : "Cancelar",
-    noSlots: lang === "en" ? "No available times. Try another day." : "Sin horarios libres. Intenta otro día.",
+  var STR = {
+    loading: EN ? "Looking for available times…" : "Buscando horarios disponibles…",
+    pickService: EN ? "Choose a treatment first." : "Primero elige un tratamiento.",
+    pickDate: EN ? "Choose a date to see available times." : "Elige una fecha para ver los horarios.",
+    noSlots: EN ? "No available times that day. Try another date." : "No hay horarios libres ese día. Prueba otra fecha.",
+    noSundays: EN ? "We don't work on Sundays. Choose another date." : "No atendemos domingos. Elige otra fecha.",
+    error: EN ? "Couldn't load times. Try again." : "No se pudieron cargar los horarios. Intenta de nuevo.",
+    suggested: EN ? "Suggested" : "Sugerido",
+    cancel: EN ? "Cancel" : "Cancelar",
+    ok: EN ? "OK" : "Aceptar",
+    confirm: EN ? "Confirm?" : "¿Confirmar?",
+    done: EN ? "Done!" : "¡Listo!",
+    errTitle: EN ? "Error" : "Error",
+    // Cancelar cita
+    cancelTitle: EN ? "Cancel this appointment?" : "¿Cancelar esta cita?",
+    cancelText: EN
+      ? "You can cancel <b>once per month</b>. Please do it at least <b>1 day in advance</b>.<br><br><b>You will lose your spot.</b>"
+      : "Solo puedes cancelar <b>una vez al mes</b>. Hazlo con al menos <b>1 día de anticipación</b>.<br><br><b>Perderás tu lugar en la agenda.</b>",
+    cancelConfirm: EN ? "Yes, cancel" : "Sí, cancelar",
+    keep: EN ? "Keep appointment" : "Conservar cita",
+    // Reprogramar
+    reprogLimitTitle: EN ? "Reschedule limit reached" : "Límite de reprogramación",
+    reprogLimitText: EN
+      ? "This appointment was already rescheduled. Contact the clinic for more changes."
+      : "Esta cita ya fue reprogramada. Contacta al consultorio para más cambios.",
+    reprogTitle: EN ? "Reschedule appointment?" : "¿Reprogramar la cita?",
+    reprogText: EN
+      ? "You can reschedule <b>only once</b> per appointment and once per month."
+      : "Solo puedes reprogramar <b>una vez</b> por cita y una vez al mes.",
+    reprogConfirm: EN ? "Continue" : "Continuar",
+    // Contacto
+    contactTitle: EN ? "Contact the clinic?" : "¿Contactar al consultorio?",
+    contactText: EN
+      ? "We'll send your name, email and phone so the clinic can get in touch with you."
+      : "Enviaremos tu nombre, correo y teléfono para que el consultorio se comunique contigo.",
+    contactConfirm: EN ? "Send request" : "Enviar solicitud",
+    contactOk: EN ? "Request sent. The clinic will contact you soon." : "Solicitud enviada. El consultorio te contactará pronto.",
+    contactFail: EN ? "Couldn't send the request. Try later." : "No se pudo enviar la solicitud. Intenta más tarde.",
   };
 
-  function applyTheme(theme) {
-    body.classList.remove("dark-mode", "light-mode");
-    body.classList.add(theme === "light" ? "light-mode" : "dark-mode");
-    body.setAttribute("data-theme", theme);
-    if (themeToggle) {
-      themeToggle.querySelector(".chip-icon").textContent = theme === "light" ? "☀️" : "🌙";
-      themeToggle.querySelector(".chip-label").textContent = theme === "light" ? "Claro" : "Oscuro";
-    }
+  var BRAND = "#00adc1";
+  var DANGER = "#ef4444";
+  var MUTED = "#64748b";
+
+  /* ------------------------------------------------------------
+     Utilidades
+  ------------------------------------------------------------ */
+  function getCookie(name) {
+    var match = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+    return match ? decodeURIComponent(match[1]) : null;
   }
 
-  const savedTheme = localStorage.getItem(THEME_KEY);
-  if (savedTheme === "light" || savedTheme === "dark") {
-    applyTheme(savedTheme);
-  } else {
-    applyTheme("dark");
+  function swal(opts) {
+    if (typeof Swal === "undefined") {
+      return Promise.resolve({ isConfirmed: window.confirm((opts.title || "") + "\n" + (opts.text || "")) });
+    }
+    return Swal.fire(Object.assign({ confirmButtonColor: BRAND, cancelButtonColor: MUTED, reverseButtons: true }, opts));
   }
 
-  if (themeToggle) {
-    themeToggle.addEventListener("click", () => {
-      const next = body.classList.contains("light-mode") ? "dark" : "light";
-      localStorage.setItem(THEME_KEY, next);
-      applyTheme(next);
+  window.rcConfirmar = function (opts) {
+    opts = opts || {};
+    return swal({
+      icon: opts.icon || "question",
+      title: opts.title || STR.confirm,
+      html: opts.text || "",
+      showCancelButton: true,
+      confirmButtonText: opts.confirmButton || STR.ok,
+      cancelButtonText: opts.cancelButton || STR.cancel,
+      confirmButtonColor: opts.confirmColor || BRAND,
+    }).then(function (r) { return r.isConfirmed; });
+  };
+
+  /* ------------------------------------------------------------
+     Tema claro / oscuro
+  ------------------------------------------------------------ */
+  var root = document.documentElement;
+  var themeBtn = document.getElementById("theme-toggle");
+  if (themeBtn) {
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("paciente-theme", next); } catch (e) {}
     });
   }
 
-  // Referencias principales (solo existen en dashboard de paciente)
-  const modalCita    = document.getElementById("modal-cita");
-  const modalPerfil  = document.getElementById("modal-perfil");
-  
-    const formCita     = document.getElementById("form-cita");
-    const servicio     = document.getElementById("servicio_modal") || document.getElementById("cita-servicio");
-    const fecha        = document.getElementById("cita-fecha");
-    const horaSelect   = document.getElementById("cita-hora");
-    const horaHelp     = document.getElementById("hora-help");
-    const proximaCita  = document.getElementById("proxima-cita-card");
-    const btnSubmit    = document.getElementById("btn-submit-cita");
-    const formCancelar = document.getElementById("form-cancelar");
-    const slotsUrl     = formCita ? formCita.dataset.slotsUrl || "/paciente/api/slots/" : "/paciente/api/slots/";
-  
-    // Si no estamos en el dashboard paciente, no hacemos nada más
-    if (!formCita || !modalCita) {
-        return;
-    }
-  
-  
-    /* ------------------------------------------
-       2.1 Flatpickr para fechas de cita
-    ------------------------------------------- */
-    if (typeof flatpickr !== "undefined" && fecha) {
-        window.citaCalendar = flatpickr("#cita-fecha", {
-            locale: lang === "en" ? "en" : "es",
-            minDate: "today",
-            maxDate: new Date().fp_incr(60),
-            dateFormat: "Y-m-d",
-            inline: true,
-            disable: [
-                function (date) {
-                    // Bloquea domingos (0)
-                    return date.getDay() === 0;
-                }
-            ],
-            onChange: function (selectedDates, dateStr) {
-                if (servicio && servicio.value) {
-                    consultarHorarios(dateStr);
-                }
-            }
-        });
-    }
-  
-  
-    /* ------------------------------------------
-       2.2 Cambiar servicio → habilitar fecha
-    ------------------------------------------- */
-    if (servicio && fecha) {
+  /* ------------------------------------------------------------
+     Menú lateral (móvil)
+  ------------------------------------------------------------ */
+  var sidebar = document.getElementById("sidebar");
+  var overlay = document.getElementById("sidebar-overlay");
+  function setMenu(open) {
+    if (!sidebar) return;
+    sidebar.classList.toggle("open", open);
+    if (overlay) overlay.classList.toggle("open", open);
+  }
+  var menuBtn = document.getElementById("menu-btn");
+  var closeBtn = document.getElementById("sidebar-close");
+  if (menuBtn) menuBtn.addEventListener("click", function () { setMenu(true); });
+  if (closeBtn) closeBtn.addEventListener("click", function () { setMenu(false); });
+  if (overlay) overlay.addEventListener("click", function () { setMenu(false); });
 
-        // límites: hoy y hasta 60 días
-        const today = new Date();
-        const todayStr = today.toISOString().split("T")[0];
-        const maxDate = new Date();
-        maxDate.setDate(maxDate.getDate() + 60);
-        const maxStr = maxDate.toISOString().split("T")[0];
-        fecha.min = todayStr;
-        fecha.max = maxStr;
-
-        servicio.addEventListener("change", () => {
-            fecha.value = "";
-            resetHoras(STR.selectDate);
-            btnSubmit.disabled = true;
-            if (window.citaCalendar) {
-                window.citaCalendar.clear();
-            }
-        });
-
-        fecha.addEventListener("change", () => {
-            if (!fecha.value || !servicio.value) return;
-            const f = new Date(fecha.value + "T00:00:00");
-            if (f.getDay() === 0) {
-                showToast(STR.noSundays, "danger");
-                fecha.value = "";
-                resetHoras(STR.selectOtherDate);
-                btnSubmit.disabled = true;
-                return;
-            }
-            consultarHorarios(fecha.value);
-        });
-    }
-  
-  
-    /* ------------------------------------------
-       2.3 Envío de formulario de cita
-       (nos aseguramos de que servicio no esté disabled)
-    ------------------------------------------- */
-    formCita.addEventListener("submit", () => {
-        if (servicio) servicio.disabled = false;
+  /* ------------------------------------------------------------
+     Formularios con confirmación: <form data-confirm-title="...">
+  ------------------------------------------------------------ */
+  document.querySelectorAll("form[data-confirm-title]").forEach(function (form) {
+    form.addEventListener("submit", function (e) {
+      if (form.dataset.confirmed === "1") return;
+      e.preventDefault();
+      window.rcConfirmar({
+        title: form.dataset.confirmTitle,
+        text: form.dataset.confirmText,
+        icon: form.dataset.confirmIcon,
+        confirmButton: form.dataset.confirmButton,
+        confirmColor: form.dataset.confirmColor,
+      }).then(function (ok) {
+        if (ok) { form.dataset.confirmed = "1"; form.submit(); }
+      });
     });
-  
-  
-    /* ------------------------------------------
-       2.4 Cerrar modal al hacer click fuera
-    ------------------------------------------- */
-    document.addEventListener("click", (e) => {
-        if (e.target.classList.contains("modal-overlay")) {
-            e.target.classList.remove("is-visible");
-        }
+  });
+
+  /* ------------------------------------------------------------
+     Contactar al consultorio
+  ------------------------------------------------------------ */
+  window.contactarDentista = function () {
+    setMenu(false);
+    window.rcConfirmar({
+      icon: "question",
+      title: STR.contactTitle,
+      text: STR.contactText,
+      confirmButton: STR.contactConfirm,
+    }).then(function (ok) {
+      if (!ok) return;
+      fetch(CFG.contactUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": getCookie("csrftoken") },
+        body: "{}",
+        credentials: "same-origin",
+      })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+        .then(function (res) {
+          if (res.ok && res.data.status === "ok") {
+            swal({ icon: "success", title: STR.done, text: STR.contactOk });
+          } else {
+            swal({ icon: "error", title: STR.errTitle, text: (res.data && res.data.msg) || STR.contactFail, confirmButtonColor: DANGER });
+          }
+        })
+        .catch(function () {
+          swal({ icon: "error", title: STR.errTitle, text: STR.contactFail, confirmButtonColor: DANGER });
+        });
     });
-  
-  
-    /* ------------------------------------------
-       2.5 Mensajes de Django → Toasts bonitos
-    ------------------------------------------- */
-    const djangoMessages = document.querySelectorAll(".cyber-alert");
-    djangoMessages.forEach(msg => {
-        const type =
-            msg.classList.contains("cyber-alert-danger") ? "danger" : "success";
-  
-        showToast(msg.textContent.trim(), type);
-        msg.style.display = "none";
+  };
+
+  /* ------------------------------------------------------------
+     Pestañas: [data-tabs] con botones [data-tab="id"]
+  ------------------------------------------------------------ */
+  document.querySelectorAll("[data-tabs]").forEach(function (wrap) {
+    var buttons = wrap.querySelectorAll("[data-tab]");
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        buttons.forEach(function (b) {
+          var active = b === btn;
+          b.classList.toggle("active", active);
+          b.setAttribute("aria-selected", active ? "true" : "false");
+          var panel = document.getElementById(b.dataset.tab);
+          if (panel) panel.hidden = !active;
+        });
+      });
     });
-  
-  
-    /* ======================================================
-       3. FUNCIONES LIGADAS A window.* PARA USO DESDE HTML
-       (onclick="...") → aseguran que SIEMPRE existen
-    ======================================================= */
-  
-    /**
-     * Abre el modal para agendar una nueva cita.
-     */
-    window.abrirModalAgendar = function () {
-        if (!modalCita) return;
-  
-        // Título del modal
-        const title = modalCita.querySelector(".modal-header h3");
-        if (title) {
-            title.innerHTML = `<i class="ph-duotone ph-calendar-plus"></i> ${STR.titleNew}`;
-        }
-  
-        // Reset de formulario
-        formCita.action = formCita.getAttribute("action"); // URL original de agendar
-        formCita.reset();
-  
-        if (servicio) {
-            servicio.disabled = false;
-            servicio.value = "";
-        }
-        if (fecha) {
-            fecha.value = "";
-        }
-        resetHoras(STR.selectServiceDate);
-        if (horaSelect) {
-            horaSelect.value = "";
-        }
-        if (btnSubmit) {
-            btnSubmit.disabled = true;
-        }
-  
-        modalCita.classList.add("is-visible");
-    };
-  
-  
-    /**
-     * Cierra el modal de cita (agendar/reprogramar).
-     */
-    window.cerrarModal = function () {
-        if (!modalCita) return;
-        modalCita.classList.remove("is-visible");
-  
-        // Limpieza ligera
-        if (window.citaCalendar) {
-            window.citaCalendar.clear();
-        }
-    };
-  
-  
-    /**
-     * Verifica si puede reprogramar la cita y en caso afirmativo
-     * abre el modal configurado para reprogramación.
-     * - veces = proxima_cita.veces_reprogramada (desde el template)
-     */
-    window.verificarReprogramacion = function (citaId, servicioId, veces) {
-        if (typeof Swal === "undefined") {
-            // Si no está SweetAlert, abrimos el modal directo
-            return abrirModalReprogramarDirecto(citaId, servicioId);
-        }
+  });
 
-        if (veces >= 1) {
-            Swal.fire({
-                title: STR.swalLimitTitle,
-                text: STR.swalLimitText,
-                icon: "info",
-                confirmButtonColor: "#00d4ff",
-                background: "#18212f",
-                color: "#e8eef7"
-            });
-            return;
-        }
+  /* ------------------------------------------------------------
+     Vista previa de foto de perfil
+  ------------------------------------------------------------ */
+  var fotoInput = document.getElementById("foto-input");
+  if (fotoInput) {
+    fotoInput.addEventListener("change", function () {
+      var file = fotoInput.files && fotoInput.files[0];
+      var preview = document.getElementById("foto-preview");
+      if (!file || !preview) return;
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        preview.innerHTML = "";
+        var img = document.createElement("img");
+        img.src = ev.target.result;
+        img.alt = "";
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+      var quitar = document.getElementById("quitar-imagen");
+      if (quitar) quitar.value = "0";
+    });
+  }
 
-        Swal.fire({
-            title: STR.swalReprogTitle,
-            html: `
-                <div class="alert-icon">
-                    <span>!</span>
-                </div>
-                <p>${STR.swalReprogText1}</p>
-                <p>${STR.swalReprogText2}</p>
-            `,
-            icon: null,
-            showCancelButton: true,
-            confirmButtonText: STR.swalReprogConfirm,
-            confirmButtonColor: "#00d4ff",
-            cancelButtonText: STR.swalReprogCancel,
-            cancelButtonColor: "#94a3b8",
-            background: "rgba(8,13,23,0.95)",
-            color: "#e8eef7",
-            customClass: { popup: "swal-rc" }
-        }).then(result => {
-            if (result.isConfirmed) {
-                abrirModalReprogramarDirecto(citaId, servicioId);
-            }
+  /* ------------------------------------------------------------
+     Selector de horarios
+     <form data-slot-picker>
+       servicio: input[name=servicio] (radio o hidden)
+       fecha:    input[data-fecha]
+       horas:    [data-slots]   (contenedor de botones)
+       hora:     input[name=hora] (hidden)
+       enviar:   [data-submit]
+       resumen opcional: [data-sum="servicio|precio|duracion|doctor|fecha|hora"]
+  ------------------------------------------------------------ */
+  function SlotPicker(form) {
+    this.form = form;
+    this.fecha = form.querySelector("[data-fecha]");
+    this.slots = form.querySelector("[data-slots]");
+    this.hora = form.querySelector("input[name=hora]");
+    this.submit = form.querySelector("[data-submit]");
+    this.url = form.dataset.slotsUrl || CFG.slotsUrl;
+    this.reqId = 0;
+
+    var self = this;
+    var today = new Date();
+    var max = new Date();
+    max.setDate(max.getDate() + 60);
+    if (this.fecha) {
+      this.fecha.min = toISO(today);
+      this.fecha.max = toISO(max);
+      this.fecha.addEventListener("change", function () { self.load(); });
+    }
+    form.querySelectorAll("input[name=servicio]").forEach(function (inp) {
+      inp.addEventListener("change", function () { self.updateSummary(); self.load(); });
+    });
+    form.addEventListener("submit", function (e) {
+      if (!self.hora || !self.hora.value) { e.preventDefault(); }
+    });
+    this.updateSummary();
+    this.load();
+  }
+
+  function toISO(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  SlotPicker.prototype.servicio = function () {
+    var checked = this.form.querySelector("input[name=servicio]:checked");
+    if (checked) return checked;
+    var hidden = this.form.querySelector("input[type=hidden][name=servicio]");
+    return hidden && hidden.value ? hidden : null;
+  };
+
+  SlotPicker.prototype.message = function (txt) {
+    this.slots.innerHTML = "";
+    var div = document.createElement("div");
+    div.className = "slots-msg";
+    div.textContent = txt;
+    this.slots.appendChild(div);
+  };
+
+  SlotPicker.prototype.setHora = function (value) {
+    if (this.hora) this.hora.value = value || "";
+    if (this.submit) this.submit.disabled = !value;
+    this.setSum("hora", value || "—");
+  };
+
+  SlotPicker.prototype.setSum = function (key, value) {
+    var el = this.form.querySelector('[data-sum="' + key + '"]');
+    if (el) el.textContent = value;
+  };
+
+  SlotPicker.prototype.updateSummary = function () {
+    var s = this.servicio();
+    var ds = (s && s.dataset) || {};
+    this.setSum("servicio", ds.nombre || "—");
+    this.setSum("doctor", ds.doctor ? "Dr. " + ds.doctor : "—");
+    this.setSum("duracion", ds.duracion ? ds.duracion + " min" : "—");
+    this.setSum("precio", ds.precio ? "$" + ds.precio + " MXN" : "—");
+    var f = this.fecha && this.fecha.value;
+    if (f) {
+      var d = new Date(f + "T00:00:00");
+      this.setSum("fecha", d.toLocaleDateString(EN ? "en-US" : "es-MX", { weekday: "long", day: "numeric", month: "long" }));
+    } else {
+      this.setSum("fecha", "—");
+    }
+  };
+
+  SlotPicker.prototype.reset = function () {
+    if (this.fecha) this.fecha.value = "";
+    this.setHora("");
+    this.updateSummary();
+    this.message(this.servicio() ? STR.pickDate : STR.pickService);
+  };
+
+  SlotPicker.prototype.load = function () {
+    var self = this;
+    this.setHora("");
+    this.updateSummary();
+    var s = this.servicio();
+    var f = this.fecha && this.fecha.value;
+    if (!s) return this.message(STR.pickService);
+    if (!f) return this.message(STR.pickDate);
+    if (new Date(f + "T00:00:00").getDay() === 0) return this.message(STR.noSundays);
+
+    var id = ++this.reqId;
+    this.message(STR.loading);
+    fetch(this.url + "?fecha=" + encodeURIComponent(f) + "&servicio_id=" + encodeURIComponent(s.value), { credentials: "same-origin" })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+      .then(function (res) {
+        if (id !== self.reqId) return;
+        if (!res.ok) return self.message(res.data.msg || STR.error);
+        var list = (res.data.slots || []);
+        if (!list.some(function (x) { return x.estado === "libre"; })) return self.message(res.data.msg || STR.noSlots);
+        self.render(list);
+      })
+      .catch(function () { if (id === self.reqId) self.message(STR.error); });
+  };
+
+  SlotPicker.prototype.render = function (list) {
+    var self = this;
+    this.slots.innerHTML = "";
+    var grid = document.createElement("div");
+    grid.className = "slots";
+    list.forEach(function (s) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "slot";
+      b.textContent = s.hora;
+      if (s.estado !== "libre") {
+        b.disabled = true;
+      } else {
+        if (s.recomendado) b.title = STR.suggested;
+        b.addEventListener("click", function () {
+          grid.querySelectorAll(".slot.selected").forEach(function (x) { x.classList.remove("selected"); });
+          b.classList.add("selected");
+          self.setHora(s.hora);
         });
-    };
-  
-  
-    /**
-     * Lógica común para abrir el modal en modo reprogramación.
-     * Cambia la acción del formulario a /paciente/citas/reprogramar/<id>/
-     */
-    function abrirModalReprogramarDirecto(citaId, servicioId) {
-        if (!modalCita) return;
-  
-        const title = modalCita.querySelector(".modal-header h3");
-        if (title) {
-            title.innerHTML = `<i class="ph-duotone ph-calendar-plus"></i> ${STR.titleReschedule}`;
-        }
-  
-        // Se usa la URL CORRECTA: /paciente/citas/reprogramar/<id>/
-        formCita.action = `/paciente/citas/reprogramar/${citaId}/`;
-  
-        // Servicio fijo (no editable)
-        if (servicio) {
-            servicio.value = servicioId;
-            servicio.disabled = true;
-        }
-  
-        // Habilitar fecha para que el usuario elija
-        if (fecha) {
-            fecha.disabled = false;
-            if (window.citaCalendar) {
-                window.citaCalendar.clear();
-            }
-        }
-  
-        // Limpiar horarios y deshabilitar botón hasta elegir fecha
-        resetHoras(STR.selectDate);
-        if (horaSelect) {
-            horaSelect.value = "";
-        }
-        if (btnSubmit) {
-            btnSubmit.disabled = true;
-        }
-  
-        modalCita.classList.add("is-visible");
-    }
-  
-  
-    /**
-     * Confirma la cancelación de la cita.
-     */
-    window.confirmarCancelacion = function (citaId) {
-        if (!formCancelar) return;
-  
-        if (typeof Swal === "undefined") {
-            formCancelar.action = `/paciente/citas/${citaId}/cancelar/`;
-            return formCancelar.submit();
-        }
+      }
+      grid.appendChild(b);
+    });
+    this.slots.appendChild(grid);
+  };
 
-        Swal.fire({
-            title: STR.swalCancelTitle,
-            html: `
-                <div class="alert-icon">
-                    <span>!</span>
-                </div>
-                <p>${STR.swalCancelText1}</p>
-                <p>${STR.swalCancelText2}</p>
-                <p style="color:#f87171;">${STR.swalCancelWarning}</p>
-            `,
-            icon: null,
-            showCancelButton: true,
-            confirmButtonText: STR.swalCancelConfirm,
-            confirmButtonColor: "#ef4444",
-            cancelButtonText: STR.swalCancelCancel,
-            cancelButtonColor: "#94a3b8",
-            background: "rgba(8,13,23,0.95)",
-            color: "#e8eef7",
-            customClass: { popup: "swal-rc" }
-        }).then(result => {
-            if (result.isConfirmed) {
-                formCancelar.action = `/paciente/citas/${citaId}/cancelar/`;
-                formCancelar.submit();
-            }
-        });
-    };
-  
-  
-    /**
-     * Abre el modal de editar perfil.
-     */
-    window.abrirModalPerfil = function () {
-        if (!modalPerfil) return;
-  
-        modalPerfil.classList.add("is-visible");
-  
-        // Calendario para fecha de nacimiento
-        if (typeof flatpickr !== "undefined") {
-            flatpickr("#perfil-fecha", {
-                locale: "es",
-                dateFormat: "Y-m-d",
-                maxDate: "today"
-            });
-        }
-    };
-  
-  
-    /**
-     * Cierra el modal de perfil.
-     */
-    window.cerrarModalPerfil = function () {
-        if (!modalPerfil) return;
-        modalPerfil.classList.remove("is-visible");
-    };
-  
-  
-    /* ============================================================
-       4. FUNCIÓN AUXILIAR: CONSULTAR HORARIOS (API)
-       Se deja dentro del DOMContentLoaded para tener acceso a refs.
-    ============================================================ */
-    async function consultarHorarios(fechaStr) {
-        if (!servicio || !horaSelect || !btnSubmit) return;
-  
-        const servicioId = servicio.value;
-        if (!servicioId) return;
-  
-        btnSubmit.disabled = true;
-        horaSelect.innerHTML = "<option>Cargando...</option>";
-        horaSelect.disabled = true;
-        if (horaHelp) {
-            horaHelp.style.display = "block";
-            horaHelp.textContent = "Buscando horarios...";
-        }
-  
-        try {
-            const res = await fetch(
-                `${slotsUrl}?fecha=${fechaStr}&servicio_id=${servicioId}`
-            );
-            const data = await res.json();
-            if (!res.ok) {
-                throw new Error(data.msg || "No disponible");
-            }
-  
-            if (data.slots && data.slots.length > 0) {
-                setHorasDesdeSlots(data.slots);
-            } else {
-                resetHoras("Lleno / No disponible. Intenta otro día.");
-            }
-        } catch (err) {
-            resetHoras(err.message || "Error de conexión.");
-            showToast("No se pudieron obtener los horarios.", "danger");
-        }
-    }
+  var pickers = {};
+  document.querySelectorAll("form[data-slot-picker]").forEach(function (form) {
+    pickers[form.id || "default"] = new SlotPicker(form);
+  });
 
-    function setHorasDesdeSlots(slots) {
-        horaSelect.innerHTML = '<option value="" selected disabled>-- Elige hora --</option>';
-        let candidato = null;
-        slots.forEach((s) => {
-            const opt = document.createElement("option");
-            opt.value = s.hora;
-            opt.textContent = s.hora + (s.recomendado ? " • sugerido" : "");
-            if (s.estado === "ocupado") {
-                opt.disabled = true;
-                opt.textContent = `${s.hora} (ocupado)`;
-            } else if (!candidato || s.recomendado) {
-                candidato = s.hora;
-            }
-            horaSelect.appendChild(opt);
-        });
+  /* ------------------------------------------------------------
+     Modal genérico
+  ------------------------------------------------------------ */
+  function openModal(id) {
+    var m = document.getElementById(id);
+    if (m) m.classList.add("is-visible");
+  }
+  function closeModal(m) {
+    if (typeof m === "string") m = document.getElementById(m);
+    if (m) m.classList.remove("is-visible");
+  }
+  window.cerrarModal = closeModal;
+  document.addEventListener("click", function (e) {
+    if (e.target.classList && e.target.classList.contains("modal")) closeModal(e.target);
+    var closer = e.target.closest && e.target.closest("[data-close-modal]");
+    if (closer) closeModal(closer.closest(".modal"));
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") document.querySelectorAll(".modal.is-visible").forEach(closeModal);
+  });
 
-        if (candidato) {
-            horaSelect.value = candidato;
-            btnSubmit.disabled = false;
-            horaSelect.disabled = false;
-            if (horaHelp) {
-                horaHelp.style.display = "none";
-            }
-        } else {
-            resetHoras(STR.noSlots);
-        }
+  /* ------------------------------------------------------------
+     Reprogramar / cancelar cita
+  ------------------------------------------------------------ */
+  window.reprogramarCita = function (btn) {
+    var d = btn.dataset;
+    if (Number(d.veces || 0) >= 1) {
+      swal({ icon: "info", title: STR.reprogLimitTitle, text: STR.reprogLimitText });
+      return;
     }
+    window.rcConfirmar({
+      icon: "question",
+      title: STR.reprogTitle,
+      text: STR.reprogText,
+      confirmButton: STR.reprogConfirm,
+    }).then(function (ok) {
+      if (!ok) return;
+      var form = document.getElementById("form-reprogramar");
+      if (!form) return;
+      form.action = d.url;
+      var srv = form.querySelector("input[name=servicio]");
+      srv.value = d.servicioId;
+      srv.dataset.nombre = d.servicio || "";
+      srv.dataset.doctor = d.doctor || "";
+      srv.dataset.duracion = d.duracion || "";
+      srv.dataset.precio = d.precio || "";
+      var actual = document.getElementById("reprog-actual");
+      if (actual) actual.textContent = d.actual || "";
+      if (pickers["form-reprogramar"]) pickers["form-reprogramar"].reset();
+      openModal("modal-reprogramar");
+    });
+  };
 
-    function resetHoras(mensaje) {
-        if (horaSelect) {
-            horaSelect.innerHTML = `<option value="">${mensaje}</option>`;
-            horaSelect.disabled = true;
-        }
-        if (horaHelp) {
-            horaHelp.style.display = "block";
-            horaHelp.textContent = mensaje;
-        }
-        if (btnSubmit) btnSubmit.disabled = true;
-    }
-  
-  }); // FIN DOMContentLoaded
-  
-  /* ============================================================
-   FIN DE app.js — PACIENTE
-  =============================================================== */
-  
+  window.cancelarCita = function (btn) {
+    window.rcConfirmar({
+      icon: "warning",
+      title: STR.cancelTitle,
+      text: STR.cancelText,
+      confirmButton: STR.cancelConfirm,
+      cancelButton: STR.keep,
+      confirmColor: DANGER,
+    }).then(function (ok) {
+      if (!ok) return;
+      var form = document.getElementById("form-cancelar");
+      if (!form) return;
+      form.action = btn.dataset.url;
+      form.submit();
+    });
+  };
+})();

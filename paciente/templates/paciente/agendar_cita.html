@@ -1,83 +1,79 @@
 {% extends "paciente/base.html" %}
-{% load static %}
+{% load i18n %}
 
-{% block ptitle %}Agendar Cita | Paciente{% endblock %}
-
-{% block header_title %}
-    Nueva Cita
-{% endblock %}
+{% block ptitle %}{% trans "Agendar cita" %}{% endblock %}
+{% block header_title %}{% trans "Agendar cita" %}{% endblock %}
+{% block header_sub %}{% trans "Elige tratamiento, fecha y horario" %}{% endblock %}
 
 {% block pcontent %}
+<form id="form-agendar" method="post" action="{% url 'paciente:agendar_cita' %}" data-slot-picker
+      data-confirm-title="{% trans '¿Confirmar cita?' %}"
+      data-confirm-text="{% trans 'Te enviaremos un correo de confirmación.' %}"
+      data-confirm-button="{% trans 'Agendar' %}">
+  {% csrf_token %}
+  <input type="hidden" name="hora" value="">
 
-<div class="row justify-center">
-    <div class="col-md-8">
-        
-        <div class="card-modern" style="padding: 2.5rem;">
-            
-            <div class="text-center mb-4">
-                <i class="ph-duotone ph-calendar-plus" style="font-size: 4rem; color: var(--brand);"></i>
-                <h2 style="margin-top: 1rem;">Solicitar Atención</h2>
-                <p class="text-muted" style="font-size: 1.1rem;">
-                    Selecciona el tratamiento que necesitas. Te asignaremos al especialista adecuado.
-                </p>
-            </div>
+  <div class="grid grid-main">
+    <div class="stack">
+      <!-- Paso 1 -->
+      <section class="card card-pad">
+        <div class="step"><span class="step-num">1</span> {% trans "¿Qué tratamiento necesitas?" %}</div>
+        {% if servicios %}
+          <div class="service-grid">
+            {% for s in servicios %}
+              <label class="service-opt">
+                <input type="radio" name="servicio" value="{{ s.id }}" required
+                       data-nombre="{{ s.nombre }}" data-doctor="{{ s.dentista.nombre }}"
+                       data-duracion="{{ s.duracion_estimada }}" data-precio="{{ s.precio|stringformat:'.2f' }}"
+                       {% if servicio_preseleccionado == s.id|stringformat:'s' %}checked{% endif %}>
+                <span class="service-card">
+                  <span class="s-name">{{ s.nombre }}</span>
+                  {% if s.descripcion %}<span class="s-desc">{{ s.descripcion|truncatechars:90 }}</span>{% endif %}
+                  <span class="s-meta">
+                    <span><i class="ph-bold ph-clock"></i> {{ s.duracion_estimada }} min · Dr. {{ s.dentista.nombre }}</span>
+                    <span class="s-price">${{ s.precio|floatformat:0 }}</span>
+                  </span>
+                </span>
+              </label>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty"><i class="ph-duotone ph-list-dashes"></i><p>{% trans "No hay servicios disponibles por ahora." %}</p></div>
+        {% endif %}
+      </section>
 
-            <form method="POST" action="">
-                {% csrf_token %}
-
-                <div class="form-group mb-4">
-                    <label for="servicio" style="font-size: 1.2rem; margin-bottom: 10px;">
-                        <i class="ph-bold ph-tooth"></i> ¿Qué tratamiento necesitas?
-                    </label>
-                    <select name="servicio" id="servicio" class="cyber-input" required style="height: 60px;">
-                        <option value="" disabled selected>-- Selecciona un servicio --</option>
-                        
-                        {% for s in servicios %}
-                            <option value="{{ s.id }}">
-                                {{ s.nombre }} — Dr. {{ s.dentista.nombre }} 
-                                ({{ s.precio }} MXN)
-                            </option>
-                        {% empty %}
-                            <option value="" disabled>No hay servicios disponibles</option>
-                        {% endfor %}
-                    </select>
-                    <small style="color: var(--brand); display: block; margin-top: 5px;">
-                        * El sistema seleccionará la agenda del doctor especialista automáticamente.
-                    </small>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label for="fecha" style="font-size: 1.2rem; margin-bottom: 10px;">
-                            <i class="ph-bold ph-calendar-blank"></i> Fecha deseada
-                        </label>
-                        <input type="date" name="fecha" id="fecha" class="cyber-input" required 
-                               min="{{ fecha_actual|date:'Y-m-d' }}" style="height: 60px;">
-                    </div>
-
-                    <div class="col-md-6 mb-4">
-                        <label for="hora" style="font-size: 1.2rem; margin-bottom: 10px;">
-                            <i class="ph-bold ph-clock"></i> Hora preferida
-                        </label>
-                        <input type="time" name="hora" id="hora" class="cyber-input" required style="height: 60px;">
-                        <small class="text-muted">Horario de atención: 09:00 - 19:00</small>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mt-4">
-                    <a href="{% url 'paciente:dashboard' %}" class="rc-btn" style="border-color: transparent; color: var(--muted);">
-                        Cancelar
-                    </a>
-                    
-                    <button type="submit" class="rc-btn rc-btn--primary" style="font-size: 1.3rem; padding: 15px 40px;">
-                        Confirmar Cita <i class="ph-bold ph-arrow-right"></i>
-                    </button>
-                </div>
-
-            </form>
+      <!-- Paso 2 -->
+      <section class="card card-pad">
+        <div class="step"><span class="step-num">2</span> {% trans "Elige fecha y horario" %}</div>
+        <div class="field" style="max-width:320px; margin-bottom:18px;">
+          <label for="agendar-fecha">{% trans "Fecha" %}</label>
+          <input type="date" id="agendar-fecha" name="fecha" class="input" data-fecha required>
+          <span class="help">{% trans "Hasta 60 días a partir de hoy. No se atiende en domingo." %}</span>
         </div>
-
+        <div class="field">
+          <label>{% trans "Horarios disponibles" %}</label>
+          <div data-slots></div>
+        </div>
+      </section>
     </div>
-</div>
 
+    <!-- Resumen -->
+    <aside class="card" style="position:sticky; top:90px;">
+      <div class="card-head"><h2><i class="ph-duotone ph-receipt"></i> {% trans "Resumen" %}</h2></div>
+      <div class="card-body summary">
+        <div class="summary-row"><span>{% trans "Tratamiento" %}</span><span data-sum="servicio">—</span></div>
+        <div class="summary-row"><span>{% trans "Especialista" %}</span><span data-sum="doctor">—</span></div>
+        <div class="summary-row"><span>{% trans "Duración" %}</span><span data-sum="duracion">—</span></div>
+        <div class="summary-row"><span>{% trans "Fecha" %}</span><span data-sum="fecha" style="text-transform:capitalize;">—</span></div>
+        <div class="summary-row"><span>{% trans "Hora" %}</span><span data-sum="hora">—</span></div>
+        <div class="summary-row summary-total"><span>{% trans "Total" %}</span><span data-sum="precio">—</span></div>
+        <button type="submit" class="btn btn-primary btn-block" data-submit disabled>
+          <i class="ph-bold ph-check"></i> {% trans "Confirmar cita" %}
+        </button>
+        <a href="{% url 'paciente:dashboard' %}" class="btn btn-ghost btn-block">{% trans "Cancelar" %}</a>
+        <p class="hint" style="margin-top:0;"><i class="ph-fill ph-info"></i> {% trans "Podrás pagar en línea desde la sección Pagos." %}</p>
+      </div>
+    </aside>
+  </div>
+</form>
 {% endblock %}

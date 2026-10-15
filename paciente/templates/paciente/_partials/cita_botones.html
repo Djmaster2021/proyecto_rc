@@ -1,0 +1,20 @@
+{% load i18n %}{% get_current_language as LANG %}
+<button type="button" class="btn btn-outline btn-sm{% if reprogram_used_month %} is-disabled{% endif %}"
+        onclick="reprogramarCita(this)"
+        data-url="{% url 'paciente:reprogramar_cita' cita.id %}"
+        data-servicio-id="{{ cita.servicio.id }}"
+        data-servicio="{{ cita.servicio.nombre }}"
+        data-doctor="{{ cita.dentista.nombre }}"
+        data-duracion="{{ cita.servicio.duracion_estimada }}"
+        data-precio="{{ cita.servicio.precio|stringformat:'.2f' }}"
+        data-veces="{{ cita.veces_reprogramada|default:0 }}"
+        data-actual="{% if LANG|slice:':2' == 'en' %}{{ cita.fecha|date:'l, F j' }}{% else %}{{ cita.fecha|date:'l j \d\e F' }}{% endif %} · {{ cita.hora_inicio|time:'H:i' }}"
+        {% if reprogram_used_month %}disabled title="{% trans 'Ya usaste tu reprogramación de este mes' %}"{% endif %}>
+  <i class="ph-bold ph-calendar-dots"></i> {% trans "Reprogramar" %}
+</button>
+<button type="button" class="btn btn-danger-soft btn-sm{% if cancel_used_month %} is-disabled{% endif %}"
+        onclick="cancelarCita(this)"
+        data-url="{% url 'paciente:cancelar_cita' cita.id %}"
+        {% if cancel_used_month %}disabled title="{% trans 'Ya usaste tu cancelación de este mes' %}"{% endif %}>
+  <i class="ph-bold ph-x-circle"></i> {% trans "Cancelar" %}
+</button>

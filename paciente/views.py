@@ -16,6 +16,9 @@ from io import BytesIO
 from urllib.parse import urlencode
 import hmac
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.translation import gettext as _, get_language
+from django.templatetags.static import static
 from django.db.models import Q
 from django.core.cache import cache
 
@@ -69,6 +72,19 @@ def _reactivar_paciente_si_penalizacion(pago):
     except Exception as exc:
         print(f"[WARN] No se pudo registrar reactivación: {exc}")
 
+def _volver(request):
+    """Regresa a la página indicada en `next` (si es segura) o al dashboard."""
+    destino = request.POST.get("next") or request.GET.get("next")
+    if destino and url_has_allowed_host_and_scheme(destino, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return redirect(destino)
+    return redirect("paciente:dashboard")
+
+def guia_paciente(request):
+    """Descarga la guía del paciente en el idioma activo (es/en)."""
+    archivo = "manual_paciente_en.pdf" if (get_language() or "").startswith("en") else "manual_paciente.pdf"
+    return redirect(static(f"manuales/{archivo}"))
+
+
 # ========================================================
 # 1. COMPLETAR PERFIL
 # ========================================================
@@ -82,7 +98,7 @@ def completar_perfil_paciente(request):
     if not dentista_asignado:
         messages.error(
             request,
-            "No hay un dentista configurado aún. Contacta al administrador para registrar uno antes de continuar.",
+            _("No hay un dentista configurado aún. Contacta al administrador para registrar uno antes de continuar."),
         )
         return redirect('home')
 
@@ -95,7 +111,7 @@ def completar_perfil_paciente(request):
         nombre=nombre,
         telefono=telefono_registro,
     )
-    messages.info(request, "Perfil creado automáticamente. Completa tus datos desde tu perfil si lo necesitas.")
+    messages.info(request, _("Perfil creado automáticamente. Completa tus datos desde tu perfil si lo necesitas."))
     return redirect('paciente:dashboard')
 
 
@@ -148,7 +164,7 @@ def dashboard(request):
     ).order_by('-fecha', '-hora_inicio').prefetch_related('encuestasatisfaccion_set')[:5]
 
     # --- NUEVO: Cargamos los servicios para el Modal ---
-    servicios = Servicio.objects.filter(activo=True).order_by('nombre')
+    servicios = Servicio.objects.agendables().order_by('nombre')
 
     pagos_pendientes = Pago.objects.filter(
         cita__paciente=paciente,
@@ -161,8 +177,19 @@ def dashboard(request):
         .first()
     )
 
+    citas_paciente = Cita.objects.filter(paciente=paciente)
+    stats = {
+        'total_citas': citas_paciente.count(),
+        'completadas': citas_paciente.filter(estado='COMPLETADA').count(),
+        'proximas': citas_paciente.filter(estado__in=['PENDIENTE', 'CONFIRMADA']).filter(
+            Q(fecha__gt=hoy) | Q(fecha=hoy, hora_inicio__gte=current_time)
+        ).count(),
+        'saldo_pendiente': sum((p.monto for p in Pago.objects.filter(cita__paciente=paciente, estado='PENDIENTE')), Decimal('0')),
+    }
+
     context = {
         'paciente': paciente,
+        'stats': stats,
         'proxima_cita': proxima_cita,
         'historial': historial,
         'servicios': servicios, # <--- Agregamos esto al contexto
@@ -182,23 +209,82 @@ def dashboard(request):
 def editar_perfil(request):
     try:
         paciente = request.user.paciente_perfil
-    except:
+    except Exception:
         return redirect('paciente:completar_perfil')
 
     if request.method == 'POST':
-        paciente.nombre = request.POST.get('nombre')
-        paciente.direccion = request.POST.get('direccion')
-        fecha = request.POST.get('fecha_nacimiento')
-        if fecha: paciente.fecha_nacimiento = fecha
-        paciente.save()
-        messages.success(request, "Datos actualizados.")
-        return redirect('paciente:dashboard')
+        nombre = (request.POST.get('nombre') or '').strip()
+        telefono = (request.POST.get('telefono') or '').strip()
+        errores = []
 
-    return render(request, 'paciente/completar_perfil.html', {
-        'nombre_google': paciente.nombre,
-        'telefono_actual': paciente.telefono,
+        if not nombre:
+            errores.append(_("El nombre es obligatorio."))
+        if telefono and (not telefono.isdigit() or len(telefono) != 10):
+            errores.append(_("El teléfono debe tener exactamente 10 dígitos."))
+        elif telefono and Paciente.objects.filter(dentista=paciente.dentista, telefono=telefono).exclude(pk=paciente.pk).exists():
+            errores.append(_("Ese teléfono ya está registrado con otro paciente."))
+        if nombre and Paciente.objects.filter(dentista=paciente.dentista, nombre=nombre).exclude(pk=paciente.pk).exists():
+            errores.append(_("Ya existe otro paciente con ese nombre. Agrega tu segundo apellido."))
+
+        imagen = request.FILES.get('imagen')
+        if imagen:
+            if imagen.size > 5 * 1024 * 1024:
+                errores.append(_("La foto no puede pesar más de 5 MB."))
+            elif (imagen.content_type or '').lower() not in ('image/jpeg', 'image/png', 'image/webp'):
+                errores.append(_("La foto debe ser JPG, PNG o WEBP."))
+
+        if errores:
+            for e in errores:
+                messages.error(request, e)
+            return redirect('paciente:perfil')
+
+        paciente.nombre = nombre
+        paciente.telefono = telefono or None
+        paciente.direccion = (request.POST.get('direccion') or '').strip()
+        paciente.antecedentes = (request.POST.get('antecedentes') or '').strip()
+        fecha = request.POST.get('fecha_nacimiento')
+        paciente.fecha_nacimiento = fecha or None
+        if imagen:
+            paciente.imagen = imagen
+        elif request.POST.get('quitar_imagen') == '1' and paciente.imagen:
+            paciente.imagen.delete(save=False)
+            paciente.imagen = None
+        paciente.save()
+        messages.success(request, _("Tu perfil se actualizó correctamente."))
+        return redirect('paciente:perfil')
+
+    return render(request, 'paciente/perfil.html', {'paciente': paciente})
+
+
+# ========================================================
+# 3.1 MIS CITAS
+# ========================================================
+@login_required
+def mis_citas(request):
+    try:
+        paciente = request.user.paciente_perfil
+    except Exception:
+        return redirect('paciente:completar_perfil')
+
+    hoy = timezone.localdate()
+    current_time = timezone.localtime().time()
+    futuras = Q(fecha__gt=hoy) | Q(fecha=hoy, hora_inicio__gte=current_time)
+    base = Cita.objects.filter(paciente=paciente).select_related('servicio', 'dentista')
+
+    proximas = base.filter(futuras, estado__in=['PENDIENTE', 'CONFIRMADA']).order_by('fecha', 'hora_inicio')
+    pasadas = (
+        base.exclude(pk__in=proximas.values('pk'))
+        .order_by('-fecha', '-hora_inicio')
+        .prefetch_related('encuestasatisfaccion_set')
+    )
+
+    return render(request, 'paciente/citas.html', {
         'paciente': paciente,
-        'es_edicion': True
+        'proximas': proximas,
+        'pasadas': pasadas,
+        'servicios': Servicio.objects.agendables().order_by('nombre'),
+        'cancel_used_month': base.filter(estado="CANCELADA", fecha__year=hoy.year, fecha__month=hoy.month).exists(),
+        'reprogram_used_month': base.filter(veces_reprogramada__gte=1, fecha__year=hoy.year, fecha__month=hoy.month).exists(),
     })
 
 
@@ -214,7 +300,7 @@ def agendar_cita(request):
 
     penal_info = calcular_penalizacion_paciente(paciente)
     if penal_info.get("estado") in ["pending", "disabled"]:
-        messages.error(request, "No puedes agendar citas hasta cubrir la penalización pendiente ($300).")
+        messages.error(request, _("No puedes agendar citas hasta cubrir la penalización pendiente ($300)."))
         return redirect("paciente:dashboard")
 
     if request.method == 'POST':
@@ -224,7 +310,7 @@ def agendar_cita(request):
 
         if servicio_id and fecha_str and hora_str:
             # 1. Obtenemos el servicio seleccionado
-            servicio = get_object_or_404(Servicio, id=servicio_id)
+            servicio = get_object_or_404(Servicio.objects.agendables(), id=servicio_id)
             
             # 2. LÓGICA HÍBRIDA:
             # La cita se asigna al dentista QUE REALIZA el servicio,
@@ -239,14 +325,14 @@ def agendar_cita(request):
                 hoy = timezone.localdate()
                 limite = hoy + timedelta(days=60)
                 if fecha_obj < hoy:
-                    messages.error(request, "No puedes agendar en fechas pasadas.")
-                    return redirect('paciente:dashboard')
+                    messages.error(request, _("No puedes agendar en fechas pasadas."))
+                    return redirect('paciente:agendar_cita')
                 if fecha_obj > limite:
-                    messages.error(request, "Solo puedes agendar hasta 60 días a partir de hoy.")
-                    return redirect('paciente:dashboard')
+                    messages.error(request, _("Solo puedes agendar hasta 60 días a partir de hoy."))
+                    return redirect('paciente:agendar_cita')
                 if fecha_obj.weekday() == 6:  # domingo
-                    messages.error(request, "No se atiende los domingos. Elige otro día.")
-                    return redirect('paciente:dashboard')
+                    messages.error(request, _("No se atiende los domingos. Elige otro día."))
+                    return redirect('paciente:agendar_cita')
 
                 inicio_dt = datetime.combine(fecha_obj, hora_inicio)
                 fin_dt = inicio_dt + timedelta(minutes=servicio.duracion_estimada or 30)
@@ -254,8 +340,8 @@ def agendar_cita(request):
                 # Evita agendar en horas ya pasadas el mismo día
                 now_local = timezone.localtime()
                 if fecha_obj == now_local.date() and hora_inicio <= now_local.time():
-                    messages.error(request, "No puedes agendar en una hora que ya pasó.")
-                    return redirect('paciente:dashboard')
+                    messages.error(request, _("No puedes agendar en una hora que ya pasó."))
+                    return redirect('paciente:agendar_cita')
 
                 # Validar que el horario esté disponible para ese servicio/dentista
                 slots_libres = set(
@@ -268,8 +354,8 @@ def agendar_cita(request):
                 )
                 slot_key = hora_inicio.strftime("%H:%M")
                 if slot_key not in slots_libres:
-                    messages.error(request, "Ese horario ya no está disponible. Elige otro.")
-                    return redirect('paciente:dashboard')
+                    messages.error(request, _("Ese horario ya no está disponible. Elige otro."))
+                    return redirect('paciente:agendar_cita')
                 
                 # Creamos la cita con el especialista correcto
                 nueva_cita = Cita.objects.create(
@@ -309,23 +395,25 @@ def agendar_cita(request):
                 
                 # Mensaje personalizado
                 if dentista_especialista != paciente.dentista:
-                    msg = f"Cita agendada con el especialista Dr. {dentista_especialista.nombre}."
+                    msg = _("Cita agendada con el especialista Dr. %(nombre)s.") % {"nombre": dentista_especialista.nombre}
                 else:
-                    msg = "Cita agendada con tu dentista correctamente."
+                    msg = _("Cita agendada con tu dentista correctamente.")
                 
                 messages.success(request, msg)
-                return redirect('paciente:dashboard')
+                return redirect('paciente:mis_citas')
 
             except ValueError:
-                messages.error(request, "Error en los datos seleccionados.")
+                messages.error(request, _("Error en los datos seleccionados."))
 
     # GET: Mostrar TODOS los servicios activos de la clínica
     # Ordenamos primero por el dentista del paciente (para sugerirlos primero) y luego por nombre
-    servicios = Servicio.objects.filter(activo=True).order_by('dentista__id', 'nombre')
+    servicios = Servicio.objects.agendables().order_by('dentista__id', 'nombre')
     
     return render(request, 'paciente/agendar_cita.html', {
+        'paciente': paciente,
         'servicios': servicios,
-        'dentista_cabecera': paciente.dentista
+        'dentista_cabecera': paciente.dentista,
+        'servicio_preseleccionado': request.GET.get('servicio', ''),
     })
 
 
@@ -341,7 +429,7 @@ def mis_pagos(request):
 
     # Evita repetir banners de pago_ok tras cambiar idioma o recargar
     if request.GET.get("pago_ok"):
-        messages.success(request, "Pago registrado correctamente.")
+        messages.success(request, _("Pago registrado correctamente."))
         return redirect("paciente:mis_pagos")
 
     penal_info = calcular_penalizacion_paciente(paciente)
@@ -422,11 +510,11 @@ def iniciar_pago(request, cita_id):
 
     pago = get_object_or_404(Pago, cita__id=cita_id, cita__paciente=paciente)
     if pago.estado == "COMPLETADO":
-        messages.info(request, "Este pago ya está completado.")
+        messages.info(request, _("Este pago ya está completado."))
         return redirect("paciente:mis_pagos")
 
     if request.method != "POST":
-        messages.error(request, "Acción no permitida.")
+        messages.error(request, _("Acción no permitida."))
         return redirect("paciente:mis_pagos")
 
     try:
@@ -437,7 +525,7 @@ def iniciar_pago(request, cita_id):
         return redirect(init_point)
     except Exception as exc:
         print(f"[MP] Error creando preferencia: {exc}")
-        messages.error(request, "No se pudo iniciar el pago en línea. Revisa que tus credenciales de MercadoPago sean válidas y vuelve a intentar.")
+        messages.error(request, _("No se pudo iniciar el pago en línea. Revisa que tus credenciales de MercadoPago sean válidas y vuelve a intentar."))
         return redirect("paciente:mis_pagos")
 
 
@@ -454,12 +542,12 @@ def pago_exitoso(request):
         cita_id = None
 
     if not cita_id:
-        messages.error(request, "No pudimos validar el pago (sin referencia).")
+        messages.error(request, _("No pudimos validar el pago (sin referencia)."))
         return redirect("paciente:mis_pagos")
 
     pago = Pago.objects.filter(cita__id=cita_id, cita__paciente=request.user.paciente_perfil).first()
     if not pago:
-        messages.error(request, "Pago no encontrado para esta cuenta.")
+        messages.error(request, _("Pago no encontrado para esta cuenta."))
         return redirect("paciente:mis_pagos")
 
     previo = pago.estado
@@ -488,13 +576,13 @@ def pago_exitoso(request):
 
 @login_required
 def pago_fallido(request):
-    messages.error(request, "El pago fue cancelado o falló.")
+    messages.error(request, _("El pago fue cancelado o falló."))
     return redirect("paciente:mis_pagos")
 
 
 @login_required
 def pago_pendiente(request):
-    messages.info(request, "Pago en estado pendiente. Verifica más tarde.")
+    messages.info(request, _("Pago en estado pendiente. Verifica más tarde."))
     return redirect("paciente:mis_pagos")
 
 
@@ -629,22 +717,13 @@ def pagar_penalizacion(request):
     )
 
     if info["estado"] in ["sin_penalizacion", "warning"]:
-        messages.info(request, "No tienes penalizaciones por cubrir.")
+        messages.info(request, _("No tienes penalizaciones por cubrir."))
         return redirect("paciente:dashboard")
 
     if request.method == "POST":
-        if penal_pendiente and penal_pendiente.estado != "COMPLETADO":
-            penal_pendiente.estado = "COMPLETADO"
-            penal_pendiente.save(update_fields=["estado"])
-
-        if penal_pendiente:
-            _reactivar_paciente_si_penalizacion(penal_pendiente)
-
-        messages.success(
-            request,
-            "Pago registrado. Si tu cuenta estaba suspendida por penalización, se reactivó automáticamente.",
-        )
-        return redirect("paciente:dashboard")
+        # El pago solo se confirma vía MercadoPago (pago_exitoso / webhook) o por el dentista.
+        messages.info(request, _("Realiza el pago en línea desde la sección Pagos."))
+        return redirect("paciente:mis_pagos")
 
     return render(
         request,
@@ -666,7 +745,7 @@ def cancelar_cita(request, cita_id):
         return redirect('paciente:completar_perfil')
 
     if request.method != "POST":
-        return redirect("paciente:dashboard")
+        return redirect("paciente:mis_citas")
 
     cita = get_object_or_404(Cita, id=cita_id, paciente=paciente)
 
@@ -678,15 +757,15 @@ def cancelar_cita(request, cita_id):
         fecha__month=hoy.month
     ).exclude(id=cita_id).count()
     if canceladas_mes > 0:
-        messages.error(request, "Ya usaste tu cancelación de este mes. Contacta a tu dentista para más cambios.")
-        return redirect("paciente:dashboard")
+        messages.error(request, _("Ya usaste tu cancelación de este mes. Contacta a tu dentista para más cambios."))
+        return _volver(request)
 
     if cita.estado == "CANCELADA":
-        messages.info(request, "La cita ya estaba cancelada.")
-        return redirect("paciente:dashboard")
+        messages.info(request, _("La cita ya estaba cancelada."))
+        return _volver(request)
     if cita.estado == "INASISTENCIA":
-        messages.error(request, "No puedes cancelar una cita ya marcada como inasistencia.")
-        return redirect("paciente:dashboard")
+        messages.error(request, _("No puedes cancelar una cita ya marcada como inasistencia."))
+        return _volver(request)
 
     # Si tiene un pago pendiente, lo eliminamos al cancelar la cita
     try:
@@ -703,8 +782,8 @@ def cancelar_cita(request, cita_id):
     except Exception as e:
         print(f"[WARN] No se pudo crear aviso de cancelación: {e}")
 
-    messages.success(request, "Cita cancelada. Se notificará al dentista.")
-    return redirect("paciente:dashboard")
+    messages.success(request, _("Cita cancelada. Se notificará al dentista."))
+    return _volver(request)
 
 
 @login_required
@@ -716,12 +795,12 @@ def contactar_dentista(request):
     try:
         paciente = request.user.paciente_perfil
     except Exception:
-        return JsonResponse({"status": "error", "msg": "Perfil de paciente no encontrado."}, status=400)
+        return JsonResponse({"status": "error", "msg": _("Perfil de paciente no encontrado.")}, status=400)
 
     destino = "dentista.choyo@gmail.com"
     remitente = getattr(settings, "DEFAULT_FROM_EMAIL", None) or getattr(settings, "EMAIL_HOST_USER", None)
     if not remitente:
-        return JsonResponse({"status": "error", "msg": "Sin remitente configurado."}, status=500)
+        return JsonResponse({"status": "error", "msg": _("Sin remitente configurado.")}, status=500)
 
     asunto = f"Contacto de paciente: {paciente.nombre}"
     mensaje = (
@@ -760,16 +839,16 @@ def feedback_cita(request, cita_id):
         except ValueError:
             puntuacion = 5
 
-        feedback, _ = EncuestaSatisfaccion.objects.update_or_create(
+        feedback, _creado = EncuestaSatisfaccion.objects.update_or_create(
             paciente=paciente,
             dentista=cita.dentista,
             cita=cita,
             defaults={"puntuacion": puntuacion, "comentario": comentario},
         )
 
-        tono = "positivo" if puntuacion >= 4 else "neutral" if puntuacion == 3 else "negativo"
-        resumen = comentario or f"Experiencia {tono}"
-        messages.success(request, f"¡Gracias por tu opinión! Resumen IA: {resumen[:140]}")
+        tono = _("positiva") if puntuacion >= 4 else _("neutral") if puntuacion == 3 else _("negativa")
+        resumen = comentario or _("Experiencia %(tono)s") % {"tono": tono}
+        messages.success(request, _("¡Gracias por tu opinión! Resumen IA: %(resumen)s") % {"resumen": resumen[:140]})
         return redirect("paciente:dashboard")
 
     return render(
@@ -785,16 +864,16 @@ def confirmar_por_email(request, token):
     try:
         cita_id = signer.unsign(token, max_age=60 * 60 * 24 * 7)  # 7 días
     except (BadSignature, SignatureExpired):
-        messages.error(request, "Enlace inválido o expirado.")
+        messages.error(request, _("Enlace inválido o expirado."))
         return redirect("paciente:dashboard")
 
     cita = get_object_or_404(Cita, id=cita_id, paciente=request.user.paciente_perfil)
     if cita.estado != "CONFIRMADA":
         cita.estado = "CONFIRMADA"
         cita.save(update_fields=["estado"])
-        messages.success(request, "Asistencia confirmada. ¡Te esperamos!")
+        messages.success(request, _("Asistencia confirmada. ¡Te esperamos!"))
     else:
-        messages.info(request, "La cita ya estaba confirmada.")
+        messages.info(request, _("La cita ya estaba confirmada."))
     return redirect("paciente:dashboard")
 
 
@@ -918,7 +997,7 @@ def reprogramar_cita(request, cita_id):
 
     cita = get_object_or_404(Cita, id=cita_id, paciente=paciente)
     if request.method != "POST":
-        return redirect("paciente:dashboard")
+        return redirect("paciente:mis_citas")
 
     hoy = timezone.localdate()
     reprogramadas_mes = Cita.objects.filter(
@@ -928,46 +1007,46 @@ def reprogramar_cita(request, cita_id):
         fecha__month=hoy.month
     ).exclude(id=cita_id).count()
     if reprogramadas_mes > 0:
-        messages.error(request, "Ya usaste tu reprogramación de este mes. Comunícate con tu dentista para más cambios.")
-        return redirect("paciente:dashboard")
+        messages.error(request, _("Ya usaste tu reprogramación de este mes. Comunícate con tu dentista para más cambios."))
+        return _volver(request)
 
     # Regla: solo una reprogramación por cita
     if getattr(cita, "veces_reprogramada", 0) >= 1:
-        messages.error(request, "Ya reprogramaste esta cita. Comunícate con tu dentista para más cambios.")
-        return redirect("paciente:dashboard")
+        messages.error(request, _("Ya reprogramaste esta cita. Comunícate con tu dentista para más cambios."))
+        return _volver(request)
 
     fecha_str = request.POST.get("fecha")
     hora_str = request.POST.get("hora")
     if not fecha_str or not hora_str:
-        messages.error(request, "Fecha u hora inválidas.")
-        return redirect("paciente:dashboard")
+        messages.error(request, _("Fecha u hora inválidas."))
+        return _volver(request)
 
     try:
         fecha_obj = datetime.strptime(fecha_str, "%Y-%m-%d").date()
         hora_inicio = datetime.strptime(hora_str, "%H:%M").time()
     except ValueError:
-        messages.error(request, "Formato de fecha u hora inválido.")
-        return redirect("paciente:dashboard")
+        messages.error(request, _("Formato de fecha u hora inválido."))
+        return _volver(request)
 
     hoy = timezone.localdate()
     limite = hoy + timedelta(days=60)
     if fecha_obj < hoy:
-        messages.error(request, "No puedes reprogramar a una fecha pasada.")
-        return redirect("paciente:dashboard")
+        messages.error(request, _("No puedes reprogramar a una fecha pasada."))
+        return _volver(request)
     if fecha_obj > limite:
-        messages.error(request, "Solo puedes reprogramar hasta 60 días a partir de hoy.")
-        return redirect("paciente:dashboard")
+        messages.error(request, _("Solo puedes reprogramar hasta 60 días a partir de hoy."))
+        return _volver(request)
     if fecha_obj.weekday() == 6:
-        messages.error(request, "No se atiende los domingos. Elige otro día.")
-        return redirect("paciente:dashboard")
+        messages.error(request, _("No se atiende los domingos. Elige otro día."))
+        return _volver(request)
 
     inicio_dt = datetime.combine(fecha_obj, hora_inicio)
     fin_dt = inicio_dt + timedelta(minutes=cita.servicio.duracion_estimada or 30)
 
     now_local = timezone.localtime()
     if fecha_obj == now_local.date() and hora_inicio <= now_local.time():
-        messages.error(request, "No puedes reprogramar a una hora que ya pasó.")
-        return redirect("paciente:dashboard")
+        messages.error(request, _("No puedes reprogramar a una hora que ya pasó."))
+        return _volver(request)
 
     # Validar disponibilidad (permitimos el mismo slot original para evitar bloquear reprogramar sin cambios)
     slots_libres = set(
@@ -983,8 +1062,8 @@ def reprogramar_cita(request, cita_id):
     if slot_key not in slots_libres and not (
         cita.fecha == fecha_obj and slot_key == slot_actual
     ):
-        messages.error(request, "Ese horario ya no está disponible. Elige otro.")
-        return redirect("paciente:dashboard")
+        messages.error(request, _("Ese horario ya no está disponible. Elige otro."))
+        return _volver(request)
 
     cita.fecha = fecha_obj
     cita.hora_inicio = hora_inicio
@@ -1011,8 +1090,8 @@ def reprogramar_cita(request, cita_id):
     except Exception as e:
         print(f"[WARN] No se pudo enviar correo de reprogramación: {e}")
 
-    messages.success(request, "Cita reprogramada correctamente.")
-    return redirect("paciente:dashboard")
+    messages.success(request, _("Cita reprogramada correctamente."))
+    return _volver(request)
 
 
 # ========================================================
@@ -1022,31 +1101,31 @@ def api_slots(request):
     fecha_str = request.GET.get("fecha")
     servicio_id = request.GET.get("servicio_id")
     if not fecha_str or not servicio_id:
-        return JsonResponse({"slots": [], "msg": "Faltan parámetros"}, status=400)
+        return JsonResponse({"slots": [], "msg": _("Faltan parámetros")}, status=400)
 
     try:
-        servicio = Servicio.objects.get(id=servicio_id)
+        servicio = Servicio.objects.agendables().get(id=servicio_id)
     except Servicio.DoesNotExist:
-        return JsonResponse({"slots": [], "msg": "Servicio no encontrado"}, status=404)
+        return JsonResponse({"slots": [], "msg": _("Servicio no encontrado")}, status=404)
 
     try:
         fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
     except ValueError:
-        return JsonResponse({"slots": [], "msg": "Fecha inválida"}, status=400)
+        return JsonResponse({"slots": [], "msg": _("Fecha inválida")}, status=400)
 
     hoy = timezone.localdate()
     limite = hoy + timedelta(days=60)
     if fecha < hoy:
-        return JsonResponse({"slots": [], "msg": "No se permiten fechas pasadas"}, status=400)
+        return JsonResponse({"slots": [], "msg": _("No se permiten fechas pasadas")}, status=400)
     if fecha > limite:
-        return JsonResponse({"slots": [], "msg": "Fuera de rango (60 días)"}, status=400)
+        return JsonResponse({"slots": [], "msg": _("Fuera de rango (60 días)")}, status=400)
     if fecha.weekday() == 6:
-        return JsonResponse({"slots": [], "msg": "No se atiende domingos"}, status=400)
+        return JsonResponse({"slots": [], "msg": _("No se atiende domingos")}, status=400)
 
     dentista = servicio.dentista
     horarios = Horario.objects.filter(dentista=dentista, dia_semana=fecha.isoweekday())
     if not horarios:
-        return JsonResponse({"slots": [], "msg": "Día no laboral"})
+        return JsonResponse({"slots": [], "msg": _("Día no laboral")})
 
     # Usamos la misma lógica centralizada de domain.ai_services para calcular libres
     libres = set(obtener_slots_disponibles(dentista, fecha, servicio, minutos_bloque=15))

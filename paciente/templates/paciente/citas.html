@@ -1,183 +1,111 @@
 {% extends "paciente/base.html" %}
-{% load static %}
+{% load i18n %}
 
-{% block ptitle %}Mis Citas | Paciente{% endblock %}
-
-{% block header_title %}
-    Mis Citas
-{% endblock %}
+{% block ptitle %}{% trans "Mis citas" %}{% endblock %}
+{% block header_title %}{% trans "Mis citas" %}{% endblock %}
+{% block header_sub %}{% trans "Consulta, reprograma o cancela tus citas" %}{% endblock %}
 
 {% block pcontent %}
+{% with tab_hist=request.GET.tab %}
+<div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:space-between;">
+  <div class="tabs" data-tabs role="tablist">
+    <button type="button" class="tab {% if tab_hist != 'historial' %}active{% endif %}" data-tab="tab-proximas" role="tab">
+      <i class="ph-bold ph-calendar-check"></i> {% trans "Próximas" %} <span class="count">{{ proximas|length }}</span>
+    </button>
+    <button type="button" class="tab {% if tab_hist == 'historial' %}active{% endif %}" data-tab="tab-historial" role="tab">
+      <i class="ph-bold ph-clock-counter-clockwise"></i> {% trans "Historial" %} <span class="count">{{ pasadas|length }}</span>
+    </button>
+  </div>
+  <a href="{% url 'paciente:agendar_cita' %}" class="btn btn-primary" style="margin-bottom:18px;">
+    <i class="ph-bold ph-plus"></i> {% trans "Nueva cita" %}
+  </a>
+</div>
 
-<section class="section-wrapper">
-    <div class="section-title">
-        <i class="ph-duotone ph-calendar"></i>
-        Resumen de citas
+<!-- Próximas -->
+<section id="tab-proximas" class="tab-panel" {% if tab_hist == 'historial' %}hidden{% endif %}>
+  {% if proximas %}
+    <div class="stack">
+      {% for cita in proximas %}
+        <article class="card card-pad">
+          <div class="appt">
+            <div class="appt-date">
+              <div class="m">{{ cita.fecha|date:"M" }}</div>
+              <div class="d">{{ cita.fecha|date:"j" }}</div>
+              <div class="w">{{ cita.fecha|date:"l" }}</div>
+            </div>
+            <div class="appt-info">
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <h3>{{ cita.servicio.nombre }}</h3>
+                <span class="badge badge-{{ cita.estado|lower }}">{{ cita.get_estado_display }}</span>
+                {% if cita.veces_reprogramada %}<span class="badge">{% trans "Reprogramada" %}</span>{% endif %}
+              </div>
+              <div class="meta-row">
+                <span><i class="ph-duotone ph-clock"></i> {{ cita.hora_inicio|time:"H:i" }} – {{ cita.hora_fin|time:"H:i" }}</span>
+                <span><i class="ph-duotone ph-stethoscope"></i> Dr. {{ cita.dentista.nombre }}</span>
+                <span><i class="ph-duotone ph-currency-circle-dollar"></i> ${{ cita.servicio.precio|floatformat:2 }} MXN</span>
+                <span><i class="ph-duotone ph-hash"></i> {% trans "Cita" %} {{ cita.id }}</span>
+              </div>
+              {% if cita.dentista.direccion %}
+                <div class="meta-row">
+                  <span><i class="ph-duotone ph-map-pin"></i> {{ cita.dentista.direccion }}</span>
+                  <a class="link" style="color:var(--brand); font-weight:600;" href="https://www.google.com/maps/search/?api=1&query={{ cita.dentista.direccion|urlencode }}" target="_blank" rel="noopener">{% trans "Ver mapa" %}</a>
+                </div>
+              {% endif %}
+              <div class="appt-actions">
+                {% include "paciente/_partials/cita_botones.html" %}
+              </div>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+      <p class="hint"><i class="ph-fill ph-info"></i> {% trans "Puedes cancelar o reprogramar una vez al mes. Para más cambios contacta al consultorio." %}</p>
     </div>
-
-    <div class="card-modern">
-        <p class="text-muted">
-            Aquí puedes ver todas tus citas, pagar, cancelar las próximas
-            y consultar el historial de las que ya han sido atendidas.
-        </p>
-        <div style="margin-top:1rem;">
-            <a href="{% url 'paciente:dashboard' %}" class="cyber-btn">
-                ⬅ Volver al panel
-            </a>
-        </div>
+  {% else %}
+    <div class="card">
+      <div class="empty">
+        <i class="ph-duotone ph-calendar-blank"></i>
+        <p>{% trans "No tienes citas próximas." %}</p>
+        <a href="{% url 'paciente:agendar_cita' %}" class="btn btn-primary"><i class="ph-bold ph-calendar-plus"></i> {% trans "Agendar una cita" %}</a>
+      </div>
     </div>
+  {% endif %}
 </section>
 
-<!-- ============================================================
-     Citas Próximas
-=============================================================== -->
-<section class="section-wrapper">
-    <div class="section-title">
-        <i class="ph-duotone ph-calendar-check"></i>
-        Citas próximas
-    </div>
-
-    <div class="card-modern table-card">
-        <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Servicio</th>
-                        <th>Doctor</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for cita in citas_proximas %}
-                        <tr>
-                            <td>{{ cita.fecha_hora_inicio|date:"d/m/Y" }}</td>
-                            <td>{{ cita.fecha_hora_inicio|time:"H:i" }}</td>
-                            <td>
-                                {% if cita.servicio %}
-                                    {{ cita.servicio.nombre }}
-                                {% else %}
-                                    (Sin servicio)
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if cita.dentista %}
-                                    {{ cita.dentista.nombre }}
-                                {% else %}
-                                    (Sin asignar)
-                                {% endif %}
-                            </td>
-                            <td>
-                                <span class="chip status-{{ cita.estado|lower }}">
-                                    {{ cita.get_estado_display }}
-                                </span>
-                            </td>
-                            <td>
-                                <td>
-                                    <td>
-                                        <div class="action-buttons" style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-                                          {% if not cita.pago_relacionado or cita.pago_relacionado.estado != "COMPLETADO" %}
-                                            {# AHORA: checkout interno de tarjeta #}
-                                            <a href="{% url 'paciente:pago_tarjeta' cita.id %}"
-                                               class="cyber-btn cyber-btn-sm">
-                                              💳 Pagar cita
-                                            </a>
-                                          {% else %}
-                                            <span class="chip" style="background:#064e3b; color:#bbf7d0;">
-                                              Pagado
-                                            </span>
-                                          {% endif %}
-                                      
-                                          <form method="post"
-                                                action="{% url 'paciente:cancelar_cita' cita.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit"
-                                                    class="cyber-btn cyber-btn-sm cyber-btn-danger">
-                                              ✖ Cancelar
-                                            </button>
-                                          </form>
-                                        </div>
-                                      </td>
-                                      
-                                </td>
-                                
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center empty-state">
-                                No tienes citas próximas.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+<!-- Historial -->
+<section id="tab-historial" class="tab-panel" {% if tab_hist != 'historial' %}hidden{% endif %}>
+  <div class="card">
+    {% if pasadas %}
+      <div class="list">
+        {% for c in pasadas %}
+          <div class="list-item">
+            <div class="list-icon{% if c.estado == 'COMPLETADA' %} green{% elif c.estado == 'INASISTENCIA' %} red{% elif c.estado == 'CANCELADA' %} amber{% endif %}">
+              <i class="ph-duotone {% if c.estado == 'COMPLETADA' %}ph-check-circle{% elif c.estado == 'CANCELADA' %}ph-prohibit{% elif c.estado == 'INASISTENCIA' %}ph-user-minus{% else %}ph-tooth{% endif %}"></i>
+            </div>
+            <div class="list-main">
+              <div class="list-title">{{ c.servicio.nombre }}</div>
+              <div class="list-sub">{{ c.fecha|date:"l d M Y" }} · {{ c.hora_inicio|time:"H:i" }} · Dr. {{ c.dentista.nombre }}</div>
+            </div>
+            <div class="list-end">
+              <span class="amount">${{ c.servicio.precio|floatformat:2 }}</span>
+              <span class="badge badge-{{ c.estado|lower }}">{{ c.get_estado_display }}</span>
+              {% if c.estado == "COMPLETADA" %}
+                {% with op=c.encuestasatisfaccion_set.all|first %}
+                  <a href="{% url 'paciente:feedback_cita' c.id %}" class="btn btn-ghost btn-sm">
+                    <i class="ph-{% if op %}fill{% else %}bold{% endif %} ph-star" {% if op %}style="color:#f59e0b"{% endif %}></i>
+                    {% if op %}{{ op.puntuacion }}/5{% else %}{% trans "Opinar" %}{% endif %}
+                  </a>
+                {% endwith %}
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty"><i class="ph-duotone ph-folder-open"></i><p>{% trans "Aún no tienes historial de citas." %}</p></div>
+    {% endif %}
+  </div>
 </section>
 
-<!-- ============================================================
-     Historial de Citas
-=============================================================== -->
-<section class="section-wrapper">
-    <div class="section-title">
-        <i class="ph-duotone ph-clock-counter-clockwise"></i>
-        Historial de citas
-    </div>
-
-    <div class="card-modern table-card">
-        <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Servicio</th>
-                        <th>Doctor</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for cita in citas_pasadas %}
-                        <tr>
-                            <td>{{ cita.fecha_hora_inicio|date:"d/m/Y H:i" }}</td>
-                            <td>
-                                {% if cita.servicio %}
-                                    {{ cita.servicio.nombre }}
-                                {% else %}
-                                    (Sin servicio)
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if cita.dentista %}
-                                    {{ cita.dentista.nombre }}
-                                {% else %}
-                                    (Sin asignar)
-                                {% endif %}
-                            </td>
-                            <td>
-                                <span class="chip status-{{ cita.estado|lower }}">
-                                    {{ cita.get_estado_display }}
-                                </span>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center empty-state">
-                                Aún no tienes historial de citas.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</section>
-
-{% endblock %}
-
-{% block extra_js %}
-{# Si después quieres reactivar SweetAlert o lógica de reprogramar,
-   aquí podemos meter el JS, pero por ahora lo dejamos limpio para evitar errores. #}
+{% include "paciente/_partials/cita_modales.html" %}
+{% endwith %}
 {% endblock %}

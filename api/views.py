@@ -78,7 +78,7 @@ class ServicioListAPIView(generics.ListAPIView):
     API para listar los servicios activos del consultorio.
     El frontend puede consumirla para llenar selects, etc.
     """
-    queryset = Servicio.objects.filter(activo=True).order_by("nombre")
+    queryset = Servicio.objects.agendables().order_by("nombre")
     serializer_class = ServicioSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -245,7 +245,7 @@ def api_slots_disponibles(request):
             )
 
     # ---------------- Obtener servicio ----------------
-    servicio = Servicio.objects.filter(id=servicio_id, activo=True).first()
+    servicio = Servicio.objects.agendables().filter(id=servicio_id).first()
     if not servicio:
         return JsonResponse(
             {"detail": "Servicio no encontrado o inactivo."},
@@ -301,7 +301,7 @@ def api_crear_cita(request):
             status=status.HTTP_403_FORBIDDEN,
         )
 
-    servicio = Servicio.objects.filter(id=servicio_id, activo=True).first()
+    servicio = Servicio.objects.agendables().filter(id=servicio_id).first()
     if not servicio:
         return Response({"detail": "Servicio no encontrado o inactivo."}, status=status.HTTP_404_NOT_FOUND)
 
